@@ -1,0 +1,313 @@
+\documentclass[12pt]{article}
+%\usepackage[frenchb]{babel}
+\usepackage[T1]{fontenc}                % Accents codés dans la fonte.
+\usepackage[utf8x]{inputenc}           % Accents 8 bits dans le fichier.
+\usepackage{ifthen}                     % Faire des tests if/then/else.
+\usepackage{amsmath}    % Les symboles les plus fréquents.
+\usepackage{amsfonts}   % Des fontes, eg pour \mathbb.
+\usepackage{vmargin}                    % Régler la taille de la feuille.
+\usepackage{amssymb}
+\usepackage{lastpage}
+\usepackage{accents}
+\usepackage{enumitem}
+
+% La taille de la page
+\setpapersize{A4}
+\setmarginsrb{20mm}{10mm}{14mm}{15mm}{10mm}{6mm}{0mm}{10mm}
+
+% La mise en page
+\newcounter{vcenterstest}
+\newlength{\leftlength}
+\newlength{\rightlength}
+\newlength{\vcentersskip}
+\newcommand{\leftcentersright}[4][2]{%
+        \settowidth{\leftlength}{#2}%
+        \settowidth{\rightlength}{#4}%
+        \setcounter{vcenterstest}{#1}%
+        \ifthenelse{\value{vcenterstest} = 0}
+                {\setlength{\vcentersskip}{0pt}}{}%
+        \ifthenelse{\value{vcenterstest} = 1}
+                {\setlength{\vcentersskip}{\smallskipamount}}{}%
+        \ifthenelse{\value{vcenterstest} = 2}
+                {\setlength{\vcentersskip}{\medskipamount}}{}%
+        \ifthenelse{\value{vcenterstest} = 3}
+                {\setlength{\vcentersskip}{\bigskipamount}}{}%
+        \ifthenelse{\value{vcenterstest} = 4}
+                {\setlength{\vcentersskip}{1cm}}{}%
+                % On laisse un espace vertical défini par l'argument
+                % optionnel #1
+        \vskip\vcentersskip
+                % On place #2 et on recule de sa longueur
+        \noindent#2\hskip-\leftlength%
+                % On centre #3
+        \hfill#3\hfill%
+                % On va au bout de la ligne, on recule de la longueur de #4 et
+                % on place #4
+        \mbox{}\hskip-\rightlength#4%
+                % On laisse un espace vertical défini par l'argument
+                % optionnel #1
+        \vskip\vcentersskip%
+    }
+\newcommand{\centers}[2][2]{\leftcentersright[#1]{}{#2}{}}
+\newcommand{\leftcenters}[3][2]{\leftcentersright[#1]{#2}{#3}{}}
+\newcommand{\centersright}[3][2]{\leftcentersright[#1]{}{#2}{#3}}
+\newcommand{\leftencadreright}[4][2]{\leftcentersright[#1]{#2}{\fbox{#3}}{#4}}
+
+\newcommand{\numtoi}[1]{
+  \ifthenelse{ \equal{#1}{1} }{i}{
+  \ifthenelse{ \equal{#1}{2} }{ii}{
+  \ifthenelse{ \equal{#1}{3} }{iii}{
+  \ifthenelse{ \equal{#1}{4} }{iv}{
+  \ifthenelse{ \equal{#1}{5} }{v}{
+  \ifthenelse{ \equal{#1}{6} }{vi}{
+  \ifthenelse{ \equal{#1}{7} }{vii}{
+  \ifthenelse{ \equal{#1}{8} }{viii}{
+  \ifthenelse{ \equal{#1}{9} }{ix}{
+  \ifthenelse{ \equal{#1}{10} }{x}{
+  \ifthenelse{ \equal{#1}{11} }{xi}{
+  \ifthenelse{ \equal{#1}{12} }{xii}{
+  \ifthenelse{ \equal{#1}{13} }{xiii}{
+  \ifthenelse{ \equal{#1}{14} }{xiv}{
+  \ifthenelse{ \equal{#1}{15} }{xv}{
+  \ifthenelse{ \equal{#1}{16} }{xvi}{
+  \ifthenelse{ \equal{#1}{17} }{xvii}{
+  \ifthenelse{ \equal{#1}{18} }{xviii}{
+    ERREUR,~MODIFIER~LA~MACRO~numtoi
+  } } } } } } } } } } } } } } } } } }
+}
+
+\newcounter{cretraiti}
+\newenvironment{ri}[1]{
+
+\begin{list}{($\numtoi{\thecretraiti}$)}{
+  \usecounter{cretraiti}
+  \topsep=0.5ex
+  \itemsep=0.3ex
+  \labelsep=0.3em
+  \parsep=0ex
+  \listparindent=1em
+  \settowidth{\labelwidth}{(#1)}
+  \leftmargin=\labelwidth
+  %\addtolength{\leftmargin}{\labelsep}
+}}{\end{list}
+}
+
+
+% Quelques raccourcis pour taper des maths
+\newcommand{\Sfr}{\mathfrak{S}}
+\newcommand{\Afr}{\mathfrak{A}}
+\newcommand{\QQ}{\mathbb{Q}}
+\newcommand{\ZZ}{\mathbb{Z}}
+\newcommand{\si}{\sigma}
+\newcommand{\ins}[1]{{\ensuremath{\textrm{#1}}}}
+\newcommand{\tiret}{\rule[0.6ex]{1.3ex}{0.26ex}}
+\newcommand{\accolades}[1]{\ensuremath{\left\{#1\right\}}}
+\newcommand{\paa}[1]{\ensuremath{\accolades{#1}}}       % Synonyme
+\newcommand{\ds}{\displaystyle}
+   \newcommand{\der}{
+      \mathop{}\mathopen{}\mathrm{d}
+   }
+
+% Numerotation des pages / la derniere
+\makeatletter
+\renewcommand{\@evenfoot}%
+        {\thepage \slash \pageref{LastPage}}
+\renewcommand{\@oddfoot}{\@evenfoot}
+\makeatother
+
+
+%%%%% Pour faire les exos
+\newcommand{\envfont}{\sf\bfseries}
+\newcounter{cexo}
+\renewcommand{\thecexo}{\arabic{cexo}}
+
+\newenvironment{exo}[1][toto]
+{
+  \refstepcounter{cexo}
+  \ifthenelse{ \equal{#1}{toto} }{
+   \noindent {\envfont Exercice \thecexo}
+  }{
+   \noindent {\envfont Exercice \thecexo{} \tiret\, #1.}
+  }
+%\newline
+%\indent
+}
+{}
+
+\newcounter{cquestions}
+\newenvironment{questions}{
+\begin{list}{{\envfont\alph{cquestions})}}{
+  \usecounter{cquestions}
+  \topsep=0.5ex
+  \partopsep=1em
+  \labelsep=0.3em
+  \itemsep=0.3ex
+  \settowidth{\labelwidth}{{\envfont b)}}\listparindent=1em
+  \leftmargin=\labelwidth \addtolength{\leftmargin}{\labelsep}
+}}{\end{list} }
+
+\newcommand{\poubelle}[1]{}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newcommand{\spacebeforeenv}{\vspace{1ex}}
+\newcommand{\spaceafterenv}{\vspace{1ex}}
+\newcommand{\myqedenv}{}
+
+
+\newcommand{\metaenvironnement}[2]  % 1er argument : nom de l'env, 2e argument : titre
+{
+  \ifthenelse{ \equal{#2}{toto} }{
+    \spacebeforeenv \noindent {\envfont #1 }
+  }{
+    \spacebeforeenv \noindent {\envfont #1  \tiret\, #2.}
+  }
+}
+
+%----------------------------------
+% Rappel
+%----------------------------------
+\newenvironment{rappel}[1][toto]
+{ \metaenvironnement{Rappel}{#1} }
+{\myqedenv\spaceafterenv}
+
+
+\newcommand{\fonction}[5]{%
+        \ensuremath{#1\colon
+        \left\{\hskip -1.5 mm
+        \begin{array}{c@{\ }c@{\ }l}
+        \medskip #2 & \longrightarrow & #3 \\
+        #4 & \longmapsto & #5 \\
+        \end{array}
+        \right .
+        }}
+\newcommand{\ph}{\varphi}
+\newcommand{\funu}[1]{\mathcal{C}^{#1}}
+\newcommand{\RR}{\mathbb{R}}
+\newcommand{\NN}{\mathbb{N}}
+\newcommand{\CC}{\mathbb{C}}
+
+\newenvironment{syst}[1][c]%
+    {\ensuremath{\left \{ \hskip -1.5 mm \begin{array}{#1@{\ =\ }l}}}%
+    {\end{array}\right.}
+
+\newcommand{\f}[2]{{\ensuremath{\mathchoice%
+    {\dfrac{#1}{#2}}
+        {\dfrac{#1}{#2}}
+    {\frac{#1}{#2}}
+    {\frac{#1}{#2}}
+    }}}
+\renewcommand{\ni}{\noindent}
+\newcommand{\ra}{\rightarrow}
+\newcommand{\question}[1]{{\sf\bfseries #1}}
+\newcommand{\norm}[1]{\ensuremath{\Arrowvert #1 \Arrowvert}}
+\newcommand{\Ende}[3]{\ensuremath{\mathrm{End}_{#1}^{#2}(#3)}}
+\newcommand{\End}[2]{\Ende{#1}{}{#2}}
+\newcommand{\id}{\ensuremath{\mathrm{id}}}
+\renewcommand{\d}{\ensuremath{\mathrm{d}}}
+\renewcommand{\leq}{\leqslant}
+\renewcommand{\geq}{\geqslant}
+
+
+\usepackage{datetime}
+\newdateformat{annscol}{\ifthenelse{\THEMONTH > 7}{\THEYEAR--\refstepcounter{YEAR}\THEYEAR}{\addtocounter{YEAR}{-1}\THEYEAR--\refstepcounter{YEAR}\THEYEAR}}
+
+\begin{document}
+ 
+
+%------------------------------------------------------------------------------------
+\leftcentersright[0]{{\bf\sf\large Formation en Mathématiques Commune Cachan/P7}}{}
+    {{\bf\sf\large Année~\annscol\today}}
+\leftcentersright[0]{{\bf\sf\large Calcul différentiel}}{}{{\bf\sf Valentin De Bortoli, Frédéric Pascal}}
+\vskip3ex\centers{{\bf\sf \Large Feuille 3.1 - Théorèmes d'inversion locale et des fonctions implicites}}
+
+%------------------------------------------------------------------------------------------
+
+
+
+
+%------------------------------------------------------------------------------------------
+%------------------------------------------------------------------------------------------
+
+\vskip2ex
+\begin{exo}[Exemples et contre-exemples]
+\begin{questions}
+\item Soit $U$ un ouvert de $\RR ^n$, $f : U \ra \RR ^n$ de classe $C^1$ injective sur $U$ telle que $\der f_x$ soit inversible pour tout $x \in U$. Montrer que $f(U)$ est ouvert et que $f$ est un $C^1$ difféomorphisme de $U$ sur $f(U)$.
+
+\item Soit $U = \{ (r, \theta) \in \RR ^2 , r>0 \}$ et soit $V = \RR ^2 - \{(0,0)\}$, montrer que $f : U \ra V$ définie par $f(r, \theta) = (r \cos \theta , r \sin \theta)$ n'est pas un changement global de coordonnées.
+
+
+\item Soit $\Phi : \RR \times ]0 , + \infty [ \ra \Omega \subset \RR ^2 $ telle que $\Phi (x,y) = (e^x + \log y , e^x + 2 \log y)$. Déterminer $\Omega$ pour que $\Phi$ définisse un $C^1$ difféomorphisme de $\RR \times ]0 , + \infty [$ sur $\Omega$
+
+\item Soit \begin{equation*}  
+f : x \ra  \left\lbrace
+\begin{array}{cc}
+x + x^2 \sin \frac{\pi}{x} & \text{ si } x \neq 0   \\
+0  & \text{ sinon }
+
+\end{array}\right.
+\end{equation*}
+
+Montrer que $f$ est dérivable sur $\RR$, de dérivée non nulle en $0$ mais que $f$ n'est inversible sur aucun voisinage de $0$.
+
+\item Montrer qu'il existe une fonction différentiable $G$ définie sur un voisinage $V$ de $I_n$ dans $M_n (\RR)$ telle que pour tout $A \in V$,  on a $G(A)^2 = A$.
+
+\end{questions}
+\end{exo}
+\vskip2ex
+\begin{exo}[Fonctions matricielles]
+Soit $n \in \NN ^{\star}$. On note $S_n (\RR)$ l'ensemble des matrices symétriques de $M_n (\RR)$ et $S_n ^{++}$ celui des matrices symétriques définies positives.
+\begin{questions}
+\item Soit $k \in \NN ^{\star}$. Montrer qu'il existe un voisinage $V$ de $I_n$ tel que pour tout $B \in V$ il existe une matrice $A \in M_n (\RR)$ telle que $A^k =B$.
+\item Montrer qu'il existe un voisinage $V$ de $I_n $ tel que pour tout $B \in V$ il existe une matrice $A \in M_n (\RR)$ telle que $\exp A = B$.
+\item Montrer $S_n ^{++} (\RR)$ est un ouvert de $S_n (\RR)$. Montrer que pour tout $A \in S_n ^{++} (\RR)$ il existe une unique matrice symétrique positive $B$ telle que $A = B^2$. Montrer que $B$ est définie positive. On note $B = \sqrt{ A}$.
+\item Montrer que l'application 
+\begin{equation*}  
+\left\lbrace
+\begin{array}{c}
+S_n ^{++} (\RR) \ra S_n ^{++} (\RR)\\
+A \ra \sqrt{A}
+\end{array}\right.
+\end{equation*}
+
+est de classe $C^{\infty}$.
+\end{questions}
+\end{exo}
+
+
+\vskip2ex
+\begin{exo}[Fonction racine]
+Soient $P_0 \in \RR_n [X]$ et $x_0 \in \RR$ une racine simple de $P_0$. Montrer qu'il existe une fonction "racine" de classe $C^{\infty}$ dans un voisinage de $P_0$. De façon précise montrer qu'il existe un voisinage $V$ de $P_0$ dans $\RR _n  [X]$ un voisinage $W$ de $x_0$ et une fonction $rac : V \ra W$ telle que $rac(P)$ soit une racine de $P$ pour tout $P \in V$.
+\end{exo}
+
+\vskip2ex
+\begin{exo}[Perturbation cubique]
+  Soit $P$ une fonction polynomiale de degré deux scindé sur $\mathbb{R}$, $\forall x\in \mathbb{R}, \ P(x) = (x-x_1)(x-x_2)$ avec $x_1 \neq x_2$. On considère $P_{\epsilon}(x) = P(x) + \epsilon x^3$.
+  \begin{questions}
+    \item    Montrer que $x_1(\cdot)$ définie par $x_1(\epsilon)$ est égal à la racine de $P_{\epsilon}$ la plus proche de $x_1$ est bien définie pour $\epsilon$ assez petit et constitue un $\mathcal{C}^1$ difféomorphisme entre deux ouverts à préciser. Même raisonnement pour $x_2(\cdot)$.
+    \item Lorsque $x_1(\cdot)$ et $x_2(\cdot)$ sont bien définies on note $x_3(\cdot)$ la troisième racine de $P_{\epsilon}$. Montrer que $x_3(\cdot)$ est réelle pour $\epsilon$ assez petit.
+      \item Donner un développement limité/asymptotique à l'ordre un de chacune de ces fonctions.
+    \end{questions}
+\end{exo}
+\vskip2ex
+\begin{exo}[Système non linéaire]
+On considère le système d'équations suivant sur $\mathbb{R^3}$
+\[
+(S)\left\lbrace
+\begin{aligned}
+& x^3 + y^3 + z^3 + t^2 = 0 \\
+& x^2 + y^2 + z^2 + t = 2 \\
+& x + y + z + t = 0 \\
+\end{aligned}
+\right.
+\]
+\begin{questions}
+\item Montrer que le système admet une unique solution $(x,y,z,t)$ pour $t$ assez petit et $(x,y,z)$ proche de $(0,-1,1)$ on note alors $f(t) = (x,y,z)$.
+\item Calculer la dérivée de $f$ en $0$.
+\end{questions}
+\end{exo}
+
+\end{document}
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

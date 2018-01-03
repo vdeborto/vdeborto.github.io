@@ -1,0 +1,147 @@
+\documentclass[11pt, a4paper]{article}
+\usepackage{amssymb, amsmath, bm, mathrsfs, amsthm}
+\usepackage[french]{babel}
+\usepackage[T1]{fontenc}
+\usepackage[utf8x]{inputenc}
+\usepackage{graphicx}
+%
+\title{ENS Cachan, DPT Maths \\ [1cm]
+Optimisation numérique M1 \\ TD2 -- Convexité, méthode de gradient} 
+
+%
+\author{Florian De Vuyst, Adrien Le Co\"ent, Lara Raad \\ CMLA UMR 8536, ENS Cachan}
+\date{22 septembre 2016}
+
+%
+\newcommand{\mq}{montrer que }
+\newcommand{\Mq}{Montrer que }
+\newcommand{\bu}{\bm{u}}
+\newcommand{\ba}{\bm{a}}
+\newcommand{\bn}{\bm{n}}
+\newcommand{\bA}{\bm{A}}
+\newcommand{\be}{\begin{equation}}
+\newcommand{\ee}{\end{equation}}
+\newcommand{\bg}{\bm{g}}
+\newcommand{\supp}[1]{\mathop{supp}(#1)}
+\newtheorem{remark}{Remark}
+%
+\begin{document}
+%
+\maketitle
+%
+\section{Condition nécessaire de minimum relatif sur un ensemble convexe}
+%
+Soit $J:\Omega \subset V \rightarrow \mathbb{R}$ une fonction définie sur un ouvert $\Omega$ d'un e.v.n. V et U une partie convexe de $\Omega$. Si la fonction J est dérivable en un point u $\in U$ et si elle admet en u un minimum relatif par rapport à U, \mq $$ J'(u)(v-u)\geq 0 \hspace{5mm} \forall \hspace{2mm} v\in U.$$ 
+
+\medskip
+\section{Fonctions convexes}
+\subsection{Derivabilité première}
+
+Soit $J:\Omega \subset V \rightarrow \mathbb{R}$ une fonction dérivable dans un ouvert $\Omega$ d'un e.v.n. V, et U une partie convexe de $\Omega$, \mq
+
+\textbf{(1)} La fonction J est convexe sur U sii $$ J(v) \geq J(u) + J'(u)(v-u) \hspace{5mm} \forall \hspace{2mm} u,v \in U.$$
+
+\textbf{(2)} La fonction J est strictement convexe sur U sii $$ J(v) >  J(u) + J'(u)(v-u) \hspace{5mm} \forall \hspace{2mm} u,v \in U, \hspace{2mm} u\neq v.$$
+
+\subsection{Derivabilité seconde}
+
+Soit $J:\Omega \subset V \rightarrow \mathbb{R}$ une fonction deux fois dérivable dans un ouvert $\Omega$ d'un e.v.n. V, et U une partie convexe de $\Omega$, \mq
+
+\textbf{(3)} La fonction J est convexe sur U sii $$ J''(u)(v-u,v-u) \geq 0 \hspace{5mm} \forall \hspace{2mm} u,v \in U.$$
+
+\textbf{(4)} Si $$ J''(u)(v-u,v-u) > 0 \hspace{5mm} \forall \hspace{2mm} u,v \in U, \hspace{2mm} u\neq v,$$ la fonction J est strictement convexe.
+%sssssssssssssssss
+
+
+\section{Méthode de gradient à pas variable}
+\subsection{Convergence}
+%
+Dans cette partie, on va analyser la convergence des méthodes de gradient à pas
+variable
+\[
+u_{k+1} = u_k - \rho_k \, \nabla J(u_k)
+\]
+avec $\rho_k>0\ \forall k\in\mathbb{N}$.
+
+Soit $V=\mathbb{R}^n$ et $J:V\rightarrow \mathbb{R}$ dérivable dans $V$.
+On suppose qu'il existe des constantes $\alpha>0$ et $M>0$ telles que
+%
+\begin{eqnarray*}
+&& \langle \nabla J(v) - \nabla J(u),v-u \rangle \geq \alpha \|v-u\|^2\quad
+\forall u,v\in V, \\ [1.1ex]
+&& \|\nabla J(v)-\nabla J(u)\| \leq M \|v-u\|\quad \forall u,v\in V.
+\end{eqnarray*}
+%
+Supposons qu'il existe deux nombres $a$ et $b$ tels que
+\[
+0<a \leq \rho_k \leq b < \frac{2\alpha}{M^2}\quad \forall k\geq 0.
+\]
+On note $u$ la solution du problème de minimisation.
+Montrer alors que la méthode du gradient à pas variable converge et que la convergence
+est géométrique : il existe $\beta=\beta(\alpha,M,a,b)<1$ tel que
+\[
+\|u^k-u\|\leq \beta^k\, \|u^0-u\|.
+\]
+%
+\medskip
+\subsection{Cas d'une fonctionnelle elliptique quadratique}
+%
+Considérons le cas d'une fonctionnelle quadratique avec A définie positive
+\[
+J: v\in \mathbb{R}^n \rightarrow  J(v) = \frac{1}{2}\langle Av,v\rangle - \langle b,v\rangle.
+\]
+
+
+On note $\lambda_1\leq ...\leq \lambda_n$ les valeurs propres de $A$. 
+
+Soit la fonction
+$\mu:\mathbb{R}_+\rightarrow\mathbb{R}$ définie par
+\[
+\mu(\rho) = \max\{ |1-\rho\lambda_1|,\, |1-\rho\lambda_n| \}.
+\]
+
+Montrer alors que $a$ et $b$ tels que
+
+\[
+0<a\leq \rho_k \leq b < \frac{2}{\lambda_n}
+\]
+
+conviennent pour garantir la convergence et
+
+\[
+\beta = \max\{\mu(a),\mu(b)\}. 
+\]
+
+Montrer que la valeur optimale du paramètre $\rho$
+ici correspond à 
+
+\[
+\rho^\star = \frac{2}{\lambda_1+\lambda_n}
+\]
+
+et montrer que
+
+\[
+\mu(\rho^\star) = \frac{\mathop{cond}_2(A)-1}{\mathop{cond}_2(A)+1}.
+\]
+
+Commenter.
+%
+% \medskip
+% \section{Equilibre d'une chaîne pesante}
+% %
+% Deux points $A$ et $B$ du plan vertical sont connectés par une chaîne constituée de $n$
+% masses reliées par un fil élastique. Chaque masse a une masse $m$ et la constante
+% du fil élastique est $K>0$. L'énergie potentielle de la chaîne comporte des termes d'élasticité
+% et des termes de gravité. Au total pour une chaîne avec $n$ masses placées aux points
+% $(x_i,y_i)$, $i=1,\ldots,n$, l'énergie potentielle est
+% \[
+% E(A_1,A_2,\ldots,A_n) = \frac{1}{2}K \sum_{i=0}^n \|A_{i+1}-A_i\|^2
+% + m g \sum_{i=1}^n y_i,
+% \]
+% $A_0$ (resp. $A_{n+1}$) designant le point fixe $A$ (resp. $B$). On suppose que la chaîne ne rencontre aucun obstacle (sol par exemple).
+% Déterminer la position d'équilibre de la chaîne (des points $A_i$ en fait), c'est-à-dire
+% celle qui minimise la fonction d'énergie $E$.
+
+
+\end{document}

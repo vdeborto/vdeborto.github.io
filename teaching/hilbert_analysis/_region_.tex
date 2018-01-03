@@ -1,0 +1,70 @@
+\message{ !name(Analyse_hilbertienne.tex)}
+\documentclass[12pt]{article}
+\include{commonfmt_1617}
+
+\def\titre{Analyse hilbertienne}
+\def\auteur{Maxime Breden, Valentin De Bortoli}
+
+%Décommenter pour faire rentrer le tout en 12 pages
+\textheight=23cm
+\textwidth=18cm
+\hoffset=-0.7cm
+\voffset=-1.5cm
+
+\begin{document}
+
+\message{ !name(Analyse_hilbertienne.tex) !offset(11) }
+\subsection{Rappels sur les espaces préhilbertiens, \cite{gourdonan}}
+
+\begin{notations}
+Dans toute cette partie, $E$ désignera un espace vectoriel muni d'un produit scalaire $\left\langle \cdot\,,\cdot \right\rangle$.
+\end{notations}
+
+\begin{lemma}\textbf{Identité du parallélogramme.}
+$\forall x,y\in E,$
+\begin{equation*}
+\left\Vert x+y\right\Vert^2 + \left\Vert x-y\right\Vert^2 = 2\left(\left\Vert x\right\Vert^2 + \left\Vert y\right\Vert^2 \right).
+\end{equation*} 
+\end{lemma}
+
+\begin{rem}
+On peut montrer que toute norme qui vérifie cette identité provient d'un produit scalaire (\cite{gourdonal} p.252.).
+\end{rem}
+
+\begin{prop}\textbf{Projection sur un convexe fermé.}
+Soit $C$ un convexe complet non vide de $E$. 
+\begin{enumerate}
+\item Pour tout $x\in E$, il existe un unique élément de $C$, noté $P_C(x)$, tel que
+\begin{equation*}
+\left\Vert x-P_C(x) \right\Vert = \inf\limits_{c\in C} \left\Vert x-c \right\Vert = d(x,C).
+\end{equation*}
+\item $P_C(x)$ est caractérisé comme étant l'unique élément de $C$ tel que 
+\begin{equation*}
+\forall c\in C,\quad \left\langle x-P_C(x),c-P_C(x) \right\rangle \leq 0.
+\end{equation*}
+\item L'opérateur $P_C$ est 1-lipschitzien.
+\item Si $C$ est un sous espace vectoriel fermé de $E$, $P_C(x)$ est caractérisé comme étant l'unique élément de $C$ tel que 
+\begin{equation*}
+\forall c\in C,\quad \left\langle x-P_C(x),c\right\rangle = 0
+\end{equation*}
+et l'opérateur $P_C$ est linéaire.
+\end{enumerate}
+\end{prop}
+
+
+\begin{rem}\textbf{Lien avec l'espérance conditionnelle, \cite{beck} p.100.}
+Soient $(X,A,\mu)$ un espace mesuré et $F$ une sous tribu de $A$ et $\nu$ la restriction de $\mu$ à $F$. Alors $L^2(X,F,\nu)$ est un sous espace fermé de $L^2(X,A,\mu)$, et on peut définir l'espérance conditionnelle sachant $F$ d'un élément de $L^2(X,A,\mu)$ comme son projeté orthogonal sur $L^2(X,F,\nu)$.
+\end{rem}
+
+
+\message{ !name(Analyse_hilbertienne.tex) !offset(640) }
+
+\end{document}
+
+
+
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

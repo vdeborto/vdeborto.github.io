@@ -1,0 +1,197 @@
+%Format feuille d'exercice
+%T.R. 03/09/05.
+%version: 0.1
+
+\usepackage[latin1]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel}
+\usepackage{lmodern}
+\usepackage{bm}
+\usepackage{enumitem}
+\usepackage{graphicx}
+\usepackage{color}
+%\usepackage[proportional]{libertine}
+
+
+%------------pour ceux qui utilisent pdflatex-----------------------------
+%\newif\ifpdf 
+%\ifx\pdfoutput\undefined \pdffalse % we are not running PDFLaTeX
+%\else \pdfoutput=1 % we are running PDFLaTeX
+%\pdftrue \fi
+
+%\ifpdf
+%\usepackage[pdftex]{graphicx}
+%\usepackage[pdftex]{hyperref}
+%\usepackage{pdfsync}
+%\else
+%\usepackage{graphicx}
+%\usepackage{epsfig}
+%\fi
+
+
+%-----------------------aspects de la page-------------------------------
+
+\usepackage{a4wide}
+
+%\setlength{\textheight}{28cm}
+
+\voffset -1cm
+
+\pagestyle{empty}
+
+%\usepackage[parfill]{parskip} %un nouveau paragraphe commence par un saut de ligne; pas d'identation
+
+%\parskip 2pt
+
+%-----------------------symboles mathematiques--------------------------
+
+\usepackage{amsthm,amssymb,amsmath,amsfonts}
+%\usepackage[libertine]{newtxmath}
+\usepackage{latexsym}
+\usepackage{mathrsfs}
+
+\def\N{{\mathbb N}}
+\def\Z{{\mathbb Z}}
+\def\Q{{\mathbb Q}}
+\def\R{{\mathbb R}}
+\def\K{{\mathbb K}}
+\def\C{{\mathbb C}}
+\def\T{{\mathbb T}}
+\def\CC{{\mathcal C}}
+\def\LL{{\mathcal L}}
+\def\BL{{\mathcal{BL}}}
+\def\GL{{\mathcal{GL}}}
+\def\MM{{\mathcal M}}
+\def\SS{{\mathcal S}}
+\def\SO{{\mathcal{SO}}}
+\def\SL{{\mathcal{SL}}}
+\def\BB{{\mathcal B}}
+\def\SS{{\mathcal S}}
+\def\OO{{\mathcal O}}
+
+
+\theoremstyle{plain}
+
+\newtheorem{theorem}{Th\'eor\`eme}%[section]
+\newtheorem{prop}{Proposition}
+\newtheorem{lemma}[theorem]{Lemme}
+\newtheorem{cor}{Corollaire}
+
+\theoremstyle{definition}
+\newtheorem{definition}{D\'efinition}
+%\renewtheorem{def}{Définition}
+\newtheorem{ex}{Exemple}
+\newtheorem{rem}{Remarque}
+\newtheorem{notations}{Notations}
+
+%----------------------abbreviations--------------------------
+
+\newcommand{\ie}{\emph{i.e.\ }}
+\newcommand{\ibid}{\emph{ibid.\ }}
+\newcommand{\etc}{etc.\ }
+\newcommand{\cf}{cf.\ }
+\newcommand{\et}{\mbox{ et }}
+\newcommand{\ds}{\displaystyle}
+%\newcommand{\ssi}{if and only if \relax}
+% \newcommand{\cad}{c'est-{\`a}-dire\relax }
+% \newcommand{\nb}{\emph{n.b.\ }}
+% \newcommand{\via}{\emph{via\relax }}
+% \newcommand{\et}{\mbox{ et }}
+% \newcommand{\ou}{\mbox{ ou }}
+% \newcommand{\si}{\mbox{ si }}
+% \newcommand{\sinon}{\mbox{ sinon }}
+% \newcommand{\sur}{\mbox{ sur }}
+% \newcommand{\avec}{\mbox{ avec }}
+\newcommand{\ssi}{si et seulement si \relax}
+\newcommand{\dev}{$\blacktriangleright$ DEV $\blacktriangleleft$ }
+\renewcommand{\ker}{\mathrm{Ker}}
+\newcommand{\im}{\mathrm{Im}}
+\newcommand{\id}{\mathrm{Id}}
+\newcommand{\tr}{\mathrm{tr}}
+
+\DeclareMathOperator{\re}{Re}
+\DeclareMathOperator{\argmin}{argmin}
+\DeclareMathOperator{\Div}{div}
+\DeclareMathOperator{\Sp}{Sp}
+\DeclareMathOperator{\Vect}{Vect}
+\DeclareMathOperator{\supp}{supp}
+\DeclareMathOperator{\sinc}{sin_c}
+
+%----------------------quelques macros plus ou moins utiles-----------
+
+\def\s{\smallskip}
+\def\m{\medskip}
+\def\b{\bigskip}
+
+\newcommand{\verif}{\textcolor{green}{\textbf{A v\'erifier.}}}
+\newcommand{\reference}{\textcolor{red}{\textbf{R\'ef\'erence?}}}
+
+
+%-------------------environnements-----------------------------
+\newcounter{numexo}
+\newcounter{numsubexo}
+\newcounter{numsubsubexo}
+\setcounter{numexo}{0}
+\setcounter{numsubexo}{0}
+\setcounter{numsubsubexo}{0}
+
+
+\newenvironment{exercice}{\noindent\stepcounter{numexo}\b\textbf{\arabic{numexo}.---}}{}
+
+%exo sans num\'ero de feuille
+\newenvironment{exerciceexamen}{\noindent\stepcounter{numexo}\b\textbf{Exercice \arabic{numexo}.---}}{}
+
+\newenvironment{exerciceen}[1]{\noindent\stepcounter{numexo}\b\textbf{Exercice \arabic{numexo}.}{--- #1}\begin{enumerate}}{\end{enumerate} }
+
+\newcommand{\etoile}{\noindent$\star$}
+\newcommand{\exo}{\refstepcounter{numexo}	\setcounter{numsubexo}{0}
+%	\setcounter{numsubsubexo}{0} \s \noindent\textbf{Exercice \numfeuille.\arabic{numexo}. }} 
+	\setcounter{numsubsubexo}{0} \s \noindent\textbf{Exercice \arabic{numexo}. }}
+\newcommand{\exodur}{\refstepcounter{numexo}	\setcounter{numsubexo}{0}
+%	\setcounter{numsubsubexo}{0} \s \noindent\textbf{Exercice \numfeuille.\arabic{numexo}. }} 
+	\setcounter{numsubsubexo}{0} \s \noindent\textbf{Exercice \arabic{numexo}*. }}	
+\newcommand{\exoprio}{\refstepcounter{numexo}	\setcounter{numsubexo}{0}
+%	\setcounter{numsubsubexo}{0} \s \noindent\textbf{Exercice \numfeuille.\arabic{numexo}. }} 
+	\setcounter{numsubsubexo}{0} \s \noindent\textbf{Exercice \arabic{numexo}${}^\square$. }}
+\newcommand{\subexo}{\stepcounter{numsubexo}
+	\setcounter{numsubsubexo}{0}
+	\s\noindent\textbf{\arabic{numsubexo}. }}
+\newcommand{\subsubexo}{ \stepcounter{numsubsubexo}
+	\textbf{\alph{numsubsubexo}. }} 
+
+\newcommand{\qtest}[1]{\stepcounter{numexo}	\setcounter{numsubexo}{0}
+	\setcounter{numsubsubexo}{0} \b\noindent\textbf{\arabic{numexo}.---}  } 
+
+
+
+%---------------------elements fixes --------------------------------------------
+
+
+\def\enteteCachan{
+\noindent\textbf{ENS Cachan}\hfill
+\textbf{Math\'ematiques} 
+\\
+\noindent\textbf{Pr\'eparation \`a l'agr\'egation}\hfill
+\textbf{Ann\'ee 2016/2017}\break
+}
+
+\def\feuilleexo{
+\hrule\m
+\begin{center}
+\large \textbf{\titre}\\
+\s
+\normalsize\auteur
+\end{center}
+\m
+\hrule\b
+}
+
+%--------------------------------------------- a laisser la, paske sinon ca marche pas--------------------------
+
+%\ifpdf
+%\DeclareGraphicsExtensions{.pdf, .jpg, .tif}
+%\else
+%\DeclareGraphicsExtensions{.eps, .jpg}
+%\fi
+
+%-------------------------Debut de la partie modifiable-------------------------

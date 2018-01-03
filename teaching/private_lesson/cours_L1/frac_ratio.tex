@@ -1,0 +1,101 @@
+\documentclass[10pt,a4paper]{article} 
+\usepackage[utf8]{inputenc} 
+\usepackage[T1]{fontenc} 
+\usepackage[english]{babel} 
+\usepackage{supertabular} %Nécessaire pour les longs tableaux
+\usepackage[top=2.5cm, bottom=2.5cm, right=2.5cm, left=2.5cm]{geometry} %Mise en page 
+\usepackage{amsmath} %Nécessaire pour les maths 
+\usepackage{amssymb} %Nécessaire pour les maths 
+\usepackage{stmaryrd} %Utilisation des double crochets 
+\usepackage{pifont} %Utilisation des chiffres entourés 
+\usepackage{graphicx} %Introduction d images 
+\usepackage{epstopdf} %Utilisation des images .eps 
+\usepackage{amsthm} %Nécessaire pour créer des théorèmes 
+\usepackage{algorithmic} %Nécessaire pour écrire des algorithmes 
+\usepackage{algorithm} %Idem 
+\usepackage{bbold} %Nécessaire pour pouvoir écrire des indicatrices 
+\usepackage{hyperref} %Nécessaire pour écrire des liens externes 
+\usepackage{array} %Nécessaire pour faire des tableaux 
+\usepackage{tabularx} %Nécessaire pour faire de longs tableaux 
+\usepackage{caption} %Nécesaire pour mettre des titres aux tableaux (tabular) 
+\usepackage{color} %nécessaire pour écrire en couleur 
+\newtheorem{thm}{Théorème} 
+\newtheorem{mydef}{Définition}
+\newtheorem{prop}{Proposition} 
+\newtheorem{lemma}{Lemme}
+\title{Lesson 1 - Integrals and primitive}
+\author{Valentin De Bortoli}
+\begin{document}
+\maketitle
+\section{A few reminders}
+\subsection{Fractions and integrals}
+We are looking for a primitive of $f: x \ \mapsto \frac{P(x)}{Q(x)}$. How to do it? Let us derive an example. We will consider, $f(x) = \frac{x^3 + 6x^2 +9x}{2(x+1)^2(x+2)}$.
+\begin{itemize}
+\item the first step is to look at the degrees of the polynomials involved in our function $f(x) = \frac{P(x)}{Q(x)}$. Here, $P(x) = x^3+6x^2+9x$ and $Q(x) = 2(x+1)^2(x+2)$. Hence, the degree of $P$ is equal to $3$ and the degree of $Q$ is equal to $3$. In order to proceed we need the \textbf{degree of $P$ to be strictly smaller than the one of $Q$}. How to do this? It is quite simple. Since the degree of $P$ is larger than the one of $Q$ we can write
+\begin{equation}
+P(x) = U(x) Q(x) + V(x)
+\end{equation}
+with the degree of $V$ strictly smaller than the one of $Q$. This is the \textbf{euclidean division} for the polynomials. How to compute $U$ and $V$? We know that $U$ will be of degree zero since $U(x)Q(x)$ has the same degree as $P(x)$ and $3 = 0 +3$. So $U(x) = a$. This yields, recall that the degree of $V$ is strictly smaller than the one of $Q$, i.e 3, 
+\begin{equation}
+\begin{aligned}
+x^3+6x^2+9x &= 2a(x+1)^2(x+2) + V(x) \\
+x^3+6x^2+9x&= 2ax^3 + \dots + V(x)
+\end{aligned}.
+\end{equation}
+Matching the coefficients we got, $a = \frac{1}{2}$. We denote $V(x) = \alpha x^2 + \beta x + \gamma$ and we have
+\begin{equation}
+\begin{aligned}
+x^3+6x^2+9x &= 2a(x+1)^2(x+2) + V(x) \\
+x^3+6x^2+9x &= x^3 + 2x^2 +x +2x^2 + 4x +2 + V(x) \\ 
+V(x) &= 2x^2+4x -2 = 2(x^2+2x-1)
+\end{aligned}.
+\end{equation}
+So we have
+\begin{equation}
+f(x) = \frac{1}{2} + \frac{x^2+2x-1}{(x+1)^2(x+2)}
+\end{equation}
+\item The part $\frac{1}{2}$ is easy to integrate and yields $\frac{x}{2}$. Now let us focus on$\frac{x^2+2x-1}{(x+1)^2(x+2)}$. We know that
+\begin{equation}
+\frac{x^2+2x-1}{(x+1)^2(x+2)} = \frac{a}{(x+1)^2} + \frac{b}{x+1} + \frac{c}{x+2}.
+\end{equation}
+Multiplying by $(x+1)^2$ and setting $x = -1$ we find that $a = -2$. Multiplying by $x+2$ and setting $x=-2$ we find that $c = -1$. How to find $b$?
+\item As presented during the private lesson, we can set $x=0$ and see what we obtain
+\begin{equation}
+\frac{-1}{2} = a +b + \frac{c}{2}.
+\end{equation}
+Hence, $b= 2$
+\end{itemize}
+Finally, we have
+\begin{equation}
+f(x) = \frac{1}{2} + \frac{-2}{(x+1)^2} + \frac{2}{x+1} - \frac{1}{x+2}
+\end{equation}
+Now we compute the primitive,
+\begin{equation}
+\int f(x) \text{d}x = \frac{x}{2} +\frac{2}{x+1} + \log \left( \left| \frac{(x+1)^2}{x+2}\right|\right) + C
+\end{equation}
+\subparagraph{Remark:} here it was not possible to use the "limit trick" to compute $b$, i.e multiplying by $x$ and making $x$ goes to infinity.
+\subsection{Bioche rule}
+The rules to compute trigonometric integrals are precised here. We have $f(x) = g(\cos(x), \sin(x), \tan(x))$. We set $F(x) = f(x) \text{d}x$. Suppose:
+\begin{itemize}
+\item $F(x) = F(-x)$ then substitute $\cos(x)$ to $x$
+\item $F(x) = F(\pi-x)$ then substitute $\sin(x)$ to $x$
+\item $F(x) = F(\pi+x)$ then substitute $\tan(x)$ to $x$
+\end{itemize}
+\subparagraph{Remark:} don't forget that there is $\text{d}x$ in $F$!
+\section{Exercises}
+Compute the following integrals:
+\begin{itemize}
+\item $\int_0^1 \frac{1}{(x+2)^2(x-1)} \text{d}x$
+\item $\int_0^1 \frac{1}{1+x^2} \text{d}x$
+\end{itemize}
+Compute the primitive of the following functions:
+\begin{itemize}
+\item $f(x) = \frac{1}{\sin(x) \cos(x)}$
+\item $g(x) = \frac{1}{\tan(x)}$
+\end{itemize}
+
+Let $n \in \mathbb{N}$. We define $J_n=\int_{0}^{\frac{\pi}{4}} \tan(x)^n \text{dx}$.
+\subparagraph{1}Give a formula linking $J_{n+2}$ et $J_{n}$. We will compute $J_{n+2}+J_n$.
+\subparagraph{2}Compute $J_0$, $J_1$ and $J_n$ for every $n$.
+
+\end{document}

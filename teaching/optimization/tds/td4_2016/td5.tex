@@ -1,0 +1,96 @@
+\documentclass[11pt, a4paper]{article}
+\usepackage{amssymb, amsmath, bm, mathrsfs, amsthm}
+\usepackage[french]{babel}
+\usepackage[T1]{fontenc}
+\usepackage[utf8x]{inputenc}
+\usepackage{graphicx}
+%
+\title{ENS Cachan, DPT Maths \\ [1cm]
+Optimisation numérique M1 -- TD4 -- Gradient projeté et pénalisation} 
+\date{13 octobre 2016}
+%
+\author{Florian De Vuyst, Adrien Le Co\"ent - CMLA UMR 8536, ENS Cachan}
+%
+\newcommand{\mq}{montrer que }
+\newcommand{\Mq}{Montrer que }
+\newcommand{\bu}{\bm{u}}
+\newcommand{\ba}{\bm{a}}
+\newcommand{\bn}{\bm{n}}
+\newcommand{\bA}{\bm{A}}
+\newcommand{\be}{\begin{equation}}
+\newcommand{\ee}{\end{equation}}
+\newcommand{\bg}{\bm{g}}
+\newcommand{\supp}[1]{\mathop{supp}(#1)}
+\newtheorem{remark}{Remark}
+%
+\begin{document}
+%
+\maketitle
+%
+
+\section{Condition d'Euler Lagrange}
+
+Soit une fonctionnelle f de classe $\mathcal{C}^1$ et $\vec{h}(x) = (h_1(x), \dots , h_m(x))^T$ les contraintes égalités de classe $\mathcal{C}^1$.
+Soit $x^*$ un minimum local de 
+
+$$ \displaystyle\min_{\vec{h}(x)=0}f(x)$$
+
+Soit un nombre $\alpha > 0$. Pour $k \in \mathbb{N}$, on définit
+
+$$ F^k(x) := f(x) + \frac{k}{2}\Vert \vec{h}(x)\Vert^2 + \frac{\alpha}{2}\Vert x-x^*\Vert^2$$
+
+Etant donné que $x^*$ est un minimum local, il existe $\epsilon > 0$ tel que $f(x^*) \leq f(x)$ pour $x \in S:= \{ x\in \mathbb{R}^n, \Vert x-x^*\Vert \leq \epsilon \}$.
+
+On note 
+
+$$ \displaystyle x^k = \arg\min_{x \in S} F^k(x).$$
+
+\begin{enumerate}
+\item Montrer que $x^k \rightarrow x^*$
+\item Ecrire explicitement les conditions de 1er ordre pour $F^k$:
+
+$$ \nabla F^k(x^k) = 0.$$
+
+\item On suppose que $\nabla \vec{h} (x^*)$ est de rang maximal $m$. Montrer que 
+$$ (k\vec{h}(x^k))_k \rightarrow \lambda^* = -(\nabla \vec{h} (x^*)^T \nabla \vec{h}(x^*))^{-1} \nabla \vec{h}(x^*)^T \nabla f(x^*).$$
+En déduire que 
+$$ \nabla f(x^*) + \nabla \vec{h} (x^*)\lambda^* = 0.$$
+\end{enumerate}
+
+%%%%%
+
+\medskip
+\section{Méthode de gradient projeté}
+
+Soit la fonctionnelle quadratique $J:\mathbb{R}^n \rightarrow \mathbb{R}$
+
+ $$ J(u) = \frac{1}{2}\langle Au,u \rangle - \langle b,u \rangle$$
+ 
+avec $A$ symétrique définie positive.
+
+Soit $u^*$ la solution de 
+
+$$ (\mathcal{P}) \displaystyle \min_{\Vert u\Vert_2 \leq R} \frac{1}{2} \langle Au,u \rangle - \langle b,u \rangle$$
+
+avec $R>0$.
+
+\begin{enumerate}
+\item Caractériser le projecteur non linéaire $P$ tel que
+
+$$ P: x \in \mathbb{R}^n \rightarrow P(x) \in B(O,R)$$
+
+\item Résoudre le problème $(\mathcal{P})$
+\begin{enumerate}
+\item Considérer le cas où $\Vert \bar{u}\Vert_2 < R$ avec 
+$$ \displaystyle \bar{u} = \arg\min_{v\in \mathbb{R}^n} \frac{1}{2} \langle Av,v \rangle  - \langle b,v \rangle $$
+
+\item Dans le cas contraire ($\Vert \bar{u}\Vert_2 \geq R$) utiliser la méthode de gradient projeté pour conclure que $u^*$ est solution de 
+$$ (A + \lambda I)u^* = b$$ avec $\lambda = \lambda (R) > 0$.
+\end{enumerate}
+\end{enumerate}
+
+%%%%%
+
+
+
+\end{document}

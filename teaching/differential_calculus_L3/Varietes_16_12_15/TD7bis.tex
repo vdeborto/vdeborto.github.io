@@ -1,0 +1,346 @@
+\documentclass[12pt]{article}
+%\usepackage[frenchb]{babel}
+\usepackage[T1]{fontenc}    
+%\usepackage[latin1]{inputenc}
+\usepackage{graphicx,amssymb,amsmath} % extensions pour maths avancées
+\usepackage{graphicx}              % Accents codés dans la fonte.
+\usepackage[utf8x]{inputenc}           % Accents 8 bits dans le fichier.
+\usepackage{ifthen}                     % Faire des tests if/then/else.
+\usepackage{amsmath}    % Les symboles les plus fréquents.
+\usepackage{amsfonts}   % Des fontes, eg pour \mathbb.
+\usepackage{vmargin}                    % Régler la taille de la feuille.
+\usepackage{amssymb}
+\usepackage{lastpage}
+\usepackage{accents}
+\usepackage{enumitem}
+
+% La taille de la page
+\setpapersize{A4}
+\setmarginsrb{20mm}{10mm}{14mm}{15mm}{10mm}{6mm}{0mm}{10mm}
+
+% La mise en page
+\newcounter{vcenterstest}
+\newlength{\leftlength}
+\newlength{\rightlength}
+\newlength{\vcentersskip}
+\newcommand{\leftcentersright}[4][2]{%
+        \settowidth{\leftlength}{#2}%
+        \settowidth{\rightlength}{#4}%
+        \setcounter{vcenterstest}{#1}%
+        \ifthenelse{\value{vcenterstest} = 0}
+                {\setlength{\vcentersskip}{0pt}}{}%
+        \ifthenelse{\value{vcenterstest} = 1}
+                {\setlength{\vcentersskip}{\smallskipamount}}{}%
+        \ifthenelse{\value{vcenterstest} = 2}
+                {\setlength{\vcentersskip}{\medskipamount}}{}%
+        \ifthenelse{\value{vcenterstest} = 3}
+                {\setlength{\vcentersskip}{\bigskipamount}}{}%
+        \ifthenelse{\value{vcenterstest} = 4}
+                {\setlength{\vcentersskip}{1cm}}{}%
+                % On laisse un espace vertical défini par l'argument
+                % optionnel #1
+        \vskip\vcentersskip
+                % On place #2 et on recule de sa longueur
+        \noindent#2\hskip-\leftlength%
+                % On centre #3
+        \hfill#3\hfill%
+                % On va au bout de la ligne, on recule de la longueur de #4 et
+                % on place #4
+        \mbox{}\hskip-\rightlength#4%
+                % On laisse un espace vertical défini par l'argument
+                % optionnel #1
+        \vskip\vcentersskip%
+    }
+\newcommand{\centers}[2][2]{\leftcentersright[#1]{}{#2}{}}
+\newcommand{\leftcenters}[3][2]{\leftcentersright[#1]{#2}{#3}{}}
+\newcommand{\centersright}[3][2]{\leftcentersright[#1]{}{#2}{#3}}
+\newcommand{\leftencadreright}[4][2]{\leftcentersright[#1]{#2}{\fbox{#3}}{#4}}
+
+\newcommand{\numtoi}[1]{
+  \ifthenelse{ \equal{#1}{1} }{i}{
+  \ifthenelse{ \equal{#1}{2} }{ii}{
+  \ifthenelse{ \equal{#1}{3} }{iii}{
+  \ifthenelse{ \equal{#1}{4} }{iv}{
+  \ifthenelse{ \equal{#1}{5} }{v}{
+  \ifthenelse{ \equal{#1}{6} }{vi}{
+  \ifthenelse{ \equal{#1}{7} }{vii}{
+  \ifthenelse{ \equal{#1}{8} }{viii}{
+  \ifthenelse{ \equal{#1}{9} }{ix}{
+  \ifthenelse{ \equal{#1}{10} }{x}{
+  \ifthenelse{ \equal{#1}{11} }{xi}{
+  \ifthenelse{ \equal{#1}{12} }{xii}{
+  \ifthenelse{ \equal{#1}{13} }{xiii}{
+  \ifthenelse{ \equal{#1}{14} }{xiv}{
+  \ifthenelse{ \equal{#1}{15} }{xv}{
+  \ifthenelse{ \equal{#1}{16} }{xvi}{
+  \ifthenelse{ \equal{#1}{17} }{xvii}{
+  \ifthenelse{ \equal{#1}{18} }{xviii}{
+    ERREUR,~MODIFIER~LA~MACRO~numtoi
+  } } } } } } } } } } } } } } } } } }
+}
+
+\newcounter{cretraiti}
+\newenvironment{ri}[1]{
+
+\begin{list}{($\numtoi{\thecretraiti}$)}{
+  \usecounter{cretraiti}
+  \topsep=0.5ex
+  \itemsep=0.3ex
+  \labelsep=0.3em
+  \parsep=0ex
+  \listparindent=1em
+  \settowidth{\labelwidth}{(#1)}
+  \leftmargin=\labelwidth
+  %\addtolength{\leftmargin}{\labelsep}
+}}{\end{list}
+}
+
+
+% Quelques raccourcis pour taper des maths
+\newcommand{\Sfr}{\mathfrak{S}}
+\newcommand{\Afr}{\mathfrak{A}}
+\newcommand{\QQ}{\mathbb{Q}}
+\newcommand{\ZZ}{\mathbb{Z}}
+\newcommand{\si}{\sigma}
+\newcommand{\ins}[1]{{\ensuremath{\textrm{#1}}}}
+\newcommand{\tiret}{\rule[0.6ex]{1.3ex}{0.26ex}}
+\newcommand{\accolades}[1]{\ensuremath{\left\{#1\right\}}}
+\newcommand{\paa}[1]{\ensuremath{\accolades{#1}}}       % Synonyme
+\newcommand{\ds}{\displaystyle}
+   \newcommand{\der}{
+      \mathop{}\mathopen{}\mathrm{d}
+   }
+
+% Numerotation des pages / la derniere
+\makeatletter
+\renewcommand{\@evenfoot}%
+        {\thepage \slash \pageref{LastPage}}
+\renewcommand{\@oddfoot}{\@evenfoot}
+\makeatother
+
+
+%%%%% Pour faire les exos
+\newcommand{\envfont}{\sf\bfseries}
+\newcounter{cexo}
+\renewcommand{\thecexo}{\arabic{cexo}}
+
+\newenvironment{exo}[1][toto]
+{
+  \refstepcounter{cexo}
+  \ifthenelse{ \equal{#1}{toto} }{
+   \noindent {\envfont Exercice \thecexo}
+  }{
+   \noindent {\envfont Exercice \thecexo{} \tiret\, #1.}
+  }
+%\newline
+%\indent
+}
+{}
+
+\newcounter{cquestions}
+\newenvironment{questions}{
+\begin{list}{{\envfont\alph{cquestions})}}{
+  \usecounter{cquestions}
+  \topsep=0.5ex
+  \partopsep=1em
+  \labelsep=0.3em
+  \itemsep=0.3ex
+  \settowidth{\labelwidth}{{\envfont b)}}\listparindent=1em
+  \leftmargin=\labelwidth \addtolength{\leftmargin}{\labelsep}
+}}{\end{list} }
+
+\newcommand{\poubelle}[1]{}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newcommand{\spacebeforeenv}{\vspace{1ex}}
+\newcommand{\spaceafterenv}{\vspace{1ex}}
+\newcommand{\myqedenv}{}
+
+
+\newcommand{\metaenvironnement}[2]  % 1er argument : nom de l'env, 2e argument : titre
+{
+  \ifthenelse{ \equal{#2}{toto} }{
+    \spacebeforeenv \noindent {\envfont #1 }
+  }{
+    \spacebeforeenv \noindent {\envfont #1  \tiret\, #2.}
+  }
+}
+
+%----------------------------------
+% Rappel
+%----------------------------------
+\newenvironment{rappel}[1][toto]
+{ \metaenvironnement{Rappel}{#1} }
+{\myqedenv\spaceafterenv}
+
+
+\newcommand{\fonction}[5]{%
+        \ensuremath{#1\colon
+        \left\{\hskip -1.5 mm
+        \begin{array}{c@{\ }c@{\ }l}
+        \medskip #2 & \longrightarrow & #3 \\
+        #4 & \longmapsto & #5 \\
+        \end{array}
+        \right .
+        }}
+\newcommand{\ph}{\varphi}
+\newcommand{\funu}[1]{\mathcal{C}^{#1}}
+\newcommand{\RR}{\mathbb{R}}
+\newcommand{\NN}{\mathbb{N}}
+\newcommand{\CC}{\mathbb{C}}
+
+\newenvironment{syst}[1][c]%
+    {\ensuremath{\left \{ \hskip -1.5 mm \begin{array}{#1@{\ =\ }l}}}%
+    {\end{array}\right.}
+
+\newcommand{\f}[2]{{\ensuremath{\mathchoice%
+    {\dfrac{#1}{#2}}
+        {\dfrac{#1}{#2}}
+    {\frac{#1}{#2}}
+    {\frac{#1}{#2}}
+    }}}
+\renewcommand{\ni}{\noindent}
+\newcommand{\ra}{\rightarrow}
+\newcommand{\question}[1]{{\sf\bfseries #1}}
+\newcommand{\norm}[1]{\ensuremath{\Arrowvert #1 \Arrowvert}}
+\newcommand{\Ende}[3]{\ensuremath{\mathrm{End}_{#1}^{#2}(#3)}}
+\newcommand{\End}[2]{\Ende{#1}{}{#2}}
+\newcommand{\id}{\ensuremath{\mathrm{id}}}
+\renewcommand{\d}{\ensuremath{\mathrm{d}}}
+\renewcommand{\leq}{\leqslant}
+\renewcommand{\geq}{\geqslant}
+
+
+\usepackage{datetime}
+\newdateformat{annscol}{\ifthenelse{\THEMONTH > 7}{\THEYEAR--\refstepcounter{YEAR}\THEYEAR}{\addtocounter{YEAR}{-1}\THEYEAR--\refstepcounter{YEAR}\THEYEAR}}
+
+\begin{document}
+ 
+
+%------------------------------------------------------------------------------------
+\leftcentersright[0]{{\bf\sf\large Formation en Mathématiques Commune Cachan / P7}}{}
+    {{\bf\sf\large Année~\annscol\today}}
+\leftcentersright[0]{{\bf\sf\large Calcul différentiel}}{}{{\bf\sf Barbara Gris, Frédéric Pascal}}
+
+%------------------------------------------------------------------------------------------
+
+
+
+
+%------------------------------------------------------------------------------------------
+%------------------------------------------------------------------------------------------
+
+
+\begin{center}
+\huge{TD 7 bis \\ Sous-variétés}
+\end{center}
+
+
+
+\begin{exo}
+
+Soient deux surfaces $\mathcal{S}_{1}$ et $\mathcal{S}_{2}$ de l'espace $\RR^{3}$ données par les équations implicites $F(x,y,z)=0$ et $G(x,y,z)=0$ où $F$ et $G$ sont deux applications $\RR^{3}\rightarrow \RR$ de classe $C^{1}$. On suppose que ces deux surfaces s'intersectent en un point $a \in \RR^{3}$ tel qu'on ait également $\overrightarrow{grad} \ F(a) \wedge \overrightarrow{grad} \ G(a) \neq 0$. Montrer qu'au voisinage de $a$, l'intersection des deux surfaces est une sous-variété de dimension 1. Interpréter géométriquement l'espace affine tangent de l'intersection. Examiner le cas où $\overrightarrow{grad} \ F(a) \wedge \overrightarrow{grad} \ G(a) = 0$ (avec toujours $\overrightarrow{grad} \ F(a) \neq 0$ et $\overrightarrow{grad} \ G(a) \neq0$).
+
+\end{exo}
+
+\vspace{0.5cm}
+
+\begin{exo}
+
+On pose $M$ l'ensemble des points de $\RR^3$ tel qu'il existe $t \in [-1 , 1]$ et $w \in [0 , 2 \pi]$ tel que 
+\begin{equation*}  
+ \left\lbrace
+\begin{array}{ccl}
+x & = & (1 + \frac{t}{2} \cos \frac{w}{2}) \cos w \\
+y & = & (1 + \frac{t}{2} \cos \frac{w}{2} ) \sin w \\
+z & = & \frac{t}{2} \sin \frac{w}{2} \\
+\end{array}
+ \right.
+\end{equation*}  
+
+
+Quel est cet ensemble ?  Montrer que c'est une sous-variété.
+
+
+\end{exo}
+
+\vspace{0.5cm}
+\begin{exo}
+
+Montrer que $P = \{  M \in M_2 (\RR) \quad | \quad M \neq 0, \quad M \neq I_n , \quad M^2 = M  \}$ est une sous-variété.
+
+\end{exo}
+
+
+\vspace{0.5cm}
+
+\begin{exo}
+
+Soit $n \geq 1$ un entier. On identifie $\RR _n [X]$ à $\RR ^{n+1}$.
+\begin{questions}
+\item Montrer que l'ensemble $E$ des polynômes ayant une unique racine, avec multiplicité $n$, est une sous-variété $C^1$, et indiquer sa dimension.
+\item Montrer que, si $n \geq 2$, l'adhérence de $E$ n'est pas une sous-variété.
+\end{questions}
+
+\end{exo}
+
+
+\vspace{0.5cm}
+\begin{exo}
+Soit $G$ un sous-ensemble de $\RR^{k}$. On suppose que $G$ est muni d'une structure de groupe dont on note $e$ l'élément neutre et $\times$ la loi. On dira que $G$ est un \textbf{groupe de Lie} lorsque $G$ est en plus une sous-variété de $\RR^{k}$ et que les applications :
+\begin{eqnarray*}
+ G \times G &\rightarrow& G \hspace{2cm} G \rightarrow G \\
+(g,h) &\mapsto& g\times h \hspace{1.5cm}   g \mapsto g^{-1}
+\end{eqnarray*}
+sont de classe $C^{1}$ au sens où ce sont les restrictions à $G \times G$ (resp $G$) d'applications de classe $C^{1}$ définies sur $\RR^{k} \times \RR^{k}$ (resp $\RR^{k}$). On appelle alors algèbre de Lie l'espace $T_{e}G$. Montrer que les ensembles suivants sont des sous-variétés de $M_{n}(\RR)$ puis des groupes de Lie en prenant pour loi la multiplication matricielle. Préciser les algèbres de Lie.
+
+\begin{questions}
+\item $GL_{n}(\RR)$.
+\item $SL_{n}(\RR)=\{M \in M_{n}(\RR) / det(M)=1 \}$.
+\item $O_{n}(\RR)=\{M \in M_{n}(\RR) / M^{T}M=I_{n} \}$.
+
+\poubelle{
+\Question Groupe pseudo-orthogonal : pour une forme quadratique $Q(x)= \sum_{i=1}^{p} x_{i}^{2} - \sum_{i=p+1}^{n} x_{i}^{2}$ avec $p \in \{0,...,n\}$, c'est l'ensemble des matrices $A \in M_{n}(\RR)$ telles que $\forall x \in \RR^{n}$, $Q(Ax)=Q(x)$ (pour $p=n$, on retombe sur $O_{n}(\RR)$). Dans le cas $n=4$ et $p=3$, il s'agit du \textit{groupe de Lorentz} de la relativité restreinte.
+\textit{Remarque :} on peut en fait prouver plus généralement que tout sous-groupe fermé et non discret de $GL_{n}(\RR)$ est un groupe de Lie (théorème du à Cartan et Von-Neumann). }
+
+\end{questions}
+\end{exo}
+
+
+\vspace{0.5cm}
+
+\begin{exo}
+
+On note $S^2$ la sphère de $\RR ^3$ et $F : \RR ^3 \mapsto \RR$ définie par $F (x_1 , x_2  , x_3 )= (x_1 - \frac{1}{2} ) ^2 + x_2^2$.
+
+\begin{questions}
+\item Montrer que pour tout $c \in \RR$, $N_c = F^{-1} (c)$ est soit une sous-variété soit vide.
+
+\item En utilisant les coordonnées cylindriques $: (r,u) \mapsto (\frac{1}{2} + \frac{1}{2}  \cos u , \frac{1}{2}  \sin u , r)$, trouver un arc paramétré $C ^\infty$ régulier $(I, \gamma)$ tel que $\gamma (I) = S^2 \cap N_{\frac{1}{4}}$.
+
+\item Est-ce que $S^2 \cap N_{\frac{1}{4}}$ est une sous-variété ?
+
+\item Quel sous-ensemble maximal de $S^2 \cap N_{\frac{1}{4}}$ est une sous-variété ? 
+\end{questions}
+\end{exo}
+
+\vspace{0.5cm}
+\begin{exo}
+
+Le but de cet exercice est de montrer que la sphère $S^n$ possède des champs de vecteurs $C^\infty$ ne s'annulant jamais $ssi$ $n$ est impair.
+
+\begin{questions}
+\item Quel est l'espace tangent à $S^n$ en un point $x \in S^n $ ? 
+
+\item Construire un champ de vecteur $C ^\infty $ sur $S^n$ s'annulant en un seul point de $S^n$.
+
+\item Si $n = 2 p +1$ construire un champ de vecteurs $C^\infty $ sur $S^n$ ne s'annulant jamais.
+
+\item Soient $K$ une partie compacte de $\RR ^{n+1}$, $U$ un ouvert de $\RR ^n{n+1}$ contenant $K$ et $v$ une application $C^\infty$ de $U$ dans $\RR ^{n+1}$. Pour $t \in \RR$ on pose $F_t : U \mapsto \RR^{n+1}$ définie par $F_t (x) = x + t v(x)$. Montrer qu'il existe un ouvert $V$ de $U$ contenant $K$ et $\epsilon > 0 $ tels que pour tout $|t| \leq \epsilon$, $F_t$ est un $C^1$ difféomorphisme de $V$ sur son image. En déduire que la mesure de Lebesgue de $F_t (K)$ est alors un polynôme en $t$.
+
+\item On suppose qu'il existe un champ $v$ de vecteurs unitaires sur $S^n$. On pose à nouveau pour $t \in \RR$ et $x \in S^n \subset \RR^{n+1}$, $F_t (x) = x + t v(x)$. Montrer que pour $t$ suffisamment petit, $F_t$ est un difféomorphisme entre $S^n$ et la sphère de rayon $\sqrt{1+t^2}$. Conclure que $n$ est impaire.
+\end{questions}
+\end{exo}
+
+
+\end{document}

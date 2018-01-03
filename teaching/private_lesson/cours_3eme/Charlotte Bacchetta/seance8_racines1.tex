@@ -1,0 +1,73 @@
+\documentclass[10pt,a4paper]{article} 
+\usepackage[utf8]{inputenc} 
+\usepackage[T1]{fontenc} 
+\usepackage[english]{babel} 
+\usepackage{supertabular} %Nécessaire pour les longs tableaux
+\usepackage[top=2.5cm, bottom=2.5cm, right=2.5cm, left=2.5cm]{geometry} %Mise en page 
+\usepackage{amsmath} %Nécessaire pour les maths 
+\usepackage{amssymb} %Nécessaire pour les maths 
+\usepackage{stmaryrd} %Utilisation des double crochets 
+\usepackage{pifont} %Utilisation des chiffres entourés 
+\usepackage{graphicx} %Introduction d images 
+\usepackage{epstopdf} %Utilisation des images .eps 
+\usepackage{amsthm} %Nécessaire pour créer des théorèmes 
+\usepackage{algorithmic} %Nécessaire pour écrire des algorithmes 
+\usepackage{algorithm} %Idem 
+\usepackage{bbold} %Nécessaire pour pouvoir écrire des indicatrices 
+\usepackage{hyperref} %Nécessaire pour écrire des liens externes 
+\usepackage{array} %Nécessaire pour faire des tableaux 
+\usepackage{tabularx} %Nécessaire pour faire de longs tableaux 
+\usepackage{caption} %Nécesaire pour mettre des titres aux tableaux (tabular) 
+\usepackage{color} %nécessaire pour écrire en couleur 
+\newtheorem{thm}{Théorème} 
+\newtheorem{mydef}{Définition}
+\newtheorem{prop}{Proposition} 
+\newtheorem{lemma}{Lemme}
+\title{Séance 8 - 3ème}
+\author{Valentin De Bortoli}
+\begin{document}
+\maketitle
+\section{Exercice 1}
+Dans cet exercice on présente une notion complémentaire à celle de \textbf{PGCD} (Plus Grand Diviseur Commun), celle de \textbf{PPCM} (Plus Petit Commun Multiple). Si on possède la décomposition en produit de facteurs premiers de deux nombres, calculer le PGCD revient à prendre pour chaque facteur premier \textbf{la puissance la plus basse}. Au contraire, calculer le PPCM revient à prendre pour chaque facteur premier \textbf{la puissance la plus haute}.
+\subparagraph{1}Justifier que $PPCM(15,25)=75$ et $PGCD(15,25)=5$.
+\subparagraph{2}Calculer $PPCM(560,720)$ ainsi que $PGCD(560,720)$.
+\subparagraph{3}Calculer $PGCD(543,765)$.
+\section{Exercice 2}
+Simplifier les puissances suivantes :
+\begin{equation}
+A=\frac{\left(\frac{5}{-4}\right)^2 \times (-5)^2}{4^2}\times 4^4
+\end{equation}
+\begin{equation}
+B=\frac{(-5)^3 \times 3^2}{-3^2 \times (-5)^{-6}}
+\end{equation}
+\section{Exercice 3}
+Donner tous les diviseurs des nombres suivants.
+\begin{equation}
+C=127
+\end{equation}
+\begin{equation}
+D=196
+\end{equation}
+\section{Exercice 4}
+Après avoir \textbf{appris} les règles de calculs mais aussi la définition de la racine carrée (par cœur et comprise) et les subtilités concernant $\sqrt{x^2}$ et $(\sqrt{x})^2$ répondre aux questions suivantes :
+\subparagraph{1} A-t-on $\sqrt{25}=\sqrt{-25}$ ? A-t-on $\sqrt{(-25)^2}=\sqrt{25^2}$ ?
+\subparagraph{2} Soit $ABCDEFGH$ un cube de côté 1. Quelle est la longueur de la grande diagonale (le segment qui relie un des sommets du cube au sommet qui lui est le plus éloigné) ? \textbf{Faire un dessin}
+\subparagraph{3} Exprimer $\sqrt{560}$ comme $a \times \sqrt{b}$ avec $b$ le plus petit possible (on pourra utiliser l'exercice 1, question 2).
+\section{Exercice 5}
+Simplifier les expressions suivantes :
+\begin{equation}
+E=(\sqrt{7}-\sqrt{3})(\sqrt{7}+\sqrt{3})
+\end{equation}
+\begin{equation}
+F=(\sqrt{5}-2\sqrt{4})^2
+\end{equation}
+\begin{equation}
+G=\sqrt{64+36}-\sqrt{64}-\sqrt{36}
+\end{equation}
+\begin{equation}
+H=\sqrt{\frac{2}{3}}\times ((\sqrt{3}+1)^2-4)
+\end{equation}
+\begin{equation}
+I=\frac{1}{\sqrt{16}}\times \frac{\sqrt{169} \times \sqrt{2}}{\sqrt{4}}
+\end{equation}
+\end{document}

@@ -1,0 +1,30 @@
+215T	Applications différentiables définies sur un ouvert de Rn. Exemples et applications.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+ANALYSE		19,75
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+Couplage : 262 (modes de convergence de variables aléatoires), 215 (applications différentiables). J'ai choisi 215
+Développements : lemme de Morse, convergence de la méthode du gradient à pas optimal pour une fonctionnelle elliptique. Ils ont choisi le lemme de Morse
+
+Questions sur le développement :
+Deux questions demandant de revenir sur des explications sur lesquelles j'étais passé vite
+
+Questions sur le plan :
+- Écrire la formule de Taylor-Young pour une fonction f : R^3 -> R à l'ordre 2
+- Une proposition du plan dit "si on a un extremum local en a, alors grad f(a) = 0". A-t-on un équivalent si on ne prend pas l'extremum sur un ouvert mais sur une partie de l'espace comme une courbe ou une surface ? (comme je n'avais pas mis de sous-variétés dans le plan, il a mis un point d'honneur à ne pas prononcer le mot "sous-variétés") Faire un dessin pour illustrer ce théorème [des extrema liés] si on maximise une fonction sur une surface dans l'espace. (après quelques tentatives, je lui ai demandé pour faire plutôt "sur une courbe dans le plan")
+- Donner un cas où la méthode de gradient à pas fixe converge. Quelle est alors la vitesse de convergence ?
+- En pratique, comment trouve-t-on le pas optimal (dans la méthode du gradient à pas optimal) ?
+
+Exercices :
+- Soit f de classe C^infini au voisinage de 0 de R^n dans R^n et telle que f(0) = 0. Montrer que f peut s'écrire (au voisinage de 0) :
+f(x) = sum_{i = 1}^{n} x_i g_i(x)
+où les fonctions g_i sont elles aussi C^infini
+- Soit U un ouvert borné de R^n, u C^0 sur l'adhérence de U, C^2 sur U. Montrer que si \Delta u >= 0 sur U, alors u atteint son maximum sur le bord de U, en commençant par le cas \Delta u > 0 sur U
+- Soit f de classe C^1 de R^n dans R^n telle qu'il existe k>0 vérifiant pour tout x,y dans R^n,
+|| f(x) - f(y) || >= k || x - y ||.
+Montrer que f est un C^1 difféomorphisme global de R^n dans R^n. (je n'avais pas mis le théorème d'inversion globale dans mon plan donc ils m'ont demandé de l'écrire au tableau totalement, i.e. comme je l'aurais mis dans un plan)
+
+Remarques sur l'organisation :
+J'avais un tableau très petit (à peu près 1.5 fois le petit tableau sur le côté de la C405), composé à deux tiers d'un tableau à feutre et un tiers d'un tableau à craie. Il faut un peu de temps pour s'habituer à changer entre craie et feutre à chaque changement de tableau, surtout qu'on remplit vite un tableau de cette taille là.

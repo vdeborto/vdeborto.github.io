@@ -1,0 +1,176 @@
+223	Suites numériques. Convergence, valeurs d'adhérence. Exemples et applications.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+ANALYSE		16
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\textbf{Le couplage :}
+
+\begin{itemize}
+	\item[223] -- Suites numériques. Convergence, valeurs d'adhérence. Exemples et applications.
+	\item[233] -- Méthodes itératives en analyse numérique matricielle.
+\end{itemize}
+
+\textbf{Mon choix :} 223 (233 étant ma seule impasse en analyse)
+
+\textbf{Les développements proposés :}
+
+\begin{itemize}
+	\item[(i)] Processus de Galton-Watson,
+	\item[(ii)] Méthode de Newton.
+\end{itemize}
+
+\textbf{Leur choix :} (i).
+
+\textbf{Ma perf :} 15'25'' (bof bof)
+
+\textbf{La suite :} Ils m'ont demandé :
+
+\begin{itemize}
+	\item des précisions sur les propriétés de la fonction génératrice puis l'expression de la moyenne des $Z_n$ (le nombre d'hommes à la $n^{ième}$ génération).
+	\item comment on démontrait le critère de Weyl (que j'avais mis dans mon plan comme application). Comme je venais de lire la démo j'ai balancer les étapes clés et j'ai notamment parler de la densité des fonctions en escalier dans l'ensemble des fonctions continues sur $\intervalleff{0}{1}$. Ils ont eu l'air de s'offusquer, ce qui est compréhensible puisque les fonctions en escalier ne sont pas continues ! Alors j'ai dit que l'ensemble des fonctions en escalier étaient dense dans celui des fonctions continues par morceaux qui contient celui des fonctions continues. Ils avaient l'air satisfaits. Ils m'ont demandé comment on montre cette densité, j'ai dit "Heine !" (avec l'accent allemand), ils avaient l'air épanouis.
+	\item d'autres trucs mais comme je rédige ce rapport cinq jours après mon oral, j'ai quasiment tout oublié (par déni de la réalité peut-être).
+\end{itemize}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+ANALYSE		17
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+  Tirage :
+
+Utilisation de la notion de convexité / suite numériques. 
+convergence. Valeur d'adhérence. Je savais que le plan de 
+convexité était casse-pied à faire. J'ai joué la sécurité. J'ai 
+pris suite numérique.
+
+  Préparation :
+
+J'ai passé 1 heure à préparer mes développements qui étaient “
+développement asymptotique de la série harmonique” et “
+Galton-Watson”. Ensuite j'ai été un peu trop lent sur le plan 
+(qui n'est pourtant pas très compliqué à faire. Il suffit de 
+recopier le gourdon, et un peu de Zully Queffélec pour la notion 
+de limite inf et sup, et le Madère un peu). Au début j'écrivais 
+tout petit. J'ai distingué les théorèmes valable sur \mathbb{R} 
+et \mathbb{C} de ceux valables que sur \mathbb{R} (le rapport du 
+jury mentionnant qu'il fallait parler de \mathbb{C}). J'ai pas eu 
+le temps de mettre des exemples un peu moins basique que (-1)^{n} 
+ou \frac{(1+i)}{n}(pour faire genre que je parlais de \mathbb{C}
+), sauf pour Césaro (qui était mentionné dans le rapport du 
+Jury). J'ai vérifié quand même que je me rappelais de la preuve 
+de Bolzano-Weierstrass et regardé vite fait la preuve de Césaro 
+dans le gourdon. De peur de ne pas avoir le temps d'écrire mes 
+développements dans le plan, 10 minute avant la fin j'ai laissé 
+un blanc et écrit mes développements à la fin du plan. J'ai 
+complété ce que je pouvais dans le blanc pendant les quelques 
+minutes qui me restaient.
+
+  Développement :
+
+Ils ont choisit Galton-Watson (je crois qu'ils espéraient 
+s'attendaient à ce que je ne le finissent pas à temps. Ils m'ont 
+dit plusieurs fois qu'il ne fallait pas dépasser. J'étais bien 
+content quand j'ai fini avec une ou deux minute d'avance.) 
+
+  Questions :
+
+L'un que je vais appeler prof X m'a demandé que signifiait p=\lim\limits _{x\to\infty}x_{n}
+ où x_{n} est la proba d'extinction à l'instant n. J'avais 
+souvenir que y'avait une erreur à ne pas faire donc j'ai été très 
+prudent. Du coup le prof X un peu impatient m'a un peu guidé. 
+J'ai fini par écrire A=\{proba\,d'extinction\}=\cup_{n\in\mathbb{N}}\{Z_{n}=0\}
+ et donc comme \{Z_{n}=0\}est croissante que \mathbb{P}(A)=\lim\limits _{x\to\infty}\mathbb{P}\{Z_{n}=0\}=p
+. (Je crois que j'avais déjà vu la question pendant l'année, mais 
+j'avais oublié...). 
+
+Puis un autre que je vais appeler prof Y m'a demandé de montrer 
+que Z_{n+1}=\stackrel[k=1]{Z_{n}}{\sum T_{i}} était une variable 
+aléatoire. Je leur ai demandé : “vous voulez savoir si elle est 
+mesurable ? “. Il m'a répondu : “oui”. Et là j'ai un peu stressé. 
+Je me souvenais plus trop des définitions. J'ai crois que j'ai 
+fini par retrouver : \{Z_{n+1}=k\}=\underset{l\in\mathbb{N}}{\cup}\{Z_{n}=l,\stackrel[k=1]{l}{\sum T_{i}=k\}}.
+ Je prononcé (ou juste pensé) le mot récurence et j'ai essayé de 
+parler d'indépendance pour finire la preuve. Mais là prof X m'a 
+arrêté pour passer à autre chose.
+
+Il m'a parlé d'arbre binaire (j'ai fait un peu les yeux rond, il 
+m'a fait une explication avec des circuits électriques qui ne m'a 
+pas scpécialement plus éclairé, mais en fait y'avait rien de 
+spécial à comprendre...), et m'a demandé de faire le lien entre 
+l'existence d'un chemin infini (en gros les branches de l'arbre 
+étaient ouvertes ou fermée avec une probabilité p et 1-p) et un 
+cas particulier de mon développement. Il m'a guidé un peu. On 
+tombait sur une binomiale de paramètres (2,p) si on regardait la 
+fonction génératrice du nombre de chemins ouvert pour la première 
+étape. J'avais pas reconnu. Il m'a fait deviner d'abord que sur 
+une branche on a une bernoulli (j'ai mis trois plombes à me 
+souvenir du nom, je ne m'en souvenais plus. Et en plus je confond 
+les noms de Bernouilli et binomiale, les deux commançant par un “
+B”...). Au final on retrouvait le G(s) du développement qui était 
+une binomiale (2,p) donc le carré de la fonction génératrice de 
+deux Bernoulli (p) indépendantes. Y'avait plus qu'à trouver un 
+point fixe, mais il m'a dit qu'on allait passer à la suite. 
+
+Puis prof X m'a posé un exo sur F\::\:\underset{t\;\qquad\mapsto\quad exp(it)}{]\alpha,\alpha+2\pi[\to\,T\backslash\{\exp(i\alpha)\}}
+ où T est le cercle unité (lui-même utilisait cette notation, et 
+m'a dit que je pouvais mettre \mathbb{U} à la place de T, mais 
+bon j'en avais un peu rien à faire...). Il m'a demandé ce que je 
+pouvais dire de F. Je lui ai dit qu'elle avait l'air bijective. 
+Ensuite il m'a demandé une propriété topologique. J'ai cherché un 
+truc compliqué. J'ai pas trouvé. J'ai dit “borné?”. Il m'a 
+répondu “non, une propriété topologique”. Puis enfin j'ai fait le 
+lien topologie -> ouverts -> continuité. Et j'ai dit : “continue”
+. Il était content. Ensuite il m'a demandé de montrer que la 
+réciproque était continue. Il m'as dit : “et alors F ce sera quoi 
+? “. Bon - tout en me demandant s'il se moquait pas un peu de moi 
+- j'ai dit “un homéomorphisme” bien sûr. Après il m'a demandé 
+comment j'allais faire ? Bon forcément dans une leçon sur les 
+suites : caractérisation séquentielle de la continuité. Il m'a 
+demandé : “quel théorème du plan fonctionnerais bien ?” J'ai dit “
+Bolzano-Weierstrass”. Il m'a dit “non”. Ensuite j'ai testé plus 
+ou moins au pif des théorèmes du plan. Il me disait toujours “non”
+. La situation devenant franchement ridicule il a fini par me 
+dire que c'était l'application de Bolzano-Weierstrass (sur la cv 
+d'une suité bornée avec une seule valeure d'adhérence). J'ai pas 
+osé lui dire que du coup on utilisait bien Bolzano-Weierstrass... 
+Puis j'ai fini l'exo (il me guidait pas mal, et me corrigait à 
+chaque fois que je faisais une erreure, ou que je n'étais pas 
+précis).
+
+Enfin prof Y, m'a posé l'exo classique du Gourdon de donner un 
+équivalent de u_{n+1}=u_{n}+\frac{1}{u_{n}}. Intérieurement j'ai 
+regretté de ne pas avoir revu la preuve juste avant. J'avais déjà 
+fait l'exo, mais j'avais oublié les astuces. A chaque fois je 
+partais dans une mauvaise direction et il me reprennait. Et 
+finalement prof Y m'a un peu dicté la solution. Puis c'étais 
+fini.
+
+Au final pas de question de démonstrations de théorèmes du plan. 
+Il y avait un prof Z, mais il n'a rien dit. J'ai l'impression que 
+prof Y et X se coupaient un peu la parole pour poser les 
+questions que chaqun avait envie de poser. 
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+ANALYSE		11
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+Couplage : 
+	\begin{itemize}
+		\item Suites numériques. Convergence, valeurs d’adhérence. Exemples et applications
+		\item Connexité. Exemples et applications.
+	\end{itemize}
+
+J'ai choisi la première, j'ai proposé le développement à 4 termes de la série harmonique et le résultat de continuité des racines d'une suite de polynômes donné dans le Gourdon Analyse (p.68). Ils ont choisi le deuxième.
+	
+\subsection*{Questions}
+	\begin{itemize}
+		\item La preuve commence par un lemme utilisant la norme $\sum_i a_iX^i \mapsto\sum_i|a_i|$. Pourquoi celle-ci ? Que se passe-t'il si on en change ? (on maîtrise le degré donc dimension finie $\Rightarrow$ équivalence des normes). Cette norme et la norme infinie sont-elles équivalentes sur $\mathbf{R}[X]$ si on se restreint à $[-1,1]$ ?
+		\item Le théorème est donné sur $\mathbf{C}$, où est-ce que la preuve utilise ça ? Est-il toujours vrai si on se place dans $\mathbf{R}$ en supposant $P$ scindé ? Scindé à racines simples ?
+		\item Donner un contre-exemple à la réciproque de Césaro (j'avais oublié de le mettre dans le plan). Si on suppose la suite de départ croissante ?
+		\item Soit $(u_n)$ suite réelle à termes $>0$ vérifiant $\forall n, \frac{u_{n+1}}{u_n} = 1-\frac{\alpha}{n}+\beta_n$ avec $\alpha\in[0,1]$ et $\sum |\beta_n|<\infty$. Donner un équivalent de $u_n$.
+	\end{itemize}
+

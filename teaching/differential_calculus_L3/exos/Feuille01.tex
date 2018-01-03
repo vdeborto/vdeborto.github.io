@@ -1,0 +1,405 @@
+\documentclass[12pt]{article}
+%\usepackage[frenchb]{babel}
+\usepackage[T1]{fontenc}                % Accents codés dans la fonte.
+\usepackage[utf8x]{inputenc}           % Accents 8 bits dans le fichier.
+\usepackage{ifthen}                     % Faire des tests if/then/else.
+\usepackage{amsmath}    % Les symboles les plus fréquents.
+\usepackage{amsfonts}   % Des fontes, eg pour \mathbb.
+\usepackage{vmargin}                    % Régler la taille de la feuille.
+\usepackage{amssymb}
+\usepackage{lastpage}
+\usepackage{accents}
+
+
+% La taille de la page
+\setpapersize{A4}
+\setmarginsrb{20mm}{10mm}{14mm}{15mm}{10mm}{6mm}{0mm}{10mm}
+
+% La mise en page
+\newcounter{vcenterstest}
+\newlength{\leftlength}
+\newlength{\rightlength}
+\newlength{\vcentersskip}
+\newcommand{\leftcentersright}[4][2]{%
+        \settowidth{\leftlength}{#2}%
+        \settowidth{\rightlength}{#4}%
+        \setcounter{vcenterstest}{#1}%
+        \ifthenelse{\value{vcenterstest} = 0}
+                {\setlength{\vcentersskip}{0pt}}{}%
+        \ifthenelse{\value{vcenterstest} = 1}
+                {\setlength{\vcentersskip}{\smallskipamount}}{}%
+        \ifthenelse{\value{vcenterstest} = 2}
+                {\setlength{\vcentersskip}{\medskipamount}}{}%
+        \ifthenelse{\value{vcenterstest} = 3}
+                {\setlength{\vcentersskip}{\bigskipamount}}{}%
+        \ifthenelse{\value{vcenterstest} = 4}
+                {\setlength{\vcentersskip}{1cm}}{}%
+                % On laisse un espace vertical défini par l'argument
+                % optionnel #1
+        \vskip\vcentersskip
+                % On place #2 et on recule de sa longueur
+        \noindent#2\hskip-\leftlength%
+                % On centre #3
+        \hfill#3\hfill%
+                % On va au bout de la ligne, on recule de la longueur de #4 et
+                % on place #4
+        \mbox{}\hskip-\rightlength#4%
+                % On laisse un espace vertical défini par l'argument
+                % optionnel #1
+        \vskip\vcentersskip%
+    }
+\newcommand{\centers}[2][2]{\leftcentersright[#1]{}{#2}{}}
+\newcommand{\leftcenters}[3][2]{\leftcentersright[#1]{#2}{#3}{}}
+\newcommand{\centersright}[3][2]{\leftcentersright[#1]{}{#2}{#3}}
+\newcommand{\leftencadreright}[4][2]{\leftcentersright[#1]{#2}{\fbox{#3}}{#4}}
+
+\newcommand{\numtoi}[1]{
+  \ifthenelse{ \equal{#1}{1} }{i}{
+  \ifthenelse{ \equal{#1}{2} }{ii}{
+  \ifthenelse{ \equal{#1}{3} }{iii}{
+  \ifthenelse{ \equal{#1}{4} }{iv}{
+  \ifthenelse{ \equal{#1}{5} }{v}{
+  \ifthenelse{ \equal{#1}{6} }{vi}{
+  \ifthenelse{ \equal{#1}{7} }{vii}{
+  \ifthenelse{ \equal{#1}{8} }{viii}{
+  \ifthenelse{ \equal{#1}{9} }{ix}{
+  \ifthenelse{ \equal{#1}{10} }{x}{
+  \ifthenelse{ \equal{#1}{11} }{xi}{
+  \ifthenelse{ \equal{#1}{12} }{xii}{
+  \ifthenelse{ \equal{#1}{13} }{xiii}{
+  \ifthenelse{ \equal{#1}{14} }{xiv}{
+  \ifthenelse{ \equal{#1}{15} }{xv}{
+  \ifthenelse{ \equal{#1}{16} }{xvi}{
+  \ifthenelse{ \equal{#1}{17} }{xvii}{
+  \ifthenelse{ \equal{#1}{18} }{xviii}{
+    ERREUR,~MODIFIER~LA~MACRO~numtoi
+  } } } } } } } } } } } } } } } } } }
+}
+
+\newcounter{cretraiti}
+\newenvironment{ri}[1]{
+
+\begin{list}{($\numtoi{\thecretraiti}$)}{
+  \usecounter{cretraiti}
+  \topsep=0.5ex
+  \itemsep=0.3ex
+  \labelsep=0.3em
+  \parsep=0ex
+  \listparindent=1em
+  \settowidth{\labelwidth}{(#1)}
+  \leftmargin=\labelwidth
+  %\addtolength{\leftmargin}{\labelsep}
+}}{\end{list}
+}
+
+
+% Quelques raccourcis pour taper des maths
+\newcommand{\Sfr}{\mathfrak{S}}
+\newcommand{\Afr}{\mathfrak{A}}
+\newcommand{\QQ}{\mathbb{Q}}
+\newcommand{\ZZ}{\mathbb{Z}}
+\newcommand{\si}{\sigma}
+\newcommand{\ins}[1]{{\ensuremath{\textrm{#1}}}}
+\newcommand{\tiret}{\rule[0.6ex]{1.3ex}{0.26ex}}
+\newcommand{\accolades}[1]{\ensuremath{\left\{#1\right\}}}
+\newcommand{\paa}[1]{\ensuremath{\accolades{#1}}}       % Synonyme
+\newcommand{\ds}{\displaystyle}
+
+
+% Numerotation des pages / la derniere
+\makeatletter
+\renewcommand{\@evenfoot}%
+        {\thepage \slash \pageref{LastPage}}
+\renewcommand{\@oddfoot}{\@evenfoot}
+\makeatother
+
+
+%%%%% Pour faire les exos
+\newcommand{\envfont}{\sf\bfseries}
+\newcounter{cexo}
+\renewcommand{\thecexo}{\arabic{cexo}}
+
+\newenvironment{exo}[1][toto]
+{
+  \refstepcounter{cexo}
+  \ifthenelse{ \equal{#1}{toto} }{
+   \noindent {\envfont Exercice \thecexo}
+  }{
+   \noindent {\envfont Exercice \thecexo{} \tiret\, #1.}
+  }
+%\newline
+%\indent
+}
+{}
+
+\newcounter{cquestions}
+\newenvironment{questions}{
+\begin{list}{{\envfont\alph{cquestions})}}{
+  \usecounter{cquestions}
+  \topsep=0.5ex
+  \partopsep=1em
+  \labelsep=0.3em
+  \itemsep=0.3ex
+  \settowidth{\labelwidth}{{\envfont b)}}\listparindent=1em
+  \leftmargin=\labelwidth \addtolength{\leftmargin}{\labelsep}
+}}{\end{list} }
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newcommand{\spacebeforeenv}{\vspace{1ex}}
+\newcommand{\spaceafterenv}{\vspace{1ex}}
+\newcommand{\myqedenv}{}
+
+
+\newcommand{\metaenvironnement}[2]  % 1er argument : nom de l'env, 2e argument : titre
+{
+  \ifthenelse{ \equal{#2}{toto} }{
+    \spacebeforeenv \noindent {\envfont #1 }
+  }{
+    \spacebeforeenv \noindent {\envfont #1  \tiret\, #2.}
+  }
+}
+
+%----------------------------------
+% Rappel
+%----------------------------------
+\newenvironment{rappel}[1][toto]
+{ \metaenvironnement{Rappel}{#1} }
+{\myqedenv\spaceafterenv}
+
+
+\newcommand{\fonction}[5]{%
+        \ensuremath{#1\colon
+        \left\{\hskip -1.5 mm
+        \begin{array}{c@{\ }c@{\ }l}
+        \medskip #2 & \longrightarrow & #3 \\
+        #4 & \longmapsto & #5 \\
+        \end{array}
+        \right .
+        }}
+\newcommand{\ph}{\varphi}
+\newcommand{\funu}[1]{\mathcal{C}^{#1}}
+\newcommand{\RR}{\mathbb{R}}
+\newcommand{\NN}{\mathbb{N}}
+\newcommand{\CC}{\mathbb{C}}
+
+\newenvironment{syst}[1][c]%
+    {\ensuremath{\left \{ \hskip -1.5 mm \begin{array}{#1@{\ =\ }l}}}%
+    {\end{array}\right.}
+
+\newcommand{\f}[2]{{\ensuremath{\mathchoice%
+    {\dfrac{#1}{#2}}
+        {\dfrac{#1}{#2}}
+    {\frac{#1}{#2}}
+    {\frac{#1}{#2}}
+    }}}
+\renewcommand{\ni}{\noindent}
+\newcommand{\ra}{\rightarrow}
+\newcommand{\question}[1]{{\sf\bfseries #1}}
+\newcommand{\norm}[1]{\ensuremath{\Arrowvert #1 \Arrowvert}}
+\newcommand{\Ende}[3]{\ensuremath{\mathrm{End}_{#1}^{#2}(#3)}}
+\newcommand{\End}[2]{\Ende{#1}{}{#2}}
+\newcommand{\id}{\ensuremath{\mathrm{id}}}
+\renewcommand{\d}{\ensuremath{\mathrm{d}}}
+\renewcommand{\leq}{\leqslant}
+\renewcommand{\geq}{\geqslant}
+
+
+\usepackage{datetime}
+\newdateformat{annscol}{\ifthenelse{\THEMONTH > 7}{\THEYEAR--\refstepcounter{YEAR}\THEYEAR}{\addtocounter{YEAR}{-1}\THEYEAR--\refstepcounter{YEAR}\THEYEAR}}
+
+\begin{document}
+ 
+
+%------------------------------------------------------------------------------------
+\leftcentersright[0]{{\bf\sf\large Formation en Mathématiques Commune Cachan/P7}}{}
+    {{\bf\sf\large Année~\annscol\today}}
+\leftcentersright[0]{{\bf\sf\large Calcul différentiel}}{}{{\bf\sf
+    Valentin De Bortoli , Frédéric Pascal}}
+\vskip3ex\centers{{\bf\sf \Large Feuille 0.1 - Généralités sur les
+    espaces métriques}}
+%------------------------------------------------------------------------------------------
+
+
+
+
+%------------------------------------------------------------------------------------------
+%------------------------------------------------------------------------------------------
+
+
+\vskip2ex 
+\begin{exo}[Topologie dans les espaces métriques]
+Soit $(E,d)$ un espace métrique. 
+\begin{questions}
+%\item Rappeler la définition d'une boule ouverte $B(x,r)$ de centre $x \in E$ et de rayon $r>0$.
+\item On définit $\mathcal{O}= \{ U\subset E \mid \forall x\in U, \exists r>0 : B(x,r)\subset U \}$. Montrer que $(E, \mathcal{O})$ est un espace topologique. 
+\item Soit $d'$ une seconde distance sur $E$ équivalente à $d$,
+  c'est-à-dire qu'il existe $C_1, C_2 >0$ tels que pour tout $x,y \in
+  E$, $C_1 d(x,y) \leq d'(x,y) \leq C_2 d(x,y)$. Montrer que les
+  topologies engendrées par $d$ et $d'$ ont les mêmes ouverts.
+  \item Soit $d'(x,y) = \min(d(x,y),1)$, $d''(x,y) =
+    \frac{d(x,y)}{1+d(x,y)}$. Montrer que $d$ et $d'$ sont des
+    métriques et que les topologies engendrées
+    par $d$, $d'$ et $d''$ sont identiques.\\
+    \textit{Remarque :} deux métriques qui engendrent la même
+    topologie sont-elles équivalentes ?
+\item Soient $a$ et $b$ deux points distincts de $E$, montrer qu'il
+  existe deux ouverts contenant respectivement $a$ et $b$,
+  d'intersection vide, i.e l'espace est séparé.
+%Un exemple non-trivial d'espace non-séparé est n'importe quel ensemble
+%infini muni de la topologie cofinie, i.e $E$ infini et $\mathcal{O} = \{ A \in
+%\mathcal{P}(E), A^c \ \text{est fini} \}$.
+\item Montrer que $A$ est un ouvert si et seulement si $A$ est une union de boules ouvertes.
+\item Soit $x \in E$. On  note ${\cal V}(x)$ l'ensemble des voisinages de $x$.
+Montrer que $A \subset E$ est un ouvert si et seulement si 
+$A$ est un voisinage de chacun de ses points. 
+\item On note $\accentset{\circ}{A}$ (respectivement $\overline A$) l'ensemble des points intérieurs 
+(respectivement adhérents) à $A$. Montrer que 
+\[
+ (\accentset{\circ}{A})^c = \overline{A^c}.
+\]
+\item Montrer que
+$\overline{A}$ est le plus petit fermé contenant $A$ ou encore l'intersection
+de tous les fermés contenant $A$ et que $(\overline{A})^c=\accentset{\circ}{(A^c)}$. En déduire que $A$ est fermé 
+si et seulement si $A=\overline{A}$.
+\end{questions}
+\end{exo}
+
+
+\vskip2ex 
+\begin{exo}[Suites dans les espaces métriques]
+Soit $(E,d)$ un espace métrique et soit $\mathcal{O}$ l'ensemble de ses ouverts (comme défini dans l'exercice précédent).
+\begin{questions}
+\item Soit $(a_n)_{n }$ une suite de $E$. Montrer que la convergence de $a$ au sens topologique est équivalente à la convergence au sens métrique.
+\item Pour $A \subset E$, montrer que 
+\[
+x \in \overline{A} \quad \Leftrightarrow \quad
+\exists (a_n)_{n} \mbox{ suite dans $A$ } \, / \, x = \lim_{n\to\infty} a_n \,.
+\]
+\item Montrer que $A\subset E$ est fermé $ssi$ pour toute suite
+  $(u_n)_n$ de $A$, si $(u_n)_n$ admet une limite $l \in E$, alors $l \in A$.
+\item On dit que $a$ est une valeur d'adhérence de $(a_n)_{n }$ 
+lorsqu'il existe une suite extraite de $(a_n)_{n}$ qui converge vers $a$. 
+Montrer que c'est équivalent à 
+\[
+ \forall \epsilon >0, \, \forall n_0 \in \NN, \, 
+ \exists n \geq n_0 \quad / \quad d(a_n,a) \leq \epsilon
+\]
+\item Soit $(a_n)_{n}$ une suite de $E$ et soit $a\in E$. Montrer que si $a$ est une valeur d'adhérence (au sens défini dans la question précédente) alors $a$ est dans l'adhérence de $\{a_n \mid n \in \NN \}$.
+\item Montrer que l'ensemble des valeurs d'adhérence d'une suite $(a_n)_n$ de $E$ est égal à $\cap_{N \in \NN} \overline{\{a_n \mid n \geq N \}}$.
+\end{questions}
+\end{exo}
+
+
+
+\vskip2ex 
+\begin{exo}[Ensembles compacts dans les espaces métriques]
+Soit $(E,d)$ un espace métrique.
+\begin{questions}
+\item Soit $A \subset E$ un sous-ensemble de $E$. Montrer que les propriétés suivantes sont équivalentes :
+  \begin{itemize}
+  \item $A$ vérifie la propriété de Bolzano Weiestrass, $ie$ toute suite dans $A$ a au moins 
+une valeur d'adhérence dans $A$,
+  \item $A$ est précompact, $ie$ pour tout $\epsilon >0$, $\exists N
+    \in \mathbb{N}, \ (x_i)_{i \in \{ 1,\dots, N \} } \in A^N,
+    \ \underset{i=1}{\overset{N}{\cup}}B(x_i,\epsilon) \supset A$, et
+    $A$ est complet,
+  \item $A$ vérifie la propriété de Borel Lebesgue, $ie$ si $(U_i)_{i \in I}$ est une famille d'ouverts de $E$ telle que $\cup_i U_i \cap A = A$ alors il existe $i_1, \cdots i_N \in I$ tels que  $\cup_{k=1}^N U_{i_k} \cap A = A$.
+  \end{itemize}
+\textit{Remarque :} Dans le cas d'espaces topologiques généraux on ne
+peut plus définir un compact par les deux premiers points. Il est
+alors défini par la propriété de Borel-Lebesgue. Il faut néanmoins
+ajouter la propriété $A$ est séparé.
+\item Montrer que toute suite d'un compact $A$ ayant une seule valeur 
+d'adhérence converge.
+\item Montrer qu'un sous ensemble  $A$ compact de $E$ est fermé et borné. On notera que dans $E=\RR^m$ où $(a_n)_n$ converge vers $a$ si et seulement si les
+composantes $(a^i_n)_n$ convergent dans $\RR$ vers les composantes
+$a^i$, les fermés bornés sont des compacts.\\
+\textit{Remarque :} Le théorème de Riesz permet d'assurer que la boule
+unité d'un espace vectoriel normé est compacte si et seulement si
+l'espace est de dimension finie.
+
+\end{questions}
+\end{exo}
+
+
+\vskip2ex 
+\begin{exo}[Ensembles complets dans les espaces métriques]
+Soit $(E,d)$ un espace métrique. 
+\textit{Définitions}: \begin{itemize}
+\item Une suite $(a_n)_n$ de $E$ est dite de Cauchy si pour tout $\epsilon >0$ il existe $N \in \NN$ tel que pour tout $p,q \geq N$, $d(a_p, a_q)o \leq \epsilon$.
+\item Un sous ensemble $A\subset E$ est dit complet si toute suite de Cauchy de $A$ converge dans $A$.
+\end{itemize}
+
+\begin{questions}
+\item Montrer qu'une suite de $E$ convergente est de Cauchy.
+\item Montrer qu'une suite de $E$ ayant deux valeurs d'adhérences distinctes n'est pas de Cauchy.
+\item Montrer que si $A$ est compact alors $A$ est complet. 
+\item Montrer que si $A$ est complet alors $A$ est fermé.
+\item Montrer que si $E$ est complet alors $A \subset E$ est complet si et seulement si $A$ est fermé.
+\item Montrer que si $E$ est complet, toute intersection dénombrable
+  d'ouverts dense est dense (théorème de Baire).\\
+  \textit{Remarque :} Le théorème de Baire est utilisé en analyse
+  fonctionnelle pour prouver de nombreux théorèmes fondamentaux
+  (théorème de l'application ouverte, théorème de
+  Banach-Steinhaus...). Il permet également d'affirmer l'existence de
+  fonctions continues partout non-dérivables, de fonctions continues
+  dont la série de Fourier ne converge pas... Néanmoins ces preuves ne
+  sont pas constructives.
+\item Montrer que $\mathbb{R}[X]$ ne peut pas être un espace complet et ce
+  quelle que soit la norme.
+\end{questions}
+\end{exo}
+
+
+
+
+
+\vskip2ex 
+\begin{exo}[Fonctions continues]
+Soient $(E,d)$ et $(F,d')$ deux espaces métriques. 
+\begin{questions}
+\item Soit $a$ fixé, montrer que $f : E \to \RR^+$ définie par $f(x) = d(a,x)$ est continue.
+\item Montrer que pour qu'une application $f$ soit continue de $E$ sur $F$, il faut et il suffit
+que l'image réciproque de tout ouvert de $F$ soit un ouvert de $E$.
+\item Montrer que $f$ est continue en $a$ si et seulement si l'image par $f$ de toute suite de $E$ 
+convergeant vers $a$ converge vers $f(a)$. En déduire que $f$ est continue si et seulement si l'image réciproque de tout fermé de $F$ est 	 un fermé de $E$.
+\item Montrer qu'étant donnés 2 applications $f$ et $g$ continues sur $E$, le sous ensemble des 
+points où $f$ et $g$ coïncident est fermé et qu'en particulier, si $f$ et $g$ prennent les mêmes valeurs
+sur un ensemble dense dans $E$ (i.e. dont l'adhérence est égal à $E$) alors $f=g$.
+\item Soit $(f_n)_n$ une suite d'applications de $E$ sur $F$ qui converge uniformément vers $f$ c'est-à-dire telle que 
+\[
+\sup_{x \in E} d'(f_n(x),f(x)) \longrightarrow_{n \to +\infty} 0 \,.
+\]
+Montrer que si les $f_n$ sont continues alors $f$ est continue.
+\end{questions}
+\end{exo}
+
+
+
+
+\vskip2ex 
+\begin{exo}[Fonctions définies sur un compact]
+Soient $(E,d)$ et $(E',d')$ deux espaces métriques, et soit $f : E \longrightarrow E'$.\\
+\textit{Définitions} : 
+ \begin{itemize}
+\item On dit que $f$ est un homéomorphisme de $E$ sur $E'$ si $f$ est inversible continue et $f^{-1}$ est également continue.
+\item On dit que $f$ est ouverte si l'image de tout ouvert de $E$ par $f$ est un ouvert de $E'$. 
+\item On dit que $f : E \to E'$ est uniformément continue sur $E$
+si pour tout $\epsilon >0$, il existe $\eta >0$ tel que $d(x,y) \leq \eta$ entraîne $d'(f(x),f(y))\leq \epsilon$ 
+pour tout $x$ et $y$.
+\end{itemize}
+\begin{questions}
+\item Montrer que si $f$ est continue  sur $K$ compact de $E$ alors $f(K)$ est compact et $f$ est uniformément continue sur $K$.
+\textit{Remarque:} En particulier une application numérique (à valeur dans $\RR$) définie sur un compact est bornée et atteint ses bornes.
+\item Montrer que si $f$ est bijective et continue sur un compact $K$ alors $f$ est une application ouverte de $K$ sur $f(K)$, et donc un homéomorphisme de $K$ sur $f(K)$.
+\end{questions}
+
+\end{exo}
+
+
+\end{document}
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

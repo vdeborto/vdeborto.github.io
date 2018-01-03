@@ -1,0 +1,320 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[french]{babel}
+\usepackage[T1]{fontenc}                % Accents codés dans la fonte.
+\usepackage[utf8]{inputenc}           % Accents 8 bits dans le fichier.
+\usepackage{ifthen}                     % Faire des tests if/then/else.
+\usepackage{amsmath}    % Les symboles les plus fréquents.
+\usepackage{amsfonts}   % Des fontes, eg pour \mathbb.
+\usepackage{vmargin}                    % Régler la taille de la feuille.
+\usepackage{amssymb}
+\usepackage{lastpage}
+%\usepackage{accents}
+%\usepackage{fullpage}
+\usepackage{graphicx}
+
+
+% La taille de la page
+\setpapersize{A4}
+\setmarginsrb{20mm}{10mm}{20mm}{15mm}{10mm}{6mm}{0mm}{10mm}
+
+% La mise en page
+\newcounter{vcenterstest}
+\newlength{\leftlength}
+\newlength{\rightlength}
+\newlength{\vcentersskip}
+\newcommand{\leftcentersright}[4][2]{%
+        \settowidth{\leftlength}{#2}%
+        \settowidth{\rightlength}{#4}%
+        \setcounter{vcenterstest}{#1}%
+        \ifthenelse{\value{vcenterstest} = 0}
+                {\setlength{\vcentersskip}{0pt}}{}%
+        \ifthenelse{\value{vcenterstest} = 1}
+                {\setlength{\vcentersskip}{\smallskipamount}}{}%
+        \ifthenelse{\value{vcenterstest} = 2}
+                {\setlength{\vcentersskip}{\medskipamount}}{}%
+        \ifthenelse{\value{vcenterstest} = 3}
+                {\setlength{\vcentersskip}{\bigskipamount}}{}%
+        \ifthenelse{\value{vcenterstest} = 4}
+                {\setlength{\vcentersskip}{1cm}}{}%
+                % On laisse un espace vertical défini par l'argument
+                % optionnel #1
+        \vskip\vcentersskip
+                % On place #2 et on recule de sa longueur
+        \noindent#2\hskip-\leftlength%
+                % On centre #3
+        \hfill#3\hfill%
+                % On va au bout de la ligne, on recule de la longueur de #4 et
+                % on place #4
+        \mbox{}\hskip-\rightlength#4%
+                % On laisse un espace vertical défini par l'argument
+                % optionnel #1
+        \vskip\vcentersskip%
+    }
+\newcommand{\centers}[2][2]{\leftcentersright[#1]{}{#2}{}}
+\newcommand{\leftcenters}[3][2]{\leftcentersright[#1]{#2}{#3}{}}
+\newcommand{\centersright}[3][2]{\leftcentersright[#1]{}{#2}{#3}}
+\newcommand{\leftencadreright}[4][2]{\leftcentersright[#1]{#2}{\fbox{#3}}{#4}}
+
+\newcommand{\numtoi}[1]{
+  \ifthenelse{ \equal{#1}{1} }{i}{
+  \ifthenelse{ \equal{#1}{2} }{ii}{
+  \ifthenelse{ \equal{#1}{3} }{iii}{
+  \ifthenelse{ \equal{#1}{4} }{iv}{
+  \ifthenelse{ \equal{#1}{5} }{v}{
+  \ifthenelse{ \equal{#1}{6} }{vi}{
+  \ifthenelse{ \equal{#1}{7} }{vii}{
+  \ifthenelse{ \equal{#1}{8} }{viii}{
+  \ifthenelse{ \equal{#1}{9} }{ix}{
+  \ifthenelse{ \equal{#1}{10} }{x}{
+  \ifthenelse{ \equal{#1}{11} }{xi}{
+  \ifthenelse{ \equal{#1}{12} }{xii}{
+  \ifthenelse{ \equal{#1}{13} }{xiii}{
+  \ifthenelse{ \equal{#1}{14} }{xiv}{
+  \ifthenelse{ \equal{#1}{15} }{xv}{
+  \ifthenelse{ \equal{#1}{16} }{xvi}{
+  \ifthenelse{ \equal{#1}{17} }{xvii}{
+  \ifthenelse{ \equal{#1}{18} }{xviii}{
+    ERREUR,~MODIFIER~LA~MACRO~numtoi
+  } } } } } } } } } } } } } } } } } }
+}
+
+\newcounter{cretraiti}
+\newenvironment{ri}[1]{
+
+\begin{list}{($\numtoi{\thecretraiti}$)}{
+  \usecounter{cretraiti}
+  \topsep=0.5ex
+  \itemsep=0.3ex
+  \labelsep=0.3em
+  \parsep=0ex
+  \listparindent=1em
+  \settowidth{\labelwidth}{(#1)}
+  \leftmargin=\labelwidth
+  %\addtolength{\leftmargin}{\labelsep}
+}}{\end{list}
+}
+
+
+% Quelques raccourcis pour taper des maths
+\newcommand{\Sfr}{\mathfrak{S}}
+\newcommand{\Afr}{\mathfrak{A}}
+\newcommand{\QQ}{\mathbb{Q}}
+\newcommand{\ZZ}{\mathbb{Z}}
+\newcommand{\si}{\sigma}
+\newcommand{\ins}[1]{{\ensuremath{\textrm{#1}}}}
+\newcommand{\tiret}{\rule[0.6ex]{1.3ex}{0.26ex}}
+\newcommand{\accolades}[1]{\ensuremath{\left\{#1\right\}}}
+\newcommand{\paa}[1]{\ensuremath{\accolades{#1}}}       % Synonyme
+\newcommand{\ds}{\displaystyle}
+
+
+% Numerotation des pages / la derniere
+\makeatletter
+\renewcommand{\@evenfoot}%
+        {\thepage \slash \pageref{LastPage}}
+\renewcommand{\@oddfoot}{\@evenfoot}
+\makeatother
+
+
+%%%%% Pour faire les exos
+\newcommand{\envfont}{\sf\bfseries}
+\newcounter{cexo}
+\renewcommand{\thecexo}{\arabic{cexo}}
+
+\newenvironment{exo}[1][toto]
+{
+  \refstepcounter{cexo}
+  \ifthenelse{ \equal{#1}{toto} }{
+   \noindent {\envfont Exercice \thecexo}
+  }{
+   \noindent {\envfont Exercice \thecexo{} \tiret\, #1.}
+  }
+%\newline
+%\indent
+}
+{}
+
+\newcounter{cquestions}
+\newenvironment{questions}{
+\begin{list}{{\envfont\alph{cquestions})}}{
+  \usecounter{cquestions}
+  \topsep=0.5ex
+  \partopsep=1em
+  \labelsep=0.3em
+  \itemsep=0.3ex
+  \settowidth{\labelwidth}{{\envfont b)}}\listparindent=1em
+  \leftmargin=\labelwidth \addtolength{\leftmargin}{\labelsep}
+}}{\end{list} }
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newcommand{\spacebeforeenv}{\vspace{1ex}}
+\newcommand{\spaceafterenv}{\vspace{1ex}}
+\newcommand{\myqedenv}{}
+
+
+\newcommand{\metaenvironnement}[2]  % 1er argument : nom de l'env, 2e argument : titre
+{
+  \ifthenelse{ \equal{#2}{toto} }{
+    \spacebeforeenv \noindent {\envfont #1 }
+  }{
+    \spacebeforeenv \noindent {\envfont #1  \tiret\, #2.}
+  }
+}
+
+%----------------------------------
+% Rappel
+%----------------------------------
+\newenvironment{rappel}[1][toto]
+{ \metaenvironnement{Rappel}{#1} }
+{\myqedenv\spaceafterenv}
+
+
+\newcommand{\fonction}[5]{%
+        \ensuremath{#1\colon
+        \left\{\hskip -1.5 mm
+        \begin{array}{c@{\ }c@{\ }l}
+        \medskip #2 & \longrightarrow & #3 \\
+        #4 & \longmapsto & #5 \\
+        \end{array}
+        \right .
+        }}
+\newcommand{\ph}{\varphi}
+\newcommand{\funu}[1]{\mathcal{C}^{#1}}
+\newcommand{\RR}{\mathbb{R}}
+\newcommand{\NN}{\mathbb{N}}
+\newcommand{\CC}{\mathbb{C}}
+
+\newenvironment{syst}[1][c]%
+    {\ensuremath{\left \{ \hskip -1.5 mm \begin{array}{#1@{\ =\ }l}}}%
+    {\end{array}\right.}
+
+\newcommand{\f}[2]{{\ensuremath{\mathchoice%
+    {\dfrac{#1}{#2}}
+        {\dfrac{#1}{#2}}
+    {\frac{#1}{#2}}
+    {\frac{#1}{#2}}
+    }}}
+\renewcommand{\ni}{\noindent}
+\newcommand{\ra}{\rightarrow}
+\newcommand{\question}[1]{{\sf\bfseries #1}}
+\newcommand{\norm}[1]{\ensuremath{\Arrowvert #1 \Arrowvert}}
+\newcommand{\Ende}[3]{\ensuremath{\mathrm{End}_{#1}^{#2}(#3)}}
+\newcommand{\End}[2]{\Ende{#1}{}{#2}}
+\newcommand{\id}{\ensuremath{\mathrm{id}}}
+\renewcommand{\d}{\ensuremath{\mathrm{d}}}
+\renewcommand{\leq}{\leqslant}
+\renewcommand{\geq}{\geqslant}
+
+
+\usepackage{datetime}
+\newdateformat{annscol}{\ifthenelse{\THEMONTH > 7}{\THEYEAR--\refstepcounter{YEAR}\THEYEAR}{\addtocounter{YEAR}{-1}\THEYEAR--\refstepcounter{YEAR}\THEYEAR}}
+
+\begin{document}
+ 
+
+%------------------------------------------------------------------------------------
+\leftcentersright[0]{{\bf\sf\large Formation en Mathématiques de l'ENS de Cachan}}{}
+    {{\bf\sf\large Année~\annscol\today}}
+\leftcentersright[0]{{\bf\sf\large Calcul différentiel}}{}{{\bf\sf Frédéric Pascal, Mariano Rodriguez}}
+\vskip3ex\centers{{\bf\sf \Large }} 
+%------------------------------------------------------------------------------------
+
+ 
+
+\vskip2ex 
+\begin{exo}[TFI => TIL]
+
+On suppose que le théorème des fonctions implicites est vrai. 
+Soit $f$ définie sur un ouvert $U$ d'un espace de Banach $E$ et à valeur dans $F$, espace de Banach telle que
+$f$ soit de classe ${\cal C}^1$ et telle qu'il existe $a \in U$ tel que $df(a)$ soit un isomorphisme. On note $b=f(a)$. 
+
+\begin{questions}
+\item Vérifier que les hypothèses du théorème des fonctions implicites s'appliquent à la fonction $\Phi : U \times F \to F$ 
+définie par $\Phi(x,y)=y-f(x)$.
+\item En déduire l'existence de voisinages de $a$ et de $b$ et de $f^{-1}$ définie sur un de ces voisinages.
+\item Conclure.
+\end{questions}
+\end{exo}
+
+
+\vskip2ex 
+\begin{exo}[TIL=>TFI]
+
+On suppose que le théorème d'inversion locale est vrai.
+On se donne trois espaces de Banach $E,F,G$ et on considère $f$ définie sur un ouvert $U$ de $E\times F$ à valeur dans $G$ et de classe ${\cal C}^1$. On suppose 
+qu'il existe $(a,b) \in U$ vérifiant
+$f(a,b)=0$ et tel que la différentielle partielle par rapport à $y$ en $(a,b)$ c'est-à-dire $d_yf(a,b)$ soit un isomorphime. 
+
+\begin{questions}
+ \item Montrer que la fonction $\Psi : U \to E \times G$ définie par 
+$\Psi(x,y) = (x,f(x,y))$ est de classe ${\cal C}^1$ et calculer sa différentielle. 
+
+
+\item Vérifier que cette différentielle 
+est inversible en $(a,b)$, montrer en utilisant 
+le théorème d'inversion locale que $\Psi$ est un ${\cal C}^1$-difféomorphisme sur des espaces que l'on précisera. 
+
+\item Reprendre les questions précédentes dans le cas où $E=\RR^n$ et $F=G=\RR^p$
+
+\item En remarquant que l'on peut écrire $\Psi^{-1}(x,z)$ sous la forme$ (x,g(x,z))$, conclure.
+\end{questions}
+\end{exo}
+
+
+
+\vskip2ex 
+\begin{exo}[Inversion globale]
+Soit $f : \RR^n \to \RR^n$ de classe  ${\cal C}^{1}$ telle que pour tout $(x,y)\in \RR^n \times \RR^n$, on ait
+$
+ \|f(x)-f(y)\| \geq k \|x-y\|
+$
+avec $k>0$ constante. 
+\begin{questions}
+\item Montrer que $f$ est injective.
+\item Montre $f(\RR^n)$ est fermé.
+\item Montrer que $df(x)$ est inversible pour tout $x$.
+\item Conclure.
+\item Application à $f : \RR^2 \to \RR^2$ définie par $f(x,y)=(\sin(\frac{y}{2})-x,\sin(\frac{x}{2})-y)$. On prendra la norme $\|\cdot\|_1$.
+\end{questions}
+\end{exo}
+
+
+\vskip2ex 
+\begin{exo}[Inversion globale]
+Soit $f : \RR^3 \to \RR^3$ définie par $f(x,y,z)=(x+y,y/x,z/x)$.
+\begin{questions}
+\item Trouver un ouvert $U$ de $\RR^3$ sur lequel $f$ est différentiable. Calculer sa différentielle.
+\item Soit $V=\{(x,y,z) \in \RR^3 / x>0 \,\,,\,\, x+y>0\}$. $f$ est-elle 
+un ${\cal C}^1$-difféomorphisme de $V$ sur $f(V)$ ?
+\end{questions}
+\end{exo}
+
+
+
+
+\vskip3ex
+\begin{exo}[Inversion] 
+Soit $H$ un espace de Hilbert de dimension fini, muni d'un produit scalaire euclidien $\langle \cdot,\cdot \rangle$ et 
+ de la norme associée $\| \cdot \|$ et soit $f:  H \rightarrow H$ une 
+application différentiable. On suppose qu'il existe $0<k<1$ tel que l'application 
+$\phi: \ H \rightarrow H$ définie par $\phi(x)=f(x)-x$ soit $k$-lipschitzienne.  
+\begin{questions}
+ \item Montrer que $f$ est injective.
+ \item Montrer que $\forall x \in H, \|d\phi(x)\| \leq k$.
+ \item En déduire que $\forall x \in H, \ df(x)$ est inversible.
+ \item Montrer que pour tout $x$ de $H$, on a
+ \[
+(1-k) \|x \| - \|f(0)\| \leq \|f(x)\|  
+ \]
+ \item On fixe $y\in H$ et on définit $h(x)=\| f(x)-y\|^{2}$. Soit $m=\inf \{ h(x) \ / \ x \in H\}$. 
+Déduire de la question précédente qu'il existe $z \in H$ tel que $m=h(z)$. 
+ \item Montrer que la différentielle de $h$ en $z$ est nulle.
+ \item En déduire que $m=0$.
+ \item Que peut-on conclure sur $f$ ?
+ \item Quelle est la conclusion dans le cas où $f$ est de classe ${\cal C}^1$
+\end{questions}
+\end{exo}
+
+
+\end{document}

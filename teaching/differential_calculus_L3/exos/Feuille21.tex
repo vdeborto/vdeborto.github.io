@@ -1,0 +1,431 @@
+\documentclass[12pt]{article}
+%\usepackage[frenchb]{babel}
+\usepackage[T1]{fontenc}                % Accents codés dans la fonte.
+\usepackage[utf8x]{inputenc}           % Accents 8 bits dans le fichier.
+\usepackage{ifthen}                     % Faire des tests if/then/else.
+\usepackage{amsmath}    % Les symboles les plus fréquents.
+\usepackage{amsfonts}   % Des fontes, eg pour \mathbb.
+\usepackage{vmargin}                    % Régler la taille de la feuille.
+\usepackage{amssymb}
+\usepackage{lastpage}
+\usepackage{accents}
+\usepackage{enumitem}
+
+% La taille de la page
+\setpapersize{A4}
+\setmarginsrb{20mm}{10mm}{14mm}{15mm}{10mm}{6mm}{0mm}{10mm}
+
+% La mise en page
+\newcounter{vcenterstest}
+\newlength{\leftlength}
+\newlength{\rightlength}
+\newlength{\vcentersskip}
+\newcommand{\leftcentersright}[4][2]{%
+        \settowidth{\leftlength}{#2}%
+        \settowidth{\rightlength}{#4}%
+        \setcounter{vcenterstest}{#1}%
+        \ifthenelse{\value{vcenterstest} = 0}
+                {\setlength{\vcentersskip}{0pt}}{}%
+        \ifthenelse{\value{vcenterstest} = 1}
+                {\setlength{\vcentersskip}{\smallskipamount}}{}%
+        \ifthenelse{\value{vcenterstest} = 2}
+                {\setlength{\vcentersskip}{\medskipamount}}{}%
+        \ifthenelse{\value{vcenterstest} = 3}
+                {\setlength{\vcentersskip}{\bigskipamount}}{}%
+        \ifthenelse{\value{vcenterstest} = 4}
+                {\setlength{\vcentersskip}{1cm}}{}%
+                % On laisse un espace vertical défini par l'argument
+                % optionnel #1
+        \vskip\vcentersskip
+                % On place #2 et on recule de sa longueur
+        \noindent#2\hskip-\leftlength%
+                % On centre #3
+        \hfill#3\hfill%
+                % On va au bout de la ligne, on recule de la longueur de #4 et
+                % on place #4
+        \mbox{}\hskip-\rightlength#4%
+                % On laisse un espace vertical défini par l'argument
+                % optionnel #1
+        \vskip\vcentersskip%
+    }
+\newcommand{\centers}[2][2]{\leftcentersright[#1]{}{#2}{}}
+\newcommand{\leftcenters}[3][2]{\leftcentersright[#1]{#2}{#3}{}}
+\newcommand{\centersright}[3][2]{\leftcentersright[#1]{}{#2}{#3}}
+\newcommand{\leftencadreright}[4][2]{\leftcentersright[#1]{#2}{\fbox{#3}}{#4}}
+
+\newcommand{\numtoi}[1]{
+  \ifthenelse{ \equal{#1}{1} }{i}{
+  \ifthenelse{ \equal{#1}{2} }{ii}{
+  \ifthenelse{ \equal{#1}{3} }{iii}{
+  \ifthenelse{ \equal{#1}{4} }{iv}{
+  \ifthenelse{ \equal{#1}{5} }{v}{
+  \ifthenelse{ \equal{#1}{6} }{vi}{
+  \ifthenelse{ \equal{#1}{7} }{vii}{
+  \ifthenelse{ \equal{#1}{8} }{viii}{
+  \ifthenelse{ \equal{#1}{9} }{ix}{
+  \ifthenelse{ \equal{#1}{10} }{x}{
+  \ifthenelse{ \equal{#1}{11} }{xi}{
+  \ifthenelse{ \equal{#1}{12} }{xii}{
+  \ifthenelse{ \equal{#1}{13} }{xiii}{
+  \ifthenelse{ \equal{#1}{14} }{xiv}{
+  \ifthenelse{ \equal{#1}{15} }{xv}{
+  \ifthenelse{ \equal{#1}{16} }{xvi}{
+  \ifthenelse{ \equal{#1}{17} }{xvii}{
+  \ifthenelse{ \equal{#1}{18} }{xviii}{
+    ERREUR,~MODIFIER~LA~MACRO~numtoi
+  } } } } } } } } } } } } } } } } } }
+}
+
+\newcounter{cretraiti}
+\newenvironment{ri}[1]{
+
+\begin{list}{($\numtoi{\thecretraiti}$)}{
+  \usecounter{cretraiti}
+  \topsep=0.5ex
+  \itemsep=0.3ex
+  \labelsep=0.3em
+  \parsep=0ex
+  \listparindent=1em
+  \settowidth{\labelwidth}{(#1)}
+  \leftmargin=\labelwidth
+  %\addtolength{\leftmargin}{\labelsep}
+}}{\end{list}
+}
+
+
+% Quelques raccourcis pour taper des maths
+\newcommand{\Sfr}{\mathfrak{S}}
+\newcommand{\Afr}{\mathfrak{A}}
+\newcommand{\QQ}{\mathbb{Q}}
+\newcommand{\ZZ}{\mathbb{Z}}
+\newcommand{\si}{\sigma}
+\newcommand{\ins}[1]{{\ensuremath{\textrm{#1}}}}
+\newcommand{\tiret}{\rule[0.6ex]{1.3ex}{0.26ex}}
+\newcommand{\accolades}[1]{\ensuremath{\left\{#1\right\}}}
+\newcommand{\paa}[1]{\ensuremath{\accolades{#1}}}       % Synonyme
+\newcommand{\ds}{\displaystyle}
+   \newcommand{\der}{
+      \mathop{}\mathopen{}\mathrm{d}
+   }
+
+% Numerotation des pages / la derniere
+\makeatletter
+\renewcommand{\@evenfoot}%
+        {\thepage \slash \pageref{LastPage}}
+\renewcommand{\@oddfoot}{\@evenfoot}
+\makeatother
+
+
+%%%%% Pour faire les exos
+\newcommand{\envfont}{\sf\bfseries}
+\newcounter{cexo}
+\renewcommand{\thecexo}{\arabic{cexo}}
+
+\newenvironment{exo}[1][toto]
+{
+  \refstepcounter{cexo}
+  \ifthenelse{ \equal{#1}{toto} }{
+   \noindent {\envfont Exercice \thecexo}
+  }{
+   \noindent {\envfont Exercice \thecexo{} \tiret\, #1.}
+  }
+%\newline
+%\indent
+}
+{}
+
+\newcounter{cquestions}
+\newenvironment{questions}{
+\begin{list}{{\envfont\alph{cquestions})}}{
+  \usecounter{cquestions}
+  \topsep=0.5ex
+  \partopsep=1em
+  \labelsep=0.3em
+  \itemsep=0.3ex
+  \settowidth{\labelwidth}{{\envfont b)}}\listparindent=1em
+  \leftmargin=\labelwidth \addtolength{\leftmargin}{\labelsep}
+}}{\end{list} }
+
+\newcommand{\poubelle}[1]{}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newcommand{\spacebeforeenv}{\vspace{1ex}}
+\newcommand{\spaceafterenv}{\vspace{1ex}}
+\newcommand{\myqedenv}{}
+
+
+\newcommand{\metaenvironnement}[2]  % 1er argument : nom de l'env, 2e argument : titre
+{
+  \ifthenelse{ \equal{#2}{toto} }{
+    \spacebeforeenv \noindent {\envfont #1 }
+  }{
+    \spacebeforeenv \noindent {\envfont #1  \tiret\, #2.}
+  }
+}
+
+%----------------------------------
+% Rappel
+%----------------------------------
+\newenvironment{rappel}[1][toto]
+{ \metaenvironnement{Rappel}{#1} }
+{\myqedenv\spaceafterenv}
+
+
+\newcommand{\fonction}[5]{%
+        \ensuremath{#1\colon
+        \left\{\hskip -1.5 mm
+        \begin{array}{c@{\ }c@{\ }l}
+        \medskip #2 & \longrightarrow & #3 \\
+        #4 & \longmapsto & #5 \\
+        \end{array}
+        \right .
+        }}
+\newcommand{\ph}{\varphi}
+\newcommand{\funu}[1]{\mathcal{C}^{#1}}
+\newcommand{\RR}{\mathbb{R}}
+\newcommand{\NN}{\mathbb{N}}
+\newcommand{\CC}{\mathbb{C}}
+
+\newenvironment{syst}[1][c]%
+    {\ensuremath{\left \{ \hskip -1.5 mm \begin{array}{#1@{\ =\ }l}}}%
+    {\end{array}\right.}
+
+\newcommand{\f}[2]{{\ensuremath{\mathchoice%
+    {\dfrac{#1}{#2}}
+        {\dfrac{#1}{#2}}
+    {\frac{#1}{#2}}
+    {\frac{#1}{#2}}
+    }}}
+\renewcommand{\ni}{\noindent}
+\newcommand{\ra}{\rightarrow}
+\newcommand{\question}[1]{{\sf\bfseries #1}}
+\newcommand{\norm}[1]{\ensuremath{\Arrowvert #1 \Arrowvert}}
+\newcommand{\Ende}[3]{\ensuremath{\mathrm{End}_{#1}^{#2}(#3)}}
+\newcommand{\End}[2]{\Ende{#1}{}{#2}}
+\newcommand{\id}{\ensuremath{\mathrm{id}}}
+\renewcommand{\d}{\ensuremath{\mathrm{d}}}
+\renewcommand{\leq}{\leqslant}
+\renewcommand{\geq}{\geqslant}
+
+
+\usepackage{datetime}
+\newdateformat{annscol}{\ifthenelse{\THEMONTH > 7}{\THEYEAR--\refstepcounter{YEAR}\THEYEAR}{\addtocounter{YEAR}{-1}\THEYEAR--\refstepcounter{YEAR}\THEYEAR}}
+
+\begin{document}
+ 
+
+%------------------------------------------------------------------------------------
+\leftcentersright[0]{{\bf\sf\large Formation en Mathématiques Commune Cachan/P7}}{}
+    {{\bf\sf\large Année~\annscol\today}}
+\leftcentersright[0]{{\bf\sf\large Calcul différentiel}}{}{{\bf\sf Valentin De Bortoli, Frédéric Pascal}}
+    \vskip3ex\centers{{\bf\sf \Large
+                                      Feuille 2.1 - Différentiabilité, première propriétés}}
+
+%------------------------------------------------------------------------------------------
+
+
+
+
+%------------------------------------------------------------------------------------------
+%------------------------------------------------------------------------------------------
+
+
+\vskip2ex 
+\begin{exo}[Exemples et contre-exemples]\label{exo-cdif-exemple-contre-exemple}
+  \begin{questions}
+\item Soit $f: \mathbb{R}^2 \longrightarrow \mathbb{R} $ l'application donnée par
+
+
+\begin{displaymath}
+f(x,y)=
+\left|
+  \begin{array}{rc}
+  
+  
+  \frac{y^2}{x} & \mbox{si }  x \neq 0 \\
+ y &  \mbox{si } x = 0 \\
+  \end{array}
+\right.
+\end{displaymath}
+
+  
+       Montrer que $f$ admet une dérivée suivant toutes les directions mais n'est pas différentiable en $0$ ni même
+      continue en $0$.
+
+\poubelle{\item Soit $f: \mathbb{R}^2 \longrightarrow \mathbb{R} $ l'application donnée par
+  \begin{displaymath}
+f(x,y)=
+\left|
+  \begin{array}{rc}
+  
+  
+  x y \frac{ x^2 - y^2}{x^2 + y^2} & \mbox{si }  (x,y) \neq (0,0) \\
+0 &  \mbox{si }(x,y) = (0,0)\\
+  \end{array}
+\right.
+\end{displaymath}
+
+      Montrer que les dérivées partielles 
+      $\frac{\partial^2{f}}{\partial{x}\partial{y}}(0,0)$ et
+      $\frac{\partial^2{f}}{\partial{y}\partial{x}}(0,0)$ existent mais ne sont pas égales.
+}
+\item \'Etudier suivant les valeurs de $\alpha > 0$, la différentiabilité en $(0,0)$ de l'application
+      $f : (x,y)\in \RR^2\mapsto |xy|^{\alpha}$.
+
+% 
+
+\item Soit U un ouvert de $\RR ^2$, soit $f: U \ra \RR$ telle que $$\forall (x,y) \in U, \partial_1 f (x,y) = 0$$
+A-t-on $f(x,y) = g(y)$ ? ($ie$ que $f$ ne dépend pas de la première variable ? )
+
+
+\item Soit $f : \RR^2 \ra \RR$ une fonction différentiable. On définit $g : (x,y) \mapsto f(y,x)$,
+$g_1 : (x,y) \mapsto f(x, y+x)$ et $h : x \mapsto f(x,-x)$. Calculer
+$\frac{\partial g}{\partial x}$, $\frac{\partial g}{\partial y}$, $\frac{\partial g_1}{\partial x}$, $\frac{\partial g_1}{\partial y}$ et $h'(x)$. \\
+\textit{Remarque}: Cet exemple illustre bien l'intér\^et d'écrire $\frac{\partial f}{\partial e_i}$ ou $\partial_i$ au lieu de $\frac{\partial f}{\partial x_i}$.
+
+\item Soient $f: \RR^n \longrightarrow \RR^p$, $g: \RR^p \longrightarrow \RR^q$ et $h: \RR^{(n+p)} \longrightarrow \RR^q$. On note $Df(a)$ la matrice telle que $df_a (u) = Df(a) u$ (en identifiant $u$ et son écriture vectorielle).
+\begin{enumerate}[label=\roman*]
+\item Quel lien y a-t-il entre $D(f\circ g)$, $Df$ et $Dg$? 
+\item Soit $(e_1, \cdots, e_{n+p})$ une base de $\RR^{n+p}$. On s'intéresse à la dérivée partielle de $h$ par rapport aux $n$ premières variables, quel est le lien entre sa matrice et la matrice de $d h$ ?
+\item On suppose ici $n=p$, soit $a \in \RR^n$ tel que $df$ est un C$^1-$difféomorphisme. Quel est le lien entre $Df (a)$ et $D(f^{-1})(f(a))$.
+\end{enumerate}
+\item  Soit $f$ définie sur $\mathbb{R}^n\backslash \lbrace 0 \rbrace$ et différentiable sur cet ensemble. Montrer que \[\forall x \in \mathbb{R}^n \backslash \lbrace 0 \rbrace, \ \underset{i = 1}{\overset{n}{\sum}}x_i \frac{\partial f}{\partial x_i}(x) = kf(x)\]
+  est équivalent à $\forall x \in \mathbb{R}^n \backslash \lbrace 0 \rbrace, \ \forall t \in \mathbb{R}^*, \ f(tx) = t^kf(x)$ (on dit que la fonction est homogène).
+
+ \end{questions}
+
+\end{exo}
+
+
+\poubelle{
+\begin{exo}\label{exo-cdif-exemple}
+\begin{questions}
+\item Soit $f : \RR^2 \ra \RR$ une fonction différentiable. On définit $g : (x,y) \mapsto f(y,x)$,
+$g_1 : (x,y) \mapsto f(x, y+x)$ et $h : x \mapsto f(x,-x)$. Calculer
+$\frac{\partial g}{\partial x}$, $\frac{\partial g}{\partial y}$, $\frac{\partial g_1}{\partial x}$, $\frac{\partial g_1}{\partial y}$ et $h'(x)$.
+
+\item Critiquer la notation $\frac{\partial f}{\partial x_i}$ ? Pourquoi la notation $\frac{\partial f}{\partial e_i}$ ou $\partial_i$ est-elle meilleure ?
+
+\item Soit $a : \RR \ra \RR$ une application $C^1$ et $f : \RR^2 \ra \RR, \ (t,x) \ra f(t,x)$ telle que $f$ est continue et pour tout $t \in \RR$, $f(t,.)$ est de classe $C^{1}$. Calculer la dérivée de $g(x)=\int_{0}^{a(x)} f(t,x) dt$.
+ \end{questions}
+\end{exo}
+
+}
+
+
+
+\vskip2ex
+\begin{exo}[Gradient et calcul matriciel]\label{exo-gradient-calcul-matriciel}
+ Soit $n \in \NN$.
+ \begin{questions}
+\item  On se place sur $M_n (\RR)$. Calculer le gradient des applications Trace et Déterminant.
+
+
+\item Soit $I$ une partie de $[| 1 , n|]$. Pour $A \in M_n (\RR)$, on note $|A_I|$ le mineur principal de $A$
+obtenu en considérant les lignes et les colonnes d'indice appartenant à $I$. Déterminer le gradient de $f :  M_n (\RR) \ra \RR$ telle que $f(A) = |A_I|$ .
+
+
+\item Calculer la différentielle \poubelle{et la différentielle seconde }de l'application $f : \RR^{n} \ra \RR$ définie par :
+\begin{equation*}
+ f(x)= \frac{1}{2} \langle Ax,x\rangle + \langle d,x \rangle + \delta
+\end{equation*}
+avec $A \in  M_n (\RR)$, $d \in \RR^{n}$ et $\delta \in \RR$. Cas où $A$ est symétrique ?
+
+\item \'Calculer la différentielle \poubelle{et la différentielle seconde }de $f : GL_n (\RR) \ra GL_n(\RR)$ telle que $f(A) = A^{-1}$.
+\ Indication : commencer par déterminer la différentielle en $I_{n}$ en introduisant une norme d'algèbre sur $ M_n (\RR)$. Généraliser ensuite à une matrice inversible quelconque.
+
+\item Calculer la différentielle de l'application $f : \RR ^n - \{ 0 \} \ra \RR$ telle que $$f(x)=\frac{\langle A x , x \rangle }{\Vert x \Vert ^2}.$$
+  \end{questions}
+\end{exo}
+\vskip2ex
+
+\begin{exo}[Suite et densité]
+
+Soit $f : [1, \infty,[ \ra \RR$ une fonction dérivable croissante telle que $f(x)$ croit vers $+\infty$ et $f'(x)$ décroit vers $0$ lorsque $x$ tend vers $ + \infty$. Montrer que les points $\exp (- i f(n))$, pour $n$ entier strictement positif, sont denses sur le cercle unité.
+\end{exo}
+
+\begin{exo}[Différentielle et polynôme]\label{exo-cdif-polynome} Soient $E= \RR_n[X]$ ($n \in \NN^\star$) et $I$ un intervalle ouvert de $\RR$. Montrer que l'application $\Phi : E \times I \ra \RR$ telle que $\Phi (P,x) = P(x)$  est différentiable et calculer sa différentielle.
+\end{exo}
+
+\vskip2ex
+
+\begin{exo}[Un difféomorphisme ?]\label{exo-cdif-exemple-concret}
+On considère l'application $f : \RR ^2 \ra \RR^2$ telle que  $f(x,y)=(x+y , x y)$
+ \begin{questions}
+\item Montrer que $f$ est de classe $C^{\infty}$. Calculer la différentielle de $f$ en $(x,y)$.
+      Déterminer l'ensemble $S$ des points $(x,y) \in \RR^2$ en lesquels $\mathrm{d} f_{(x,y)}$ est inversible.
+
+\item Calculer $f(\RR^2)$. L'application $f$ est-elle un difféomorphisme de $\RR^2$ sur $f(\RR^2)$ ?
+      L'application $f$ est-elle un difféomorphisme de $S$ sur $f(S)$ ? Trouver un ouvert connexe maximal $U$
+      de $\RR^2$ tel que $f$ soit un difféomorphisme de $U$ sur $f(S)$.
+  \end{questions}
+\end{exo}
+
+\vskip2ex
+
+
+\begin{exo}[Différentielle et loi de groupe] Soit $\ast$ une loi de groupe sur $\RR$ dont on note $e$ l'élément neutre. On suppose que la fonction $f$ définie par $f(x,y)=x\ast y$ est de classe $C^{1}$ sur $\RR^{2}$. On note $\partial_{1} f$ et $\partial_{2} f$ les dérivées partielles. 
+ \begin{questions}
+\item Montrer que pour tous $x,y \in \RR$ : 
+\begin{equation*}
+ (\partial_{2} f)(x\ast y,e)= (\partial_{2} f)(x,y).(\partial_{2} f)(y,e)
+\end{equation*}
+
+\item On cherche maintenant à construire une application $\phi$ de classe $C^{1}$ sur $\RR$ telle que : 
+\begin{equation*}
+ \phi(x\ast y)=\phi(x)+\phi(y)
+\end{equation*}
+Montrer que nécessairement $\phi$ est de la forme : $
+ \phi(x)=a \int_{e}^{x} \dfrac{dt}{(\partial_{2} f)(t,e)}$
+\poubelle{\begin{equation}
+\label{eq1}
+ \phi(x)=a \int_{e}^{x} \dfrac{dt}{(\partial_{2} f)(t,e)}
+\end{equation}
+}
+\item Réciproquement, montrer que toute application de la forme précédente est  $C^{1}$ et transforme la loi $\ast$ en l'addition.
+ \end{questions}
+\end{exo}
+\vskip2ex
+\begin{exo}[Différentielle et mesure] On munit l'espace $\RR^{n}$ d'une norme quelconque et on note $B_{r}$ la boule de centre $0$ et de rayon $r$. Soit $f$ un $C^{1}$ difféomorphisme entre deux ouverts $U$ et $V$ de $\RR^{n}$ contenant l'origine. On supposera pour simplifier que $f(0)=0$. 
+ \begin{questions}
+\item Soit $\epsilon \in ]0,1[$ fixé. Montrer qu'il existe $R>0$ tel que pour tout $x \in B_{R}$,
+\begin{equation*}
+ \|\der f(0)^{-1}(f(x))-x\|\leq \epsilon \|x\|
+\end{equation*}
+
+\item Montrer qu'il existe $R'>0$ tel que, pour $0\leq r \leq R'$, $(1-\epsilon) \der f(0)(B_{r})\subset f(B_{r}) \subset (1+\epsilon) \der f(0)(B_{r})
+$
+\poubelle{\begin{equation*}
+ (1-\epsilon) \der f(0)(B_{r})\subset f(B_{r}) \subset (1+\epsilon) \der f(0)(B_{r})
+\end{equation*}}
+Indication : Pour la première inclusion, observer que $f(B_{R})$ est un voisinage de $0$.
+
+\item Soit $\lambda$ la mesure de Lebesgue sur $\RR^{n}$ dont on admet qu'elle satisfait la relation $\lambda(AX)=|\det(A)|\lambda(X)$ pour tout ensemble Lebesgue-mesurable X et toute application linéaire $A \in \mathcal{L}(\RR^{n})$. Montrer alors que :
+\begin{equation*}
+ |\det \der f(0)|= \lim_{r\rightarrow 0} \dfrac{\lambda(f(B_{r}))}{\lambda(B_{r})}
+\end{equation*}
+\end{questions}
+\end{exo}
+\vskip2ex
+\begin{exo}[Différenciation sous le signe intégral]
+  Soit $E$ et $F$ deux espaces métriques. Soit $K$ un compact de $E$ et $f$ continue de $E$ and $F$
+  \begin{questions}
+  \item Montrer que
+    \[\epsilon \in \RR_+^*, \ \exists \eta \in \RR_+^*, \ \forall (x,y) \in K \times E, \ d_E(x,y)<\eta \ \Rightarrow \ d_F(f(x),f(y)) < \epsilon. \]
+  \item Ce théorème est une généralisation d'un autre bien connu. Lequel ? En quoi consiste cette généralisation ?
+  \item On suppose que $E$ et $F$ sont des espaces de Banach. Soit $\psi: ]0,1[ \times U \ \rightarrow \ F$ avec $U$ ouvert de $E$. On suppose également que :
+    \begin{enumerate}
+    \item pour tout $t \in ]0,1[$, $\psi(t,\cdot)$ est différentiable,
+      \item $d_2 \psi: \ ]0,1[ \times U \rightarrow F$ est continue.
+      \end{enumerate}
+      Montrer que $g:U \rightarrow F$ définie par
+      \[ \forall x \in U, g(x) = \int_{]0,1[}\psi(t,x)\text{d}t,\]
+      est différentiable et donner sa différentielle.\\
+      \textit{Remarque :} faire le lien avec le théorème de dérivation sous le signe intégral que vous connaissez.
+    \end{questions}
+  \end{exo}
+\end{document}
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

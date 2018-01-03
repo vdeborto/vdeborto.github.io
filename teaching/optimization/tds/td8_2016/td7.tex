@@ -1,0 +1,130 @@
+\documentclass[11pt, a4paper]{article}
+\usepackage{amssymb, amsmath, bm, mathrsfs, amsthm}
+\usepackage[french]{babel}
+\usepackage[T1]{fontenc}
+\usepackage[utf8x]{inputenc}
+\usepackage{graphicx}
+%
+\title{ENS Cachan, DPT Maths \\ [1cm]
+Optimisation numérique M1 -- TD8 -- Optimisation sous contraintes}
+%
+\date{17 novembre 2016}
+
+%
+\author{Florian De Vuyst, Adrien Le Coënt - CMLA UMR 8536, ENS Cachan}
+%
+\newcommand{\mq}{montrer que }
+\newcommand{\Mq}{Montrer que }
+\newcommand{\bu}{\bm{u}}
+\newcommand{\ba}{\bm{a}}
+\newcommand{\bn}{\bm{n}}
+\newcommand{\bA}{\bm{A}}
+\newcommand{\be}{\begin{equation}}
+\newcommand{\ee}{\end{equation}}
+\newcommand{\bg}{\bm{g}}
+\newcommand{\supp}[1]{\mathop{supp}(#1)}
+\newtheorem{remark}{Remark}
+%
+\begin{document}
+%
+\maketitle
+%
+\section*{Exercice 1}
+%SSSSSSSSSSSSSSSSSS
+%
+\'Etant donné $s\in \mathbb{R}^n\backslash \{0\}$ et $c\in\mathbb{R}^n$, on considère
+le problème de minimisation suivant :
+\begin{center}
+$(\mathcal{P})\quad$\ Minimiser $\displaystyle{\left\{\frac{1}{2}\|x\|^2-\langle c,x\rangle\right\}}$
+sous la contrainte $\langle s,x\rangle\leq 0$.
+\end{center}
+%
+\begin{enumerate}
+\item [1°)] Déterminer la fonction duale $\mu\in\mathbb{R}^+\mapsto \psi(\mu)$
+associée au lagrangien
+\[
+\mathcal{L}:(x,\mu) \mapsto \mathcal{L}(x,\mu) = \frac{1}{2}\|x\|^2
+-\langle c,x \rangle + \mu \langle s,x\rangle.
+\]
+%
+\item [2°)] Résoudre le problème dual $(\mathcal{D})$ associé à $(\mathcal{P})$,
+c'est-à-dire de la maximisation de $\psi$ sur $\mathbb{R}^+$ (on sera amené à 
+considérer plusieurs cas, suivant le signe de $\langle c,s \rangle$).
+%
+\item [3°)] Utiliser le résultat précédent pour résoudre effectivement $(\mathcal{P})$.
+%
+\end{enumerate}
+%
+\section*{Exercice 2}
+%SSSSSSSSSSSSSSSSSs
+%
+Dans $\mathbb{R}^n$ muni du produit scalaire usuel $\langle .,. \rangle$, on considère
+le problème d'optimisation suivant :
+%
+\[
+(\mathcal{P})\quad \left\{\begin{array}{l}
+\mbox{Minimiser } f(x):= \frac{1}{2} \langle Mx,x \rangle +\langle q,x \rangle\\ [1.1ex]
+\mbox{sous la contrainte } Ax+b\leq 0,
+\end{array}\right.
+\]
+où $M\in\mathcal{M}_n(\mathbb{R})$ est symétrique définie positive, $q\in\mathbb{R}^n$,
+$A\in \mathcal{M}_{m,n}(\mathbb{R})$ et $b\in\mathbb{R}^m$.
+%
+\begin{itemize}
+\item [1°)] Que peut-on dire des solutions de $(\mathcal{P})$ ? Ecrire les relations KKT.
+\item [2°)] Déterminer la fonction duale $\Theta$ associée au lagrangien
+\[
+\mathcal{L}:(x,\mu)\mapsto \mathcal{L}(x,\mu) :=\frac{1}{2}\langle Mx,x\rangle
++\langle q,x \rangle + \langle \mu,Ax+b\rangle.
+\]
+%
+\item [3°)] Formuler le problème dual $(\mathcal{D})$ et $(\mathcal{P})$.
+\item [4°)] Comment caractériser la solution $\bar \mu$ de $(\mathcal{D})$ ?
+\item [5°)] Donner une condition suffisante pour que $(\mathcal{D})$ ait une solution
+unique.
+\item [6°)] Comment une solution $\bar \mu$ de $(\mathcal D)$ permettrait-elle
+de retrouver la solution de $(\mathcal{P})$ ?
+%
+\end{itemize}
+%
+\section*{Exercice 3}
+%SSSSSSSSSSSSSSSSSS
+%
+Soit $\Lambda_n$ le simplexe-unité de $\mathbb{R}^n$ :
+\[
+\Lambda_n = \left\{ (x_1,\ldots,x_n)\in\mathbb{R}^n\ |\ \forall i,\ x_i\geq 0
+\mbox{ et } \sum_{i=1}^n x_i = 1 \right\}.
+\]
+%
+\'Etant donné $r_1,\ldots,r_n$ des réels tous strictement positifs, 
+$A\in\mathcal{M}_{m,n}(\mathbb{R})$ et $c\in \mathbb{R}^m$, on considère le
+problème de minimisation suivant :
+\[
+(\mathcal{P})\quad \left\{\begin{array}{l}
+\mbox{Minimiser } \displaystyle{\sum_{i=1}^n x_i \log \left(\frac{x_i}{r_i}\right)} \\ [1.1ex]
+\mbox{sous les contraintes } x\in\Lambda_n \mbox{ et } Ax\leq c,
+\end{array}\right.
+\]
+où $\alpha\log \alpha$ est prise égale à 0 pour $\alpha=0$ et la notation
+$Ax\leq c$ signifie $(Ax)_i\leq c_i$ pour toutes les composantes $i$. 
+
+Soit 
+\[
+(x,\mu)\in\Lambda_n\times (\mathbb{R}^+)^m \mapsto
+\mathcal{L}(x,\mu) = \sum_{i=1}^n x_i \log\left(\frac{x_i}{r_i}\right)
++ \langle \mu,Ax-c \rangle
+\]
+le lagrangien dans le problème $(\mathcal{P})$ et
+\[
+\mu \in \left( \mathbb{R}^+ \right)^m \mapsto
+\psi(\mu) = \inf_{x\in \Lambda_n} \mathcal{L}(x,\mu)
+\]
+la fonction duale associée. Montrer que
+%
+\[
+\psi(\mu) = -\log\left( \sum_{i=1}^n r_i\, e^{-(A^T\mu)_i + \langle\mu,c\rangle  } \right)
+\]
+et formuler le plus simplement possible le problème dual $(\mathcal{D})$ de $(\mathcal{P})$.
+%
+
+\end{document}

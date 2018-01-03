@@ -1,0 +1,326 @@
+
+Condensed neural networks informations
+
+REFERENCES:
+-Coursera (Deep Learning Specialization)
+-blogs de NLP = vraiment pas mal pour une introduction aux différentes manières de construire les modèles (n-gram, skip-gram, les autres...).
+
+INTRODUCTION TO DEEP LEARNING (Coursera)
+
+** First video:
+the simplest neural network (linear regression). They present the REctified Linear Unit (RELU) but I don't think their example is really relevant.
+Good example though with the housing price (output = y) and the number of bedrooms (input = x).
+Increase the complexity by adding neurons then introduce the terms input layer, hidden layer and output 
+** Second video:
+Different types of NN for different types of data (examples where deep learning is useful).
+Not very interesting... One big information is the difference between structured data (features already extracted) and unstructured data (features to be extracted).
+For a housing price applications we deal with structured data. It is not the case when dealing with images/audio.
+
+** Third video
+Why deep learning now? Scale drives deep learning. Three main factors (data, computational time, algorithms).
+They highlight that for small dataset (small m = training examples) it may be interesting to look at SVM or logistic regression.
+On the algorithmic side, one example: switching from the sigmoid to the RELU (no plateaus).
+
+* END OF WEEK ONE
+
+** First video
+X = training matrix (size n x m), n = data dimension, m = number of training examples
+X.shape = dimension of the matrix
+Same stacking on the labels...
+This video is about notation
+
+** Second/Third video
+
+Y = {0,1} 
+On veut en sortie hat(Y) qui est la probabilité que Y=1 sachant X (donc un scalaire compris entre 0 et 1)
+Pour cela on suppose que hat(Y) = sigmoide(w^TX+B). (sigmoide notée sigma). On peut linéariser en rajoutant unedimension.
+Dans les réseaux de  neurones on garde séparé.
+w is a n dimensional vector and b real
+Why a sigmoid? Can be useful even if Y is not binary it can be a good idea (it is a kernel, i.e we change the distance)
+On ne regarde pas (y-hat(y))^2 (non convexe). En fait on passe par le MAP. On doit minimiser la proba p(y|x).
+pdf = f(x,y) = f(x|y)f(x) = (p(1|x)^y*(1-p(1|x)^(1-y))f(x) (supervised learning)
+Y = w^TX+b +eps
+Ici les données sont labellisées (xi,yi). C'est un autre problème lorsqu'elles ne sont pas labellisées (EM, clustering type kmeans)
+(unsupervised learning, qu: neural networks and unsupervised learning? Réponse oui, avec les autoencodeurs par exmemple. On entraine
+un réseau de neurones pour qu'il apprenne à reconstruire le vecteur à partir d'une plus petite représentation, d'autres réponses sur stack exchange en tapant 
+'unsupervised neural networks' https://stats.stackexchange.com/questions/140148/how-can-an-artificial-neural-network-ann-be-used-for-unsupervised-clustering).
+ On fait du clustering sur l'avant dernière couche.
+Dans le supervised il nous faut un modèle p(y|x) (linéaire ou logistique). Dans le unsupervised il nous faut un modèle
+sur x. La regression logisitque et le linéaire ne s'étend pas au non supervisé.
+En fait il faut bien se rendre compte que l'on se fiche complètement de la répartition des x dans les cas supervisés.
+Par contre le fait de devoir poser un modèle et donc de comprendre la répartition des x est crucial dans les non-supervisés
+(type clustering on pense à GMM/EM, kmeans...)
+Cost function = average de la loss
+
+** Fourth video
+
+Descente de gradient = facile...
+w = w - alpha * gradient
+b = b - alpha * gradient
+
+** Fifth/Sixth video
+Aucun intérêt
+
+** Seventh/Eight/Ninth video
+Computation graph:
+explicit the idea of forward pass and backward pass through an example.
+To compute the loss function we compute one forward pass. (end of 7th video)
+To compute the derivative of the loss function we go in the other way (dérivée composée/chain rule)
+NOTATION: dans le code dvar = dérivée de la loss par rapport aux variables
+Utilité : à chaque étape on calcule la loss J(x,x0) (x mis à jour) via le computation graph
+(i.e on garde en mémoire les différentes valeurs utilisées pour calculer la loss)
+Pour calculer le gradient au point I, on calcule d'abord le gradient de la loss par rapport aux 
+valeurs de la dernière couche Hn en Hn(I) (qu'on a gardé en mémoire)
+Puis on calcule le gradient de la dernière couche en l'avant dernière couche au point Hn-1(I).
+Donc on a quelque chose de linéaire (2n) au lieu de quadratique (il faut garder les valeurs en mémoire though)
+(vidéo 9) exemple avec la régression logisitque
+d'abord opération linéaire puis sigmoide puis loss sur les hat(y) (overkill on peut le faire directos mais ça
+permet une implémentation biiiiien plus simple)
+RQ : dans la reg logisitque si on remplace a par sigma(z) on trouve  que le gradient est sigma(z) - y
+
+** Tenth video
+éviter les for loops sur le nombre de features = vectorization
+éviter les for loops sur le nombre de training examples = stochastic gradient
+
+** Eleventh/Twelth/Thirteen/Fourteen video
+Vidéo sur la vectorization.
+L'intérêt pour toi est seulement une introduction aux notebooks Jupyter + qqs rappels de Python.
+import numpy as np
+tic = time.time()
+print("bla" + str(5)) (et pas print(['bla', num2str(5)]) comme en matlab)
+les boucles for : for i in range(10000)
+a = np.random.rand(1000) vecteur de taille 1000x1 aléatoire uniforme
+np.dot(a,b) = produit scalaire
+On peut appliquer des fonctions directement sur les matrices/vecteurs
+(comme en matlab) np.log, np.exp, np.abs, np.max
+v**2 = v.^2 (en matlab)
+RQ : souvent il existe une fonction python built-in... (je me rappelle de logsumexp)
+Shift+Enter pour compiler dans un Jupyter Notebook
+RQ : on peut vectoriser même sur CPU (effectivement c'est pas trivial...)
+On utilise SIMD (single instruction multiple data)
+
+** Fifteen video
+Broadcasting = C'est la capacité de Python à faire des opérations en mettant sous le tapis la répétition des données
+On n'a pas besoin d'utiliser de repmat
+Toujours sur les petits conseils de code.
+A.T prend la transposée de A (à tester).
+Comment entrer une matrice np.array([[1 2 3], [4, 5, 6]])
+Sommer selon les lignes sum(A,1) = A.sum(axis=0)
+ATTENTION A/B la division se fait point par point... On peut diviser 4x4 par 4x1 point par point facilement
+Broadcasting in matlab: bsxfun...
+EN FAIT : le broadcasting est implémenté dans matlab 16 !!!
+
+** Sixteen video
+A = np.random.randn(5)
+a.shape
+Attention différence entre les matrices et les vecteurs (DO NOT USE RANK 1 ARRAYS)
+A = np.random.rand(5,1)
+
+TEST utile
+assert(a.shape == (5,1))
+
+** Seventeen
+
+JUpyter
+SHift+enter execute block
+
+** Eighteen/NIneteen
+blabla
+TESTER en python/Matlab A =rand(3,4) * B = rand(5,3)
+
+
+RIEN A VOIR:
+quelques commandes utiles sous linux
+pwd (print working directory)
+ping -c 5 adresse (style gmail.com)
+find 
+locate
+sudo apt-get remove --purge nomduprogramme
+
+quelques commandes utiles sur tex avec emacs
+C-c C-q C-s = automatic formatting of a section
+C-c C-p C-s = section preview
+C-c C-p C-c C-s = remove section preview
+* END OF WEEK 2
+** First video
+layer avec [], i.e w^[1], b^[1]
+** Second video
+Vocabulaire : Input layer/ Hidden Layer/ Output Layer
+Input layer a^[0]:=x hidden layer after activation a^[n]
+Quand on compte les couches on prend en compte que hidden et output
+** Third video
+operations in a node = linear filtering + activation
+Il parle du vectorizing dans un réseau de neurones...
+On introduit la matrice W^[1] qui a autant de colonnes qu'il y a d'inputs et de lignes que la sortie.
+pareil pour le vecteur b^[1] et a^[1]
+On a une forme de récurrence pour un réseau de neurones :
+z^[k] = W^[k]a^[k-1] + b^[k]
+a^[k] = sigm(z^[k])
+Rk : voir la logistique régression comme un réseau de neurones à un noeud (juste la couche d'output)
+To input a neural networks you just need four lines of codes... (take home message)
+** Four video
+On étend les résultats précédents à plusieurs exemples... En considérant que 
+a^0 \neq x mais a^(0] = [x(1) x(2) ...] = X
+QU : comment vectoriser correctement plusieurs exemples d'un CNN ? On était déjà en 2D...
+Z^[k] = W^[k]A^[k-1] + b^[k]
+A^[k] = sigm(Z^[k])
+(A^[0] = X)
+On a pas besoinde modifier b^[k] avec un repmat via le broadcasting. En effet:
+Z^(k] est de taille couche k x m, W de taille couche k x couche k-1 et b^[k] est de taille couche k x 1
+a^[k] est de taille couche k x m
+HORIZONTALLY we go through the training exmpales
+veRTICALLY we go through different nodes in the same layer
+** Fifth video
+Juste un petit rappel. Chaque noeud correspond à un réel. Pour un exemple on fait les calculs couches 
+pa couches de manière vectorisée via des multiplications matriciels + application non-linéarité.
+(W*x+b) où x est une matrice colonne et W est de taille couche m x couche m-1.
+Pour le faire sur plusieurs exemples on remplace simplement x par la matrice X avec les colonnes stacked.
+On obtient W*X+b
+** Sixth video
+ACTIVATION FUNCTION
+JUsqu'à maintenant il présentait avec des sigmoides
+tanh marche mieux que sigmoide pour centrer les données (sauf pour le calcul de l'output layer)
+acivation function for one layer g^[i]
+Introduction de RELU (justification avec gradient) rectified linear unit
+leaky RELU avec une petite pente dans le négatif...
+Donc en gros quatre fonctions à essayer...
+** Seventh video
+WHY USE ACTIVATION FUNCTIONS ? rien deneuf
+Une raison avancée = remettre les données droites (ie si on a des prix à la fin on veut des données positives par
+exemple...) Si on a des proba on veut une sigmoide
+** Eigth video
+dérivée des activations
+sigma' = sigma (1-sigma)
+** Ninth/Tenth video
+MAYBE THE MOST IMPORTANT VIDEO
+Learning rate dans les descentes de gradient
+np.sum(x,axis=1,keepdims=true)
+Rappel : dvar = gradient de la loss par rapport à la variable var
+En fait on fait la chaîne rule ++
+On calcule gradient de la loss par rapport à la dernière couche d'activation (da)
+On calcule le gradient de la loss par rapport à la dernière couche linéaire (dw)
+On calcule le gradient de la los par rapport aux params de cette couche
+Bon il faudra refaire les calculs à froid.
+Le take home message c'est que lorsque l'on fait la back propagation ie lorsque l'on
+veut calculer le gradient par rapport aux paramètres : on utilise à fond la chaîne rule.
+Il faut garder la tête froide et vraiment décomposer en blocs (utiliser les relations de récurrence,
+tout est fait pour que l'on programme une sous fonction calcul du gradient pour l'activation/la variable
+linéaire/les paramètres...)
+EXERCICE : refaire les calculs pour s'en convaincre... Notamment retrouver le pourquoi du comment de la
+transposée...
+** Eleventh video
+Random int
+Initialiser à zéro égal mauvais car alors toutes les hidden units gardent la même valeur... (preuve par 
+récu)
+np.random.randn((2,2))*0.01 (very small, practive)
+"Symmetry breaking problem"
+on peut initialiser b à zéro
+* WEEK 4
+** First video
+logistic regression = shallow VS deep
+for loop pour descendre dans les couches. On est vraiment sur du séquentiel...
+** Second/Third video
+Techniques du debug our code.
+Noter le nombre de layers : L.
+Noter les dimensions des différentes matrices W,b,z et a (faire un dessin).
+Tu l'as déjà écrit dans une autre vid.
+** Fourth video
+Circuit theory and deep learning
+"There are functions you can compute with a small l-layer deep neural netwwork
+that shallower networks require exponentially more hidden units to compute."
+exemple avec le réseau XOR
+Les plus profonds = douzaine de couches
+** Fifth video
+Notion de cache. Dans le réseau de neurones on calcule le forward pass dont l'output est la dernière
+couche et l'input les paramètres. On garde en cache les différentes valeurs de z (et de a - en fait non
+mais c'est pour bien dire qu'en théorie on pourrait parce qu'on devrait aussi s'en servir en 
+backward mais on glue les opérations).
+Dans le backward on prend en entrée la dernière couche et on redescend en utilisant le backward.
+On utilise la valeur du cache !
+PETIT GRAPHE GRAVE SYMPA (avec des boxes)
+** Sixth video
+pas ouf
+** Seventh video
+Hyperparameter
+learning rate alpha
+nb iterations
+nb layers
+nb hidden units
+choice of activation function...
+Comment faire le tuning ? Pas de recette magique = empirical process
+Dépendent du matos et du data CPU/GPU/data
+** Eight video
+Pas grand chose
+
+** TODO
+faire un résumé
+faire les devoirs en Python...
+écouter les confs en plus
+trouver autre cours
+STRUCTURE  CODE :
+fonction forward pass = boucle for qui fait appel à différentes sous fonctions
+elle output la dernière couche et garde les outputs linéaires de chaque couche en cache
+fonction backward pass = boucle for qui fait appel à différentes sous fonction
+elle output les paramètres.
+Tu as fait le premier cours de spécialisation en deep. Il en reste 3 :)
+
+
+STANFORD LECTURES
+
+** Lecture one
+MIT summer school project 1966 pattern recognition
+Block worl 1963 (Roberts) - Generalized cylinder/Pitctorial structure (fin des années 1970)
+David Maar - several processes to end up with a 3D model (Stages of visual representation)
+(RQ : Gestalt theory - Kanitza, Desolneux).
+David Lowe 1987
+Image segmentation : normalized cut (Malik 1977)
+Image recognition : David Lowe SIFT 1999
+Imagenet challenge --> on fait mieux que l'humain.
+Drop dans l'erreur en 2012 avec les CNN.
+2012 - Alexnet
+2014 - VGG
+2015 - MSRA
+histoire des CNN - 1998 Lecun
+
+** Lecture two
+Image classification
+Introduction de knn (on donne la classe la plus représentée parmi les k plus proches)
+Hyperparameter: distance + k in knn
+"very problem-dependent. Must try them all out and see what works best." 
+HOW TO OPTIMIZE THE HYPERPARAMETERS?
+train set
+test set
+validation set
+On entraîne sur train, on choisit param qui maximise val on évalue sur test.
+(cross validation ? = next step)
+Split data into folds: try each fold as validation and "average" results.
+Je pense que "average" dans le sens où pour chaque validation on a fait plusieurs entraînements
+pour tester plusieurs jeux d'hyperparamètres et que l'on en choisit un pour chaque validation set.
+Ensuite on moyenne selon les résultats obtenus sur les test sets.
+L'étape de validation est en fait une étape de sélection de modèle. On a coupé notre dataset en 3.
+https://stats.stackexchange.com/questions/19048/what-is-the-difference-between-test-set-and-validation-set
+suggère 50/25/25.
+Ici entrainement pour différents paramètres --> sélection meilleur paramètre pour chaque val set --> test
+On peut sauter l'étape de sélection:
+Entrainement pour différents paramètres --> test pour les différents folds.
+Dans ce cas on obtient une matrice nombre de folds x nombre de paramètres testés (penser à l'exemple avec knn).
+"Useful for small datasets but not used too frequently in deep learning."
+Computationally extensive (cross validation)
+
+** Lecture three
+Il parle de SVM on s'intéresse à la loss
+CLASSIF LIN
+D'abord norme L1+ VS L2+
+"How do you care about the different categories of errors."
+Approche usuelle ensuite pour introduire le terme de régularisation,
+tu l'avais oubliée et c'est plutôt bien introduit ici --> unicité de la solution
+à la fin de l'entrainement.
+Autre aison model should be simple so it works on test data. (Rasoir d'Occam)
+On peut le voir aussi comme un a priori mis sur les données.
+Régularisations :
+L2 est populaire
+L1
+elastic net = L1+L2
+le drop out peut aussi être considéré comme une régularisation.
+
+Maintenant on met un softmax classifier.

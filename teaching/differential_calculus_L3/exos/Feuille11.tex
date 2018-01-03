@@ -1,0 +1,399 @@
+\documentclass[12pt]{article}
+%\usepackage[frenchb]{babel}
+\usepackage[T1]{fontenc}                % Accents codés dans la fonte.
+\usepackage[utf8x]{inputenc}           % Accents 8 bits dans le fichier.
+\usepackage{ifthen}                     % Faire des tests if/then/else.
+\usepackage{amsmath}    % Les symboles les plus fréquents.
+\usepackage{amsfonts}   % Des fontes, eg pour \mathbb.
+\usepackage{vmargin}                    % Régler la taille de la feuille.
+\usepackage{amssymb}
+\usepackage{lastpage}
+\usepackage{accents}
+\usepackage{enumitem}
+
+\newcommand{\poubelle}[1]{}
+% La taille de la page
+\setpapersize{A4}
+\setmarginsrb{20mm}{10mm}{14mm}{15mm}{10mm}{6mm}{0mm}{10mm}
+
+% La mise en page
+\newcounter{vcenterstest}
+\newlength{\leftlength}
+\newlength{\rightlength}
+\newlength{\vcentersskip}
+\newcommand{\leftcentersright}[4][2]{%
+        \settowidth{\leftlength}{#2}%
+        \settowidth{\rightlength}{#4}%
+        \setcounter{vcenterstest}{#1}%
+        \ifthenelse{\value{vcenterstest} = 0}
+                {\setlength{\vcentersskip}{0pt}}{}%
+        \ifthenelse{\value{vcenterstest} = 1}
+                {\setlength{\vcentersskip}{\smallskipamount}}{}%
+        \ifthenelse{\value{vcenterstest} = 2}
+                {\setlength{\vcentersskip}{\medskipamount}}{}%
+        \ifthenelse{\value{vcenterstest} = 3}
+                {\setlength{\vcentersskip}{\bigskipamount}}{}%
+        \ifthenelse{\value{vcenterstest} = 4}
+                {\setlength{\vcentersskip}{1cm}}{}%
+                % On laisse un espace vertical défini par l'argument
+                % optionnel #1
+        \vskip\vcentersskip
+                % On place #2 et on recule de sa longueur
+        \noindent#2\hskip-\leftlength%
+                % On centre #3
+        \hfill#3\hfill%
+                % On va au bout de la ligne, on recule de la longueur de #4 et
+                % on place #4
+        \mbox{}\hskip-\rightlength#4%
+                % On laisse un espace vertical défini par l'argument
+                % optionnel #1
+        \vskip\vcentersskip%
+    }
+\newcommand{\centers}[2][2]{\leftcentersright[#1]{}{#2}{}}
+\newcommand{\leftcenters}[3][2]{\leftcentersright[#1]{#2}{#3}{}}
+\newcommand{\centersright}[3][2]{\leftcentersright[#1]{}{#2}{#3}}
+\newcommand{\leftencadreright}[4][2]{\leftcentersright[#1]{#2}{\fbox{#3}}{#4}}
+
+\newcommand{\numtoi}[1]{
+  \ifthenelse{ \equal{#1}{1} }{i}{
+  \ifthenelse{ \equal{#1}{2} }{ii}{
+  \ifthenelse{ \equal{#1}{3} }{iii}{
+  \ifthenelse{ \equal{#1}{4} }{iv}{
+  \ifthenelse{ \equal{#1}{5} }{v}{
+  \ifthenelse{ \equal{#1}{6} }{vi}{
+  \ifthenelse{ \equal{#1}{7} }{vii}{
+  \ifthenelse{ \equal{#1}{8} }{viii}{
+  \ifthenelse{ \equal{#1}{9} }{ix}{
+  \ifthenelse{ \equal{#1}{10} }{x}{
+  \ifthenelse{ \equal{#1}{11} }{xi}{
+  \ifthenelse{ \equal{#1}{12} }{xii}{
+  \ifthenelse{ \equal{#1}{13} }{xiii}{
+  \ifthenelse{ \equal{#1}{14} }{xiv}{
+  \ifthenelse{ \equal{#1}{15} }{xv}{
+  \ifthenelse{ \equal{#1}{16} }{xvi}{
+  \ifthenelse{ \equal{#1}{17} }{xvii}{
+  \ifthenelse{ \equal{#1}{18} }{xviii}{
+    ERREUR,~MODIFIER~LA~MACRO~numtoi
+  } } } } } } } } } } } } } } } } } }
+}
+
+\newcounter{cretraiti}
+\newenvironment{ri}[1]{
+
+\begin{list}{($\numtoi{\thecretraiti}$)}{
+  \usecounter{cretraiti}
+  \topsep=0.5ex
+  \itemsep=0.3ex
+  \labelsep=0.3em
+  \parsep=0ex
+  \listparindent=1em
+  \settowidth{\labelwidth}{(#1)}
+  \leftmargin=\labelwidth
+  %\addtolength{\leftmargin}{\labelsep}
+}}{\end{list}
+}
+
+
+% Quelques raccourcis pour taper des maths
+\newcommand{\Sfr}{\mathfrak{S}}
+\newcommand{\Afr}{\mathfrak{A}}
+\newcommand{\QQ}{\mathbb{Q}}
+\newcommand{\ZZ}{\mathbb{Z}}
+\newcommand{\si}{\sigma}
+\newcommand{\ins}[1]{{\ensuremath{\textrm{#1}}}}
+\newcommand{\tiret}{\rule[0.6ex]{1.3ex}{0.26ex}}
+\newcommand{\accolades}[1]{\ensuremath{\left\{#1\right\}}}
+\newcommand{\paa}[1]{\ensuremath{\accolades{#1}}}       % Synonyme
+\newcommand{\ds}{\displaystyle}
+   \newcommand{\der}{
+      \mathop{}\mathopen{}\mathrm{d}
+   }
+
+% Numerotation des pages / la derniere
+\makeatletter
+\renewcommand{\@evenfoot}%
+        {\thepage \slash \pageref{LastPage}}
+\renewcommand{\@oddfoot}{\@evenfoot}
+\makeatother
+
+
+%%%%% Pour faire les exos
+\newcommand{\envfont}{\sf\bfseries}
+\newcounter{cexo}
+\renewcommand{\thecexo}{\arabic{cexo}}
+
+\newenvironment{exo}[1][toto]
+{
+  \refstepcounter{cexo}
+  \ifthenelse{ \equal{#1}{toto} }{
+   \noindent {\envfont Exercice \thecexo}
+  }{
+   \noindent {\envfont Exercice \thecexo{} \tiret\, #1.}
+  }
+%\newline
+%\indent
+}
+{}
+
+\newcounter{cquestions}
+\newenvironment{questions}{
+\begin{list}{{\envfont\alph{cquestions})}}{
+  \usecounter{cquestions}
+  \topsep=0.5ex
+  \partopsep=1em
+  \labelsep=0.3em
+  \itemsep=0.3ex
+  \settowidth{\labelwidth}{{\envfont b)}}\listparindent=1em
+  \leftmargin=\labelwidth \addtolength{\leftmargin}{\labelsep}
+}}{\end{list} }
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newcommand{\spacebeforeenv}{\vspace{1ex}}
+\newcommand{\spaceafterenv}{\vspace{1ex}}
+\newcommand{\myqedenv}{}
+
+
+\newcommand{\metaenvironnement}[2]  % 1er argument : nom de l'env, 2e argument : titre
+{
+  \ifthenelse{ \equal{#2}{toto} }{
+    \spacebeforeenv \noindent {\envfont #1 }
+  }{
+    \spacebeforeenv \noindent {\envfont #1  \tiret\, #2.}
+  }
+}
+
+%----------------------------------
+% Rappel
+%----------------------------------
+\newenvironment{rappel}[1][toto]
+{ \metaenvironnement{Rappel}{#1} }
+{\myqedenv\spaceafterenv}
+
+
+\newcommand{\fonction}[5]{%
+        \ensuremath{#1\colon
+        \left\{\hskip -1.5 mm
+        \begin{array}{c@{\ }c@{\ }l}
+        \medskip #2 & \longrightarrow & #3 \\
+        #4 & \longmapsto & #5 \\
+        \end{array}
+        \right .
+        }}
+\newcommand{\ph}{\varphi}
+\newcommand{\funu}[1]{\mathcal{C}^{#1}}
+\newcommand{\RR}{\mathbb{R}}
+\newcommand{\NN}{\mathbb{N}}
+\newcommand{\CC}{\mathbb{C}}
+
+\newenvironment{syst}[1][c]%
+    {\ensuremath{\left \{ \hskip -1.5 mm \begin{array}{#1@{\ =\ }l}}}%
+    {\end{array}\right.}
+
+\newcommand{\f}[2]{{\ensuremath{\mathchoice%
+    {\dfrac{#1}{#2}}
+        {\dfrac{#1}{#2}}
+    {\frac{#1}{#2}}
+    {\frac{#1}{#2}}
+    }}}
+\renewcommand{\ni}{\noindent}
+\newcommand{\ra}{\rightarrow}
+\newcommand{\question}[1]{{\sf\bfseries #1}}
+\newcommand{\norm}[1]{\ensuremath{\Arrowvert #1 \Arrowvert}}
+\newcommand{\Ende}[3]{\ensuremath{\mathrm{End}_{#1}^{#2}(#3)}}
+\newcommand{\End}[2]{\Ende{#1}{}{#2}}
+\newcommand{\id}{\ensuremath{\mathrm{id}}}
+\renewcommand{\d}{\ensuremath{\mathrm{d}}}
+\renewcommand{\leq}{\leqslant}
+\renewcommand{\geq}{\geqslant}
+
+
+\usepackage{datetime}
+\newdateformat{annscol}{\ifthenelse{\THEMONTH > 7}{\THEYEAR--\refstepcounter{YEAR}\THEYEAR}{\addtocounter{YEAR}{-1}\THEYEAR--\refstepcounter{YEAR}\THEYEAR}}
+
+\begin{document}
+ 
+
+%------------------------------------------------------------------------------------
+\leftcentersright[0]{{\bf\sf\large Formation en Mathématiques Commune Cachan/P7}}{}
+    {{\bf\sf\large Année~\annscol\today}}
+    \leftcentersright[0]{{\bf\sf\large Calcul différentiel}}{}{{\bf\sf Valentin De Bortoli, Frédéric Pascal}}
+    \vskip3ex\centers{{\bf\sf \Large
+                                      Feuille 1.1 - Théorème(s) du point fixe}}
+
+%\vskip3ex\centers{{\bf\sf \Large TD 1}}
+%------------------------------------------------------------------------------------------
+
+
+
+
+%------------------------------------------------------------------------------------------
+%------------------------------------------------------------------------------------------
+
+
+%\maketitle
+
+\vskip2ex
+ \begin{exo}[Contre-exemples et théorème du point fixe]
+ 
+\begin{questions}
+
+\item Montrer que le théorème de Picard n'est plus vrai si on ne suppose pas $X$ complet.
+
+\item Montrer que le théorème de Picard n'est plus vrai si on ne suppose pas l'application contractante (même avec l'inégalité $d(f(x),f(y)) < d(x,y)$ pour tous $x,y \in X$).
+
+
+\end{questions}    \end{exo}
+
+\vskip2ex
+\begin{exo}[Connexité et point fixe]
+ \begin{questions}
+
+\item Montrer que l'ensemble des valeurs d'adhérence d'une suite réelle $(u_{n})$ telle que \\ 
+$|u_{n+1}-u_{n}|\rightarrow 0$ est connexe par arc.
+
+\item Soit $X$ un intervalle compact de $\RR$ et $f: \ X \ra X$ une fonction continue. On considère une suite $(u_{n})_{n\in \NN}$ définie par $u_{0} \in X$ et $u_{n+1}=f(u_{n})$ et on suppose que $|u_{n+1}-u_{n}| \ra 0$. Montrer que la suite $(u_{n})$ converge.
+ 
+ \end{questions}    \end{exo}
+
+\vskip2ex
+\begin{exo}[Théorème des fermés emboîtés et complétude]
+\begin{questions}
+
+\item On notera, pour $A$ une partie d'un espace métrique, $\delta (A)=\sup \{d(x,y) | x,y \in A \}$ le diamètre de $A$. Démontrer le résultat suivant (théorème dit des fermés emboîtés) : \\
+Un espace métrique $(X,d)$ est complet ssi l'intersection de toute suite décroissante $(A_{n})_{n \in \NN}$ de parties fermées non vides de $X$ telles que $\lim_{n\rightarrow + \infty} \delta(A_{n})=0$ est non vide. \vskip1ex
+\item Soit $(X,d)$ un espace métrique complet non vide et $f : \ X\rightarrow X$ lipschitzienne de rapport $k \in [0,1[$. Pour $R \in \RR^{+}$, on pose $A_{R}=\{x \in X \ / \ d(x,f(x))\leq R\}$. 
+ \begin{enumerate}[label=\roman*]
+ 
+\item Montrer que $f(A_{R}) \subset A_{kR}$ et en déduire que pour tout $R \in \RR^{+}_{\ast}$, $A_{R}$ est une partie fermée non vide de $X$.
+
+\item Soient $x,y \in A_{R}$. Montrer que $d(x,y)\leq 2R+d \left ( f(x),f(y) \right )$ et en déduire que $\delta(A_{R})\leq \frac{2R}{1-k}$. 
+
+\item Montrer que $A_{0}=\bigcap_{n \in \NN^{\ast}} A_{1/n}$ et en conclure que $A_{0}$ est non vide.
+  \end{enumerate}
+
+\end{questions}    \end{exo}
+\vskip2ex
+\begin{exo}[Suite du type $u_{n+1}=f(u_n)$]
+Soient $f : I \ra \RR$ une fonction de classe $C^{1}$ sur un intervalle ouvert $I$ et $a \in I$ un point fixe de $f$.
+ 
+\begin{questions}
+
+\item On suppose que $|f'(a)| < 1$. Montrer qu'il existe un intervalle fermé $J$ stable par $f$ de centre $a$ tel que, pour tout $x_0 \in J$, la suite définie par 
+$u_0 = x_0$ et $u_n = f(u_{n-1})$ pour $n \geq 1$ converge vers $a$.
+
+\item Sous les hypothèses de la question précédente, on suppose de plus que $f'$ ne s'annule pas sur $J$. Montrer que si $x_0 \neq a$ alors $u_n \neq a$ pour tout $n \in \NN$ et 
+que $u_{n+1}- a \sim f'(a)(u_n-a)$.
+
+\item Toujours sous les hypothèses de la première question, on suppose que $f$ est de classe $C^{2}$ que $f'(a) = 0$ et que $f''$ ne s'annule pas sur $J$. 
+Montrer que, si $x_0 \in J$ et $x_0 \neq a$ alors $u_n \neq a$ pour tout $n \in \NN$ et que $u_{n+1}-a \sim \frac{f''(a)}{2}(u_n-a)^2$. 
+
+\item On suppose que $|f'(a)| > 1$. Montrer qu'il existe un intervalle fermé $J$ de centre $a$ tel que pour tout $x_0 \in J$ et $x_0 \neq a$ 
+la suite $(u_n)_{n\in \NN}$ sort de $J$.
+ 
+\end{questions}    \end{exo}
+\vskip2ex
+\begin{exo}[Théorèmes du point fixe et limites]
+Soient $(X,d)$ un espace métrique complet et $f_n : X \ra X$ une suite de fonctions continues.
+On suppose que $f_n$ admet un point fixe $x_n$.
+
+\begin{questions}
+
+\item On suppose que $(f_n)_{n \in \NN}$ converge uniformément vers $f$ sur $X$.
+ \begin{enumerate}[label=\roman*]
+\item On suppose que $(x_n)_{n \in \NN}$ converge (vers $x_0$). Montrer que $x_0$ est un point fixe pour $f$.
+
+\item On suppose que $(f(x_n))_{n \in \NN}$ converge (vers $x_0$). Montrer que $x_0$ est un point fixe pour $f$.
+
+\item On suppose que $f$ est contractante. Montrer que $(x_n)_{n \in \NN}$ converge vers l'unique point fixe de $f$. 
+\end{enumerate}
+\item on suppose maintenant que $(f_n)_{n \in \NN}$ converge simplement vers $f$ sur $X$.
+On suppose également qu'il existe $\alpha >0$, pour tout $n \in \NN$, $f_n$ soit $\alpha$-lipschiztienne.
+\begin{enumerate}[label=\roman*]
+
+\item Montrer que $f$ est $\alpha$-lipschiztienne et que si $(x_n)_{n \in \NN}$ converge vers $x_0$ alors $x_0$ est un point fixe de $f$.
+
+\item On suppose $\alpha < 1$. Montrer que $(x_n)_{n\in \NN}$ converge vers l'unique point fixe de $f$. Montrer qu'on ne peut pas remplacer la condition $\alpha < 1$ par la condition $\alpha_n < 1$ pour tout $n \in \NN$ (où $f_n$ est $\alpha_n$-lipschitzienne).
+On pourra considérer l'opérateur $f_n : \ell^2 \ra \ell^2$ défini par 
+$$f_n((x_k)_{k \in \NN}) = (0,\ldots, 0, (1-1/n)x_n + 1/n,0,\ldots)$$
+
+\item {\bf Application.} Soient $X$ un compact non vide d'un espace vectoriel normé qu'on suppose étoilé par rapport à l'un de ses points $x_0$ 
+(c'est le cas par exemple si $X$ est convexe). On suppose que $\Vert f(x)-f(y) \Vert \leq \Vert x-y \Vert $ pour tous $x,y \in X$. 
+Montrer que $f$ a un point fixe (on pourra introduire une suite $(t_n)_{n \in \NN}$ qui tend vers $0$ et les fonctions $f_n(x) = (1-t_n)f(x) + t_n x_0$).
+Peut-on retirer l'hypothèse de compacité ? (Pensez à une translation sur $\RR$).  Peut-on retirer l'hypothèse 'étoilé' ? (Pensez à une rotation sur le cercle).
+ 
+\end{enumerate}
+\end{questions}    \end{exo}
+
+\vskip2ex
+\begin{exo}[Vers Cauchy-Lipschitz]
+%\textbf{Version faible du théorème de Picard et applications}
+\begin{questions}
+
+\item Soient $(X,d)$ un espace métrique complet non vide et $f : X \rightarrow X$ une application (qu'on ne suppose pas continue).
+On suppose qu'il existe $N \in \NN$ et $\alpha \in [0,1[$ tels que \\
+$d(f^N(x),f^N(y)) \leq \alpha d(x,y)$  pour tous $x,y \in X$, c'est à dire que $f^N$ est une contraction. 
+Montrer que $f$ a un unique point fixe $x_0$ et que, pour tout $x \in X$, la suite définie par $u_0 =x$ et $u_{n+1} = f(u_n)$ converge vers $x_0$.
+
+\item \textbf{Application}: 
+Soient $a,b \in \RR$ et $I = [a,b]$ un intervalle compact. On considère une fonction $K : I \times I \ra \RR$ une fonction continue
+et $\phi$ une fonction continue de $I$ dans $\RR$.
+\begin{enumerate}[label=\roman*]
+\item  On suppose que $(b-a)\Vert K \Vert _{\infty} < 1$. Montrer qu'il existe une unique application continue $x : I \ra \RR$ telle que
+$$x(t) = \phi(t) + \int_{a}^{b} K(s,t)x(s) \der s $$
+\item Montrer qu'il existe une unique application continue $x : I \ra \RR$ telle que 
+$$x(t) = \phi(t) + \int_{a}^{t} K(s,t)x(s) \der s $$
+
+\end{enumerate}
+
+\end{questions}    \end{exo}
+\vskip2ex
+\begin{exo}[Théorème du point fixe et espace compact]
+  Soit $K$ un espace métrique compact et $f$ une fonction de $K$ dans $K$. On suppose que
+  \[ \forall (x,y) \in K^2, \ x\neq y \ \Rightarrow \ d(f(x),f(y)) < d(x,y).\]
+  \end{exo}
+  \begin{questions}
+  \item Montrer que $f$ admet un unique point fixe.
+  \item Soit $x_0 \in K$. On définit $\left(x_n\right)_{n \in \mathbb{N}}$ par récurrence via $f(x_{n+1}) = x_n$. Montrer que $u_n = d(x_n,f(x_n))$ converge.
+  \item Montrer que toute valeur d'adhérence de la suite est un point fixe.
+    \item Conclure sur la convergence.
+    \end{questions}
+    \vskip2ex
+\begin{exo}[Théorème de Sarkowski]
+ Soit $I$ un segment de $\mathbb{R}$ et $f : \ I\rightarrow I$ une application continue. Pour $x \in I$, on dit que $x$ est un point n-périodique lorsque $f^{n}(x)=x$ et $f^{k}(x)\neq x$ pour tout $k \in \{1,..,n-1\}$. 
+
+\begin{questions}
+
+\item Si $K$ est un segment inclus dans $f(I)$, montrer qu'il existe un segment $L\subset I$ tel que $K=f(L)$.
+
+\item Montrer que si $I_{0}\subset I$ est tel que $I_{0}\subset f(I_{0})$ alors $f$ admet un point fixe dans $I_{0}$. 
+
+\item Si $I_{1}$ et $I_{2}$ sont deux segments quelconques de $I$ tels que $I_{2}\subset f(I_{1})$, on notera désormais pour simplifier $I_{1}\rightarrow I_{2}$. Montrer que si deux segments $I_{0},I_{1}\subset I$ vérifient $I_{0}\rightarrow I_{1} \rightarrow I_{0}$, alors $f^{2}$ admet un point fixe $x_{0} \in I_{0}$ tel que $f(x_{0}) \in I_{1}$. En généralisant ceci, montrer que si $I_{0}\rightarrow I_{1}\rightarrow ... \rightarrow I_{n-1} \rightarrow I_{0}$, alors $f^{n}$ admet un point fixe tel que $f^{k}(x_{0}) \in I_{k}$ pour tout $k \in \{1,..,n-1\}$.
+
+\item On suppose que $f$ admet un point 3-périodique $a \in I$. On note $b=f(a)$ et $c=f^{2}(a)$. Quitte à interchanger $a$ et $b$, on peut supposer que $a=min\{a,b,c\}$. Dans le cas où $a<b<c$, on définit $I_{0}=[a,b]$ et $I_{1}=[b,c]$. Montrer que $I_{0}\rightarrow I_{1}, \  I_{1}\rightarrow I_{0}, \ I_{1}\rightarrow I_{1}$. En déduire que $f$ admet un point n-périodique pour tout $n \geq 1$. Raisonner de manière similaire pour $a<c<b$.
+
+\item Le résultat précédent se généralise-t-il à des dimensions supérieures ?
+
+\item \textbf{Application} Résoudre l'équation fonctionnelle $f^{3}=id_{[0,1]}$ pour $f \in C([0,1],[0,1])$.
+
+\end{questions}    \end{exo}
+\vskip2ex
+\begin{exo}[Point fixe et caractère global]
+  Soit $I$ un segment de $\mathbb{R}$ et $f : \ I\rightarrow I$ une application continue. On suppose que
+  \[
+    \forall x \in I, \ \exists n_x \in \mathbb{N}, \ f^{n_x}(x) = x
+  \]
+\end{exo}
+\begin{questions}
+\item Montrer que $f$ est bijective.
+\item Dans le cas où $f$ est croissante montrer que $f = id_I$.
+\item Conclure dans le cas général.
+  \item Reprendre la dernière question de l'exercice précédent.
+  \end{questions}
+
+
+\end{document}
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

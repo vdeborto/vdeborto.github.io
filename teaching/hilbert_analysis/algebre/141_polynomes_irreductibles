@@ -1,0 +1,63 @@
+141 	Polynômes irréductibles à une indéterminée. Corps de rupture. Exemples et applications.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+ALGEBRE		20
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+Je suis tombé sur le couplage suivant :
+\begin{itemize}
+\item[\textbf{141 -}] Polynômes irréductibles à une indéterminée. Corps de rupture. Exemples et applications.
+\item[\textbf{183 -}] Utilisation de groupes en géométrie.
+\end{itemize}
+
+J'ai choisi la leçon $141$. J'ai proposé les deux développements suivants :
+\begin{enumerate}
+\item Endomorphismes semi-simples,
+\item Lemme d'Artin et correspondance de Galois.
+\end{enumerate}
+
+J'ai été interrogé sur le premier développement.
+
+\subsection*{\textcolor{blue}{Questions sur le développement}}
+\begin{itemize}
+\item Re-détailler deux points. Dans la démonstration de ($F$ simple) implique ($F$ cyclique et $\Pi_{u_F}$ irréductible), on m'a demandé de justifier que si $P$ est un facteur irréductible de $\Pi_{u_F}$, $P(u_F)$ est injectif. Dans la démonstration de ($\Pi_u$ n'est pas divisible par le carré d'un irréductible) implique ($E$ se décompose comme somme directe de sev simples), on m'a demandé de détailler pourquoi le lemme des noyaux permettait de se restreindre au cas où $\Pi_u$ est irréductible. 
+\item Vous dites que $u$ est diagonalisable dans une extension de $k$. Qu'est-ce que cela signifie ? (Je m'en veux de ne pas m'être posé cette question avant, parce qu'elle est vraiment légitime. On a commencé à parler de prolonger la $k$-linéarité en une $K$-linéarité, mais on s'est rendus compte que ce n'était pas si évident et qu'il valait mieux prendre le point de vue matriciel.)
+\item Justifier que le polynôme minimal est invariant par changement de corps.
+\end{itemize}
+
+Dans la suite, le jury mélangeait les questions sur les plans et les exercices, mais pour plus de clarté, je les sépare dans ce rapport.
+
+\subsection*{\textcolor{blue}{Questions sur le plan}}
+\begin{itemize}
+\item Qu'est-ce qu'un groupe résoluble ? 
+\item Donner un exemple de corps non parfait. Justifier.
+\item Pourquoi $\overline{\mathbb{Q}}$ est un corps ? Pourquoi $\overline{\mathbb{Q}} \neq \mathbb{C}$ ? J'ai répondu à cette question en disant que l'un était dénombrable et l'autre non, donc le jury m'a demandé quelques exemples de nombres transcendants sur $\mathbb{Q}$. J'ai cité $e$ et $\pi$, puis on m'a demandé si je n'avais pas un exemple plus simple de nombre transcendant (je n'ai pas su répondre à cette question).
+\item A propos de l'algorithme de Berlekamp : avez-vous une idée d'un algorithme de factorisation sur $\mathbb{Z}$ à partir de l'algorithme de Berlekamp ? (Je n'ai pas su répondre)
+\item Comment démontrez-vous l'existence et l'unicité du corps de rupture ?
+\item J'avais admis le théorème de Steinitz (existence et unicité à isomorphisme près d'une clôture algébrique) dans mon plan, en disant qu'il reposait sur le lemme de Zorn. Le jury m'a demandé si je ne pouvais pas construire une clôture algébrique de $\mathbb{F}_p$ sans. J'ai répondu qu'on pouvait prendre la réunion des $\mathbb{F}_{p^n}$, et ils m'ont demandé si on devait vraiment prendre la réunion pour tous les $n$. Il suffisait ensuite de dire que $\mathbb{F}_{p^n} \subset \mathbb{F}_{p^m}$ si et seulement si $n|m$, et donc on pouvait remplacer $n$ par $n!$.
+\end{itemize}
+
+\subsection*{\textcolor{blue}{Exercices}}
+\begin{enumerate}
+\item Soit $P \in \mathbb{F}_q[X]$ un polynôme séparable. 
+\begin{itemize} 
+\item Donner un algorithme pour déterminer le nombre $r$ de polynômes irréductibles dans la décomposition de $P = P_1 ... P_r$. (C'est fait dans la plupart des ouvrages qui parlent de Berlekamp, notamment dans le Hindry. L'ingrédient clé est l'isomorphisme chinois.)
+\item La question précédente ramène le problème au calcul du rang d'une matrice. Comment calculez-vous le rang d'une matrice ?
+\item Quelle est la complexité de l'algorithme du pivot de Gauss ? 
+\end{itemize}
+\item Soit $p$ un nombre premier. 
+\begin{itemize}
+\item Quel est le degré de $\alpha = \cos(\frac{2\pi}{p})$ sur $\mathbb{Q}$ ? 
+\item Pourquoi le degré de $\exp(\frac{2i\pi}{p})$ sur $\mathbb{Q}$ est $p-1$ ? Est-ce toujours le cas pour $p$ non premier ?
+\item Un membre du jury m'a demandé quel était le polynôme minimal de $\alpha$ sur $\mathbb{Q}$, mais un autre membre du jury l'a coupé en disant que c'était un peu long et qu'il voulait me donner un autre exercice.
+\end{itemize}
+\item Soit $P = X^4 - 2$.
+\begin{itemize}
+\item Déterminer le degré de l'extension de décomposition.
+\item Déterminer le groupe de Galois de $P$ sur $\mathbb{Q}$ (c'est le groupe diédral).
+\item Etudier la correspondance de Galois sur quelques exemples. (J'ai commencé à étudier le sous-corps fixé par les rotations, mais je n'ai pas eu le temps de finir.)
+\end{itemize}
+\end{enumerate}
+
+

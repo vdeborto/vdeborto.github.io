@@ -1,0 +1,328 @@
+\documentclass[12pt]{article}
+%\usepackage[frenchb]{babel}
+\usepackage[T1]{fontenc}                % Accents codés dans la fonte.
+\usepackage[utf8x]{inputenc}           % Accents 8 bits dans le fichier.
+\usepackage{ifthen}                     % Faire des tests if/then/else.
+\usepackage{amsmath}    % Les symboles les plus fréquents.
+\usepackage{amsfonts}   % Des fontes, eg pour \mathbb.
+\usepackage{vmargin}                    % Régler la taille de la feuille.
+\usepackage{amssymb}
+\usepackage{lastpage}
+\usepackage{accents}
+
+
+% La taille de la page
+\setpapersize{A4}
+\setmarginsrb{20mm}{10mm}{14mm}{15mm}{10mm}{6mm}{0mm}{10mm}
+
+% La mise en page
+\newcounter{vcenterstest}
+\newlength{\leftlength}
+\newlength{\rightlength}
+\newlength{\vcentersskip}
+\newcommand{\leftcentersright}[4][2]{%
+        \settowidth{\leftlength}{#2}%
+        \settowidth{\rightlength}{#4}%
+        \setcounter{vcenterstest}{#1}%
+        \ifthenelse{\value{vcenterstest} = 0}
+                {\setlength{\vcentersskip}{0pt}}{}%
+        \ifthenelse{\value{vcenterstest} = 1}
+                {\setlength{\vcentersskip}{\smallskipamount}}{}%
+        \ifthenelse{\value{vcenterstest} = 2}
+                {\setlength{\vcentersskip}{\medskipamount}}{}%
+        \ifthenelse{\value{vcenterstest} = 3}
+                {\setlength{\vcentersskip}{\bigskipamount}}{}%
+        \ifthenelse{\value{vcenterstest} = 4}
+                {\setlength{\vcentersskip}{1cm}}{}%
+                % On laisse un espace vertical défini par l'argument
+                % optionnel #1
+        \vskip\vcentersskip
+                % On place #2 et on recule de sa longueur
+        \noindent#2\hskip-\leftlength%
+                % On centre #3
+        \hfill#3\hfill%
+                % On va au bout de la ligne, on recule de la longueur de #4 et
+                % on place #4
+        \mbox{}\hskip-\rightlength#4%
+                % On laisse un espace vertical défini par l'argument
+                % optionnel #1
+        \vskip\vcentersskip%
+    }
+\newcommand{\centers}[2][2]{\leftcentersright[#1]{}{#2}{}}
+\newcommand{\leftcenters}[3][2]{\leftcentersright[#1]{#2}{#3}{}}
+\newcommand{\centersright}[3][2]{\leftcentersright[#1]{}{#2}{#3}}
+\newcommand{\leftencadreright}[4][2]{\leftcentersright[#1]{#2}{\fbox{#3}}{#4}}
+
+\newcommand{\poubelle}[1]{}
+\newcommand{\numtoi}[1]{
+  \ifthenelse{ \equal{#1}{1} }{i}{
+  \ifthenelse{ \equal{#1}{2} }{ii}{
+  \ifthenelse{ \equal{#1}{3} }{iii}{
+  \ifthenelse{ \equal{#1}{4} }{iv}{
+  \ifthenelse{ \equal{#1}{5} }{v}{
+  \ifthenelse{ \equal{#1}{6} }{vi}{
+  \ifthenelse{ \equal{#1}{7} }{vii}{
+  \ifthenelse{ \equal{#1}{8} }{viii}{
+  \ifthenelse{ \equal{#1}{9} }{ix}{
+  \ifthenelse{ \equal{#1}{10} }{x}{
+  \ifthenelse{ \equal{#1}{11} }{xi}{
+  \ifthenelse{ \equal{#1}{12} }{xii}{
+  \ifthenelse{ \equal{#1}{13} }{xiii}{
+  \ifthenelse{ \equal{#1}{14} }{xiv}{
+  \ifthenelse{ \equal{#1}{15} }{xv}{
+  \ifthenelse{ \equal{#1}{16} }{xvi}{
+  \ifthenelse{ \equal{#1}{17} }{xvii}{
+  \ifthenelse{ \equal{#1}{18} }{xviii}{
+    ERREUR,~MODIFIER~LA~MACRO~numtoi
+  } } } } } } } } } } } } } } } } } }
+}
+
+\newcounter{cretraiti}
+\newenvironment{ri}[1]{
+
+\begin{list}{($\numtoi{\thecretraiti}$)}{
+  \usecounter{cretraiti}
+  \topsep=0.5ex
+  \itemsep=0.3ex
+  \labelsep=0.3em
+  \parsep=0ex
+  \listparindent=1em
+  \settowidth{\labelwidth}{(#1)}
+  \leftmargin=\labelwidth
+  %\addtolength{\leftmargin}{\labelsep}
+}}{\end{list}
+}
+
+
+% Quelques raccourcis pour taper des maths
+\newcommand{\Sfr}{\mathfrak{S}}
+\newcommand{\Afr}{\mathfrak{A}}
+\newcommand{\QQ}{\mathbb{Q}}
+\newcommand{\ZZ}{\mathbb{Z}}
+\newcommand{\si}{\sigma}
+\newcommand{\ins}[1]{{\ensuremath{\textrm{#1}}}}
+\newcommand{\tiret}{\rule[0.6ex]{1.3ex}{0.26ex}}
+\newcommand{\accolades}[1]{\ensuremath{\left\{#1\right\}}}
+\newcommand{\paa}[1]{\ensuremath{\accolades{#1}}}       % Synonyme
+\newcommand{\ds}{\displaystyle}
+
+
+% Numerotation des pages / la derniere
+\makeatletter
+\renewcommand{\@evenfoot}%
+        {\thepage \slash \pageref{LastPage}}
+\renewcommand{\@oddfoot}{\@evenfoot}
+\makeatother
+
+
+%%%%% Pour faire les exos
+\newcommand{\envfont}{\sf\bfseries}
+\newcounter{cexo}
+\renewcommand{\thecexo}{\arabic{cexo}}
+
+\newenvironment{exo}[1][toto]
+{
+  \refstepcounter{cexo}
+  \ifthenelse{ \equal{#1}{toto} }{
+   \noindent {\envfont Exercice \thecexo}
+  }{
+   \noindent {\envfont Exercice \thecexo{} \tiret\, #1.}
+  }
+%\newline
+%\indent
+}
+{}
+
+\newcounter{cquestions}
+\newenvironment{questions}{
+\begin{list}{{\envfont\alph{cquestions})}}{
+  \usecounter{cquestions}
+  \topsep=0.5ex
+  \partopsep=1em
+  \labelsep=0.3em
+  \itemsep=0.3ex
+  \settowidth{\labelwidth}{{\envfont b)}}\listparindent=1em
+  \leftmargin=\labelwidth \addtolength{\leftmargin}{\labelsep}
+}}{\end{list} }
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newcommand{\spacebeforeenv}{\vspace{1ex}}
+\newcommand{\spaceafterenv}{\vspace{1ex}}
+\newcommand{\myqedenv}{}
+
+
+\newcommand{\metaenvironnement}[2]  % 1er argument : nom de l'env, 2e argument : titre
+{
+  \ifthenelse{ \equal{#2}{toto} }{
+    \spacebeforeenv \noindent {\envfont #1 }
+  }{
+    \spacebeforeenv \noindent {\envfont #1  \tiret\, #2.}
+  }
+}
+
+%----------------------------------
+% Rappel
+%----------------------------------
+\newenvironment{rappel}[1][toto]
+{ \metaenvironnement{Rappel}{#1} }
+{\myqedenv\spaceafterenv}
+
+
+\newcommand{\fonction}[5]{%
+        \ensuremath{#1\colon
+        \left\{\hskip -1.5 mm
+        \begin{array}{c@{\ }c@{\ }l}
+        \medskip #2 & \longrightarrow & #3 \\
+        #4 & \longmapsto & #5 \\
+        \end{array}
+        \right .
+        }}
+\newcommand{\ph}{\varphi}
+\newcommand{\funu}[1]{\mathcal{C}^{#1}}
+\newcommand{\RR}{\mathbb{R}}
+\newcommand{\NN}{\mathbb{N}}
+\newcommand{\CC}{\mathbb{C}}
+
+\newenvironment{syst}[1][c]%
+    {\ensuremath{\left \{ \hskip -1.5 mm \begin{array}{#1@{\ =\ }l}}}%
+    {\end{array}\right.}
+
+\newcommand{\f}[2]{{\ensuremath{\mathchoice%
+    {\dfrac{#1}{#2}}
+        {\dfrac{#1}{#2}}
+    {\frac{#1}{#2}}
+    {\frac{#1}{#2}}
+    }}}
+\renewcommand{\ni}{\noindent}
+\newcommand{\ra}{\rightarrow}
+\newcommand{\question}[1]{{\sf\bfseries #1}}
+\newcommand{\norm}[1]{\ensuremath{\Arrowvert #1 \Arrowvert}}
+\newcommand{\Ende}[3]{\ensuremath{\mathrm{End}_{#1}^{#2}(#3)}}
+\newcommand{\End}[2]{\Ende{#1}{}{#2}}
+\newcommand{\id}{\ensuremath{\mathrm{id}}}
+\renewcommand{\d}{\ensuremath{\mathrm{d}}}
+\renewcommand{\leq}{\leqslant}
+\renewcommand{\geq}{\geqslant}
+
+
+\usepackage{datetime}
+\newdateformat{annscol}{\ifthenelse{\THEMONTH > 7}{\THEYEAR--\refstepcounter{YEAR}\THEYEAR}{\addtocounter{YEAR}{-1}\THEYEAR--\refstepcounter{YEAR}\THEYEAR}}
+
+\begin{document}
+ 
+
+%------------------------------------------------------------------------------------
+\leftcentersright[0]{{\bf\sf\large Formation en Mathématiques Commune Cachan / P7}}{}
+    {{\bf\sf\large Année~\annscol\today}}
+\leftcentersright[0]{{\bf\sf\large Calcul différentiel}}{}{{\bf\sf Mariano Rodríguez, Frédéric Pascal}}
+\vskip3ex\centers{{\bf\sf \Large Feuille 0.2}}
+%------------------------------------------------------------------------------------------
+
+
+
+
+%------------------------------------------------------------------------------------------
+%------------------------------------------------------------------------------------------
+
+
+\vskip2ex 
+\begin{exo}[Ensembles compacts dans les espaces métriques]
+Soit $(E,d)$ un espace métrique.
+\begin{questions}
+\item Soit $A \subset E$ un sous-ensemble de $E$. Montrer que $A$ vérifie la propriété de Bolzano Weiestrass ($ie$ toute suite dans $A$ a au moins 
+une valeur d'adhérence dans $A$) $ssi$ il vérifie la propriété de Borel Lebesgue, $ie$ si $(U_i)_{i \in I}$ est une famille d'ouverts de $E$ telle que $\cup_i U_i \cap A = A$ alors il existe $i_1, \cdots i_N \in I$ tels que  $\cup_{k=1}^N U_{i_k} \cap A = A$. Dans ce cas on dit que l'ensemble $A$ est compact.
+\item Montrer que toute suite d'un compact $A$ ayant une seule valeur 
+d'adhérence converge.
+\item Montrer qu'un sous ensemble  $A$ compact de $E$ est fermé et borné. On notera que dans $E=\RR^m$ où $(a_n)_n$ converge vers $a$ si et seulement si les
+composantes $(a^i_n)_n$ convergent dans $\RR$ vers les composantes $a^i$, les fermés bornés sont des compacts.  
+
+\end{questions}
+\end{exo}
+
+
+
+
+\vskip2ex 
+\begin{exo}[Fonctions définies sur un compact]
+Soient $(E,d)$ et $(E',d')$ deux espaces métriques, et soit $f : E \longrightarrow E'$.\\
+\textit{Définitions} : 
+ \begin{itemize}
+\item On dit que $f$ est un homéomorphisme de $E$ sur $E'$ si $f$ est inversible continue et $f^{-1}$ est également continue.
+\item On dit que $f$ est ouverte si l'image de tout ouvert de $E$ par $f$ est un ouvert de $E'$. 
+\item On dit que $f : E \to E'$ est uniformément continue sur $E$
+si pour tout $\epsilon >0$, il existe $\eta >0$ tel que $d(x,y) \leq \eta$ entraîne $d'(f(x),f(y))\leq \epsilon$ 
+pour tout $x$ et $y$.
+\end{itemize}
+\begin{questions}
+\item Montrer que si $f$ est continue  sur $K$ compact de $E$ alors $f(K)$ est compact et $f$ est uniformément continue sur $K$.
+\textit{Remarque:} En particulier une application numérique (à valeur dans $\RR$) définie sur un compact est bornée et atteint ses bornes.
+\item Montrer que si $f$ est bijective et continue sur un compact $K$ alors $f$ est une application ouverte de $K$ sur $f(K)$, et donc un homéomorphisme de $K$ sur $f(K)$.
+\end{questions}
+
+\end{exo}
+
+
+
+
+
+
+\vskip2ex 
+\begin{exo}[Espace vectoriel normé]
+Soit $(E,\|.\|)$ un evn défini sur $\RR$ ou $\CC$. $E$ est un espace métrique pour la distance associée à la norme.
+\begin{questions}
+\item Montrer que l'application qui à $x \in E$ associe $\|x\|$ est continue sur $E$.
+\item Soit $ A \subset \RR^n$ fermé et non bornée. Montrer que si 
+$f : A \to \RR$ est continue et coercive i.e. $\lim_{\|x\|\to + \infty} f(x) = + \infty$ alors $f$ est minorée et atteint sa 
+borne inférieure sur $A$.
+\item Montrer que $E$ est de dimension finie $ssi$ sa boule unité est compacte (théorème de Riesz).
+\end{questions}
+\end{exo}
+
+
+\vskip2ex 
+\begin{exo}[Espace de Banach]
+Un evn complet est appelé espace de Banach.
+\begin{questions}
+\item Soit $(a_n)_n$ une suite de $E$ espace de Banach, dont la série est absolument convergente. 
+Montrer que cette série converge dans $E$ et que l'on $\|\sum_{n=0}^{+ \infty} a_n \| \leq \sum_{n=0}^{+ \infty} \|a_n\|$.
+\item Soient $E$ un espace de Banach et $A$ un ensemble quelconque non vide. Montre que 
+${\cal B}=\{ f : A \to E \, / \, f \, \mbox{bornée} \}$ muni de la norme sup (norme de la convergence uniforme) est un espace de Banach.
+\item Soient $E$ un espace de Banach et $A$ un ensemble quelconque non vide. Montre que 
+${\cal C}_b=\{ f : A \to E \, / \, f \, \mbox{bornée et continue} \}$   est un sous espace de Banach dans ${\cal B}$. On notera que si 
+$A$ est compact, il coincide avec ${\cal C}(A,E)= \{ f : A \to E \, / \, f \, \mbox{continue} \}$.
+\item Montrer que ${\cal C}([0,1],\RR)$ ensemble des fonctions continues de $[0,1]$ vers $\RR$, 
+muni de la norme $\int_0^1 [f(t)|dt$ n'est pas un
+espace de Banach en prenant par exemple $f_n(x)= 0$ sur $[0,\frac{1}{2}]$, $f_n(x)=1$ sur $[\frac{1}{2}+\frac{1}{n},1]$ et 
+linéaire sur $[\frac{1}{2}, \frac{1}{2}+\frac{1}{n}]$.
+\end{questions}
+\end{exo}
+
+
+\vskip2ex 
+\begin{exo}[Fonctions linéaires continues dans les evn]
+Soient  $(E,\|.\|_E)$ et  $(F,\|.\|_F)$ deux evn. 
+\begin{questions}
+\item Soit $f : E \to F$ linéaire. Montrer les assertions suivantes sont équivalentes : i) $f$ est continue en 
+un point de $E$, ii) $f$ est continue sur $E$, iii) $f$ est bornée sur toute partie bornée de $E$, iv) il existe une constante $M>0$ telle que $\|f(x)\|_F \leq M \|x\|_E$ pour tout 
+$x$ dans $E$.
+\item Montrer que si $f$ est une forme linéaire non nulle alors $f$ est continue si et seulement si $f^{-1}(0)$ 
+est fermé.
+\item Montrer que si $F$ est un espace de Banach, l'ensemble ${\cal L}(E,F)$ des applications linéaires continues de $E$ dans $F$ est 
+un espace de Banach pour la norme subordonnée.  \\
+\textit{Rappel} : Si $f \in {\cal L}(E,F)$, sa norme subordonnée est $$|f| = \sup \{ |f(x)|_F \quad | \quad x\in S_E (0,1) \} = \sup \{ \frac{|f(x)|_F}{|x|_E} \quad | \quad x\in E-\{0\} \}$$
+\item Soit $p: E \to \RR^+$ une semi-norme vérifiant donc $p(x+y) \leq p(x)+p(y)$ ; $p(\lambda x) = |\lambda| p(x)$ et $p(0)=0$. Montrer 
+que $p$ est continue sur $(E,\|.\|)$ si et seulement si il existe $M>0$ telle que pour tout $x$ de $E$, $$p(x) \leq M \|x\|.$$ 
+En déduire que toute 
+semi-norme $p$ sur $\RR^n$ muni de la norme euclidienne est continue et par suite que toutes les normes sur $\RR^n$  sont équivalentes et 
+que toutes les applications linéaires définies sur $\RR^n$ et à valeur dans 
+$F$ sont continues.
+\item Soit $E$ un espace vectoriel de dimension finie muni de 2 normes $\|.\|_1$ et $\|.\|_2$. Montrer que les boules unités pour ces 2 
+normes sont homéomorphes (on pourra utiliser une fonction qui à $x$ associe $\lambda(x) x$ avec $  \lambda(x) \geq 0$). 
+\item En déduire en particulier que dans $\RR^2$ le disque unité est le carré unité sont homéomorphes et définir l'application homéomorphe.
+\end{questions}
+\end{exo}
+
+
+
+\end{document}

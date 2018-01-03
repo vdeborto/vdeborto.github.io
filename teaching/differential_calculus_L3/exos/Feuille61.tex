@@ -1,0 +1,350 @@
+\documentclass[12pt]{article}
+%\usepackage[frenchb]{babel}
+\usepackage[T1]{fontenc}    
+%\usepackage[latin1]{inputenc}
+\usepackage{graphicx,amssymb,amsmath} % extensions pour maths avancées
+\usepackage{graphicx}              % Accents codés dans la fonte.
+\usepackage[utf8x]{inputenc}           % Accents 8 bits dans le fichier.
+\usepackage{ifthen}                     % Faire des tests if/then/else.
+\usepackage{amsmath}    % Les symboles les plus fréquents.
+\usepackage{amsfonts}   % Des fontes, eg pour \mathbb.
+\usepackage{vmargin}                    % Régler la taille de la feuille.
+\usepackage{amssymb}
+\usepackage{lastpage}
+\usepackage{accents}
+\usepackage{enumitem}
+
+% La taille de la page
+\setpapersize{A4}
+\setmarginsrb{20mm}{10mm}{14mm}{15mm}{10mm}{6mm}{0mm}{10mm}
+
+% La mise en page
+\newcounter{vcenterstest}
+\newlength{\leftlength}
+\newlength{\rightlength}
+\newlength{\vcentersskip}
+\newcommand{\leftcentersright}[4][2]{%
+        \settowidth{\leftlength}{#2}%
+        \settowidth{\rightlength}{#4}%
+        \setcounter{vcenterstest}{#1}%
+        \ifthenelse{\value{vcenterstest} = 0}
+                {\setlength{\vcentersskip}{0pt}}{}%
+        \ifthenelse{\value{vcenterstest} = 1}
+                {\setlength{\vcentersskip}{\smallskipamount}}{}%
+        \ifthenelse{\value{vcenterstest} = 2}
+                {\setlength{\vcentersskip}{\medskipamount}}{}%
+        \ifthenelse{\value{vcenterstest} = 3}
+                {\setlength{\vcentersskip}{\bigskipamount}}{}%
+        \ifthenelse{\value{vcenterstest} = 4}
+                {\setlength{\vcentersskip}{1cm}}{}%
+                % On laisse un espace vertical défini par l'argument
+                % optionnel #1
+        \vskip\vcentersskip
+                % On place #2 et on recule de sa longueur
+        \noindent#2\hskip-\leftlength%
+                % On centre #3
+        \hfill#3\hfill%
+                % On va au bout de la ligne, on recule de la longueur de #4 et
+                % on place #4
+        \mbox{}\hskip-\rightlength#4%
+                % On laisse un espace vertical défini par l'argument
+                % optionnel #1
+        \vskip\vcentersskip%
+    }
+\newcommand{\centers}[2][2]{\leftcentersright[#1]{}{#2}{}}
+\newcommand{\leftcenters}[3][2]{\leftcentersright[#1]{#2}{#3}{}}
+\newcommand{\centersright}[3][2]{\leftcentersright[#1]{}{#2}{#3}}
+\newcommand{\leftencadreright}[4][2]{\leftcentersright[#1]{#2}{\fbox{#3}}{#4}}
+
+\newcommand{\numtoi}[1]{
+  \ifthenelse{ \equal{#1}{1} }{i}{
+  \ifthenelse{ \equal{#1}{2} }{ii}{
+  \ifthenelse{ \equal{#1}{3} }{iii}{
+  \ifthenelse{ \equal{#1}{4} }{iv}{
+  \ifthenelse{ \equal{#1}{5} }{v}{
+  \ifthenelse{ \equal{#1}{6} }{vi}{
+  \ifthenelse{ \equal{#1}{7} }{vii}{
+  \ifthenelse{ \equal{#1}{8} }{viii}{
+  \ifthenelse{ \equal{#1}{9} }{ix}{
+  \ifthenelse{ \equal{#1}{10} }{x}{
+  \ifthenelse{ \equal{#1}{11} }{xi}{
+  \ifthenelse{ \equal{#1}{12} }{xii}{
+  \ifthenelse{ \equal{#1}{13} }{xiii}{
+  \ifthenelse{ \equal{#1}{14} }{xiv}{
+  \ifthenelse{ \equal{#1}{15} }{xv}{
+  \ifthenelse{ \equal{#1}{16} }{xvi}{
+  \ifthenelse{ \equal{#1}{17} }{xvii}{
+  \ifthenelse{ \equal{#1}{18} }{xviii}{
+    ERREUR,~MODIFIER~LA~MACRO~numtoi
+  } } } } } } } } } } } } } } } } } }
+}
+
+\newcounter{cretraiti}
+\newenvironment{ri}[1]{
+
+\begin{list}{($\numtoi{\thecretraiti}$)}{
+  \usecounter{cretraiti}
+  \topsep=0.5ex
+  \itemsep=0.3ex
+  \labelsep=0.3em
+  \parsep=0ex
+  \listparindent=1em
+  \settowidth{\labelwidth}{(#1)}
+  \leftmargin=\labelwidth
+  %\addtolength{\leftmargin}{\labelsep}
+}}{\end{list}
+}
+
+
+% Quelques raccourcis pour taper des maths
+\newcommand{\Sfr}{\mathfrak{S}}
+\newcommand{\Afr}{\mathfrak{A}}
+\newcommand{\QQ}{\mathbb{Q}}
+\newcommand{\ZZ}{\mathbb{Z}}
+\newcommand{\si}{\sigma}
+\newcommand{\ins}[1]{{\ensuremath{\textrm{#1}}}}
+\newcommand{\tiret}{\rule[0.6ex]{1.3ex}{0.26ex}}
+\newcommand{\accolades}[1]{\ensuremath{\left\{#1\right\}}}
+\newcommand{\paa}[1]{\ensuremath{\accolades{#1}}}       % Synonyme
+\newcommand{\ds}{\displaystyle}
+   \newcommand{\der}{
+      \mathop{}\mathopen{}\mathrm{d}
+   }
+
+% Numerotation des pages / la derniere
+\makeatletter
+\renewcommand{\@evenfoot}%
+        {\thepage \slash \pageref{LastPage}}
+\renewcommand{\@oddfoot}{\@evenfoot}
+\makeatother
+
+
+%%%%% Pour faire les exos
+\newcommand{\envfont}{\sf\bfseries}
+\newcounter{cexo}
+\renewcommand{\thecexo}{\arabic{cexo}}
+
+\newenvironment{exo}[1][toto]
+{
+  \refstepcounter{cexo}
+  \ifthenelse{ \equal{#1}{toto} }{
+   \noindent {\envfont Exercice \thecexo}
+  }{
+   \noindent {\envfont Exercice \thecexo{} \tiret\, #1.}
+  }
+%\newline
+%\indent
+}
+{}
+
+\newcounter{cquestions}
+\newenvironment{questions}{
+\begin{list}{{\envfont\alph{cquestions})}}{
+  \usecounter{cquestions}
+  \topsep=0.5ex
+  \partopsep=1em
+  \labelsep=0.3em
+  \itemsep=0.3ex
+  \settowidth{\labelwidth}{{\envfont b)}}\listparindent=1em
+  \leftmargin=\labelwidth \addtolength{\leftmargin}{\labelsep}
+}}{\end{list} }
+
+\newcommand{\poubelle}[1]{}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newcommand{\spacebeforeenv}{\vspace{1ex}}
+\newcommand{\spaceafterenv}{\vspace{1ex}}
+\newcommand{\myqedenv}{}
+
+
+\newcommand{\metaenvironnement}[2]  % 1er argument : nom de l'env, 2e argument : titre
+{
+  \ifthenelse{ \equal{#2}{toto} }{
+    \spacebeforeenv \noindent {\envfont #1 }
+  }{
+    \spacebeforeenv \noindent {\envfont #1  \tiret\, #2.}
+  }
+}
+
+%----------------------------------
+% Rappel
+%----------------------------------
+\newenvironment{rappel}[1][toto]
+{ \metaenvironnement{Rappel}{#1} }
+{\myqedenv\spaceafterenv}
+
+
+\newcommand{\fonction}[5]{%
+        \ensuremath{#1\colon
+        \left\{\hskip -1.5 mm
+        \begin{array}{c@{\ }c@{\ }l}
+        \medskip #2 & \longrightarrow & #3 \\
+        #4 & \longmapsto & #5 \\
+        \end{array}
+        \right .
+        }}
+\newcommand{\ph}{\varphi}
+\newcommand{\funu}[1]{\mathcal{C}^{#1}}
+\newcommand{\RR}{\mathbb{R}}
+\newcommand{\NN}{\mathbb{N}}
+\newcommand{\CC}{\mathbb{C}}
+
+\newenvironment{syst}[1][c]%
+    {\ensuremath{\left \{ \hskip -1.5 mm \begin{array}{#1@{\ =\ }l}}}%
+    {\end{array}\right.}
+
+\newcommand{\f}[2]{{\ensuremath{\mathchoice%
+    {\dfrac{#1}{#2}}
+        {\dfrac{#1}{#2}}
+    {\frac{#1}{#2}}
+    {\frac{#1}{#2}}
+    }}}
+\renewcommand{\ni}{\noindent}
+\newcommand{\ra}{\rightarrow}
+\newcommand{\question}[1]{{\sf\bfseries #1}}
+\newcommand{\norm}[1]{\ensuremath{\Arrowvert #1 \Arrowvert}}
+\newcommand{\Ende}[3]{\ensuremath{\mathrm{End}_{#1}^{#2}(#3)}}
+\newcommand{\End}[2]{\Ende{#1}{}{#2}}
+\newcommand{\id}{\ensuremath{\mathrm{id}}}
+\renewcommand{\d}{\ensuremath{\mathrm{d}}}
+\renewcommand{\leq}{\leqslant}
+\renewcommand{\geq}{\geqslant}
+
+
+\usepackage{datetime}
+\newdateformat{annscol}{\ifthenelse{\THEMONTH > 7}{\THEYEAR--\refstepcounter{YEAR}\THEYEAR}{\addtocounter{YEAR}{-1}\THEYEAR--\refstepcounter{YEAR}\THEYEAR}}
+
+\begin{document}
+ 
+
+%------------------------------------------------------------------------------------
+\leftcentersright[0]{{\bf\sf\large Formation en Mathématiques Commune Cachan/P7}}{}
+    {{\bf\sf\large Année~\annscol\today}}
+    \leftcentersright[0]{{\bf\sf\large Calcul différentiel}}{}{{\bf\sf Valentin De Bortoli, Frédéric Pascal}}
+    \vskip3ex\centers{{\bf\sf \Large Feuille 6 -  Équations différentielles}}
+
+%------------------------------------------------------------------------------------------
+
+
+
+
+%------------------------------------------------------------------------------------------
+%------------------------------------------------------------------------------------------
+
+\vskip2ex \begin{exo}[Critère de Cauchy pour la limite d'une fonction en un point]
+\begin{questions}
+\item Soit $f : U \subset \RR^n \longrightarrow \RR^p$, soit $ a \in \overline{U}$. Montrer que $f$ admet une limite en $a$ $ssi$ $\forall \epsilon$, $\exists \eta >0$ tel que $\forall x , y \in U$, si $|x-a| < \eta$ et $|y-a| < \eta$ , alors $|f(x) - f(y)| < \epsilon$.
+\item Soient $U$ un ouvert de $\RR \times \RR^n$, $f : U \ra \RR^n$ une application continue
+localement lipschitzienne en la seconde variable. On considère $u$ une solution maximale de l'équation différentielle
+$y' = f(t,y(t))$ et $I$ l'intervalle de définition de $u$.
+Montrer que pour tout $a \in I$ et tout compact $K$ contenu dans $U$, il existe $t_+ \in I$ avec $t_+ > a$
+et $t_- \in I$ avec $t_- < a$ tel que $(t_+, u(t_+)) \notin K$ et $(t_-, u(t_-)) \notin K$.
+\end{questions}
+
+\end{exo}
+
+
+\vskip2ex \begin{exo}[Périodicité]
+
+Soit $f$ est une fonction continue sur $\Omega$ ouvert de $\RR^n$ localement lipschitzienne, et $u$ est une solution maximale de $x'(t)=f(x(t))$ définie sur un intervalle ouvert $I$. On suppose de plus qu'il existe $t_{1},t_{2} \in I$ tels que $u(t_{1})=u(t_{2})$. Montrer que $u$ est périodique et que $u$ est définie sur $\RR$. 
+
+\end{exo}
+
+
+
+
+\vskip2ex \begin{exo}[Barrière]
+
+Soit $f\ : \RR \times \RR \rightarrow \RR$ continue, K-lipschitzienne par rapport à la deuxième variable. Soit $x :  [t_{0},t_{0}+T[\rightarrow \RR$ telle que $x'(t)=f(t,x(t))$ pour tout $t$ et $y :  [t_{0},t_{0}+T[\rightarrow \RR$ telle que  
+\begin{equation*}  
+\left\lbrace
+\begin{array}{cc}
+y(t_{0})\leq x(t_{0}) &  \\
+y'(t) \leq f(t,y(t))  & \forall t
+
+\end{array}\right.
+\end{equation*}
+
+
+
+ Montrer que $\forall t \in [t_{0},t_{0}+T[, \ y(t)\leq x(t)$. 
+ 
+\end{exo}
+
+
+\vskip2ex \begin{exo}[Comportement asymptotique]
+
+Soient $U$ un ouvert de $\RR ^n$ et $X$ un champ de vecteurs continu sur $U$. On considère une application dérivable $f : [t_0 , \infty[ \ra U$ telle que $f'(t) = X(f(t))$ et $f(t)$ tend vers $a\in U$ en $+ \infty$. Montrer que $a$ est un point singulier de $X$ ($ie$ que $X(a)=0$).
+
+\end{exo}
+
+
+
+\vskip2ex \begin{exo}[Maximalité des solutions]
+
+On considère le problème de Cauchy
+\begin{equation*}
+\left\lbrace
+\begin{array}{c}
+x'(t)= -x(t) + \alpha(t)x^2(t) \\
+x(0) = x_0 \\
+\end{array}\right.
+\end{equation*}
+
+ où $\alpha$ est une fonction continue de $[0 , \infty [$ vérifiant $|\alpha(t)|\leq 1$ pour tout $t \geq 0$. 
+Le but de l'exercice est de montrer que si $|x_0|< 1$ alors la solution maximale du problème de Cauchy est définie sur $\RR^+$.
+On note $[0,T^*[$ le domaine d'existence de la solution maximale et on suppose que $T^* < + \infty$. 
+On pose $|x_0| = 1-\delta _0$ avec $\delta_0 \in ]0 , 1[$  et on considère $\delta \in ] 0 , \delta_0[$. 
+On pose alors 
+$$A =\{T \in [0, T^*[, \qquad \forall t \in [0 , T], \quad|x(t)|\leq 1 -\delta \}$$
+
+\begin{questions}
+\item Montrer que $0 \in A$ et que $A$ est un intervalle. On suppose que $\sup A < T^*$.
+
+\item Montrer que, pour $t \in [0 , T^*[$, on a 
+$$x(t) = \exp(-t)x_0 + \int_{0}^{t} \exp(-(t-s))\alpha(s)x^2(s) \der s$$
+
+\item En déduire, grâce au lemme de Grönwall que pour $T \in A$, on a $|x(t)| \leq |x_0|\exp(-\delta t)$ pour tout $t \in [0 , T[$. 
+
+\item Montrer que $|x(t)| \leq 1 - \delta_0$ pour tout $t \in [0 , \sup A ]$. Aboutir à une contradiction et conclure.
+\end{questions}
+
+\end{exo}
+
+\vskip2ex \begin{exo}[Stabilité et flot]
+
+On considère $\Omega$ un ouvert de $\RR ^n$ et $f : \Omega \ra \RR ^n$ un champ localement lipschitzien. Pour tout $x \in \Omega$, on note $J_x$ l'intervalle de définition de la solution maximale de l'équation différentielle $y' = f(y)$ telle que $y(0) = x$ et $D(f) = \cup _{x \in \Omega} J_x \times \{x\}$. On définit le flot associé à $f$, note $\phi$, par $\phi_t (x) = y(t)$. Alors $\phi$ est une application continue sur l'ouvert $D(f)$ par le théorème de continuité par rapport aux conditions initiales. \\
+Pour tout $x \in \Omega$ tel que $\phi_t (x)$ est définie pour tout $t\geq 0$, on définit $\omega (x)$ comme l'ensemble des $y \in \Omega$ tel qu'il existe une suite $ (t_n)_{n \in \NN}$ tendant vers $+ \infty$ et vérifiant $\phi_{t_n}(x) \ra y$.
+\begin{questions}
+\item  Montrer que $\omega (x)$ est stable par le flot de $f$ $ie$ que $\forall y \in \omega(x)$ et $\forall t \in J_x $ , $\phi_t (y) \in \omega (x)$.
+  \end{questions}
+\end{exo}
+
+
+\vskip2ex \begin{exo}[Wronskien]
+
+On considère l'équation $y'' + p y =0$ avec p continue sur $\RR^ +$ telle que $\int_{\RR} |p| < \infty$.
+\begin{questions}
+\item Montrer que si $y$ est solution bornée alors $y'(t) \longrightarrow_{\infty} 0$.
+
+\item En utilisant le Wronskien d'une base de solutions, en déduire qu'il existe des solutions non bornées.
+
+\end{questions}
+
+\end{exo}
+
+\vskip2ex \begin{exo}[Norme et gradient]
+Soit $f \in C^1(\mathbb{R}^n,\mathbb{R}_+)$. 
+\begin{questions}
+\item Si $n= 1$, montrer que la norme du gradient tend vers $0$.
+\item En raisonnant par l'absurde et en considérant l'équation $x'(t) = -\frac{\nabla f(x(t))}{\|\nabla f(x(t))\|^2}$, montrer le résultat pour $n \in \mathbb{N}$.
+\end{questions}
+\end{exo}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:
+

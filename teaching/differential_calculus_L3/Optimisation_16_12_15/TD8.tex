@@ -1,0 +1,343 @@
+\documentclass[12pt]{article}
+%\usepackage[frenchb]{babel}
+\usepackage[T1]{fontenc}    
+%\usepackage[latin1]{inputenc}
+\usepackage{graphicx,amssymb,amsmath} % extensions pour maths avancées
+\usepackage{graphicx}              % Accents codés dans la fonte.
+\usepackage[utf8x]{inputenc}           % Accents 8 bits dans le fichier.
+\usepackage{ifthen}                     % Faire des tests if/then/else.
+\usepackage{amsmath}    % Les symboles les plus fréquents.
+\usepackage{amsfonts}   % Des fontes, eg pour \mathbb.
+\usepackage{vmargin}                    % Régler la taille de la feuille.
+\usepackage{amssymb}
+\usepackage{lastpage}
+\usepackage{accents}
+\usepackage{enumitem}
+
+% La taille de la page
+\setpapersize{A4}
+\setmarginsrb{20mm}{10mm}{14mm}{15mm}{10mm}{6mm}{0mm}{10mm}
+
+% La mise en page
+\newcounter{vcenterstest}
+\newlength{\leftlength}
+\newlength{\rightlength}
+\newlength{\vcentersskip}
+\newcommand{\leftcentersright}[4][2]{%
+        \settowidth{\leftlength}{#2}%
+        \settowidth{\rightlength}{#4}%
+        \setcounter{vcenterstest}{#1}%
+        \ifthenelse{\value{vcenterstest} = 0}
+                {\setlength{\vcentersskip}{0pt}}{}%
+        \ifthenelse{\value{vcenterstest} = 1}
+                {\setlength{\vcentersskip}{\smallskipamount}}{}%
+        \ifthenelse{\value{vcenterstest} = 2}
+                {\setlength{\vcentersskip}{\medskipamount}}{}%
+        \ifthenelse{\value{vcenterstest} = 3}
+                {\setlength{\vcentersskip}{\bigskipamount}}{}%
+        \ifthenelse{\value{vcenterstest} = 4}
+                {\setlength{\vcentersskip}{1cm}}{}%
+                % On laisse un espace vertical défini par l'argument
+                % optionnel #1
+        \vskip\vcentersskip
+                % On place #2 et on recule de sa longueur
+        \noindent#2\hskip-\leftlength%
+                % On centre #3
+        \hfill#3\hfill%
+                % On va au bout de la ligne, on recule de la longueur de #4 et
+                % on place #4
+        \mbox{}\hskip-\rightlength#4%
+                % On laisse un espace vertical défini par l'argument
+                % optionnel #1
+        \vskip\vcentersskip%
+    }
+\newcommand{\centers}[2][2]{\leftcentersright[#1]{}{#2}{}}
+\newcommand{\leftcenters}[3][2]{\leftcentersright[#1]{#2}{#3}{}}
+\newcommand{\centersright}[3][2]{\leftcentersright[#1]{}{#2}{#3}}
+\newcommand{\leftencadreright}[4][2]{\leftcentersright[#1]{#2}{\fbox{#3}}{#4}}
+
+\newcommand{\numtoi}[1]{
+  \ifthenelse{ \equal{#1}{1} }{i}{
+  \ifthenelse{ \equal{#1}{2} }{ii}{
+  \ifthenelse{ \equal{#1}{3} }{iii}{
+  \ifthenelse{ \equal{#1}{4} }{iv}{
+  \ifthenelse{ \equal{#1}{5} }{v}{
+  \ifthenelse{ \equal{#1}{6} }{vi}{
+  \ifthenelse{ \equal{#1}{7} }{vii}{
+  \ifthenelse{ \equal{#1}{8} }{viii}{
+  \ifthenelse{ \equal{#1}{9} }{ix}{
+  \ifthenelse{ \equal{#1}{10} }{x}{
+  \ifthenelse{ \equal{#1}{11} }{xi}{
+  \ifthenelse{ \equal{#1}{12} }{xii}{
+  \ifthenelse{ \equal{#1}{13} }{xiii}{
+  \ifthenelse{ \equal{#1}{14} }{xiv}{
+  \ifthenelse{ \equal{#1}{15} }{xv}{
+  \ifthenelse{ \equal{#1}{16} }{xvi}{
+  \ifthenelse{ \equal{#1}{17} }{xvii}{
+  \ifthenelse{ \equal{#1}{18} }{xviii}{
+    ERREUR,~MODIFIER~LA~MACRO~numtoi
+  } } } } } } } } } } } } } } } } } }
+}
+
+\newcounter{cretraiti}
+\newenvironment{ri}[1]{
+
+\begin{list}{($\numtoi{\thecretraiti}$)}{
+  \usecounter{cretraiti}
+  \topsep=0.5ex
+  \itemsep=0.3ex
+  \labelsep=0.3em
+  \parsep=0ex
+  \listparindent=1em
+  \settowidth{\labelwidth}{(#1)}
+  \leftmargin=\labelwidth
+  %\addtolength{\leftmargin}{\labelsep}
+}}{\end{list}
+}
+
+
+% Quelques raccourcis pour taper des maths
+\newcommand{\Sfr}{\mathfrak{S}}
+\newcommand{\Afr}{\mathfrak{A}}
+\newcommand{\QQ}{\mathbb{Q}}
+\newcommand{\ZZ}{\mathbb{Z}}
+\newcommand{\si}{\sigma}
+\newcommand{\ins}[1]{{\ensuremath{\textrm{#1}}}}
+\newcommand{\tiret}{\rule[0.6ex]{1.3ex}{0.26ex}}
+\newcommand{\accolades}[1]{\ensuremath{\left\{#1\right\}}}
+\newcommand{\paa}[1]{\ensuremath{\accolades{#1}}}       % Synonyme
+\newcommand{\ds}{\displaystyle}
+   \newcommand{\der}{
+      \mathop{}\mathopen{}\mathrm{d}
+   }
+
+% Numerotation des pages / la derniere
+\makeatletter
+\renewcommand{\@evenfoot}%
+        {\thepage \slash \pageref{LastPage}}
+\renewcommand{\@oddfoot}{\@evenfoot}
+\makeatother
+
+
+%%%%% Pour faire les exos
+\newcommand{\envfont}{\sf\bfseries}
+\newcounter{cexo}
+\renewcommand{\thecexo}{\arabic{cexo}}
+
+\newenvironment{exo}[1][toto]
+{
+  \refstepcounter{cexo}
+  \ifthenelse{ \equal{#1}{toto} }{
+   \noindent {\envfont Exercice \thecexo}
+  }{
+   \noindent {\envfont Exercice \thecexo{} \tiret\, #1.}
+  }
+%\newline
+%\indent
+}
+{}
+
+\newcounter{cquestions}
+\newenvironment{questions}{
+\begin{list}{{\envfont\alph{cquestions})}}{
+  \usecounter{cquestions}
+  \topsep=0.5ex
+  \partopsep=1em
+  \labelsep=0.3em
+  \itemsep=0.3ex
+  \settowidth{\labelwidth}{{\envfont b)}}\listparindent=1em
+  \leftmargin=\labelwidth \addtolength{\leftmargin}{\labelsep}
+}}{\end{list} }
+
+\newcommand{\poubelle}[1]{}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newcommand{\spacebeforeenv}{\vspace{1ex}}
+\newcommand{\spaceafterenv}{\vspace{1ex}}
+\newcommand{\myqedenv}{}
+
+
+\newcommand{\metaenvironnement}[2]  % 1er argument : nom de l'env, 2e argument : titre
+{
+  \ifthenelse{ \equal{#2}{toto} }{
+    \spacebeforeenv \noindent {\envfont #1 }
+  }{
+    \spacebeforeenv \noindent {\envfont #1  \tiret\, #2.}
+  }
+}
+
+%----------------------------------
+% Rappel
+%----------------------------------
+\newenvironment{rappel}[1][toto]
+{ \metaenvironnement{Rappel}{#1} }
+{\myqedenv\spaceafterenv}
+
+
+\newcommand{\fonction}[5]{%
+        \ensuremath{#1\colon
+        \left\{\hskip -1.5 mm
+        \begin{array}{c@{\ }c@{\ }l}
+        \medskip #2 & \longrightarrow & #3 \\
+        #4 & \longmapsto & #5 \\
+        \end{array}
+        \right .
+        }}
+\newcommand{\ph}{\varphi}
+\newcommand{\funu}[1]{\mathcal{C}^{#1}}
+\newcommand{\RR}{\mathbb{R}}
+\newcommand{\NN}{\mathbb{N}}
+\newcommand{\CC}{\mathbb{C}}
+
+\newenvironment{syst}[1][c]%
+    {\ensuremath{\left \{ \hskip -1.5 mm \begin{array}{#1@{\ =\ }l}}}%
+    {\end{array}\right.}
+
+\newcommand{\f}[2]{{\ensuremath{\mathchoice%
+    {\dfrac{#1}{#2}}
+        {\dfrac{#1}{#2}}
+    {\frac{#1}{#2}}
+    {\frac{#1}{#2}}
+    }}}
+\renewcommand{\ni}{\noindent}
+\newcommand{\ra}{\rightarrow}
+\newcommand{\question}[1]{{\sf\bfseries #1}}
+\newcommand{\norm}[1]{\ensuremath{\Arrowvert #1 \Arrowvert}}
+\newcommand{\Ende}[3]{\ensuremath{\mathrm{End}_{#1}^{#2}(#3)}}
+\newcommand{\End}[2]{\Ende{#1}{}{#2}}
+\newcommand{\id}{\ensuremath{\mathrm{id}}}
+\renewcommand{\d}{\ensuremath{\mathrm{d}}}
+\renewcommand{\leq}{\leqslant}
+\renewcommand{\geq}{\geqslant}
+
+
+\usepackage{datetime}
+\newdateformat{annscol}{\ifthenelse{\THEMONTH > 7}{\THEYEAR--\refstepcounter{YEAR}\THEYEAR}{\addtocounter{YEAR}{-1}\THEYEAR--\refstepcounter{YEAR}\THEYEAR}}
+
+\begin{document}
+ 
+
+%------------------------------------------------------------------------------------
+\leftcentersright[0]{{\bf\sf\large Formation en Mathématiques Commune Cachan / P7}}{}
+    {{\bf\sf\large Année~\annscol\today}}
+\leftcentersright[0]{{\bf\sf\large Calcul différentiel}}{}{{\bf\sf Barbara Gris, Frédéric Pascal}}
+
+%------------------------------------------------------------------------------------------
+
+
+
+
+%------------------------------------------------------------------------------------------
+%------------------------------------------------------------------------------------------
+
+
+\begin{center}
+\huge{TD 8 \\ Optimisation}
+\end{center}
+
+
+
+\begin{exo}
+
+\begin{questions}
+
+\item On suppose que $f$ est différentiable sur $U$. Montrer que $f$ est convexe si et seulement si 
+$$f(y)-f(x) \geq \der f_x (y-x)$$
+ pour tous $x,y \in U$.
+
+\item On suppose que $f$ est deux fois différentiable sur $U$. Montrer que $f$ est convexe si et seulement si $\der ^2 f(x)$ est positive (en tant que forme quadratique) pour tout $x \in U$.
+
+
+\item  On suppose que $f$ est convexe et différentiable sur $U$. Soit $a \in U$ tel que $\der f_a=0$. Montrer que $a$ est un minimum global de $f$ sur $U$.
+
+\item \textit{Exemple :} Soit $A \in M_{n}(\RR)$ une matrice symétrique positive, $b \in \RR^{n}$. Soit $f: \ \RR^{n}\rightarrow \RR$ définie par :
+$$f(x)=\frac{1}{2}\langle Ax,x \rangle - \langle b,x \rangle$$  
+ A quelle condition $f$ a-t-elle un minimum global ? En déduire une méthode de résolution d'un système linéaire inversible.
+
+\end{questions}
+\end{exo}
+
+
+\begin{exo}
+
+Soient $(x_{i},y_{i})_{i \in \{1,..,n\}}$ n points du plan $\RR^{2}$ tels que les $x_{i}$ ne soient pas tous égaux entre eux. Montrer qu'il existe une unique droite du plan, d'équation $y=\lambda x + \mu$, qui minimise la somme des carrés des distances prises 'verticalement' entre les points et la droite. 
+
+\end{exo}
+
+
+\begin{exo}
+
+Exprimer la moyenne de $n$ points dans $\RR^d$ en terme de minimisation.
+%\vspace{0.3cm}
+
+\end{exo}
+
+
+
+
+\begin{exo}
+
+On considère $E$ égal à l'ensemble $\RR^d$ privé de $\{ x \in \RR^d \quad | \quad \exists i : \quad x_i = 0 \}$.  On note $N_1 (x) = \sum_i |x_i|$ et $N_2 (x ) = \sqrt{ \sum_i x_i^2}$.
+\begin{questions}
+\item On note $F_C = \{x \in E \quad | \quad N_1 (x) = C \}$. Peut-on minorer $N_2$ sur $F_C$ ? Et la majorer ? (si oui donner les extrema).
+
+\item On note $G_C = \{x \in E \quad | \quad N_2 (x) = C \}$. Peut-on minorer $N_1$ sur $G_C$ ? Et la majorer ? (si oui donner les extrema).
+
+\end{questions}
+
+\end{exo}
+
+
+\begin{exo}
+
+Soit $n \in \NN^{\ast}$. On munit $M_{n}(\RR)$ de sa norme euclidienne $\lVert M \rVert_{2}=Tr(M^{T}M)$. Montrer que $SO_{n}(\RR)$ est l'ensemble des matrices de $SL_{n}(\RR)$ de norme minimale.
+
+\end{exo}
+
+
+\begin{exo}
+
+On considère un rayon lumineux se déplaçant dans un plan et reliant deux points A et B situés de part et d'autre d'une courbe $\mathcal{C}$ (supposé être une sous-variété de dimension 1) délimitant deux milieux d'indices de réfraction respectifs $n_{1}=\frac{c}{v_{1}}$ et $n_{2}=\frac{c}{v_{2}}$. En admettant que la lumière suit le principe de Fermat (ie qu'elle minimise la durée du trajet parmi toutes les trajectoires possibles), prouver la loi de réfraction de Descartes en utilisant le théorème des extrema liés. De la même manière, lorsque $\mathcal{C}$ est cette fois-ci un miroir et que A et B sont situés du même côté, prouver la loi de la réflexion d'un rayon lumineux. 
+
+\end{exo}
+
+%\newpage 
+
+\begin{exo}
+
+Soit $f: \RR^n \mapsto \RR$ une fonction de classe $C^1$ vérifiant la propriété suivante $$ \exists \alpha > 0 \quad | \quad  \forall x,y \quad < \nabla f(x) - \nabla f(y) , x-y > \geq \alpha \Vert x-y \Vert ^2 $$
+
+\begin{questions}
+\item A l'aide d'une formule intégrale de Taylor avec reste intégral, démontrer que pour tout x,y on a $f(y) - f(x) - <\nabla f(x) , y-x> \geq \frac{\alpha}{2} \Vert y-x \Vert ^2 $.
+
+\item En déduire que $f$ est coercive.
+
+\item Que peut-on en conclure sur le problème de minimisation de $f$ ?
+\item Pour $x^0$ donné, on définit la suite $x^k$ par $x^{k+1} = x^k - \rho_k \nabla f(x^k)$ où $\rho_k$ (que l'on ne cherchera pas à déterminer) est tel que 
+$$ f (x^k - \rho \nabla f(x^k)) = min _{ \rho \in \RR^+} f(x^k - \rho \nabla f(x^k) ) $$
+
+Vérifier que si $a$ est une solution du problème de minimisation, $\alpha \Vert x^k - a \Vert \leq \Vert \nabla f(x^k) \Vert$.
+\item Montrer que $< \nabla f(x^{k+1}), \nabla f(x^k)> = 0$ pour tout $k$. En déduire que la suite $f(x^k)$ est une suite décroissante et que $ lim _ {k \longrightarrow \infty} \Vert x^{k+1} - x^k \Vert = 0$.
+\item On suppose de plus que $\nabla f$ est lipschitzienne, montrer que $\Vert \nabla f (x^k) \Vert \longrightarrow 0$ et conclure.
+
+\end{questions}
+
+\end{exo}
+
+
+\begin{exo}
+Soient $\Omega$ un ouvert de $\RR^n$, $f: \Omega \longrightarrow \RR^n$ une fonction de classe $C^2$ et $c \in\Omega$ tel que $f(c)=0$ et $\der f_c $ est inversible. On définit $F : x \mapsto x - (\der f_x)^{-1} \cdot f(x)$. 
+\begin{questions}
+\item Montrer qu'il existe un voisinage de $c$ sur lequel $F$ est bien définie et $C^1$.
+\item Montrer qu'il existe $\delta >0$ tel que $\bar{B} (c, \delta)$ est stable par $F$ et pour tout $x_0 \in \bar{B} (c, \delta)$, si on pose $x_{n+1} = F(x_n)$ alors $x_n \longrightarrow c$.
+
+\end{questions}
+
+\end{exo}
+
+
+
+
+
+
+\end{document}

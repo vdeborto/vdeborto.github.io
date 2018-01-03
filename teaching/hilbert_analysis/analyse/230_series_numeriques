@@ -1,0 +1,107 @@
+230	Séries de nombres réels ou complexes. Comportement des restes ou des sommes partielles des séries numériques. Exemples.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+MATHS		14
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection*{Sujet, questions}
+
+Convocation à 8h45.
+
+
+Couplage tiré : séries numériques / barycentre.
+
+J'ai choisi séries numériques. Développements proposés : Abel radial et Taubérien faible (choisi par le jury) et formule d'Abel ($\sum_{n=n_0+1}^N f(n) = \int_{n_0}^N f(t) \mathrm{d}t + \frac{1}{2}(f(N)-f(n_0) + \frac{1}{2}\int_{n_0}^N (\{t\}-\{t\}^2)f''(t) \mathrm{d}t$).
+
+Questions sur le développement : 
+\begin{enumerate}
+\item si le rayon de convergence vaut 3, comment montrer le résultat facilement ?
+\item Une remarque sur le fait que j'avais écrit à certains endroits $n_0$ dans mes formules alors que je voulais dire $n$, avec $n\geqslant n_0$.
+\item Pour Taubérien faible, $o(1/n)$ est nécessaire ? Contre-exemple si on ne rajoute pas de condition ?
+\end{enumerate}
+
+Questions sur le plan : 
+\begin{enumerate}
+\item Pourquoi le critère de d'Alembert entraîne celui de Cauchy ? Un contre exemple pour la réciproque ?
+\end{enumerate}
+
+Exercices : 
+\begin{enumerate}
+\item $|u_{n+1}-u_n|\leqslant \frac{1}{n!}$. Nature de la suite $(u_n)$ ?
+\item nature de $\sum\frac{\sin(\ln n)}{n} ?$
+\item $f$ continue, décroissante, tendant vers 0. Nature de $\sum \Delta_n$ avec $\Delta_n = \int_{n-1}^n f(t)\mathrm{d}t - f(n)$ ?
+\item nature de $\sum\sin(n)\sum_{k=n}^{+\infty}\frac{(-1)^k}{k^3}$ ?
+\item  calculer $\sum_{n=0}^{+\infty}\sum_{k=0}^{n}\frac{(-1)^k}{k!2^{n-k}}$.
+\end{enumerate}
+
+\subsection*{Comment ça s'est passé}
+\begin{itemize}
+\item J'ai eu un moment de panique au début du développement, pour savoir si $u_n = R_n - R_{n-1}$ ou $u_n = R_{n-1} - R_{n}$ ! Mais je suis retombé sur mes pattes.
+\item Pour le contre-exemple de Tauber sans condition, j'ai sorti $\sum x^k$ puis j'ai dit ah non, la fonction somme n'a pas de limite en 1. Le jury m'a dit "presque", mais je n'ai pas trouvé, alors que c'était tout simplement $\sum (-x)^k$. Je n'ai pas retrouvé de contre-exemple pour montrer que Cauchy n'entraîne pas d'Alembert, j'avais un vague souvenir d'un contre-exemple compliqué abstrait dans le Combes, et pensais donc à tort qu'un contre-exemple devait être compliqué, et que je n'arriverais donc pas à le retrouver. J'ai dit qu'il fallait définir la suite selon les indices pairs et impairs, tels que $\frac{u_{n+1}}{u_n}$ n'admette pas de limite, mais tel que la racine nième écrase la différence entre les deux, mais que je n'arriverai pas à retrouver un exemple. Ils m'ont dit admettons. Évidemment, dans le couloir en sortant de l'oral, j'ai trouvé un contre-exemple tout simple.
+ 
+\item Pour les exercices, je me suis embrouillé dans les calculs. J'ai voulu calculer $\int \sin(\ln t)/t$ sans faire de changement de variable, de tête directement, et je me suis trompé. Ils m'ont dit de dériver mon expression pour vérifier. Comprenant ma grossière erreur, j'ai lâché désespéré un "ah lala, je suis vraiment désolé". Ils m'ont dit de ne pas m'excuser, qu'on pouvait faire des erreurs, qu'il fallait juste les corriger. Pour l'exercice sur $\Delta_n$ j'ai eu du mal, car je ne savais pas trop comment prendre le problème, et ça me stressait parce que j'avais déjà vu ce résultat quelque part, et avait peur de faire comme la veille, à ne plus savoir faire des choses classiques. Ils m'ont dit de montrer que $\Delta_n\geqslant 0$. J'ai fait un dessin, ils ont eu l'air content, et m'ont demandé de présenter les $\Delta_n$ sur le dessin, et d'en déduire que les sommes partielles étaient bornées. Ils semblaient très attentifs au fait que je dise que les sommes partielles étaient bornées et non pas que le terme général était borné, ils m'ont demandé plusieurs fois de préciser qui était borné. Le dernier exercice était donné pour juste finir la minute qui restait. Je voulais intervertir les sommes, mais ils m'ont dit que ce n'était pas n'importe quelle série double. Je n'ai pas reconnu le produit de Cauchy. Alors un membre m'a dit de poser $a_k= (-1)^k/k!$ et là j'ai dit qu'on reconnaissait un produit de Cauchy. Il m'a demandé de citer le théorème exact.
+\end{itemize}
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+ANALYSE		6,75
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+-tirage : 230  Séries et de nombres réels ou complexes. Comportement  
+des restes ou des sommes partielles des séries numériques. Exemples.  
+(choisie) ou 220 Exemples d'équations aux dérivées partielles linéaires.
+-développement : Théorème d'Abel radial et taubérien faible (choisi)  
+ou calculs d'équivalent de suite avec des séries (du FNG AN 1)
+
+-questions :
+Reprendre quelques notations et détailler des étapes du développement,  
+dont la fin que je n'ai pas eu le temps de faire dans les 15min.
+Montrer que si la suite des (an) est positive et que lim f(z)=S, Alors  
+la série des an converge.
+Corrections de quelques coquilles de notation et une erreur de calcul.
+Après, je ne me souviens plus des questions mais c'était très proche du plan.
+
+-bilan : plan niveau de base, je n'ai pas de risque. Mon développement  
+était trop long.  Sur les questions, je n'ai donné aucune réponse sans  
+qu'ils m'aident, j'avais parfois un début de réponse ou une bonne  
+idée, mais je n'ai jamais su finir sans le jury.
+-les membres du jury : un homme ne m'a posé aucune question et m'a  
+juste corrigé une coquille de notation. Une femme ne m'a posé aucune  
+question mais essayait de m'aider à moins stresser et à répondre aux  
+questions, elle était très bienveillante. Le troisième était plus  
+froid et déstabilisant. C'est le seul qui me posait vraiment des  
+questions.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+ANALYSE		5,25
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+Mon couplage était le suivant :
+— 204 : Connexité. Exemples et applications.
+— 230 : Séries de nombres réels ou complexes. Comportement des
+restes ou des sommes partielles des séries numériques. Exemples.
+J’ai choisi la leçon 230. Mon était le développement asymptotique sur la
+série harmonique qui se trouve dans le livre Oraux X-ENS Analyse 1.
+On m’as posé des questions sur le développement pour vérifier que je maî-
+trisait je que je faisais, mais rien de bien méchant.
+Puis on m’as posé comme questions :
+— Une autre méthode pour le développement asymptotique pour la
+série harmonique ?
+— Définition d’un o ( . ) ?
+— Pourquoi le théorème de sommation des o ( . ) est aussi vrai pour des
+suites non positives ?
+— Connaissez-vous la règle d’Alembert et de Cauchy ?
+
+Puis on m'a posé comme exercice : nature de la série
+$$ \sum_{n \geq 2} \frac{1}{\sum_{k=2}^n \log(k)^2} .$$
+
+Pour finir je dirais qu’en générale les questions sont du niveau du plan
+donc éviter de mettre trop de notions que vous maîtrisez pas car sinon
+vous risquez de vous avoir sur les questions.
+Si vous êtes chaud sur des notions difficiles en lien avec votre leçon ne pas
+hésiter à le mettre dans le plan. C’est des points gagnés facilement.
+Les questions sont en générale pas très difficiles et en lien avec votre plan.

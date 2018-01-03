@@ -1,0 +1,146 @@
+228	Continuité et dérivabilité des fonctions réelles d'une variable réelle. Exemples et contre-exemples.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+ANALYSE		16
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+- 228 : Continuité et dérivabilité des fonctions réelles d’une variable réelle. Exemples et applications.
+- 233 : Méthodes itératives en analyse numérique marticielle.
+
+Là non plus j'ai pas beaucoup hésité, même si j'avais pas fait l'impasse sur la 233 je préfère la laisser aux options B.
+
+Développements :
+- Théorème de Weierstrass avec les polynômes de Bernstein + inégalité de Khintchine (méthode probabiliste donc, [ZQ])
+- Calcul de l'intégrale du sinus cardinal (adapté de [Far], c'est que Shmuel avait présenté pour la leçon 235 en classe)
+
+Le jury a choisi le premier, j'ai tout juste mis 15 minutes (mais j'avais fait une coquille qui m'empêchait de conclure proprement, j'avais un terme en trop à la fin).
+
+
+Questions (pas mal sur le développement d'ailleurs, ça m'a pas déplu puisque c'était des questions de probas du coup) :
+
+- Revenir sur quelques passages du développement, corriger les (nombreuses) coquilles.
+
+- Dans la preuve de l'inégalité de Khintchine, c'est quoi le g, ça a un nom ?
+↳ Un produit de Riesz imaginaire, j'ai su parce que c'était précisé dans le [ZQ], mais j'ai dit que j'en savais pas plus.
+
+- Comment on pourrait obtenir rapidement la convergence simple au lieu de la convergence uniforme ?
+↳ Grâce à la loi des grands nombres (ils m'ont ensuite demander de l'énoncer et de vérifier les hypothèses)
+
+- f(x)-f(Sn/n) tend donc vers 0 ps, par quoi le multiplier pour que ça tende vers quelque chose de "plus intéressant" ?
+↳ Certainement √n, ça ressemble à du TCL...
+
+- Et comment montrer que √n(f(x)-f(Sn/n)) converge en loi vers une gaussienne ?
+↳ Ils m'ont un peu aidé : l'"astuce" consiste à multiplier et à diviser par (x-Sn/n) pour faire apparaître le vrai TCL, reste alors le quotient f(x)-f(Sn/n)/(x-Sn/n) qui lui tendra ps vers f'(x) si f est dérivable en x. On conclut que ça marche avec Slutsky, et on peut expliciter les paramètres de la loi limite.
+
+- Un exemple de fonction continue nulle part dérivable ? (je n'en avais pas mis dans mon plan)
+↳ Je me suis placé sur [0,1], et j'ai présenté via un dessin la courbe de Bolzano Lebesgue (c'est en fait celui du [Hauchecorne]).
+
+- Et comment on montre qu'elle est bien continue et nulle part dérivable ?
+↳ Pour la continuité j'ai dit qu'on pouvait montrer la convergence uniforme via un critère de Cauchy, mais je me suis vite retrouvé bloqué comme on n'a pas d'expression explicite de la fonction facile à manipuler...
+"Vous n'avez pas choisi l'exemple le plus simple aussi !" m'a-t-on dit, du coup ils ont laissé tomber, je pense qu'ils n'avaient pas envie de s'embarquer là dedans - et vu la tête du corrigé rigoureux du [Hauchecorne] je comprends pourquoi !
+
+- Il y en a "beaucoup" des fonctions continues nulle part dérivables ?
+↳ Oui, grâce au lemme de Baire on montre qu'il y en a un Gδ-dense.
+
+- Sans utiliser Baire, montrer que c'est un ensemble dense, en supposant qu'on en dispose déjà d'une.
+↳ Si on connaît f continue nulle part dérivable, et qu'on veut approcher une fonction continue g, par Weierstrass on peut l'approcher par une suite de polynômes (P_n), du coup la suite (P_n + f/n) convient.
+
+- Que dire de la continuité d'une fonction monotone ?
+↳ Il n'y a qu'un nombre dénombrable de discontinuités.
+
+- Et comment on montre ça ?
+↳ Déjà une fonction croissante sur [0,1], après ça sera facile de conclure. J'ai pas mal galéré, l'idée est d'avoir une vision ensembliste. L'ensemble des points de discontinuités de f est en fait U_(n>0) {x|f(x+)-f(x-)>1/n}, et chaque ensemble {x|f(x+)-f(x-)>1/n} est fini, car on ne peut avoir qu'au plus n(f(1)-f(0)) sauts sur [0,1].
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+ANALYSE		17,75
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+228 : Continuité et dérivabilité des fonctions réelles d'une variable réelle. Exemples et applications. (choisi) \\
+261 : Fonction caractéristique d'une variable aléatoire. Exemples et applications. \\
+
+
+Développements proposés : \\ 
+sev stables par translation (choisi) ou théorème de Weierstrass par les polynôme de Bernstein \\
+
+
+Questions : 
+\begin{itemize}
+\item fonction uniformément continue non lipschitzienne ?
+\item qu'est ce qu'une fonction convexe ? que signifie la définition sur un dessin ? continuité de fonctions convexes ?
+\item comment montrer la continuité/dérivabilité de la fonction continue nulle part dérivable de mon plan ? (j'ai fait un dessin, ça leur a suffit)
+\item CNS pour que f(2x) - f(x) / x admette une limite ?
+\item F sev fermé de C(R,R) inclus dans C1(R,R). Montrer que F est de dimension finie. Indication : montrer que la dérivation est continue sur F.
+\end{itemize}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+ANALYSE		8,25
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{itemize}
+\item[228] Continuité, dérivabilité (choisie) ;
+\item[215] Applications différentiables définies sur un ouvert de $\bR^n$.
+\end{itemize}
+
+\ftitle{Développements}
+
+\begin{itemize}
+\item Sous-espaces de $\mathcal{C}(\bR,\bR)$ de dim finie, stables par
+  translations (présenté) ;
+\item Th de Weierstrass.
+\end{itemize}
+
+\ftitle{Questions}
+Questions sur le développement (complètement raté)
+\begin{itemize}
+\item Écrivez l’EDL dont $F$ (sous-espace stable de dim finie) est l’ensemble
+  des solutions.
+\item Exemple d’un tel espace (autre que des fonctions constantes) ?
+\item Considérez l’application de dérivation sur l’ensemble des fonctions
+  polynomiales définies sur $[0,1]$. Est-elle continue ?
+\end{itemize}
+Questions sur le plan
+\begin{itemize}
+\item Prouvez que $x\mapsto \sum_n d(2^n x,\bZ)/2^n$ est continue non-dérivable.
+\item \textit{Une question sur les fonctions bijectives dont j’ai totalement
+    oublié le contenu.}
+\item Mq si $f \in \mathcal{C}^0([a,b],\bR)$ tq $f(a)=f(b)$ alors il existe $c$
+  tq $f(c)=f’(c)$.
+\end{itemize}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+ANALYSE		12,75
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+228 : Continuité et dérivabilité des fonctions réelle d'une variable réelle. Exemples et contre-exemples.
+236 : Illustrer par des exemples quelques méthodes de calcul d'intégrales de fonctions d'une ou plusieurs variables.
+
+J'ai choisi continuité et dérivabilité. Initialement je voulais faire sev stable par translation et théorème de Joris (voir le poly de Devilliers) mais je me suis dit que le théorème de Joris était trop dur donc j'ai dû trouver en catastrophe un deuxième développement et j'ai choisi l'exemple d'une fonction continue nulle part dérivable dans le Gourdon. Le problème c'est que je n'ai pas retrouvé la référence pour mon premier développement (lol) donc je l'ai refait de tête et le deuxième développement j'ai dû l'apprendre sur place. Donc j'ai passé 1h30 à faire mes développements. Résultat mon plan était un peu bancal et court (2 pages). J'avais quand même parlé de Baire et de fonctions nulle part dérivables et de Arzela Ascoli comme suggéré dans le rapport. Pas de questions sur le développement à part la remarque que la dernière partie sur le polynôme minimal ne sert à rien car la relation f_i (t)= somme des b_ik(0)*fi (t) donne directement fi comme sol d'une EDLH à coeffs constants (on a exactement (f1,...,fn)solution de Y'=AY où A est la matrice des b_ik(0)).
+
+Première question, donner un exemple d'un ev de dim 3 non stable par translation, gros bug, j'écris Vect(1,x,sinx) qui marche mais je suis tellement perdu que je ne dis rien et regarde le tableau. « Passons à autre chose »
+Quelle est la forme générale des solutions d'une EDLH gros bug à nouveau pendant 30s, je regarde pour une équation de degré 1 et heureusement je finis par répondre que c'est une combinaison linéaire de polynôme multiplié par des exponentielles.
+
+Questions sur le plan :
+-Qu'est-ce qu'un opérateur compact ?
+-Qu'est-ce qu'une partie équicontinue ?
+-Pourquoi l'opérateur à noyau que vous avez écrit est bien un opérateur compact ?
+Pas de problème pour répondre à ça, heureusement ils n'ont pas creusé beaucoup plus loin
+-Théorème de Baire, comment le démontre-t-on ? je fais un dessin et explique la preuve
+-Ok vous parlez du théorème des fermés emboîtés, que se passe-t-il quand le diamètre ne tend pas vers 0 ? -> je fais un dessin et je dis que l'intersection est non vide « attention votre dessin est trompeur » « Bon c'est faux, est-ce que vous avez un contre-exemple ? » finalement je trouve que l'intersection de [n,+infini[  pour n dans N convient
+-Bon on va passer à un exercice, on a une fonction qui admet une limite à droite et à gauche en 0 mais ces limites sont différentes, est-ce que cette fonction peut-être la dérivée d'une fonction ? Je pense tout de suite à Darboux que j'avais mis dans le plan et je dis que je pense que non. Ensuite j'ai complètement bloqué je n'arrivais pas du tout à formaliser ce que je voulais dire c'était très frustrant. Il suffit de trouver un epsilon qui convient puis de montrer que f(]-epsilon,epsilon[) est contenu dans deux ouverts disjoints mais n'est contenu dans aucun des deux. Bref j'ai galéré alors que j'avais la bonne idée au début, ils ont dû m'aider pour que je m'en sorte et un des jurys semblait un peu agacé?
+-Finalement dernière question : une suite de fonctions continues converge simplement vers une fonction continue, a-t-on CVU ? Alors là bug encore une fois après un blanc de 30s je parle du premier théorème de Dini (qui n'était pas dans mon plan), ils ont l'air content puis fin de l'oral. Un contre exemple que je viens de trouver sur google :  f(x) =nx sur [0,1/n], 2-nx sur [1/n,2/n], 0 ailleurs CVS vers 0 continue mais non CVU
+-Encore une fois beaucoup de questions très simples sur mon plan pour vérifier que je sais de quoi je parle, donc plus vous mettez de théorèmes classiques que vous maîtrisez dans votre plan, moins il y a d'exercices après. Là mon plan était un peu léger donc j'ai eu des exercices.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+ANALYSE
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+Tableau : Blanc, en deux morceaux.
+Tirage : Continuité et dérivabilité des fonctions d'une variable réelle à valeurs réelles (mon choix)/ Fonctions holomorphes.
+Développements : Densité des fonctions continues nulles part dérivables via Baire (interrogé dessus) - Polynômes de Bernstein de f CVU vers f (voir Z-Q)
+Questions : précisions sur le développement - idée de la preuve du lemme de Baire - exemple de fonction continue nulle part dérivable sur [0,1] - preuve de la densité à l'aide de l'existence d'une telle fonction - pourquoi arctan est un homéomorphisme ? un difféomorphisme ? - si D.L. d'ordre 2 alors deux fois dérivables ? - dessin explicatif de la méthode de Newton - précision sur la convergence - que dire dans le cas où f' s'annule juste au zéro ? - que dire, dans le cadre de cette leçon, sur les fonctions monotones ? les fonctions convexes ?

@@ -1,0 +1,161 @@
+\documentclass[10pt,a4paper]{article}
+\input{header}
+\title{Quelques remarques en topologie et calcul différentiel}
+\begin{document}
+\maketitle
+Soit $E$ et $F$ deux espaces vectoriels normés.
+Soit $U$ un ouvert de $E$.
+Soit $f$ différentiable de $U$ dans $F$.
+\begin{thm}[Accroissements finis]
+  Soit $[x,y] \subset U$. On suppose que $df$ est majorée par $M\in\R_+$ sur  $[x,y]$.
+  \[\|f(x) -f(y)| \le M \|x-y\|\]
+\end{thm}
+\remark{
+  Il est remarquable qu'une telle propriété persiste même en dehors de la dimension un.
+  En effet en dimension un la preuve se base sur le théorème de Rolle et l'égalité des accroissements finis. Pour étendre l'inégalité des accroissements finis à la dimension finie on peut appliquer l'égalité des accroissements finis sur chaque composante et majorer. En dimension infinie cela n'est plus possible.
+  }
+  \begin{proof}
+
+    Soit $\epsilon \in \R_+$. On définit
+    \[F_{\epsilon} =  \lbrace z \in [x,y], \ \| f(z) - f(x) \| \le (M+\epsilon)\|z-x\| \rbrace \]
+    On définit également \[F_{\epsilon,+} = \lbrace z \in [x,y], \ \forall z' \in [x,z],  z' \in F_{\epsilon} \rbrace\]
+    Par continuité de $f$ , $F_{\epsilon}$ est fermé. De même, $F_{\epsilon,+}$ est fermé. En effet soit $\seq{z}{n} \in F_{\epsilon,+}^{\mathbb{N}}$ qui converge vers $z$. Soit $z' \in [x,y]$ tel que $\|z'-x\| \le \|z-x\|$. Il existe $n_0$ tel que pour tout $n \ge n_0$ on a $\|z_n-z\| \le \|z-z'\|$. On a forcément $\|z-x\| \le \|z-z'\|$. Donc $\|z'-x\| = \|z-x\| - \|z-z'\| \le \|z_n -x \|$. Donc $z' \in F_{\epsilon}$.\\
+    On va maintenant mon que $F_{\epsilon,+}$ est ouvert. Soit $z \in F_{\epsilon}$ et on pose $z'\in [z,z+\eta(y-x)]$ avec $\eta \in \R_+$. On a
+    \[ \al{\|f(z') - f(x) \| &\le \| f(z) - f(x) \| + \| f(z') - f(z) \|\\
+        &\le (M+\epsilon)\|z-x\| + (M+\epsilon)\|z'-z|\\
+        &\le (M+\epsilon) \|z'-x|
+      }\]
+    Donc $F_{\epsilon,+}$ est ouvert. De plus $[x,y]$ est connexe (non vide $x \in F_{\epsilon}$) donc $[x,y] \subset F_{\epsilon}$.
+    Ce résultat est valable pour tout $\epsilon$ donc on peut faire tendre $\epsilon$ vers $0$ et on obtient l'inégalité des accroissements finis.
+  \end{proof}
+  \begin{prop}
+    Soit $f$ une fonction d'un espace topologique $E$ dans un espace topologique $F$ alors $f$ est continue si et seulement si pour toute partie $X$ de $E$, $f(\overline{X}) \subset \overline{f(X)}$.
+  \end{prop}
+  \begin{proof}
+    Supposons que $f$ soit continue et soit $y=f(x) \in f(\overline{X})f$ avec $x \in \overline{X}$. Soit $V \in \mathcal{V}(y)$. Alors
+    $V \cap f(X) \neq \emptyset \ \Leftrightarrow \ f^{-1}(V) \cap X \neq \emptyset$. Mais $f^{-1}(V)$ est un ouvert qui contient $x$ donc l'intersection est non vide.\\
+    Soit $X = f^{-1}(F)$ avec $F$ fermé. Alors $f(\overline{X}) \subset F$. Donc $\overline{X}$ est inclus dans $f^{-1}(F)=X$ et donc $X$ est fermé. Donc l'image réciproque de tout fermé est fermée et donc $f$ est continue.
+  \end{proof}
+  \remark{
+    Je trouve cette caractérisation très pratique pour prolonger des propriétés à l'adhérence (souvent l'inclusion est dans un sens qui nous "arrange" et elle est valable quel que soit le cadre). Un exemple d'utilisation : montrer que dans un groupe topologique, l'adhérence d'un groupe est un groupe. De même, montrer que dans un groupe topologique l'adhérence d'un groupe distingué est un groupe distingué.
+  }
+  \TODO{ ref}
+  \begin{prop}
+    Soit $E$ et $F$ deux espaces topologiques et $F$ compact. Soit $f$ une fonction continue de $E$ dans $F$ alors $f$ est continue si et seulement si son graphe est fermé.
+  \end{prop}
+  \remark{à mettre en lien avec le théorème du graphe fermé. On diminue les hypothèses sur la fonction (plus de linéarité) et on augmente les hypothèses sur $F$ (par contre on les diminue sur $E$). Le théorème du graphe fermé assure la propriété ci-dessus pour n'importe quelle fonction linéaire qui va d'un espace de Banach dans un espace de Banach.}
+  \begin{proof}
+    Tout d'abord on montre que l'application projection sur $E$ est fermée (on utilise fortement la compacité).\\
+    Ensuite on montre que la droite $\Delta = \lbrace (y,y), y\in F \rbrace$ est un fermé de $E times F$ (on utilise la séparation de $F$).\\
+    On remarque que la continuité de $f$ de $E$ dans $F$ est équivalente à la continuité de $g$ de $E$ dans $E \times F$ avec $g(x) = (x,f(x))$.\\
+    Le graphe $G$ vérifie $G = F^{-1}(\Delta)$ et est donc fermé si $f$ continue. Réciproquement, soit $A$ un fermé de $F$ alors $E \times A$ est un fermé de $E \times F$ et donc $G \cap (E \times A)$ également. Donc $\pi(G \cap (E \times A)$ est fermé et on vérifie que $\pi(G \cap (E \times A)$ est en fait égal à $f^{-1}(A)$.
+    
+  \end{proof}
+  \TODO{ application ?}
+
+  \subsection{Théorème d'immersion, submersion, rang constant}
+  Ici on va donner les démonstrations des théorèmes  d'immersion, submersion et de rang constant. Afin de commencer cette étude dans les meilleures disposition je rappelle également le théorème d'inversion locale et son lien avec le théorème des fonctions implicites.
+  \begin{thm}[Inversion locale]
+    Soit $U$ un ouvert d'un espace de Banach $E$, $F$ un espace de Banach et $f$ une fonction de classe $\fC^1(U,F)$. Soit $x_0 \in U$. On suppose que $df(x_0)$ est un isomorphisme entre $E$ et $F$. Alors il existe $V \in \V(x_0)$ ouvert et $W \in \V(f(x_0))$ ouvert telle que $f_{V}$ est un $\fC^1$-difféomorphisme entre $V$ et $W$.
+  \end{thm}
+\begin{proof}
+On veut résoudre l'équation $y = f(x)$ pour x assez petit. On va transformer cette équation pour utiliser un théorème de point fixe : $x = x + (y-f(x))$. Le problème c'est que la fonction $\phi_y(x) = x + (y-f(x))$ n'est pas forcément contractante et ce pour deux raisons :
+\begin{itemize}
+\item elle ne stabilise pas d'espace a priori,
+\item elle ne vérifie pas l'inégalité de la contractante,
+  \item elle n'est pas définie ($x$ et $y$ ne vivent pas dans le même espace).
+\end{itemize}
+Pour le premier point on va en fait considérer la fonction $\tilde{f} = f(\cdot + x_0) - f(x_0)$ pour laquelle on a $\tilde{f}(0) = 0$. On note $f$ cette fonction désormais. La prochaine modification permet de régler les trois problèmes d'un coup. On définit $\phi: U \rightarrow F$ telle que:
+\[ \phi_y(x) = x + (df(0))^{-1}(y-f(x)).\]
+Cette fonction est définie sur tout l'ouvert. On va maintenant réduire son ensemble de définition autour de $0$ de sorte à obtenir une fonction contractante. C'est ici que l'on perd notre caractérisation globale pour passer au local. $\phi_y$ est bien évidemment différentiable et on a
+\[ \forall y \in F, \ d\phi_y(x) = \operatorname{Id} - (df(x_0))^{-1}df(x).\]
+Ainsi par continuité, il existe $\overline{B}(0,R_1) \subset U$ ($R \in \R_+^*$) telle que
+\[ \forall y \in F, \ \forall x \in \overline{B}(0,R_1), \ \| d\phi_y(x) \| \le \frac{1}{2} .\]
+En utilisant le théorème des accroissements finis on a
+\[ \forall y \in F, \ \forall (x,x') \in \overline{B}(0,R_1), \ \| \phi_y(x) - \phi_y(x') \| \le \frac{1}{2} \| x - x' \|.\]
+On a que $\phi_y(B(0,R_1)) \subset df(x_0)^{-1}y + \frac{1}{2}B(0,R_1)$. On va maintenant réduire l'espace d'arrivée pour que la fonction soit bien contractante (deuxième restriction du global au local). $df(x_0)^{-1}$ est continue et linéaire donc lipschitzienne et donc en choisissant $y \in B(0,R_2)$ on obtient que $\phi_y(B(0,R_1)) \subset B(0,R_1)$. On peut donc appliquer le théorème de Picard
+\[ \forall y \in B(0,R_2), \ \exists ! x \in \overline{B}(0,R_1), \ y = f(x)\]
+On définit $g$ sur $B(0,R_2)$ qui associe à $y$ cet unique $x$. On a $f(g(y)) = y$ sur $B(0,R_2)$. Sur $g(B(0,R_2))$ on a aussi si $x \in g(B(0,R_2))$, $f(x) \in B(0,R_2)$ et $g(f(x)) =x$. Donc $f$ est bien inversible comme fonction de $g(B(0,R_2))$ dans $B(0,R_2)$. On a donc $g = f^{-1}$. Il s'agit maintenant de montrer la différentiabilité de $g$. Pour cela on utilise la version à paramètre du théorème de Picard qui donne la continuité de $f^{-1}$. On utilise le lemme suivant : si $f$ est $\fC^1$ bijective, de différentielle inversible et que sa réciproque est continue alors elle est aussi différentiable. En effet,
+\[ \al{
+    &f(x) - f(x_0) = df(x_0)(x-x_0) + o(\| x- x_0 \|) \\
+    &f^{-1}(y) - f^{-1}(y_0) = df(x_0)^{-1}(y - y_0) + o(\| df(x_0)^{-1}(x-x_0) \|) \\
+    &f^{-1}(y) = f^{-1}(y_0) + df(f^{-1}(y_0))^{-1}(y-y_0) + o(\| y-y_0 \|)/
+  }\]
+Donc en choisissant $R_3$ tel que $df(x)$ est inversible pour $x \in B(0,R_3)$ on obtient en considérant les ouverts $V = B(0,R_3) \cap g(B(0,R_2))$ et $W=f(V)$ que $f$ est $\fC^1$ de $V$ dans $W$, bijective, d'inverse différentiable. De plus l'inverse vérifie
+\[\forall y \in W, \ Df^{-1}(y) = Df(f^{-1}(y))^{-1}.\]
+Cette propriété assure que $f^{-1}$ est $\fC^{1}$ également. On conclut le théorème.
+\end{proof}
+\begin{thm}[Fonctions implicites]
+  Soit $E, \ F, \ G$ trois espaces de Banach. $U$ un ouvert de $E \times F$ et $f \in \fC^1(U,G)$. Soit $(x_0,y_0) \in U$ tel que $f(x_0,y_0) = 0$ et $d_2f(x_0,y_0)$ est un isomorphisme entre $F$ et $G$. Il existe $V \in \V(x_0)$ ouvert et $W \in \V(f(x_0))$ et $\varphi \in \fC^1(V,W)$ telle que $V \times W \subset U$ et 
+  \[ \forall (x,y) \in V \times W, \ f(x,y) = 0 \ \Leftrightarrow \ y = \varphi(x).\]
+\end{thm}
+\begin{proof}
+  Comme tout à l'heure on commence par recentrer la fonction, i.e on considère que $(x_0,y_0) = (0,0)$ et $f(0,0) = 0$.
+  On va construire la fonction $\varphi$ via le théorème du point fixe. Pour cela on écrit l'équation $f(x,y) = 0$ comme $y = y + f(x,y)$. Pourquoi $y$ plutôt que $x$ ? Tout simplement parce que l'information est ici sur la seconde variable. Encore une fois cette fonction n'est pas bien définie et n'est pas contractante. On pose donc
+  \[ \phi_x(y) = y - d_2f^{-1}(0,0) f(x,y).\]
+  Le reste de la démonstration est semblable à celle du théorème d'inversion locale. Attention néanmoins pour obtenir l'inégalité sur la norme de la différentielle il faut non seulement considérer un $x$ assez petit mais aussi un $y$ assez petit. Par contre une fois cette étape passée, on ne doit pas réduire de nouveau en $y$ comme c'est le cas dans la preuve du théorème d'inversion locale. En effet $\phi_x(0) =0$. On obtient donc l'existence de la fonction via le théorème de Picard, sa continuité via l'extension du théorème de Picard. Un lemme similaire à celui du théorème d'inversion locale permet de conclure.
+\end{proof}
+    On remarque que les deux démonstrations de ces théorèmes sont équivalentes. Il est aussi important de noter que l'hypothèse d'espace de Banach sert ici pour utiliser le théorème de point fixe de Picard. On peut facilement déduire le théorème des fonctions implicites du théorème de l'inversion locale et vice versa. Néanmoins, on utilise ces deux théorèmes dans des cadres assez différents :
+    \begin{itemize}
+    \item le théorème d'inversion local s'utilise notamment pour définir une injectivité locale. C'est cette propriété qui est recherchée. Cela permet de construire de manière implicite des changements de coordonnées réguliers. Un exercice qui illustre bien cette utilisation est la démonstration du lemme de Morse,
+    \item le théorème des fonctions implicites s'utilise dans une situation un peu différente. En effet la fonction considérée n'aura pas grande importance et elle est souvent construite pour décrire une situation d'application du théorème des fonctions implicites (penser par exemple à l'exercice sur les développements limités de solutions d'un système). Le théorème des fonctions implicites fournit également une expression pour la différentielle de la fonction introduite. Cette expression (explicite !) est bien utile pour déterminer des développements limités.
+    \end{itemize}
+    Le théorème d'inversion locale sert également à démontrer trois autres propositions qui permettent de comprendre le rôle de l'injectivité et de la surjectivité dans les démonstrations précédentes.
+    \begin{prop}[Submersion et changement de coordonnées]
+      Soit $U \subset \R^n$ et $f \in \C^1(U,\R^p)$. Soit $x_0 \in U$. On suppose que $df(x_0)$ est surjective alors il existe $W \in \V(f(x_0))$ ouvert et $g \in \fC^1(W,\R^n)$ telle que 
+      \[ \forall y \in W, \ f(g(y)) = y.\]
+      On dit que $f$ admet localement un inverse à droite.
+    \end{prop}
+    \begin{proof}
+      Encore une fois on suppose que $x_0=0$ et  $f(x_0) = 0$. En étudiant $Df(0)$ qui est une matrice de rang maximal, $p$ on a qu'il existe une sous matrice de $Df(0)$ de taille $p \times p$ qui est inversible. On suppose que $(\frac{\partial f_i}{\partial x_j}(0))_{(i,j) \in \llbracket 1,p \rrbracket^2}$ est inversible. Posons donc $F(x_1, \dots,x_p) = (f_1(x_1,\dots,x_p,0,\dots,0),\dots,f_p(x_1,\dots,x_p,0,\dots,0))$. Via le théorème d'inversion locale il est clair que cette fonction est un $\fC^1$ difféomorphisme local autour de $0$. Ainsi chaque $y$ assez proche de $0$ (disons dans $W \in \V(0)$ ouvert) peut s'écrire
+      \[y = F(x_1,\dots,x_p),\] de manière unique.
+      Posons $g$ la fonction d'expression $g(y) = (F^{-1}(y), 0, \cdot, 0)$. C'est une fonction de $\fC^1(W,\R^n)$ qui vérifie
+      \[\forall y \in W, \ f(g(y)) = y.\]
+    \end{proof}
+    \begin{prop}[Immersion et changement de coordonnées]
+      Soit $U \subset \R^n$ et $f \in \C^1(U,\R^p)$. Soit $x_0 \in U$. On suppose que $df(x_0)$ est injective alors il existe $V \in \V(x_0)$ ouvert et $g \in \fC^1(V,\R^n)$ telle que 
+      \[ \forall x \in V, \ g(f(x)) = x.\]
+      On dit que $f$ admet localement un inverse à gauche.
+    \end{prop}
+    \begin{proof}
+      En reprenant le début de la proposition précédente on obtient que $(\frac{\partial f_i}{\partial x_j}(0))_{(i,j) \in \llbracket 1,n \rrbracket^2}$ est inversible. Ainsi si on pose $F$ la fonction
+      \[F(x_1,\dots,x_n) = (f_1(x_1,\dots,x_n),\dots, f_n(x_1,\dots,x_n)).\]
+      Pour $x$ assez petit (disons dans $V \in \V(0)$ ouvert) on a
+      \[(x_1,\dots,x_n) = F^{-1}((f_1(x_1,\dots,x_n),\dots, f_n(x_1,\dots,x_n)).\]
+      Posons $g$ la fonction d'expression $g(y) = F^{-1}(\pi_n(y))$ avec $\pi_n$ la projection sur les $n$ premières coordonnées. Cette fonction est bien dans $\fC^1(f(V),\R^n)$ et on a
+      \[\forall x \in V, \ g(f(x)) = x.\]
+    \end{proof}
+    \remark{
+      Pour se rappeler de la logique de la démonstration et savoir si on a un inverse à gauche ou un inverse à droite on peut raisonner de la manière suivante :
+      \begin{itemize}
+        \item soit $\pi_{p,n}$ l'opérateur de projection de $\R^n$ dans $\R^p$  si $n\ge p$ et $(\operatorname{Id},0)$ si $p\ge n$. C'est un opérateur qui va de $\R^n$ dans $\R^p$. Dans le cas de la submersion il s'agit de trouver $g$ telle que $f = \pi_{p,n} \circ g$ donc on va trouver un inverse à droite. Pourquoi ne peut-on pas avoir $f =   g \circ \pi_{p,n}$ ? Si on est dans cette situation alors on ne dépend que des $p$ premières variables ce qui est trop restrictif. Dans le cas de l'immersion il s'agit de trouver $g$ telle que $f = g \circ \pi_{p,n}$ donc on va trouver un inverse à gauche. Pourquoi ne peut-on pas avoir $f = \pi_{p,n} \circ g$ ? Si on est dans cette situation alors les $n-p$ dernières fonctions coordonnées sont nulles ce qui est trop restrictif. Ainsi à chaque fois il s'agit de trouver des difféomorphismes du \textbf{grand espace}.
+        \item on peut trouver un difféomorphisme naturel sur le plus \textbf{petit espace} (en restreignant les variables dans le cas de la surjectivité et en restreignant les fonctions coordonnées dans le cadre de l'injectivité),
+          \item comment passer d'un difféomorphisme sur le petit espace à un difféomorphisme sur le grand espace ? En complétant ! La nouvelle fonction introduite, qui ressemble à la fonction $f$ mais avec une partie linéaire ``en plus'' (c'est ce ``en plus'' qui diffère selon si on est face à un opérateur de projection ou d'injection). La nouvelle fonction introduite qui ressemble fortement à $f$ est un difféomorphisme et vérifie trivialement nos conditions.
+      \end{itemize}
+      }
+    \begin{prop}[Rang constant et changement de coordonnées]
+      Soit $f \in \fC^1(U,\R^p)$ avec $df(x)$ de rang constant égal à $r$ localement autour $x_0$. Il existe deux ouverts $V \in \V(x_0)$ et $W \in \V(f(x_0))$, $\phi$ un $\fC^1$-difféomorphisme de $V$ dans $\phi(V)$ et $\psi$ un $\fC^1$-difféomorphisme de $W$ dans $\psi(W)$ tel que
+\[\forall x \in V, \ \psi(f(\phi(x))) = (x_1,\dots,x_r,0,\dots,0).\]
+    \end{prop}
+\begin{proof}
+Comme d'habitude, on recentre la fonction avec $x_0 = 0$ et $f(x_0) = 0$.
+Comme précédemment on a que $(\frac{\partial f_i}{\partial x_j}(0))_{(i,j) \in \llbracket 1,r \rrbracket^2}$ est inversible. On pose $F$ d'expression
+\[F(x_1,\dots,x_r) = (f_1(x_1,\dots,x_r,0, \dots,0),\dots,f_r(x_1,\dots,x_r,0,\dots,0)).\]
+Posons $\phi(x) = (f_1(x_1,\dots,x_n),\dots,f_r(x_1,\dots,x_n),x_{r+1},\dots,x_n).$ $\phi$ est un $\fC^1$-difféomorphisme local. On a localement
+\[ f(\phi^{-1}(y)) = (y_1,\dots,y_r,\varphi_{r+1}(y_1,\dots,y_n),\dots,\varphi_p(y_1,\dots,y_n)).\]
+On rappelle que le but est maintenant de trouver une fonction qui va nous permettre d'annuler les $n-r$ derniers coefficients. L'hypothèse de rang constant implique que chacun des coefficients $\frac{\partial \varphi_i}{\partial x_j}(y)$ avec $i>r$ et $j>r$ est nul, sinon on aurait trouvé un point aussi proche de $f$ que l'on souhaite tel que le rang soit strictement supérieur à $r$ (il suffit d'écrire la jacobienne). Ainsi,
+\[ f(\phi^{-1}(y)) = (y_1,\dots,y_r,\varphi_{r+1}(y_1,\dots,y_r),\dots,\varphi_p(y_1,\dots,y_r)).\]
+Cette écriture est très agréable puisqu'il suffit maintenant de poser
+\[\psi(y) = (y_1,\dots,y_r,y_{r+1} - \varphi_{r+1}(y_1,\dots,y_r),\dots, y_{n} - \varphi_{n}(y_1,\dots,y_r)),\]
+pour obtenir le résultat. Les fonctions construites de cette manière sont bien des $\fC^1$-difféomorphismes locaux.
+\end{proof}
+    \TODO{application à la caractérisation des sous variétés, en fait ce sont de simples applications
+      du théorème des fonctions implicites et du théorème d'inversion locale. Le théorème des extrema liés est une conséquence du théorème des fonctions implicites. Pour tenter d'expliquer la démonstration du théorème du rang constant comme celle de l'immersion et de la submersion on peut dire que la fonction phi que l'on pose est celle que l'on poserait dans le cas de la submersion sauf que l'on va jusqu'au rang au lieu de pousser jusqu'à la taille de l'espace d'arrivée. Cette différence fait que l'on n'obtient pas exactement la projection MAIS la projection sur les r premières coordonnées.
+     $ f = \phi (projection et termes complémentaires)$
+    Il suffit ensuite de constater que ces termes complémentaires sont très simples et on a une inversion. POur montrer que l'on a bien compris on pourrait faire dans le sens inverse. i.e construire $g$ tel que $f = (injection et termes complémentaires) g$}
+  \end{document}
+  
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

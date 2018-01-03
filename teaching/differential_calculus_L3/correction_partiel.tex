@@ -1,0 +1,73 @@
+\documentclass[10pt,a4paper]{article}
+\input{header}
+\title{Correction partiel}
+\begin{document}
+\maketitle
+\section{Exercice 1 - Calcul de différentielles}
+\subparagraph{1} Les ensembles où $f$ est constante sont les carrés du plan centrés en $(0,0)$.\\
+Soit $x$ tel que $x_1 > x_2$ alors si $\| h \|_{\infty}<x_1-x_2$
+\[f(x+h) - f(x) = x_1+h_1-x_1,\]
+donc $f(x+h) - f(x) - h_1 = o(\| h \|_{\infty})$ sur $\lbrace (x_1,x_2) \in \R^2, \ x_1>x_2 \rbrace$.\\
+Soit $U = \R^2 \backslash \lbrace (x,x), x\in \R^2 \rbrace$. On a $f$ différentiable sur $U$ et $df(x)(h) = \langle \nabla f(x), h \rangle$, avec \[\nabla f(x) = \left( \begin{matrix} \delta_{x_1>x_2} \\ \delta_{x_2>x_1}\end{matrix} \right).\]
+Soit $(x,x)$ avec $x\ge0$. En considérant la dérivée directionelle selon $-e_1$ on trouve $\frac{\partial f}{\partial -e_1}(x) = 0$. En considérant la dérivée directionnelle selon $e_1$ on trouve $\frac{\partial f}{\partial e_1}(x) = 1$, donc $f$ n'est pas différentiable en $(x,x)$ (sinon $\frac{\partial f}{\partial e_1}(x) = 0$). Le même raisonnement s'applique pour $x \le 0$ et donc $U$ est ouvert maximal.
+\subparagraph{2} $g$ est deux fois différentiable sur la boule unité ouverte comme quotient d'une fonction deux fois différentiable sur la boule unité ouverte et d'une fonction deux fois différentiable sur la boule unité ouverte à valeurs dans $\R_+^*$. On dérive le quotient et on obtient pour $x\in B(0,1)$
+\[\left\lbrace \al{&dg(x)(h) = \frac{(1-\|x\|^2)h +2\langle x,h\rangle x}{(1-\|x\|^2)^2}\\
+      &d^2g(x)(h,k) = 2 \frac{(1-\|x\|^2)\left( \langle x,k\rangle h + \langle k,h\rangle x  +\langle x,h \rangle k\right) + 4\langle x,k \rangle\langle x,h \rangle x}{(1-\|x\|^2)^3}.
+    }\right.\]
+\subparagraph{3}$\varphi$ est deux fois différentiable comme composée de fonctions deux fois différentiables. On pose $\varphi_1: \ \Gl_n(\R) \ \rightarrow \ \Gl_n(\R)$  avec $\varphi_1(M) = M^{-1}$. On a pour $(M,x) \in \Gl_n(\R) \times \R^n$
+\[\left\lbrace \al{
+      &d\varphi(x)(H,h) = \langle (M^{-1}+M^{-1T})x,h \rangle - \langle M^{-1}HM^{-1}x,x\rangle \\
+       &d^2\varphi(x)(H,K,h,k) = -\langle \left(M^{-1}KM^{-1} + \left(M^{-1}KM^{-1}\right)^T\right)x,h \rangle + -\langle \left(M^{-1}HM^{-1} + \left(M^{-1}HM^{-1}\right)^T\right)x,k \rangle +\\& \langle (M^{-1}+M^{-1T})k,h\rangle + \langle M^{-1}(KM^{-1}H + HM^{-1}K)M^{-1}x,x \rangle 
+    }
+  \right.\]
+\subparagraph{4}L'ensemble $\lbrace m, \phi(m) = 1 \rbrace$ est la frontière de l'union des cercles de centre $0$ et de rayon $1$ et de centre $1$ et de rayon $1$. On se place en $x_0 = (0,\frac{1}{2})$. Soit $h>0$, $\phi(x_0+h) - \frac{1}{4} = (\frac{1}{2} -he_1)^2 - \frac{1}{4} = -h =o(h)$. Si $h<0$ $\phi(x_0+he_1) - \frac{1}{4} = (\frac{1}{2} +h)^2 - \frac{1}{4} = h =o(h)$. Donc $f$ n'est pas différentiable en $(0,\frac{1}{2})$.
+\section{Exercice 2 - Adhérences et intérieurs}
+\subparagraph{1} Soit $x \in A \cap \overline{B}$. Soit $V \in \V(x)$ alors $V\cap B \neq \emptyset$ car $x \in \overline{B}$. De plus, il existe $V_0 \in V(x)$ tel que $V_0 \subset A$ car $A$ ouvert. Donc si on pose $W = V \cap V_0$, $W\neq \emptyset$ car contient $x$ et est donc un voisinage de $x$ qui vérifie $W \subset A$ et $W \cap B \neq \emptyset$ donc $W \cap (A \cap B) \neq \emptyset$ et donc $V \cap (A \cap B) \neq \emptyset$. Donc $x \in \overline{A \cap B}$.
+\subparagraph{2} On a en utilisant la question précédente $\overline{A \cap \overline{B}} \subset \overline{A \cap B}$. On a aussi $A \cap B \subset A \cap \overline{B}$ donc on a $ \overline{A \cap B} \subset \overline{A \cap \overline{B}}$. On conclut par double inclusion.
+\subparagraph{3}$A\cap \overline{B} = \R$ et $\overline{A \cap B} = \emptyset$. Ce n'est pas en contradiction avec les questions précédentes car le singleton n'est pas ouvert pour la topologie grossière.
+\section{Exercice 3 - Connexité}
+\subparagraph{1}Soit $A = O_1^A \sqcup O_2^A$, l'union disjointe de deux ouverts de $A$, $O_1^A$ et $O_2^A$. Maintenant, considérons $O_1 = O_1^A \cup B$. Montrons que c'est un ouvert de $A \cup B$,
+\[O_1 = \left(U_1^A \cap A\right) \cup \left(A^c \cap B \right)  = \left(U_1^A \cup  A^c\right) \cap (A\cup B),\]
+avec $U_1^A$ ouvert de $E$. Ainsi puisque $U_1^A \cup  A^c$ est un ouvert de $E$ on en déduit que $O_1$ est un ouvert de $A \cup B$. De même pour $O_2 = O_2^A  = (U_2^A \cap B^c) \cap (A \cup B)$. Par connexité de $A \cup B$, $O_1 = \emptyset$ ou $O_2 = \emptyset$. Ceci implique que $O_1^A = \emptyset$ ou $O_2^A = \emptyset$ et donc $A$ connexe. Le même raisonnement s'applique pour $B$.
+\subparagraph{2}Soit $A = O_1^1 \sqcup O_2^A$. $A\cap B = \left(U_1^A \cap (A\cap B) \right) \sqcup \left(U_2^A \cap (A\cap B) \right)$ avec $O_i^A = U_i^A \cap A$ et $ i \lbrace 1,2 \rbrace$ comme précédemment. Par connexité de $A\cap B$ on en déduit que $U_1^A \cap (A \cap B) = \emptyset$ ou $U_2^A \cap (A \cap B) = \emptyset$. Supposons que $U_2^A \cap (A \cap B) = \emptyset$. Posons $O_1 = O_1^A \cup B$ et $O_2 = O_2^A$. On a
+\[\left\lbrace
+    \al{
+      &O_1 = O_1^A \cup B = (U_1^A \cup A^c) \cap (A\cup B) \\
+      &O_2 = O_2^A = (U_2^A \cap B^c) \cap (A\cup B),
+      }\right.
+  \]
+  On a donc $O_1$ et $O_2$ ouverts de $A\cup B$ tels que $A\cup B = O_1 \sqcup O_2$. Donc soit $O_1 = \emptyset$ soit $O_2 = \emptyset$. Ainsi soit $O_1^A = \emptyset$ soit $O_2^A = \emptyset$, bref $A$ est connexe. Le même raisonnement s'applique pour $B$.
+  \subparagraph{3}
+  $A\cap B = [1.5,2.5]$, $A\cup B = [0,3]$ sont connexes pourtant $A$ n'est pas connexe. On n'a pas de contradiction car $A$ n'est pas fermé.
+  \section{Exercice 4 - Topologie produit}
+  \subparagraph{1} Supposons $W$ ouvert pour la topologie produit. $W = \underset{i \in I}{\bigcup} U_i \times V_i$. Soit $(x,y) \in W$, il existe $i \in I$ tel que $(x,y) \in U_i \times V_i$. Donc il existe deux ouverts $U_i$ et $V_i$ tels que $x\in U_i$, $y \in V_i$ et $U_i \times V_i \subset W$. Réciproquement on a $W \subset \underset{(x,y) \in W}{\bigcup} U_{(x,y)} \times V_{(x,y)} \subset W$ (en effet, $(x,y) \in U_{(x,y)} \times V_{(x,y)} \subset W$) d'où l'égalité entre ces deux ensembles et $W$ est un ouvert pour la topologie produit.
+  \subparagraph{2}
+  $F$ est séparé $ssi \ \forall (x,y) \in F^2, \ x \neq y \ \Rightarrow \ \exists (U_x,U_y) \in \tau(F)^2, \ x \in U_x, \ y \in V_y, \ U_x \cap V_y = \emptyset$,\\
+  $ssi \ \forall (x,y) \in F^2, (x,y) \in \Delta^c \ \Rightarrow \ \exists (U_x,U_y) \in \tau(F)^2, \ (x,y) \in U_x \times V_y, \ U_x \times V_y \subset \Delta^c,$ \\
+On a  $U_x \times V_y \in \tau(F^2)$. Réciproquement soit $O \in\tau(F^2)$ qui contient $(x,y)$ alors il existe un ouvert élémentaire tel que $(x,y)$ appartient à cet ouvert élémentaire.
+  Donc $F$ est séparé si et seulement si $\forall (x,y) \in F^2, (x,y) \in \Delta^c \ \Rightarrow \ \exists O \in \tau(F^2), \ (x,y) \in O, \ O \subset \Delta^c,$ \\
+  si et seulement si $\Delta^c$ est voisinage de chacun de ses points, \\
+  si et seulement si $\Delta^c$ est ouvert,\\
+  si et seulement si $\Delta$ est fermé.
+  \subparagraph{3}Soit $O$ un ouvert de $E$, $p_E^{-1}(O) = O \times F$ est un ouvert élémentaire de $E \times F$ car $F$ est un ouvert de $F$. Soit $W = \underset{i \in I}{\bigcup} U_i \times V_i$. On a
+  \[p_E(W) = p_E(\underset{i \in I}{\bigcup} U_i \times V_i) = \underset{i \in I}{\bigcup} p_E(U_i \times V_i) = \underset{i \in I}{\bigcup} U_i,\]
+  ce dernier ensemble est un ouvert donc $p_E$ est une application ouverte.
+  \subparagraph{4}Soit $x \in \overline{p_E(H)}$. Supposons que $x \notin p_E(H)$. Alors pour tout $y \in F$, il existe deux ouverts $U_y \subset E$ et $V_y \subset F$ tels que $(x,y) \in U_y \times V_y$ mais $U_y \times V_y \cap H = \emptyset$ (pour obtenir cela il suffit de prendre la négation de l'assertion $x \in p_E(H)$ qui assure qu'il existe un $y \in F$ tel que $(x,y) \in H = \overline{H}$). $(V_y)_{y \in F}$ est un recouvrement ouvert de $F$. On peut donc en extraire un recouvrement fini $(V_{y_i})_{i \in \llbracket 1,n \rrbracket}$. On considère $U = \underset{i \in \llbracket 1,n \rrbracket}{\bigcap} U_{y_i}$. On a alors,
+  \[ \emptyset = H \cap \underset{i \in \llbracket 1,n \rrbracket}{\bigcup}U \times V_{y_i} = H \cap \underset{y \in F}{\bigcup}U \times V_{y} = H \cap (U \times F)\]
+  Or $H \cap (U \times F)$ est non vide car $x \in \overline{p_E(H)}$.
+  \subparagraph{5}Notons tout d'abord que $f$ est continue si et seulement si $g: E \times F \rightarrow F^2$ définie par $g(x,y) = (f(x),y)$ est continue.\\
+  Supposons que $f$ est continue alors $g$ l'est également et $g^{-1}(\Delta)$ est un fermé car $\Delta$ fermé car $F$ compact donc séparé. On remarque que le graphe de $f$ est exactement $g^{-1}(\Delta)$.\\
+  Soit $A$ un fermé de $F$. Alors $E \times A$ est un fermé de $E \times F$ car son complémentaire est $E \times A^c$ qui est ouvert. On considère $p_E((E\times A) \cap G)$ qui est donc fermé et on remarque que $p_E(E \times A \cap g) = f^{-1}(A)$. Donc $f$ est continue.
+  \subparagraph{6}Son graphe est fermé car c'est l'union de l'image réciproque de $h^{-1}(1)$ avec $h(x,y) =xy$ qui est continue et du singletion $\lbrace 0 \rbrace$. Pourtant $f$ n'est pas continue en $0$. Ce n'est pas en contradiction avec le résultat car $\R$ n'est pas compact.
+  \section{Exercice 5 - Espaces métriques complets}
+  On va noter $f(x) = \frac{x}{1+x}$ et $g(x) = \frac{x}{1-x}$ sa réciproque ($f$ est définie sur $\R_+$ et $g$ sur $[0,1[$).
+  \subparagraph{1}La convergence normale ($f\le 1$) assure que la série est bien définie et donc que la distance est bien définie partout. On vérifie ensuite la positivité. $d(x,y) = 0 \Leftrightarrow x=y$ vient du fait que la famille est séparante. Pour vérifier l'inégalité triangulaire on commence par vérifier que $f(p_n(x-y)+p_n(z-y)) \le f(p_n(x-y)) + f(p_n(z-y))$ puis on montre la croissance de $f$ et on conclut en utilisant l'inégalité triangulaire sur la famille de semi-normes. La symétrie est triviale.
+  \subparagraph{2}$d(x_k,x) \ge 2^{-n}f(p_n(x_k-x)) \ge 0$. Par encadrement $f(p_n(x_k-x))$ tend vers $0$. Par continuité de $g$, $p_n(x_k-x)$ tend vers $0$. Ceci est valable sans hypothèse sur $n$.\\
+  Supposons désormais que $p_n(x_k-x)$ tend vers $0$ quel que soit $n \in \N$. Soit $\epsilon \in \R_+^*$. Il existe un rang $N$ à partir duquel $S_N = \summ{n = N}{+\infty} 2^{-n} < \frac{\epsilon}{2}$. Donc $d(x,x_k) \le \frac{\epsilon}{2} + \summ{n=0}{N-1} 2^{-n}f(p_n(x_k-x))$. Par continuité de $f$ chaque terme de la somme finie tend vers $0$ donc il existe un rang $K$ tel que pour tout $k \ge K$ la somme finie est plus petite que $\frac{\epsilon}{2}$. On a bien montré la convergence.
+  \subparagraph{3}C'est immédiat. On précise que la famille est séparante car si deux fonctions continues sont différentes alors il existe un $x$ telles qu'elles diffèrent en ce point. Pour un $n$ plus grand que $\vertt{x}$ les semi-normes sont différentes.
+  \subparagraph{4}Soit $(f_k)_{k \in \N}$ de Cauchy pour la distance $d$. On considère la restriction de $f_k$ à $[-n,n]$, notée $f_k^n$ et on montre que $(f_k^n)_{k \in \N}$ est de Cauchy. En effet il existe un rang $K$ tel que pour tout $k \ge K$ et $k' \ge K$ on a $d(f_k,f_{k'}) \le 2^{-n}f(\epsilon)$. La croissance de $f$ assure que $\|f_k^n - f_{k'}^n\|_{\infty}$ est de Cauchy. Donc elle converge car l'ensemble des fonctions continues définies sur un compact est un complet. On note $f^n$ la limite. Il convient de remarquer que la restriction de $f^n$ à $[-n',n']$ avec $n' \le n$ vaut $f^{n'}$. On définit ainsi la fonction continue sur $\R$ définie par ses restrictions à $[-n,n]$, $f$. On a alors que pour tout $n$, $p_n(f_k-f)$ tend vers $0$. La deuxième question assure que c'est le cas pour la distance $d$ et on conclut sur la complétude de $\mathcal{C}(\R)$ muni de cette distance.
+\end{document}
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

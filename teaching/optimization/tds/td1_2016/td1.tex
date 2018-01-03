@@ -1,0 +1,197 @@
+\documentclass[11pt, a4paper]{article}
+\usepackage{amssymb, amsmath, bm, mathrsfs, amsthm}
+\usepackage[french]{babel}
+\usepackage[T1]{fontenc}
+\usepackage[utf8x]{inputenc}
+\usepackage{graphicx}
+%
+\title{ENS Cachan, DPT Maths \\ [1cm]
+Optimisation numérique M1 -- TD1} 
+
+%
+\author{Florian De Vuyst, Adrien Le Coënt, Lara Raad \\ CMLA UMR 8536, ENS Cachan}
+%
+
+\newcommand{\mq}{montrer que }
+\newcommand{\Mq}{Montrer que }
+\newcommand{\bu}{\bm{u}}
+\newcommand{\ba}{\bm{a}}
+\newcommand{\bn}{\bm{n}}
+\newcommand{\bA}{\bm{A}}
+\newcommand{\be}{\begin{equation}}
+\newcommand{\ee}{\end{equation}}
+\newcommand{\bg}{\bm{g}}
+\newcommand{\supp}[1]{\mathop{supp}(#1)}
+\newtheorem{remark}{Remark}
+%
+\begin{document}
+%
+\maketitle
+%
+\section{Normes matricielles}
+%
+Soit $A=(a_{ij})$ une matrice carrée. \Mq
+\be
+\|A\|_1 = \sup_{v\in\mathbb{C},v\neq 0} \dfrac{\|Av\|_1}{\|v\|_1}
+= \max_j \sum_i |a_{ij}|~;
+\ee
+%
+\be
+\|A\|_2 =  \sup_{v\in\mathbb{C},v\neq 0} \dfrac{\|Av\|_2}{\|v\|_2}
+ = \sqrt{\rho(A^\star A)} = \sqrt{\rho(AA^\star)}=\|A^\star\|_2~;
+\ee
+\be
+\|A\|_\infty = \sup_{v\in\mathbb{C},v\neq 0} \dfrac{\|Av\|_\infty}{\|v\|_\infty}
+= \max_i \sum_j |a_{ij}|=\|A^\star\|_1.
+\ee
+(4) La norme $\|.\|_2$ est invariante par transformation unitaire~:
+\[
+UU^\star = I \rightarrow \|A\|_2=\|A U\|_2=\|U A\|_2=\|U^\star A U\|_2.
+\]
+(5) Si $A$ est normale ($AA^\star=A^\star A$), alors
+\[
+\|A\|_2 = \rho(A).
+\]
+(6) Soit $A$ une matrice carrée quelconque et $\|.\|$ une norme matricielle
+quelconque. Montrer que
+\[
+\rho(A) \leq \|A\|.
+\]
+\medskip
+\section{Suite des puissances successives d'une matrice}
+%sssssssssssssssss
+%
+% \textbf{1.} Soit $\|.\|$ une norme matricielle subordonnée, et $B$ une matrice qui vérifie
+% \[
+% \|B\|< 1.
+% \]
+% \Mq $(I+B)$ est inversible et
+% \[
+% \|(I+B)^{-1}\| \leq \frac{1}{1-\|B\|}.
+% \]
+% \textbf{2.} \Mq~si une matrice de la forme $(I+B)$ est singulière, alors nécessairement
+% \[
+% \|B\|\geq 1.
+% \]
+% \textbf{3.} 
+On admettra le résultat suivant~: Etant donné une matrice $A$
+et un nombre $\varepsilon>0$, il existe au moins une norme matricielle
+subordonnée $\|.\|$ telle que
+\[
+\|A\| \leq \rho(A) + \varepsilon.
+\]
+Soit $B$ une matrice carrée. Montrer que les conditions suivantes sont équivalentes~:
+\begin{itemize}
+\item [i)] $\lim_{k\rightarrow \infty} B^k = 0~;$
+
+\item [ii)] $\lim_{k\rightarrow \infty} B^k v=0$~;
+
+\item [iii)] $\rho(B)<1$~;
+
+\item [iv)] $\|B\|<1$ pour au moins une norme matricielle subordonnée.
+\end{itemize}
+%
+\medskip
+\section{Conditionnement de systèmes linéaires}
+%sssssssssssssssssssssssssssssssssssssssssssss
+%
+Soit $A$ une matrice inversible, $b$ un vecteur non nul, $u$ et $(u+\delta u)$ 
+les solutions respectives des systèmes linéaires
+\begin{eqnarray*}
+&&A u = b, \\ [1.1ex]
+&&A(u+\delta u) = b+\delta b.
+\end{eqnarray*}
+%
+Soit $\Vert \cdot \Vert$ une norme matricielle subordonnée, on note $\mathop{cond}(A)=\|A\|\|A^{-1}\|$ le conditionnement de la matrice $A$. Montrer que
+\[
+\dfrac{\|\delta u\|}{\|u\|}\leq \mathop{cond}(A)\, \dfrac{\|\delta b\|}{\|b\|}.
+\]
+Montrer que la majoration est optimale.
+%
+\section{Conditionnement de systèmes linéaires 2}
+%
+Soit $A$ une matrice inversible, $b$ un vecteur non nul et $u$ et $(u+\Delta u)$ les solutions respectives des systèmes linéaires
+%
+\begin{eqnarray*}
+&&Au = b, \\ [1.1ex]
+&&(A+\Delta A)(u+\Delta u) = b. 
+\end{eqnarray*}
+%
+Montrer que l'on a l'inégalité
+\[
+\dfrac{\|\Delta u\|}{\|u+\Delta u\|} \leq \mathop{cond}(A)\, \dfrac{\|\Delta A\|}{\|A\|}
+\]
+et que c'est la meilleure inégalité possible.
+%
+\medskip
+\section{Calcul différentiel}
+%
+\textbf{(1)} On se place dans $H=\mathbb{R}^n$, $A$ une matrice carrée et $b$ un vecteur de $H$. On dénote par $\langle .,. \rangle$ le produit scalaire usuel dans $V$.
+Calculer respectivement la différentielle et le gradient des applications
+%
+\begin{eqnarray*}
+&& x\mapsto \|x\|_2^2, \\ [1.1ex]
+&& x\mapsto \langle Ax,b \rangle.
+\end{eqnarray*}
+%
+\textbf{(2)} Soit $V=\mathbb{R}^n$, $A\in\mathscr{M}_n(\mathbb{R})$ symétrique
+positive, $\mu>0$ et $b\in V$. Soit 
+\[
+J(u) = \frac{1}{2}\langle A u,u\rangle - \langle b,u \rangle + \frac{1}{2}\mu \|u\|^2.
+\]
+Calculer $\nabla J(u)$ et $\nabla^2 J(u)$.
+\section{Condition nécessaire de minimum relatif}
+%
+Soit $\Omega$ un ouvert d'un e.v.n. V et $J:\Omega \subset V \rightarrow \mathbb{R}$ une fonction dérivable dans $\Omega$, deux fois dérivale en un point u $\in \Omega$. Si la fonction J admet un minimum relatif en u, \mq
+\be
+J''(u)(w,w) \geq 0 \hspace{5mm} \forall \hspace{2mm}  w\in V.
+\ee
+
+\medskip
+\section{Condition suffisante de minimum relatif}
+%sssssssssssssssss
+%
+Soit $\Omega$ un ouvert d'un e.v.n. V, u un point de $\Omega$, et $J:\Omega \subset V \rightarrow \mathbb{R}$ une fonction dérivable dans $\Omega$ telle que $J'(u)=0$. 
+
+\textbf{(1)} Si la fonction J est deux fois dérivable en u et s'il existe un nombre $\alpha$ tel que, $$ \alpha > 0 \text{ et } J''(u)(w,w)\geq \alpha\Vert w \Vert^{2} \hspace{5mm} \forall \hspace{2mm} w\in V,$$ \mq la fonction J admet un minimum relatif strict en u.
+
+\textbf{(2)} Si la fonction J est deux fois dérivable dans $\Omega$, et s'il existe une boule $B \subset \Omega$ centrée en u telle que $$ J''(v)(w,w) \geq 0 \hspace{5mm} \forall \hspace{2mm} v\in B, \vspace{2mm} w\in V,$$ \mq la fonction J admet un minimum relatif en u.
+
+\medskip
+\section{Condition nécessaire de minimum relatif sur un ensemble convexe}
+%
+Soit $J:\Omega \subset V \rightarrow \mathbb{R}$ une fonction définie sur un ouvert $\Omega$ d'un e.v.n. V et U une partie convexe de $\Omega$. Si la fonction J est dérivable en un point u $\in U$ et si elle admet en u un minimum relatif par rapport à U, \mq $$ J'(u)(v-u)\geq 0 \hspace{5mm} \forall \hspace{2mm} v\in U.$$ 
+
+\medskip
+\section{Fonctions convexes}
+\subsection{Derivabilité première}
+
+Soit $J:\Omega \subset V \rightarrow \mathbb{R}$ une fonction dérivable dans un ouvert $\Omega$ d'un e.v.n. V, et U une partie convexe de $\Omega$, \mq
+
+\textbf{(1)} La fonction J est convexe sur U sii $$ J(v) \geq J(u) + J'(u)(v-u) \hspace{5mm} \forall \hspace{2mm} u,v \in U.$$
+
+\textbf{(2)} La fonction J est strictement convexe sur U sii $$ J(v) >  J(u) + J'(u)(v-u) \hspace{5mm} \forall \hspace{2mm} u,v \in U, \hspace{2mm} u\neq v.$$
+
+\subsection{Derivabilité seconde}
+
+Soit $J:\Omega \subset V \rightarrow \mathbb{R}$ une fonction deux fois dérivable dans un ouvert $\Omega$ d'un e.v.n. V, et U une partie convexe de $\Omega$, \mq
+
+\textbf{(3)} La fonction J est convexe sur U sii $$ J''(u)(v-u,v-u) \geq 0 \hspace{5mm} \forall \hspace{2mm} u,v \in U.$$
+
+\textbf{(4)} Si $$ J''(u)(v-u,v-u) > 0 \hspace{5mm} \forall \hspace{2mm} u,v \in U, \hspace{2mm} u\neq v,$$ la fonction J est strictement convexe.
+%sssssssssssssssss
+
+\medskip
+\section{Minimum des fonctions convexes}
+Soit U une partie convexe d'un e.v.n. V.
+
+\textbf{(1)} Si une fonction convexe $J: U \subset V \rightarrow \mathbb{R}$ admet un minimum relatif en un point de U, \mq elle y admet un minimum (par rapport à tout l'ensemble U).
+
+\textbf{(2)} \Mq une fonction $J: U \subset V \rightarrow \mathbb{R}$ strictement convexe admet au plus un minimum, et c'est un minimum strict.
+
+\textbf{(3)} Soit $J: U \subset V \rightarrow \mathbb{R}$ une fonction convexe définie sur un ouvert $\Omega$ de V contenant U, dérivable en un point u $\in$ U. \Mq la fonction J admet un minimum en u par rapport à U sii $$ J'(u)(v-u) \geq 0 \hspace{5mm} \forall \hspace{2mm} v\in U.$$
+
+\textbf{(4)} Si l'ensemble U est ouvert, \mq la condition précédente equivaut à l'équation d'Euler $J'(u)=0.$
+
+
+\end{document}

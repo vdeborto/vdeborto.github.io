@@ -1,0 +1,134 @@
+\documentclass[11pt, a4paper]{article}
+\usepackage{amssymb, amsmath, bm, mathrsfs, amsthm}
+\usepackage[french]{babel}
+\usepackage[T1]{fontenc}
+\usepackage[utf8x]{inputenc}
+\usepackage{graphicx}
+%
+\title{ENS Cachan, DPT Maths \\ [1cm]
+Optimisation numérique M1 -- TD8 -- Optimisation sous contraintes}
+%
+\date{24 novembre 2016}
+
+%
+\author{Florian De Vuyst, Adrien Le Co\"ent - CMLA UMR 8536, ENS Cachan}
+%
+\newcommand{\mq}{montrer que }
+\newcommand{\Mq}{Montrer que }
+\newcommand{\bu}{\bm{u}}
+\newcommand{\ba}{\bm{a}}
+\newcommand{\bn}{\bm{n}}
+\newcommand{\bA}{\bm{A}}
+\newcommand{\be}{\begin{equation}}
+\newcommand{\ee}{\end{equation}}
+\newcommand{\bg}{\bm{g}}
+\newcommand{\supp}[1]{\mathop{supp}(#1)}
+\newtheorem{remark}{Remark}
+%
+\begin{document}
+%
+\maketitle
+%
+\section*{Algorithme d'Uzawa}
+%SSSSSSSSSSSSSSSSSS
+%
+Soit le problème primal 
+
+\begin{equation}
+(\mathcal{P})\left\lbrace
+\begin{array}{c}
+\displaystyle J(u) = \inf_{v\in U} J(v)\\
+u \in U := \lbrace v \in V; \phi_i(v) \leq 0, ~ 1 \leq i \leq m\rbrace 
+\end{array}
+\right.
+\end{equation}
+
+et son dual 
+
+\begin{equation}
+(\mathcal{Q})\left\lbrace
+\begin{array}{c}
+\displaystyle \lambda \in \mathbb{R}^m_{+}, ~ G(\lambda) = \sup_{\mu \in \mathbb{R}^m_{+}} G(\mu).
+\end{array}
+\right.
+\end{equation}
+
+Méthode d'Uzawa:
+
+Partant d'un élément $\lambda_0 \in \mathbb{R}^m_+$ arbitraire, la suite de couples $(\lambda^k, u^k) \in \mathbb{R}^m_+ \times V, ~ k\geq 0$ est défini par les formules de récurrences suivantes
+
+\begin{equation}
+\left\lbrace
+\begin{array}{cc}
+\displaystyle u_{\lambda k}:& ~ J(u_{\lambda k}) + \sum_{i=1}^{m}{\lambda_i^k \phi_i (u_{\lambda k})} = \inf_{v \in V}{J(v) + \sum_{i=1}^{m}{\lambda_i^k \phi_i (v)}}\\
+\lambda_i^{k+1}:&~ \lambda_i^{k+1} = \max{\lbrace \lambda_i + \rho \phi_i^k(u_{\lambda k}), 0\rbrace}
+\end{array}
+\right.
+\end{equation}
+
+Convergence de la méthode d'Uzawa:
+
+On suppose que $V=\mathbb{R}^n$, que la fonction $J$ est elliptique, et que l'ensemble $U$, de la forme 
+$$
+U = \lbrace v \in \mathbb{R}^n; Cv \leq d\rbrace, C \in \mathcal{A}_{m,n}, d \in \mathcal{R}^m,
+$$
+est non vide. Alors, si
+$$
+0<\rho <\frac{2\alpha}{\Vert C\Vert^2},
+$$
+la suite $(u^k)$ converge vers la solution unique du problème primal $(\mathcal{P})$.
+
+Si le rang de $C$ est $m$, la suite $(\lambda^k)$ converge également,vers la solution unique du problème dual $(\mathcal{Q})$.
+ 
+%
+\section*{Algorithme de Arrow-Hurwicz}
+%SSSSSSSSSSSSSSSSSs
+%
+Soit $n$ un entier positif. L'espace vectoriel $\mathbb{R}^n$ est muni de la norme euclidienne notée $\vert .\vert_n$ et du produit scalaire correspondant noté $(.,.)$. L'ensemble des matrices carées $n \times n$ est muni de la norme $\Vert B \Vert$ définie par $\Vert B \Vert = \max{\lbrace \frac{\vert Bx\vert_n}{\vert x\vert_n}, ~x \in \mathbb{R}^n, ~x\neq 0 \rbrace}$. Soient $A$ une matrice carrée $n\times n$ symétrique définie positive et $b$ un vecteur de $\mathbb{R}^n$. On note $J$ l'application de $\mathbb{R}^n \mapsto \mathbb{R}$ définie par 
+\begin{equation}
+J(v) = \frac{1}{2} (Av,v) - (b,v).
+\end{equation}
+Soit $m$ un entier et $C$ une matrice $m\times n$. On pose $U=\lbrace v \in \mathbb{R}^n, ~ Cv = 0\rbrace$. On considère le problème suivant : trouver $u \in U$ tel que
+\begin{equation}
+\displaystyle J(u) = \inf_{v \in U} J(v).
+\label{eq:prob}
+\end{equation}
+
+\begin{enumerate}
+\item Montrer que le problème (\ref{eq:prob}) admet une solution unique et écrire les conditions d'optimalité de Kuhn et Tucker. On notera $\lambda$ le multilicateur de Lagrange.
+\item Pour résoudre ce problème, on définit la méthode itérative suivante
+\begin{equation}
+u^{k+1} = u^k - \rho_1 (A u^k - b +C^t \lambda^k), ~ \lambda^{k+1} = \lambda^k + \rho_1\rho_2 C u^{k+1}
+\end{equation}
+ou $\rho_1, ~ \rho_2 >0$ sont des paramètres et $(u^0,\lambda^0)$ sont donnés dans $\mathbb{R}^n \times \mathbb{R}^m$. Montrer que si $\rho_1 > 0$ est suffisamment petit, on a 
+\begin{equation}
+\Vert I - \rho_1 A \Vert < 1
+\end{equation}
+où $I$ est la matrice identité. Dans la suite, on choisit $\rho_1$ tel que cette inégalité soit vérifiée et on pose $\beta = \Vert I - \rho_1 A\Vert < 1$.
+\item Montrer que l'on a 
+\begin{equation}
+\left\lbrace
+\begin{array}{cc}
+\displaystyle \vert \lambda^{k+1} - \lambda \vert^2_m \leq \vert \lambda^{k} - \lambda \vert^2_m  + (\rho_1 \rho_2)^2 \Vert C^t C \Vert \vert u^{k+1} - u\vert^2_n \\
++ 2\rho_1\rho_2(C^t(\lambda^k - \lambda),u^{k+1}-u)
+\end{array}
+\right.
+\end{equation}
+En déduire que pour $\rho_2$ assez petit, on a:
+\begin{equation}
+\left\lbrace
+\begin{array}{cc}
+\displaystyle \gamma \vert u^{k+1} - u \vert^2_n \leq (\frac{\vert \lambda^k-\lambda\vert^2_m}{\rho_2} + \beta \vert u^k - u\vert^2_n)\\
+-(\frac{\vert \lambda^{k+1} - \lambda \vert^2_m}{\rho_2} + \beta \vert u^{k+1} - u\vert^2_n)
+\end{array}
+\right.
+\end{equation}
+où $\gamma = (-\rho_1^2 \rho_2 \Vert C^t C\Vert + 2 - 2\beta )$ est choisi strictement positif.
+\item En déduire que l'on a $\lim_{k\mapsto \infty} u^k = u$.
+\item Que peut on dire de la suite $(\lambda^k)_{k \in \mathbb{N}}$ lorsque la matrice $C$ est de rang $m$?
+\item La méthode ci-dessus s'appelle la méthode d'Arrow-Hurwicz. Quel avantage cette méthode présente-t-elle par rapport à celle d'Uzawa?
+\end{enumerate}
+
+%
+
+\end{document}

@@ -1,0 +1,108 @@
+\documentclass[11pt, a4paper]{article}
+\usepackage{amssymb, amsmath, bm, mathrsfs, amsthm}
+\usepackage[french]{babel}
+\usepackage[T1]{fontenc}
+\usepackage[utf8x]{inputenc}
+\usepackage{graphicx}
+%
+\title{ENS Cachan, DPT Maths \\ [1cm]
+Optimisation numérique M1 -- TD10 -- Optimisation en dimension infinie}
+%
+\date{1 Décembre 2016}
+
+%
+\author{Florian De Vuyst, Adrien Le Co\"ent - CMLA UMR 8536, ENS Cachan}
+%
+\newcommand{\mq}{montrer que }
+\newcommand{\Mq}{Montrer que }
+\newcommand{\bu}{\bm{u}}
+\newcommand{\ba}{\bm{a}}
+\newcommand{\bn}{\bm{n}}
+\newcommand{\bA}{\bm{A}}
+\newcommand{\be}{\begin{equation}}
+\newcommand{\ee}{\end{equation}}
+\newcommand{\bg}{\bm{g}}
+\newcommand{\supp}[1]{\mathop{supp}(#1)}
+\newtheorem{remark}{Remark}
+%
+\begin{document}
+%
+\maketitle
+%
+\section*{Non existence de la projection sur un sous-espace vectoriel fermé d'un espace préhilbertien}
+%SSSSSSSSSSSSSSSSSS
+%
+Soit $E:= \mathcal{C}([-1,+1],\mathbb{R})$ structuré en espace préhilbertien réel 
+grâce au produit scalaire $\langle f,g \rangle := \int_{-1}^1 f(t)g(t)dt$.
+
+Soit $V:= \left \lbrace f \in E \ | \ \int_0^1 f(t)dt = 0 \right \rbrace$.
+
+1. Vérifier que $V$ est un sous-espace vectoriel fermé de $E$.
+
+2. Soit $x \ : \ t \in [-1,+1 ] \longmapsto x(t) = 1$. Montrer que $x$ n'a pas de 
+projection dans $V$.
+%
+\section*{Approximation éléments finis d’un problème d’optimisation aux
+dérivées partielles elliptique}
+%SSSSSSSSSSSSSSSSSs
+%
+
+Soit $\Omega$ un domaine borné de $\mathbb{R}^2$ à frontière lipschitzienne. On cherche
+$u\in H^1_0(\Omega)$ solution du problème de minimisation
+\[
+\min_{v\in H^1_0(\Omega)}\quad \frac{1}{2}\int_\Omega |\nabla v|^2\, dx
++ \dfrac{\alpha}{2} \int_\Omega v^2\, dx - \int_\Omega f v\, dx
+\]
+pour $\alpha>0$ et $f\in L^2(\Omega)$.
+
+Pour l'approximation numérique de ce problème d'optimisation on définit une triangulation (ou un maillage)
+$\mathscr{T}^h$ du domaine $\Omega$ constituée de triangles notés génériquement $K$.
+L'ensemble
+\[
+\Omega^h = \displaystyle{\cup_{K\in\mathscr{T}^h}\, K}
+\]
+est une ``discrétisation'' de $\Omega$. On introduit un espace discret $V^h \subset H^1_0(\Omega)$ dit éléments finis $P^1$ défini comme
+\[
+V^h = \left\{ v^h\in \mathscr{C}^0(\Omega^h),\ \forall K \in \mathscr{T}^h,  \ v^h_{|K}\in P^1(K),
+v^h=0 \mbox{ sur } \partial\Omega^h \right\}.
+\]
+On cherche alors $u^h\in V^h$ solution du problème d'optimisation en dimension finie
+\[
+\min_{v^h\in V^h}\quad \frac{1}{2}\int_{\Omega^h} |\nabla v^h|^2\, dx
++ \dfrac{\alpha}{2} \int_{\Omega^h} (v^h)^2\, dx - \int_{\Omega^h} f v^h\, dx
+\]
+On introduit des fonctions de bases $w_i(x)\in V^h$ de $V^h$ définies telles que
+\[
+w_i(S_j) = \delta_{ij}
+\]
+pour $S_j$ n\oe uds du maillage $\mathscr{T}^h$, et $i$ tel que $S_i\notin \partial\Omega^h$. On définit la matrice carrée $A$ d'éléments
+\[
+A_{ij} = \int_{\Omega^h} \nabla w_i\cdot\nabla w_j\, dx,
+\]
+pour $i,j$ tels que $S_i,S_j$ n\oe uds de $\mathscr{T}^h$, $S_i,S_j\notin \partial\Omega^h$. 
+\begin{enumerate}
+\item Montrer que $A$ est une matrice creuse, symétrique définie positive.
+\item Pour $K\in \text{Supp}(w_i)\cap\text{Supp}(w_j)$, calculer explicitement la
+quantité
+\[
+A_{ij}^K = \int_K \nabla w_i\cdot \nabla w_j\, dx.
+\]
+\item En déduire un algorithme de calcul numérique de la matrice $A$.
+\item Refaire les questions 1. 2. et 3. pour la matrice $M$ d'éléments $M_{ij}$ définis par
+\[
+M_{ij} = \int_{\Omega^h} w_i(x)\, w_j(x)\, dx.
+\]
+\item En cherchant $u^h(x)$ sous la forme
+\[
+u^h(x) = \sum_{S_i\in\mathscr{T}^h,\ S_i\notin \partial\Omega^h} u_i \, w_i(x),
+\]
+et en notant le vecteur $\bm{u}=(u_i)_i$, montrez que l'unique solution du problème discret
+est solution d'un grand système linéaire creux de la forme
+\[
+(A+\alpha M)\bm{u} = \bm{f}
+\]
+(on précisera ce qu'est le vecteur $\bm{f}$).
+\end{enumerate}
+%
+
+\end{document}

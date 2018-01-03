@@ -1,0 +1,149 @@
+\documentclass[11pt, a4paper]{article}
+\usepackage{amssymb, amsmath, bm, mathrsfs, amsthm}
+\usepackage[french]{babel}
+\usepackage[T1]{fontenc}
+\usepackage[utf8x]{inputenc}
+\usepackage{graphicx}
+%
+\title{ENS Cachan, DPT Maths \\ [1cm]
+Optimisation numérique M1 -- TD5 -- Optimisation sous contraintes} 
+%
+\author{Florian De Vuyst, Adrien Le Co\"ent - CMLA UMR 8536, ENS Cachan}
+%
+\date{20 Octobre 2016}
+%
+\newcommand{\mq}{montrer que }
+\newcommand{\Mq}{Montrer que }
+\newcommand{\bu}{\bm{u}}
+\newcommand{\ba}{\bm{a}}
+\newcommand{\bn}{\bm{n}}
+\newcommand{\bA}{\bm{A}}
+\newcommand{\be}{\begin{equation}}
+\newcommand{\ee}{\end{equation}}
+\newcommand{\bg}{\bm{g}}
+\newcommand{\supp}[1]{\mathop{supp}(#1)}
+\newtheorem{remark}{Remark}
+\newtheorem{theorem}{Théorème}
+%
+\begin{document}
+%
+\maketitle
+
+\section*{Démonstration de cours}
+
+\begin{multline*}
+ C(u)= \{0 \} \bigcup \{ w \in V   ~ \text{ pour lesquels il existe au moins} \\ \text{ une suite de points} ~ \{u_k\}_k
+ / u_k \in U,~ u_k \neq u, ~ \lim_k u_k = u \\
+ \lim_k \dfrac{u_k - u}{\Vert u_k - u \Vert} = \dfrac{w}{\Vert w \Vert}, ~ w \neq 0 \}
+\end{multline*}
+
+{\bf Théorème}\\
+ 1) $\forall u \in U, ~C(u)$ est fermé; \\
+ 2) $J: \Omega \longrightarrow \mathbb{R}$, $\Omega \subset V$ ouvert. Si $J$ admet en un point 
+ un minimum relatif sur $U$, et si $J$ est différentiable en $u$, alors:
+ $$ DJ(u)(v-u) \geq 0 \quad \forall v \in u + C(u). $$ \\
+
+Exercice: Montrer que $C(u)$ est fermé.
+
+
+%
+\section*{Théorème de sensibilité}
+%SSSSSSSSSSSSSSSSSS
+%
+Soit $u^*$ et $\lambda^*$ satisfaisant
+
+\begin{equation}
+\left\lbrace
+\begin{array}{c}
+\nabla_u \mathcal{L} (u^*, \lambda^*) = 0\\
+\nabla_{\lambda} \mathcal{L} (u^*, \lambda^*) = 0\\
+y^T \nabla^2_{uu}\mathcal{L}(u^*, \lambda^*)y >0, ~\forall y\neq0 ~ \text{tel que} ~ \nabla \theta(u^*)^Ty = 0
+\end{array}
+\right.
+\end{equation}
+avec $\mathcal{L}$ le lagrangien du problème
+
+\begin{equation*}
+(\mathcal{P}_0)
+\left\lbrace
+\begin{array}{c}
+\min J(u)\\
+\theta (u) = 0
+\end{array}
+\right. .
+\end{equation*}
+
+
+On considère la famille de problèmes 
+
+\begin{equation*}
+(\mathcal{P})
+\left\lbrace
+\begin{array}{c}
+\min J(u)\\
+\theta (u) = \mu
+\end{array}
+\right.
+\end{equation*}
+
+paramétré par le vecteur $\mu \in \mathbb{R}^m$.
+
+
+\begin{enumerate}
+\item On veut montrer qu'il existe $r>0$ tel que $\forall \mu \in \mathcal{B}(0,r)$, il existe $u(\mu) \in \mathbb{R}^n$ et $\lambda(\mu) \in \mathbb{R}^m$ qui forment une paire minimum local-multiplicateur de Lagrange du problème $(\mathcal{P})$. $u(.)$ et $\lambda(.)$ sont $\mu-\mathcal{C}^1$ dans $\mathcal{B}(0,r)$ et $u(0)=u^*$ et $\lambda(0) = \lambda^*$.
+\begin{itemize}
+ \item \'Ecrire explicitement $\mathcal{L}$ le lagrangien du problème $(\mathcal{P}_0)$ et
+ $\mathcal{L}'$ le lagrangien du problème $(\mathcal{P})$, puis écrire le système d'équations 
+ avec multiplicateur de Lagrange associé au problème $\mathcal{P}$.
+ \item Calculer le jacobien de ce dernier système, et montrer qu'il est inversible.
+ \item En utilisant le théorème des fonctions implicites, en déduire la proposition 1.
+\end{itemize}
+
+\item Notons $P(\mu) = J(u(\mu))$ le coût optimal, montrer que
+$$ \nabla_{\mu} P(\mu) = -\lambda(\mu) , ~ \forall \mu \in \mathcal{B}(0,r).$$
+\end{enumerate}
+
+\section*{Exercice}
+%SSSSSSSSSSSSSSSSSS
+%
+\'Etant donné $A\in\mathcal{S}_n(\mathbb{R})$ et $b\in\mathbb{R}$, on considère
+le problème d'optimisation suivant :
+%
+\[
+(\mathcal{P})\quad \left\{\begin{array}{l}
+\mbox{Minimiser } f(x):= \frac{1}{2} \langle A x,x \rangle +\langle b,x \rangle\\ [1.1ex]
+\mbox{sous la contrainte } \|x\|=1.
+\end{array}\right.
+\]
+\begin{itemize}
+\item [1°)] On suppose $b=0$. Rappeler alors ce que vaut 
+$\bar f = \inf\{ f(x): \|x\|=1 \}$ et quels sont les $\bar x$ de norme 1 pour lesquels
+$f(\bar x)=\bar f$.
+%
+\item [2°)] Soit $\lambda_1$ la plus grande valeur propre de $A$ et $p$ un réel strictement
+inférieur à $-\lambda_1$. On pose
+\[
+A_p := A + p I_n,\quad 
+f_p : x\in\mathbb{R}^n \mapsto f_p(x) := \frac{1}{2}\langle A_p x,x \rangle
++\langle b,x \rangle.
+\]
+	\begin{itemize}
+	\item [(a)] Indiquer pourquoi $f_p$ est strictement concave.
+	\item [(b)] On considère le problème d'optimisation suivant :
+	\[
+(\tilde{\mathcal{P}}_p)\quad \left\{\begin{array}{l}
+\mbox{Minimiser } f_p(x)\\ [1.1ex]
+ \|x\|\leq 1.
+\end{array}\right.
+\]
+Montrer que
+\[
+\inf\{ f_p(x):\|x\|\leq 1 \} = \inf\{ f(x):\|x\|=1 \}+\frac{1}{2}\, p
+\]
+et que les solutions de $(\mathcal{P})$ et $(\tilde{\mathcal{P}}_p)$ sont les mêmes.
+%	
+\end{itemize}
+\end{itemize}
+%
+
+\end{document}

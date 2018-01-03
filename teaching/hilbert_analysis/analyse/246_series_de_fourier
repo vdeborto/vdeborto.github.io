@@ -1,0 +1,45 @@
+246	Séries de Fourier. Exemples et applications.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+ANALYSE		20
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Oral d'Analyse}
+Je suis tombé sur le couplage suivant :
+\begin{itemize}
+\item[\textbf{246 -}] Séries de Fourier. Exemples et applications.
+\item[\textbf{236 -}] Illustrer par des exemples quelques méthodes de calcul d'intégrales de fonctions d'une ou plusieurs variables réelles.
+\end{itemize}
+
+J'ai choisi la leçon $246$. J'ai proposé les deux développements suivants :
+\begin{enumerate}
+\item Existence d'une fonction continue dont la série de Fourier diverge en $0$ (avec Baire),
+\item Théorème de Paley-Wiener.
+\end{enumerate}
+
+J'ai été interrogé sur le deuxième développement.
+
+\subsection*{\textcolor{blue}{Questions sur le développement}}
+Je n'ai pas eu de questions sur le développement à proprement parler, mais un membre du jury m'a posé des questions autour de la démonstration que j'ai proposée (qui est celle du Zuily-Quéffelec).
+\begin{itemize}
+\item J'avais utilisé les inégalités de Cauchy dans mon développement. On m'a demandé si elles restaient vraies pour une fonction $\mathcal{C}^\infty$ sur $\mathbb{R}$. La réponse est clairement non, mais je n'avais pas d'argument précis pour mieux répondre. Il m'a demandé si je connaissais le théorème de Borel, je m'en suis un peu voulu de ne pas y avoir pensé plus tôt.
+\item Il m'a également fait redémontrer Paley-Wiener \emph{via} une autre méthode. J'ai trouvé sa preuve beaucoup plus élégante que la mienne, donc je redonne ici les principaux arguments et les indications qu'il m'a données (il doit y avoir une référence...). On note $F$ le prolongement de $f$. Première question : justifier que $F(z+2\pi) = F(z)$ (conséquence du principe de prolongement analytique). On écrit ensuite le coefficient de Fourier $c_n(f)$ sous forme intégrale. Deuxième question : le problème est d'introduire une exponentielle décroissante dans l'intégrale. Trouver un contour du plan complexe pour le faire. Clairement, le contour doit contenir $[-\pi, \pi]$ pour qu'on puisse retomber sur $c_n(f)$. On se rend assez vite compte aussi qu'il faut que le contour prenne en compte un imaginaire pur. J'ai donc pris un rectangle de hauteur notée $a$ dans le demi-plan supérieur (c'est à dire à peu près le contour que j'avais utilisé dans mon développement, mais en un peu plus simple). En écrivant que $F$ est holomorphe et donc que l'intégrale sur ce contour est nulle, on conclut pour $n$ positif. Le jury m'a demandé comment je ferais pour les $n$ négatifs (il suffit de prendre le rectangle dans le demi-plan inférieur).
+\end{itemize}
+
+\subsection*{\textcolor{blue}{Questions sur le plan}}
+\begin{itemize}
+\item J'avais un peu de place à la fin de mon plan, donc j'y avais proposé une "ouverture probabiliste", dans laquelle je parlais de fonctions caractéristiques. Au début j'avais hésité à la mettre parce que je trouve le rapport au sujet assez scandaleux (elle aurait beaucoup plus sa place dans la leçon sur la transformée de Fourier), mais le jury n'a pas fait de remarques. Au contraire, l'un des membres m'a posé une question. Je parlais de l'équivalence entre orthogonalité et indépendance pour les variables gaussiennes, puis j'ai énoncé le théorème de construction du pré-mouvement brownien (en le justifiant dans mon plan comme une autre "justification" de l'espace $L^2$). On m'a demandé comment je construisais ce processus. Pour ceux qui sont intéressés, c'est très bien fait dans le poly de développements de Benjamin Havret. Sinon, un interrogateur en oral blanc m'a aussi dit que c'était fait dans un livre de Gallardo, mais je n'ai pas eu le temps de vérifier.
+\item A propos de l'équation de la chaleur, un autre membre du jury m'a demandé si j'avais une idée culturelle de pourquoi la base des exponentielles faisaient marcher l'équation de la chaleur sur le cercle. Je ne sais pas trop si c'est ce qu'il attendait, mais on a ensuite parlé de diagonalisation d'opérateurs autoadjoints compacts (et plus particulièrement du laplacien). Il m'a demandé comment on pouvait généraliser la méthode de résolution. J'ai commencé par expliquer qu'on pouvait diagonaliser le laplacien sur $\mathbb{R}^d$, et il m'a fait remarquer que j'avais tort. Je me suis rattrapé en lui disant qu'effectivement il fallait se placer sur un ouvert borné pour que l'opérateur soit compact et que le lemme de Rellich s'applique. Il a conclu en me demandant comment résoudre l'équation de la chaleur sur $\mathbb{R}^d$ (transformée de Fourier).
+\item Connaissez-vous une autre application de la formule sommatoire de Poisson ? (J'avais donné l'équation fonctionnelle de la fonction $\Theta$ de Jacobi.) J'ai commencé à parler du peigne de Dirac, mais c'était pour moi plutôt une réécriture qu'une application, et effectivement ce n'était pas ce qu'il attendait. Il m'a alors demandé si j'avais entendu parler du théorème de Shannon. J'ai simplement répondu que c'était un théorème d'échantillonage en lien avec le traitement du signal, mais que je n'en savais pas plus parce que je ne l'avais pas travaillé.
+\end{itemize}
+
+\subsection*{\textcolor{blue}{Exercices}}
+\begin{enumerate}
+\item Soit $P$ un polynôme tel que $P(\mathbb{U}) \subset \mathbb{U}$. Que dire de $P$ ?
+\item Quel est le lien entre les coefficients de Fourier et la transformée de Fourier discrète ? (Je présente mes plus sincères excuses à Arthur Leclaire, que je revois encore au tableau, en train de nous exposer le lien entre les deux, mais je n'ai pas su répondre à cette question sans indication. En fait le membre du jury m'a juste demandé d'écrire l'intégrale définissant $c_n(f)$, puis comment on pouvait calculer numériquement cette intégrale. Il suffisait alors de voir que la méthode des rectangles donnait l'expression de la transformée de Fourier discrète.)
+\item Soit $f$ la fonction paire et $2\pi$-périodique vérifiant $f(x) = \sqrt{x}$ sur $[0,\pi]$. Y a-t-il convergence de la série de Fourier ?
+\item Soit $f$ continue $2\pi$-périodique. On suppose que $S_N(f)$ tend simplement vers une fonction $\widetilde{f}$. Montrer que $\widetilde{f} = f$.
+\item On prend $k \in L^2([0,1]^2)$, et on définit l'opérateur à noyaux associé. Montrer que cet opérateur est compact. (L'exercice n'était pas posé sous cette forme là, il ne parlait pas d'opérateur compact mais il revenait aux définitions d'un opérateur compact en demandant de montrer que l'image d'un borné était relativement compacte.) Je n'ai pas réussi à finir cet exercice, j'ai commencé à mentionner le théorème de Riesz-Fréchet-Kolmogorov, mais on m'a dit qu'il y avait plus simple...
+\end{enumerate}
+

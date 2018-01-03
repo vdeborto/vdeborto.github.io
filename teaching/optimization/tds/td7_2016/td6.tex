@@ -1,0 +1,92 @@
+\documentclass[11pt, a4paper]{article}
+\usepackage{amssymb, amsmath, bm, mathrsfs, amsthm}
+\usepackage[french]{babel}
+\usepackage[T1]{fontenc}
+\usepackage[utf8x]{inputenc}
+\usepackage{graphicx}
+%
+\title{ENS Cachan, DPT Maths \\ [1cm]
+Optimisation numérique M1 -- TD7 -- Optimisation sous contraintes 3} 
+%
+\author{Florian De Vuyst, Adrien Le Co\"ent - CMLA UMR 8536, ENS Cachan}
+%
+\date{10 Novembre}
+%
+\newcommand{\mq}{montrer que }
+\newcommand{\Mq}{Montrer que }
+\newcommand{\bu}{\bm{u}}
+\newcommand{\ba}{\bm{a}}
+\newcommand{\bn}{\bm{n}}
+\newcommand{\bA}{\bm{A}}
+\newcommand{\be}{\begin{equation}}
+\newcommand{\ee}{\end{equation}}
+\newcommand{\bg}{\bm{g}}
+\newcommand{\supp}[1]{\mathop{supp}(#1)}
+\newtheorem{remark}{Remark}
+%
+\begin{document}
+%
+\maketitle
+%
+\section*{Un problème d'approximation matricielle}
+%SSSSSSSSSSSSSSSSSS
+%
+Soit $\mathcal{M}_n(\mathbb{R})$ structuré en espace euclidien grâce au produit scalaire usuel $\langle \langle A,B \rangle \rangle := tr(A^\top B)$; on note $\vert\vert\vert \cdot \vert\vert\vert$
+la norme matricielle associée.
+
+Soit
+$$ S:= \lbrace M \in \mathcal{M}_n(\mathbb{R}) \ \vert \ det \ M = 1 \rbrace ; $$
+$$ \Sigma := \lbrace M \in \mathcal{M}_n(\mathbb{R}) \ \vert \ M \ \text{est orthogonale et} \ det \ M = 1 \rbrace . $$
+
+
+L'objet de l'exercice est de montrer que les matrices de $S$ les plus proches de l'origine (au sens de la distance induite par $\vert\vert\vert \cdot \vert\vert\vert$ ) sont les matrices de~$\Sigma$.
+
+
+\begin{itemize}
+ \item[1.] Formaliser le problème énoncé ci-dessus commme celui de la minimisation d'une fonction différentiable sur une contrainte définie par une égalité.
+ 
+ \item[2.] \begin{itemize}
+            \item[(a)] Grâce à la condition nécessaire d'optimalité du premier ordre de Lagrange, montrer que toutes les matrices candidates à
+            être solutions du problème sont orthogonales.
+            \item[(b)] Vérifier que toutes les matrices orthogonales de déterminant 1 sont bien solutions du problème posé.
+           \end{itemize}
+\end{itemize}
+
+
+
+\section*{Minimisation d'une fonction quadratique sur le simplexe unité}
+%SSSSSSSSSSSSSSSSSS
+Pour $n \geq 2$, soit
+$$ S := \left \lbrace x = (x_1,\dots ,x_n) \in \mathbb{R}^n \ \vert \ x_i \geq 0 \ \text{pour tout} \ i \ \text{et} \ \sum_{i=1}^n x_i = 1 \right \rbrace$$
+
+et 
+$$  \begin{array}{c}
+    f : \mathbb{R}^n \rightarrow \mathbb{R} \\
+    x = (x_1,\dots ,x_n) \longmapsto f(x) := \displaystyle{ \sum_{i\neq j}} x_i x_j. 
+   \end{array}
+$$
+
+
+\begin{itemize}
+ \item[1.] $f$ est-elle convexe sur $\mathbb{R}^n$? concave sur $\mathbb{R}^n$? Mêmes questions à propos de la restriction de $f$ à $S$.
+ \item[2.] Résoudre le problème d'optimisation suivant:
+ $$ (\mathcal{P}) \ \text{Maximiser} \ f \ \text{sur} \ S .$$
+\end{itemize}
+
+\section*{Maximisation d'une fonction produit sur la sphère-unité}
+
+Déterminer la valeur maximale de la fonction
+$$  \begin{array}{c}
+    f : \mathbb{R}^n \rightarrow \mathbb{R} \\
+    x = (x_1,\dots ,x_n) \longmapsto f(x) := \displaystyle{ \prod_{i=1}^n} x_i^2. 
+   \end{array}
+$$
+sous la contrainte $ \sum_{i=1}^n x_i^2 = 1$.
+
+En déduire l'inégalité suivante, valable pour tout $x = (x_1,\dots ,x_n) \in \mathbb{R}^n$ :
+$$ \left| \prod_{i=1}^n x_i \right| \leq \left( \dfrac{\Vert x \Vert}{\sqrt{n}} \right)^n,$$
+où $\Vert \cdot \Vert$ désigne la norme euclidienne usuelle dans $\mathbb{R}^n$.
+
+%
+
+\end{document}

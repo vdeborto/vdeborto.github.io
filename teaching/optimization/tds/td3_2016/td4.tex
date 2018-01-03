@@ -1,0 +1,137 @@
+\documentclass[11pt, a4paper]{article}
+\usepackage{amssymb, amsmath, bm, mathrsfs, amsthm}
+\usepackage[french]{babel}
+\usepackage[T1]{fontenc}
+\usepackage[utf8x]{inputenc}
+\usepackage{graphicx}
+%
+\title{ENS Cachan, DPT Maths \\ [1cm]
+Optimisation numérique M1 -- TD3 -- Newton, Quasi-Newton} 
+\date{29 Septembre 2016}
+%
+\author{Florian De Vuyst, Adrien Le Coënt, Lara Raad \\ CMLA UMR 8536, ENS Cachan}
+%
+\newcommand{\mq}{montrer que }
+\newcommand{\Mq}{Montrer que }
+\newcommand{\bu}{\bm{u}}
+\newcommand{\ba}{\bm{a}}
+\newcommand{\bn}{\bm{n}}
+\newcommand{\bA}{\bm{A}}
+\newcommand{\be}{\begin{equation}}
+\newcommand{\ee}{\end{equation}}
+\newcommand{\bg}{\bm{g}}
+\newcommand{\supp}[1]{\mathop{supp}(#1)}
+\newtheorem{remark}{Remark}
+%
+\begin{document}
+%
+\maketitle
+%
+
+\section{Méthode de la sécante}
+
+Pour $f:\Omega \subset \mathbb{R} \rightarrow \mathbb{R}$,
+cette méthode consiste à remplacer, dans la méthode de Newton, $f'(x_n)$ par son approximation
+par différences finies
+\[
+\dfrac{f(x_n) - f(x_{n-1})}{x_n - x_{n-1}}.
+\]
+On obtient ainsi la {\textit{méthode de la sécante}}
+\[
+x_{n+1} = x_{n} - \dfrac{x_n - x_{n-1}}{f(x_n) - f(x_{n-1})}f(x_n), \quad x=1,2,\dots.
+\]
+Cette méthode est souvent donnée sous la forme
+\[
+x_{n+1} = \dfrac{x_{n-1}f(x_n) - x_nf(x_{n-1})}{f(x_n) - f(x_{n-1})}.
+\]
+
+\Mq si $f$ est deux fois continûment dérivable au voisinage de $x$ et si $x$ est racine simple de $f$, 
+alors il existe un voisinage de $x$ tel que, pour tout couple $(x_0,x_1 \neq 0)$ appartenant à ce voisinage,
+la suite $(x_n)$ obtenue par la méthode de la sécante converge vers $x$ avec une convergence
+d'ordre $(1+\sqrt{5})/2 \backsimeq 1.618$ au moins.
+
+Indication: en notant $e_n = x_n-x $, on pourra montrer en utilisant un développement de Taylor, que
+\[
+ e_{n+1} \sim e_n e_{n-1}\frac{f''(x)}{2f'(x)}
+\]
+
+
+\medskip
+\section{Méthode de Davidon-Fletcher-Powell (DFP)}
+
+Soit $J:\mathbb{R}^n\rightarrow \mathbb{R}$ une fonctionnelle de classe $\mathscr{C}^1$.
+On rappelle qu'en optimisation, une matrice $S^{k+1}$ satisfait la condition
+de quasi-Newton (CQN) sur $J$ si
+\[
+S^{k+1} \left(\nabla J(u^{k+1})-\nabla J(u^k)\right)=u^{k+1}-u^k.
+\] 
+Les méthodes de correction de rang 2 recherchent $S^{k+1}$ sous la forme
+\[
+S^{k+1} = S^k + a\, v^k(v^k)^T + b\, w^k (w^k)^T, 
+\]
+où $a$ et $b$ sont deux réels et $v^k$ et $w^k$ sont deux vecteurs tels que
+%
+\begin{eqnarray*}
+&& v^k = u^{k+1} - u^k, \\ [1.1ex]
+&& w^k = S^k \, \left(\nabla J(u^{k+1})-\nabla J(u^k)\right),
+\end{eqnarray*}
+%
+avec $a$ et $b$ tels que
+%
+\begin{eqnarray*}
+&& a\, \langle v^k, \nabla J(u^{k+1})-\nabla J(u^k) \rangle = 1,\\ [1.1ex]
+&& b\, \langle w^k, \nabla J(u^{k+1})-\nabla J(u^k) \rangle = -1
+\end{eqnarray*}
+%
+répondent à la contrainte CQN.
+%
+
+La méthode DFP consiste donc à choisir un vecteur $u^0$ quelconque, une matrice 
+$S^0$ symétrique définie positive,  une direction
+\[
+d^k = -S^k \nabla J(u^k),
+\]
+à effectuer une recherche linéaire
+\[
+\alpha^k = \arg \min_{\alpha\in\mathbb{R}^+}\ J(u^k + \alpha \, d^k)
+\]
+%
+et une mise à jour
+%
+\begin{eqnarray*}
+&& u^{k+1} = u^k + \alpha^k\, d^k, \\ [1.2ex]
+&& S^{k+1} = S^k + a\, v^k(v^k)^T + b\, w^k (w^k)^T,  
+\end{eqnarray*}
+%
+où $S^{k+1}$ est construite comme indiquée ci-dessus. 
+
+On utilise les notations
+suivantes :
+%
+\begin{eqnarray*}
+&& \delta^k = u^{k+1} - u^k, \\ [1.1ex]
+&& \gamma^k = \nabla J(u^{k+1}) - \nabla J(u^k).
+\end{eqnarray*}
+%
+
+Montrer que
+\begin{enumerate}
+\item A l'étape $k$, si $S^k$ est symétrique définie positive et que $\langle \delta^k,\gamma^k \rangle > 0$, alors la matrice $S^{k+1}$ préserve cette propriété.
+\item Si J est quadratique de Hessien $A$, matrice symétrique définie positive, alors la méthode D.F.P. est telle que
+%
+\begin{eqnarray*}
+&& \langle \delta^i,\delta^j \rangle_A = 0\quad 0\leq i < j \leq k, \\ [1.1ex]
+&& \left(S^{k+1} A\right)\, \delta^i = \delta^i, \quad 0\leq i\leq k
+\end{eqnarray*}
+%
+\item En déduire que la méthode converge en $n$ itérations et que $$S^n = A^{-1}.$$
+%
+\end{enumerate}
+%%%%%
+
+
+%%%%%
+
+
+
+\end{document}

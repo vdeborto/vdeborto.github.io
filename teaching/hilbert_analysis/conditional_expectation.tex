@@ -1,0 +1,25 @@
+\documentclass[10pt,a4paper]{article}
+\input{header}
+\begin{document}
+
+Soit $(\Omega, \mathcal{A}, P)$ un espace probabilisé.
+Soit $\mathcal{F}$ une sous-tribu de $\mathcal{A}$.
+
+\begin{thm}
+  Soit $X \in L^1(\Omega,\mathcal{A},P)$ il existe un unique $Y \in L^1(\Omega,\mathcal{F},P)$ tel que
+  \[ \forall Z \in L^{\infty}(\Omega,\mathcal{F},P), \ E(XZ) = E(YZ)\]
+  On appelle espérance conditionnelle la variable $Y$ et on la note $Y = E(X | \mathcal{F})$.
+\end{thm}
+
+\subparagraph{Théorème de Riesz} $L^2(\Omega,\mathcal{F},P)$ est un sous-espace vectoriel fermé de $L^2(\Omega,\mathcal{A},P)$. En effet soit $\seq{f}{n} \in \left(L^2(\Omega,\mathcal{F},P)\right)^{\mathbb{N}}$ qui converge. Alors c'est une suite de Cauchy dans $L^2(\Omega,\mathcal{A},P)$ mais aussi dans $L^2(\Omega,\mathcal{F},P)$. Par complétude de $L^2(\Omega,\mathcal{F},P)$ on a que $\seq{f}{n}$ converge dans $L^2(\Omega,\mathcal{F},P)$. On a évidemment que $L^2(\Omega,\mathcal{A},P)$ est un espace de Hilbert. On définit l'application $\Phi_X(Z)= E(XZ)$ qui va de $L^2(\Omega,\mathcal{F},P)$ dans $\mathbb{R}$. Cette application linéaire est continue via le théorème de Cauchy-Schwarz. On peut donc appliquer le théorème de Riesz et il existe un unique $Y \in L^2(\Omega,\mathcal{F},P)$ qui vérifie $\forall Z \in L^2(\Omega,\mathcal{F},P), \ E(XZ) = E(YZ)$. On a montré l'existence de la variable $Y$ (en se rappelant l'inclusion de $L^{\infty}(\Omega,\mathcal{F},P)$ dans $L^{2}(\Omega,\mathcal{F},P)$). Pour montrer l'unicité supposons $(Y_1,Y_2)$ qui vérifie les hypothèses alors $Y_1-Y_2$ est orthogonale à $L^{\infty}(\Omega,\mathcal{F},P)$ qui est dense dans $L^2(\Omega,\mathcal{F},P)$ d'où $Y_1=Y_2$.
+\subparagraph{Positivité et majoration}
+Soit $X$ une variable aléatoire de carré intégrable positive. On considère l'évènement $E(X|\mathcal{F})<0$ et on obtient que cet ensemble est de mesure nulle. Donc $E(X|F) \ge 0$.
+On a donc $ E(\vertt{X} + X | \mathcal{F}) \ge 0$ et $ E(\vertt{X} - X | \mathcal{F}) \ge 0$. Donc
+$E(\vertt{X} | \mathcal{F}) \ge \vertt{E(X | \mathcal{F})}$. On a $E(E(\vertt{X} | \mathcal{F})) = E(\vertt{X})$ (on prend $Z = \chi_{\Omega}$ dans la définition de l'espérance conditionnelle). Donc
+\[ \| E(X | \mathcal{F}) \|_1 \le \|X\|_1 \]
+et on étend par le théorème de prolongement des applications linéaires continues.
+\end{document}
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

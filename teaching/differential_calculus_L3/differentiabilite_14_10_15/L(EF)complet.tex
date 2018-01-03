@@ -1,0 +1,100 @@
+ \documentclass[12pt]{article}
+%\usepackage[latin1]{inputenc}
+\usepackage{graphicx,amssymb,amsmath,amsbsy} %,MnSymbol} % extensions pour maths avanc\'ees
+\usepackage{graphicx}           % extensions pour figures
+\usepackage[T1]{fontenc}        % pour les charact\`eres accentu\'es 
+%\usepackage[utf8]{inputenc} 
+\usepackage{tikz}
+
+%\usepackage{stmaryrd} % Pour les crochets d'ensemble d'entier
+\usepackage{float}  % Pour placer les images l\`a ou JE veux.
+\usepackage{amsthm}
+\DeclareMathOperator{\tr}{tr}
+\DeclareMathOperator{\argmax}{argmax}
+ \usepackage[english]{babel} 
+\usepackage{exercise} % Attention: mettre package babel avant pour avoir "exercice" et non "exercise"
+\usepackage{fancyhdr}
+
+\setlength{\parindent}{0.0in}
+\setlength{\parskip}{0.1in}
+\setlength{\topmargin}{-0.5in}
+\setlength{\leftmargin}{-1.0in}
+\setlength{\topskip}{-0.0in}    % between header and text
+\setlength{\textheight}{9in} % height of main text
+\setlength{\textwidth}{7in}    % width of text
+\setlength{\oddsidemargin}{0in} % odd page left margin
+\setlength{\evensidemargin}{0in} % even page left margin
+%
+%% Quelques raccourcis clavier :
+\def\slantfrac#1#2{\kern.1em^{#1}\kern-.3em/\kern-.1em_{#2}}
+\def\b#1{\mathbf{#1}}
+\def\bs#1{\boldsymbol{#1}}
+\def\m#1{\mathrm{#1}}
+\newcommand{\poubelle}[1]{}
+
+
+\newcommand{\NN}{\mathbb{N}}
+\newcommand{\RR}{\mathbb{R}}
+\newcommand{\ra}{\longrightarrow}
+\newcommand{\zlku}{z^l_k (u)}
+\newcommand{\Kei}{K_{V_{e_i}}}
+\newcommand{\der}{\mathrm{d}}
+
+
+
+
+%\renewcommand\labelQuestioni{\textbullet}
+
+\newtheorem{rmq}{Remarque}[section]
+\newtheorem{prop}{Proposition}[section]
+\newtheorem{defi}{Definition}[section]
+\newtheorem{theo}{Th\'eor\`eme}[section]
+\newcommand{\greeksym}[1]{{\usefont{U}{psy}{m}{n}#1}}
+\newcommand{\inc}{\mbox{\small\greeksym{d}\hskip 0.05ex}}%
+
+
+
+\pagenumbering{arabic}
+\date{}
+
+%\usepackage{remreset}
+\title{RICAM 2015 : theory }
+%\author{\scshape{Barbara Gris et Loïc de Raphelis}}
+%\author{\begin{small} Barbara Gris \end{small}}
+
+
+\pagestyle{fancy}
+\renewcommand\headrulewidth{1pt}
+
+
+\begin{document}
+Soient $(E,|\cdot|_E)$ et $(F,|\cdot|_F)$ deux evn, on suppose que $F$ est complet. Montrons que l'ensemble $L(E,F)$ des applications lin\'eaires continues de $E$ vers $F$, muni de la norme subordonn\'ee $|| ||$ est complet. \\
+Soit $(f_n)$ une suite de Cauchy de $L(E,F)$. Montrons que cette suite converge dans $L(E,F)$.\\
+
+\textbf{Etape 1 : construction de la potentielle limite par convergence simple}\\
+On montre dans cette \'etape que pour tout $x\in E$, la suite de $F$ $f_n(x)$ converge dans $F$ vers un \'el\'ement que l'on note $g(x)$. \\
+Soit $x \in E$, soit $\epsilon >0$.\\ Si $x=0$ alors pour tout $n,p \in \NN$, $|f_n(x) - fp(x)|_F = |0-0|_F=0$.\\
+Sinon comme la suite $f_n$ est de Cauchy, il existe $N \leq N$ tel que pour tout $n,p \geq N$, $||f_n -f_p||\leq \epsilon  |x|_E$. Alors soient $n,p \geq N$, 
+$|f_n(x) - f_p(x)|_F = \frac{1}{|x|_E} |f_n(\frac{x}{|x|_E})- f_p(\frac{x}{|x|_E})|_F \leq \frac{1}{|x|_E} ||f_n -f_p|| \leq \epsilon$. \\
+Dans tous les cas il existe donc un entier $N $ tel que pour tout $n,p \geq N$,  $|f_n(x) - fp(x)|_F \leq \epsilon$ : $(f_n (x))_n$ est une suite de Cauchy de $F$. Comme $F$ est complet on en d\'eduit que $f_n (x)$ converge vers un \'el\'ement de $F$ que l'on note $g(x)$.\\
+On d\'efinit la fonction $g: x \in E \mapsto g(x) \in F$. On a donc montr\'e que la suite $f_n$ converge \textit{simplement} vers $g$.
+
+\textbf{Etape 2 : Montrer que $g \in L(E,F)$}\\
+Il faut donc montrer que $g$ est lin\'eaire et continue.\\
+ Montrons tout d'abord qu'elle est lin\'eaire : soient $x,y\in E$ et soit $\lambda$ un scalaire. Alors pour tout $n \in \NN$, $f_n (x + \lambda y) = f_n (x) + \lambda f_n (y)$. De plus d'apr\`es la convergence \textit{simple}, on sait que chacun de ces termes converge et donc on peut passer \`a la limite : $g (x + \lambda y) = g (x) + \lambda g (y)$.\\
+ Montrons maintenant que $g$ est continue. Soit $x \in E$ et soit $\epsilon >0$. Comme la suite  $f_n$ est de Cauchy, il existe $N \in \NN$ tel que pour tout $n,p \geq N$, $||f_n -f_p||\leq \epsilon/(4\times (|x|_E +1))$. De plus comme $f_n (x) \longrightarrow g(x)$ (limite simple), il existe $n >N$ tel que $|g(x) - f_n (x)|_F \leq \epsilon/4$. On a donc fix\'e deux entiers $N$ et $n$ (qui d\'epend de $x$). Par hypoth\`ese $f_n$ est continue donc il existe $1\geq\eta >0$ tel que pour $y \in E$, si $|x-y|\leq \eta$ alors $|f_n (x) - f_n (y)|_F \leq \epsilon/4$. Fixons ce r\'eel positif $\eta$ (qui d\'epend donc de $x$). \\
+ Soit maintenant $y \in E$ tel que $|x-y|\leq \eta$. D'apr\`es la convergence simple, il existe $p > N$ tel que $|f_p (y) - g(y)|_F \leq \epsilon/4$. Alors : \\
+ $|f_n (y) - f_p (y)|_F \leq |y|_E ||f_n - f_p ||  \leq (|x|_E +\eta)||f_n - f_p ||  \leq (|x|_E +1)||f_n - f_p ||\leq \epsilon/4$. On en d\'eduit :
+ 
+ $|g(x) - g(y)|_F \leq |g(x) - f_n (x)|_F + |f_n (x) - f_n (y)|_F +  |f_n (y) - f_p (y)|_F + |f_p (y) - g(y)|_F \leq \epsilon$.
+
+On a donc montr\'e que $g$ est continue en $x$. Comme $x$ est quelconque, on a montr\'e que $g$ est continue. Ainsi $g \in  L(E,F)$.
+
+\textbf{Etape 3 : Montrer que $f_n$ tend vers $g $ dans $ L(E,F)$}\\
+Il faut donc montrer que $||f_n - g|| \longrightarrow 0$. Soit $\epsilon >0$, soit $N \in \NN$ tel que $\forall p,q \geq N$, $||f_p - f_q || \leq \epsilon$.
+ Soit $x \in E$ tel que $|x|=1$. Alors $|f_p (x) - f_q (x)| \leq ||f_p - f_q || \leq \epsilon$, cette in\'egalit\'e est vraie pour tous $p,q \geq N$. Le terme de gauche tend vers $|f_p (x) - g (x)|$ quand $q \longrightarrow \infty$ et donc $|f_p (x) - g(x)| \leq \epsilon$ pour tout $x \in E$ tel que $|x|=1$ et tout $p \geq N$ ($N$ ne d\'ependant pas de $x$). Ainsi pour tout $p \geq N$, $||f_p - g || \leq \epsilon$. On a donc montr\'e la convergence de $f_p$ vers $g$.
+
+
+
+
+\end{document}

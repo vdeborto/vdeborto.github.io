@@ -1,0 +1,92 @@
+\documentclass[11pt, a4paper]{article}
+\usepackage{amssymb, amsmath, bm, mathrsfs, amsthm}
+\usepackage[french]{babel}
+\usepackage[T1]{fontenc}
+\usepackage[utf8x]{inputenc}
+\usepackage{graphicx}
+%
+\title{ENS Cachan, DPT Maths \\ [1cm]
+Optimisation numérique M1 -- TD6 -- Optimisation sous contraintes 2} 
+%
+\author{Florian De Vuyst, Adrien Le Co\"ent - CMLA UMR 8536, ENS Cachan}
+%
+\date{03 Novembre}
+%
+\newcommand{\mq}{montrer que }
+\newcommand{\Mq}{Montrer que }
+\newcommand{\bu}{\bm{u}}
+\newcommand{\ba}{\bm{a}}
+\newcommand{\bn}{\bm{n}}
+\newcommand{\bA}{\bm{A}}
+\newcommand{\be}{\begin{equation}}
+\newcommand{\ee}{\end{equation}}
+\newcommand{\bg}{\bm{g}}
+\newcommand{\supp}[1]{\mathop{supp}(#1)}
+\newtheorem{remark}{Remark}
+%
+\newtheorem{theorem}{Théorème}
+
+\begin{document}
+%
+\maketitle
+%
+\section*{Analyse variationnelle de la factorisation polaire d'une matrice}
+%SSSSSSSSSSSSSSSSSS
+%
+Soit $\mathcal{M}_n(\mathbb{R})$ structuré en espace euclidien grâce au produit 
+scalaire usuel $ \langle U,V \rangle := tr(U^\top V)$; 
+on note $\Vert \cdot \Vert$
+la norme matricielle associée.
+Étant donné $M \in \mathcal{M}_n(\mathbb{R})$, on considère le problème d'optimisation
+suivant:
+
+$$
+  (\mathcal{P}) \quad \quad \text{Minimiser}~ \Vert M - \Omega \Vert, ~ \Omega \in \mathcal{O}_n(\mathbb{R}),
+$$
+où $\mathcal{O}_n(\mathbb{R})$ désigne l'ensemble des matrices orthogones de taille $n$.
+
+\begin{itemize}
+ \item[1.] Montrer que $(\mathcal{P})$ a une solution.
+ \item[2.] \begin{itemize}
+            \item[a.] Soit $h:\mathcal{M}_n(\mathbb{R}) \longrightarrow  \mathcal{S}_n(\mathbb{R})$ qui à 
+            $A \in\mathcal{M}_n(\mathbb{R})$ associe $h(A) := A A ^\top - I_n$. Vérifier que $h$ est de 
+            classe $C^\infty$ sur $\mathcal{M}_n(\mathbb{R})$ et que, pour tout $A \in \mathcal{O}_n(\mathbb{R})$,
+la différentielle $Dh(A)$ est surjective.
+
+	    \item[b.] Soit $\Omega_0$ une solution de $(\mathcal{P})$.
+	    
+	    \begin{itemize}
+	     \item Montrer à l'aide des conditions d'optimalité du premier ordre de Lagrange qu'il existe
+	     $S_0 \in \mathcal{S}_n(\mathbb{R})$ telle que:
+	     $$ \forall H \in \mathcal{M}_n(\mathbb{R}),~ \langle \Omega_0 - M, H \rangle + \langle S_0, \Omega_0 H^\top + H \Omega_0^\top \rangle = 0. $$
+	\item En déduire qu'il existe une matrice symétrique $\Sigma_0$ telle que $M = \Sigma_0 \Omega_0$.
+	     \end{itemize}
+
+           \end{itemize}
+
+\end{itemize}
+
+
+\section*{Lemme de Farkas-Minkowski}
+
+
+Rappel: {\bf Théorème (Lemme de Farkas-Minkowski). Soit $a_i,~ i \in I$, où $I$ est un ensemble fini d'indices, et $b$ des éléments
+d'un espace de Hilbert $V$, de produit scalaire $(.,.)$. Alors l'inclusion
+$$ \left \lbrace w \in V;~ (a_i,w) \geq0,~ i \in I \right \rbrace \subset \left \lbrace w \in V;~ (b,w) \geq 0 \right \rbrace$$
+est satisfaite si et seulement si:
+
+\quad Il existe $\lambda_i \geq 0,~ i \in I$, tels que $b = \sum_{i \in I} \lambda_i a_i$.
+}
+\vspace{1em}
+
+On définit l'ensemble $C = \left \lbrace \sum_{i\in I} \lambda_i a_i \in V;~ \lambda_i \geq 0, ~ i \in I \right \rbrace$.
+
+\begin{itemize}
+ \item[1.] Montrer que $C$ est fermé dans le cas où les $a_i$ sont linéairement indépendants.
+ \item[2.] Dans le cas où les $a_i$ sont linéairement dépendants, montrer que l'on peut écrire $C$
+ comme une union finie de cônes associés à des vecteurs $a_i$ linéairement indépendants. En déduire que $C$ est fermé.
+\end{itemize}
+
+Indication: remarquer que l'on peut écrire tout vecteur $v = \sum_{i \in I}  \lambda_i a_i$ sous 
+la forme $v = \sum_{i \in I} (\lambda_i + t \mu_i) a_i$ avec $(\lambda_i + t \mu_i) \geq 0$ pour $i\in I$.
+\end{document}

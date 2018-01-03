@@ -1,0 +1,80 @@
+120 	Anneaux Z/nZ. Applications.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+ALGEBRE		15,25
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+- 120 : Anneaux Z/nZ. Applications.
+- 150 : Exemples d'actions de groupes sur les espaces de matrices.
+
+Évidemment j'ai choisi la 120, je l'avais présentée en début d'année. J'ai fait à peu près le même plan, et les mêmes développements :
+- Cyclicité de (Z/p^αZ)* pour p impair ([Gourdon] pour α=1 avec l'exposant du groupe, [Perrin] pour le reste)
+- Loi de réciprocité quadratique (méthode [Gourdon])
+
+Le jury a choisi le deuxième, je l'ai fait en 13'15.
+
+
+Questions en vrac, parmi celles dont je me souviens :
+
+- Revenir sur quelques points du développement, corriger des coquilles expliquer le dessin notamment.
+
+- Comment on montre que φ(p^α)=p^(α-1)(p-1) ?
+↳ "À la main", on a p^α nombres de 1 à p^α, et ceux qui ne sont pas premiers avec p sont les multiples de p : p, 2p, ... p^(α-1)p, il y en a p^(α-1).
+
+- Que vaut Σ_(d|n) φ(d) ?
+↳ n. J'avais oublié de le mettre dans mon plan, alors que j'avais mis tout ce qu'il fallait pour ("il y a φ(d) éléments d'ordre d dans Z/nZ").
+
+- Une application de ce résultat ?
+↳ J'ai parlé des polynômes cyclotomiques, mais c'est plutôt l'inverse : les degrés permettent de retrouver cette formule. Ils attendaient par exemple une démonstration de la cyclicité du groupe multiplicatif d'un corps fini.
+
+- Comment on construit les corps finis ?
+↳ Fq est le corps de décomposition de X^q-X sur Fp
+
+- De manière générale, est-ce qu'un polynôme est irréductible ssi il n'a aucune racine ?
+↳ Si son degré ⩽ 3 oui, sinon non : par ex (X²+1)² sur R. Je sais pas si c'est parce que j'ai évoqué les polynômes cyclotomiques, mais en tout cas j'ai trouvé que ça s'éloignait pas mal du sujet de la leçon là !
+
+- Vous décrivez les morphismes de corps de Z/aZ dans Z/bZ, mais quid des morphismes d'anneaux ?
+↳ C'est plus restreint comme on a forcément f(1) = 1, et donc le morphisme est entièrement déterminé. Il n'existe que si b|a. (J'avais dit b=a au début, j'ai mis pas mal de temps à me rendre compte que c'était pas nécessaire !)
+
+- Pour les équations diophantiennes linéaires à 2 inconnues, comment trouver et quel est l'ordre de grandeur de la plus petite solution ?
+↳ Je ne sais pas
+
+- Si deux groupes abéliens finis ont le même nombre d'éléments à tout ordre, sont-ils nécessairement isomorphes ?
+↳ Oui en utilisant le théorème de structure des groupes abéliens finis. D'abord ils ont le même exposant, et on en déduit de proche en proche qu'ils ont la même décomposition (mais je ne me souviens plus comment, je me demande même si on n'est pas passé à autre chose comme ils voyaient que je bloquais).
+
+- Pour le RSA, comment on trouve des grands nombres premiers p et q (sachant qu'il ne faut pas en prendre "que tout le monde connaît") ?
+↳ Je ne sais pas.
+
+- Toujours dans le RSA, pour trouver d (notations du [BMP]) on utilise Euclide étendu, mais ça prend du temps ? Quelle est la complexité ?
+↳ Je ne sais pas non plus. Après recherches, la réponse était O((log N)) itérations.
+
+- Que vaut le reste de la division euclidienne de 29^100 par 7 ?
+↳ On regarde 2^100 mod 7, φ(7)=6 donc 2^6 = 1 mod 7. Division euclidienne de 100 par 6, reste 4, et 2^4 = 2 mod 7. (Je me suis rendu compte après que pour 2 on avait carrément 2^3 = 1 mod 7, ça simplifie un peu le calcul)
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+ALGEBRE		17,25
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+120 : Anneaux Z/nZ. Applications.
+150 : Exemples d'actions de groupes sur les espaces de matrices.
+J'ai choisi 120. Développements :
+- Irréductibilité des polynômes cyclotomiques
+- Chevalley-Warning et EGZ (choisi, j'ai un peu raté la fin mais il n'y a
+pas eu de question dessus sauf pour corriger une coquille)
+Questions :
+- Donner une variante du lemme chinois si m et n ne sont pas premiers
+entre eux
+- Montrer qu'un sous-groupe fini du groupe multiplicatif d'un corps est
+cyclique (c'était dans mon plan).
+- (Z/p^a Z)* est-il toujours cyclique ? (j'ai répondu oui, c'était dans
+mon plan)
+- Calculer (Z/8Z)* (ok, j'avais oublié l'hypothèse p impair)
+- Déterminer les morphismes d'anneaux de Z/nZ dans Z/mZ.
+- Déterminer les morphismes de C* dans Z/nZ. Les morphismes de R* dans Z/nZ ?
+- Calculer l'inverse de l'automorphisme de Frobenius.
+- Montrer que la somme des racines primitives n-ièmes de l'unité est un
+entier.
+
