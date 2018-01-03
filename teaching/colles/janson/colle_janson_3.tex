@@ -1,0 +1,119 @@
+\documentclass[10pt,a4paper]{article} 
+\usepackage[utf8]{inputenc} 
+\usepackage[T1]{fontenc} 
+\usepackage[english]{babel} 
+\usepackage{supertabular} %Nécessaire pour les longs tableaux
+\usepackage[top=2.5cm, bottom=2.5cm, right=1.5cm, left=1.5cm]{geometry} %Mise en page 
+\usepackage{amsmath} %Nécessaire pour les maths 
+\usepackage{amssymb} %Nécessaire pour les maths 
+\usepackage{stmaryrd} %Utilisation des double crochets 
+\usepackage{pifont} %Utilisation des chiffres entourés 
+\usepackage{graphicx} %Introduction d images 
+\usepackage{epstopdf} %Utilisation des images .eps 
+\usepackage{amsthm} %Nécessaire pour créer des théorèmes 
+\usepackage{algorithmic} %Nécessaire pour écrire des algorithmes 
+\usepackage{algorithm} %Idem 
+\usepackage{bbold} %Nécessaire pour pouvoir écrire des indicatrices 
+\usepackage{hyperref} %Nécessaire pour écrire des liens externes 
+\usepackage{array} %Nécessaire pour faire des tableaux 
+\usepackage{tabularx} %Nécessaire pour faire de longs tableaux 
+\usepackage{caption} %Nécesaire pour mettre des titres aux tableaux (tabular) 
+\usepackage{color} %nécessaire pour écrire en couleur 
+\newtheorem{thm}{Théorème} 
+\newtheorem{mydef}{Définition} 
+\newtheorem{prop}{Proposition} 
+\newtheorem{lemma}{Lemme}
+\title{Semaine 3 - Généralités sur les fonctions à une variable complexe ou réelle}
+\author{Valentin De Bortoli \\ email : \ \href{mailto:valentin.debortoli@gmail.com}{valentin.debortoli@gmail.com}}
+\date{}
+\begin{document}
+\maketitle
+
+\section{Une équation fonctionnelle (1)}
+Soit $f$ une fonction continue qui va de $\mathbb{R}_{+}^{*}$ dans $\mathbb{R}$ telle que $\forall x \in \mathbb{R}_{+}^{*}$, $f(x^2)=f(x)$.
+\subparagraph{1}Montrer que $f$ est constante.
+
+\section{Une équation fonctionnelle (2)}
+\subparagraph{1}Trouver toutes les fonctions continues de $\mathbb{R}$ dans $\mathbb{R}$ qui vérifient : $\forall (x,y) \in \mathbb{R}^2, \ f(x+y)=f(x)+f(y)$.
+\subparagraph{Remarque :} on admettra que pour tout réel, il existe une suite de rationnels qui tend vers ce réel. Cette propriété s'appelle la densité de $\mathbb{Q}$ dans $\mathbb{R}$. On pourra commencer par trouver la forme de $f$ sur $\mathbb{N}$, puis $\mathbb{Z}$, puis $\mathbb{Q}$ et enfin $\mathbb{R}$.
+
+\section{Une équation fonctionnelle (3)}
+Soit $f$ une fonction dérivable, de dérivée continue, de $\mathbb{R}$ dans $\mathbb{R}$ qui vérifie : $\forall x \in \mathbb{R}, \ f(f(x))=\frac{x}{2}+3$.
+\subparagraph{1}Montrer que $f(\frac{x}{2}+3)=\frac{f(x)}{2}+3$.
+\subparagraph{2}Montrer que $f'$ vérifie une équation fonctionnelle.
+\subparagraph{3}Montrer que $f'$ est constante.
+\subparagraph{4}Déterminer $f$.
+
+\section{Composition, injectivité et surjectivité}
+Soit $f$ une fonction de $\mathbb{R}$ dans $\mathbb{R}$ qui vérifie $\forall x \in \mathbb{R}, \ f(f(f(x)))=f(x)$.
+\subparagraph{1} Montrer que on a $f$ injective $\Leftrightarrow$ $f$ surjective $\Leftrightarrow$ $f$ bijective.
+\subparagraph{2} Exprimer alors $f^{-1}$ en fonction de $f$.
+
+\section{Théorème de Cantor-Bernstein}
+Soit $A$ et $B$ deux ensembles. Le but de cet exercice est de montrer que si il existe une injection ($f_1$) de $A$ dans $B$ et une injection ($f_2$) de $B$ dans $A$ alors il existe une bijection entre $A$ et $B$. L'exercice se déroule en deux parties. Premièrement on va montrer que si $C$ est une partie de $A$ et $f$ une injection de $A$ dans $C$, alors $A$ et $C$ sont en bijection. Ensuite on montrera le théorème. On pose :
+\begin{equation*}
+\left\{
+\begin{aligned}
+&D_0={}^c C \\
+&D_{n+1}=f(D_n) \ \text{pour} \ n \in \mathbb{N}^{*}
+\end{aligned}\right.
+\end{equation*}
+\begin{equation*}
+D=\cup_{n=0}^{+\infty} D_n
+\end{equation*}
+\subparagraph{1}Montrer que $f(D) \subset C \cap D$.
+\subparagraph{2}On pose $g$ de $A$ dans $C$ telle que :
+\begin{equation*}
+\left\{
+\begin{aligned}
+g(x)=f(x) \ \text{si} \ x \in D \\
+g(x)=x \ \text{si} \ x \in {}^cD
+\end{aligned}\right.
+\end{equation*}
+Montrer que $g$ est injective.
+\subparagraph{3}Montrer que $g$ est bijective et conclure pour la première partie.
+\subparagraph{4}En considérant $f_1 \circ f_2$, montrer le théorème de Cantor-Bernstein.
+
+\section{Union, intersection, image et image réciproque}
+Soit $f$ une fonction de $\mathbb{R}$ dans $\mathbb{R}$ et $A$ et $B$ deux ensembles de $\mathbb{R}$.
+\subparagraph{1} Parmi les assertions suivantes seules trois sont vraies, lesquelles ? Lorsqu'une assertion est vraie, la démontrer, lorsqu'elle est fausse, donner un contre-exemple et établir une condition pour qu'elle devienne vraie.
+\begin{itemize}
+\item $f(A \cup B) \subset f(A) \cup f(B)$
+\item $f(A \cup B) = f(A) \cup f(B)$
+\item $f(A \cap B) \subset f(A) \cap f(B)$
+\item $f(A \cap B) = f(A) \cap f(B)$
+\end{itemize}
+\subparagraph{2}En déduire que $ A \cup B\subset f^{-1}(f(A) \cup f(B))$. Trouver un contre-exemple à l'égalité.
+
+\section{Système et logarithme népérien}
+\subparagraph{1}Factoriser le polynôme suivant : $X^2-2\text{ln}(3)X+1$. On précise que $\text{ln}(3) \approx 1,09$.
+\subparagraph{2}Résoudre dans $\mathbb{R}^2$ le système suivant :
+\begin{equation*}
+\left\{
+\begin{aligned}
+e^xe^y=9 \\
+xy=1
+\end{aligned}\right.
+\end{equation*}
+\subparagraph{Remarque :} on pourra considérer $Q$, un polynôme unitaire de degré 2, qui a pour racines $x$ et $y$.
+
+\section{Fonction trigonométrique réciproque}
+\subparagraph{1}Montrer que $\sin$ est une bijection de $[-\frac{\pi}{2},\frac{\pi}{2}]$ dans $[-1,1]$.
+\subparagraph{2}On appelle arcsinus et on note $\arcsin$ sa réciproque. Est-elle dérivable ? Si oui, déterminer sa dérivée.
+\subparagraph{3}Tracer cette fonction.
+\subparagraph{4}Reprendre la même étude pour $\cos$.
+
+\section{Fonction trigonométrique hyperbolique et réciproque}
+\subparagraph{1}On appelle cosinus hyperbolique et on note $\cosh$ la fonction qui va de $\mathbb{R}$ dans $[1,+\infty[$ et qui a pour expression $\cosh(x)=\frac{e^x+e^{-x}}{2}$. Faire une étude détaillée de cette fonction. Justifier pourquoi on appelle cette fonction "cosinus hyperbolique".
+\subparagraph{2}Montrer que $\cosh$ est une bijection de $\mathbb{R}_{+}$ dans $[1,+\infty[$. Donner sa réciproque. On l'appelle argument cosinus hyperbolique et on note $\text{argch}$. Faire une étude détaillée de cette fonction.
+\subparagraph{Remarque :} on peut définir de la même manière le cosinus hyperbolique, la tangente hyperbolique et leurs réciproques. On peut, de même que pour la trigonométrie classique, établir un formulaire de trigonométrie hyperbolique.
+
+\section{Quelques considérations sur l'exponentielle}
+\subparagraph{1}Montrer que $\forall (n,x)\in \mathbb{N}^{*}\times \mathbb{R}_{+}, \ (1+\frac{x}{n})^n \le e^x$.
+\subparagraph{2}Montrer que $\lim_{n \rightarrow +\infty} (1+\frac{x}{n})^n=e^x$
+
+\section{Quelques considérations sur le logarithme}
+\subparagraph{1}Faire l'étude de la fonction $f$ définie par l'expression $f(x)=\frac{\text{ln}(x)}{x}$.
+\subparagraph{2}Trouver tous les couples d'entiers $(a,b)\in {\mathbb{N}^*}^2$ avec $a \neq b$ qui vérifient : $a^b=b^a$.
+
+\end{document}

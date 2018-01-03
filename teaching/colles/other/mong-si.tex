@@ -1,0 +1,51 @@
+\documentclass[10pt,a4paper]{article} 
+\usepackage[utf8]{inputenc} 
+\usepackage[T1]{fontenc} 
+\usepackage[english]{babel} 
+\usepackage{supertabular} %Nécessaire pour les longs tableaux
+\usepackage[top=2.5cm, bottom=2.5cm, right=1.5cm, left=1.5cm]{geometry} %Mise en page 
+\usepackage{amsmath} %Nécessaire pour les maths 
+\usepackage{amssymb} %Nécessaire pour les maths 
+\usepackage{stmaryrd} %Utilisation des double crochets 
+\usepackage{pifont} %Utilisation des chiffres entourés 
+\usepackage{graphicx} %Introduction d images 
+\usepackage{epstopdf} %Utilisation des images .eps 
+\usepackage{amsthm} %Nécessaire pour créer des théorèmes 
+\usepackage{algorithmic} %Nécessaire pour écrire des algorithmes 
+\usepackage{algorithm} %Idem 
+\usepackage{bbold} %Nécessaire pour pouvoir écrire des indicatrices 
+\usepackage{hyperref} %Nécessaire pour écrire des liens externes 
+\usepackage{array} %Nécessaire pour faire des tableaux 
+\usepackage{tabularx} %Nécessaire pour faire de longs tableaux 
+\usepackage{caption} %Nécesaire pour mettre des titres aux tableaux (tabular) 
+\usepackage{color} %nécessaire pour écrire en couleur 
+\newtheorem{thm}{Théorème} 
+\newtheorem{mydef}{Définition} 
+\newtheorem{prop}{Proposition} 
+\newtheorem{lemma}{Lemme}
+\title{Conjecture Mong-Si}
+\author{Valentin De Bortoli \\ email : \ \href{mailto:valentin.debortoli@gmail.com}{valentin.debortoli@gmail.com}}
+\date{}
+\begin{document}
+\maketitle
+\begin{thm}
+Soit $(P_n)_{n \in \mathbb{N}}$ la suite de polynômes définie par $P_0=0$ et $P_1=1$ avec la relation de récurrence $P_{n+1}=XP_n-P_{n-1}$. Soit $Q$ un facteur irréductible d'un des éléments (non-nuls) de la suite. Alors, $Q(2)$ est soit un inversible de $\mathbb{Z}$ soit un irréductible de $\mathbb{Z}$.
+\end{thm}
+\subparagraph{Preuve :} on commence par montrer que $P_{n \wedge m}=P_n \wedge P_m$. On peut montrer par récurrence la relation $P_{n+1}^2=1+P_nP_{n+2}$ qui prouve (via le théorème de Bézout) que $P_{n+1} \wedge P_n =1$. On montre ensuite (toujours par récurrence) :
+\begin{equation}
+P_{n+m}=P_nP_{m+1}-P_{n-1}P_m
+\end{equation}
+Ceci prouve que $P_{n+m} \wedge P_n=P_n \wedge P_m$. On peut donc appliquer l'algorithme d'Euclide et finalement on trouve que :
+\begin{equation}
+\boxed{P_{n \wedge m}=P_n \wedge P_m}
+\end{equation}
+On va maintenant montrer le théorème.
+
+Soit $n = \underset{i=1}{\overset{N}{\prod}}p_i^{\alpha_i}$ la décomposition en produit de facteurs premiers de $n$. $P_n = \underset{i=1}{\overset{N}{\prod}}P_{p_i^{\alpha_i}} R$. Il convient de remarquer que $P_n(2)=n$ (preuve par récurrence...), donc $R(2)=1$. Soit $Q$ un facteur irréductible de $P_n$. Soit $Q$ divise $R$ et donc $Q(2)$ inversible de $\mathbb{Z}$. Soit $Q$ divise un des $P_{p_i^{\alpha_i}}$. 
+
+Si $\alpha_i=1$ alors la proposition est vérifiée car alors $P_{p_i}(2)=p_i$ et donc $Q(2)=p_i$ ou $-p_i$ ou inversible de $\mathbb{Z}$. 
+
+Si $\alpha_i>1$ alors $P_{p_i^{\alpha_i-1}}$ divise $P_{p_i^{\alpha_i}}$ donc $P_{p_i^{\alpha_i}}=P_{p_i^{\alpha_i-1}} T$. Avec $T(2)=p_i$. Si $Q$ divise $T$ on peut conclure. Sinon, $Q$ divise $P_{p_i^{\alpha_i-1}}$ et on peut conclure par récurrence.
+
+Ainsi dans tous les cas, $Q(2)$ vérifie bien la propriété annoncée.
+\end{document}

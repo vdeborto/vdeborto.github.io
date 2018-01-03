@@ -1,0 +1,360 @@
+\documentclass[12pt]{article}
+%\usepackage[frenchb]{babel}
+\usepackage[T1]{fontenc}                % Accents codés dans la fonte.
+\usepackage[utf8x]{inputenc}           % Accents 8 bits dans le fichier.
+\usepackage{ifthen}                     % Faire des tests if/then/else.
+\usepackage{amsmath}    % Les symboles les plus fréquents.
+\usepackage{amsfonts}   % Des fontes, eg pour \mathbb.
+\usepackage{vmargin}                    % Régler la taille de la feuille.
+\usepackage{amssymb}
+\usepackage{lastpage}
+\usepackage{accents}
+\usepackage{enumitem}
+
+% La taille de la page
+\setpapersize{A4}
+\setmarginsrb{20mm}{10mm}{14mm}{15mm}{10mm}{6mm}{0mm}{10mm}
+
+% La mise en page
+\newcounter{vcenterstest}
+\newlength{\leftlength}
+\newlength{\rightlength}
+\newlength{\vcentersskip}
+\newcommand{\leftcentersright}[4][2]{%
+        \settowidth{\leftlength}{#2}%
+        \settowidth{\rightlength}{#4}%
+        \setcounter{vcenterstest}{#1}%
+        \ifthenelse{\value{vcenterstest} = 0}
+                {\setlength{\vcentersskip}{0pt}}{}%
+        \ifthenelse{\value{vcenterstest} = 1}
+                {\setlength{\vcentersskip}{\smallskipamount}}{}%
+        \ifthenelse{\value{vcenterstest} = 2}
+                {\setlength{\vcentersskip}{\medskipamount}}{}%
+        \ifthenelse{\value{vcenterstest} = 3}
+                {\setlength{\vcentersskip}{\bigskipamount}}{}%
+        \ifthenelse{\value{vcenterstest} = 4}
+                {\setlength{\vcentersskip}{1cm}}{}%
+                % On laisse un espace vertical défini par l'argument
+                % optionnel #1
+        \vskip\vcentersskip
+                % On place #2 et on recule de sa longueur
+        \noindent#2\hskip-\leftlength%
+                % On centre #3
+        \hfill#3\hfill%
+                % On va au bout de la ligne, on recule de la longueur de #4 et
+                % on place #4
+        \mbox{}\hskip-\rightlength#4%
+                % On laisse un espace vertical défini par l'argument
+                % optionnel #1
+        \vskip\vcentersskip%
+    }
+\newcommand{\centers}[2][2]{\leftcentersright[#1]{}{#2}{}}
+\newcommand{\leftcenters}[3][2]{\leftcentersright[#1]{#2}{#3}{}}
+\newcommand{\centersright}[3][2]{\leftcentersright[#1]{}{#2}{#3}}
+\newcommand{\leftencadreright}[4][2]{\leftcentersright[#1]{#2}{\fbox{#3}}{#4}}
+
+\newcommand{\numtoi}[1]{
+  \ifthenelse{ \equal{#1}{1} }{i}{
+  \ifthenelse{ \equal{#1}{2} }{ii}{
+  \ifthenelse{ \equal{#1}{3} }{iii}{
+  \ifthenelse{ \equal{#1}{4} }{iv}{
+  \ifthenelse{ \equal{#1}{5} }{v}{
+  \ifthenelse{ \equal{#1}{6} }{vi}{
+  \ifthenelse{ \equal{#1}{7} }{vii}{
+  \ifthenelse{ \equal{#1}{8} }{viii}{
+  \ifthenelse{ \equal{#1}{9} }{ix}{
+  \ifthenelse{ \equal{#1}{10} }{x}{
+  \ifthenelse{ \equal{#1}{11} }{xi}{
+  \ifthenelse{ \equal{#1}{12} }{xii}{
+  \ifthenelse{ \equal{#1}{13} }{xiii}{
+  \ifthenelse{ \equal{#1}{14} }{xiv}{
+  \ifthenelse{ \equal{#1}{15} }{xv}{
+  \ifthenelse{ \equal{#1}{16} }{xvi}{
+  \ifthenelse{ \equal{#1}{17} }{xvii}{
+  \ifthenelse{ \equal{#1}{18} }{xviii}{
+    ERREUR,~MODIFIER~LA~MACRO~numtoi
+  } } } } } } } } } } } } } } } } } }
+}
+
+\newcounter{cretraiti}
+\newenvironment{ri}[1]{
+
+\begin{list}{($\numtoi{\thecretraiti}$)}{
+  \usecounter{cretraiti}
+  \topsep=0.5ex
+  \itemsep=0.3ex
+  \labelsep=0.3em
+  \parsep=0ex
+  \listparindent=1em
+  \settowidth{\labelwidth}{(#1)}
+  \leftmargin=\labelwidth
+  %\addtolength{\leftmargin}{\labelsep}
+}}{\end{list}
+}
+
+
+% Quelques raccourcis pour taper des maths
+\newcommand{\Sfr}{\mathfrak{S}}
+\newcommand{\Afr}{\mathfrak{A}}
+\newcommand{\QQ}{\mathbb{Q}}
+\newcommand{\ZZ}{\mathbb{Z}}
+\newcommand{\si}{\sigma}
+\newcommand{\ins}[1]{{\ensuremath{\textrm{#1}}}}
+\newcommand{\tiret}{\rule[0.6ex]{1.3ex}{0.26ex}}
+\newcommand{\accolades}[1]{\ensuremath{\left\{#1\right\}}}
+\newcommand{\paa}[1]{\ensuremath{\accolades{#1}}}       % Synonyme
+\newcommand{\ds}{\displaystyle}
+   \newcommand{\der}{
+      \mathop{}\mathopen{}\mathrm{d}
+   }
+
+% Numerotation des pages / la derniere
+\makeatletter
+\renewcommand{\@evenfoot}%
+        {\thepage \slash \pageref{LastPage}}
+\renewcommand{\@oddfoot}{\@evenfoot}
+\makeatother
+
+
+%%%%% Pour faire les exos
+\newcommand{\envfont}{\sf\bfseries}
+\newcounter{cexo}
+\renewcommand{\thecexo}{\arabic{cexo}}
+
+\newenvironment{exo}[1][toto]
+{
+  \refstepcounter{cexo}
+  \ifthenelse{ \equal{#1}{toto} }{
+   \noindent {\envfont Exercice \thecexo}
+  }{
+   \noindent {\envfont Exercice \thecexo{} \tiret\, #1.}
+  }
+%\newline
+%\indent
+}
+{}
+
+\newcounter{cquestions}
+\newenvironment{questions}{
+\begin{list}{{\envfont\alph{cquestions})}}{
+  \usecounter{cquestions}
+  \topsep=0.5ex
+  \partopsep=1em
+  \labelsep=0.3em
+  \itemsep=0.3ex
+  \settowidth{\labelwidth}{{\envfont b)}}\listparindent=1em
+  \leftmargin=\labelwidth \addtolength{\leftmargin}{\labelsep}
+}}{\end{list} }
+
+\newcommand{\poubelle}[1]{}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newcommand{\spacebeforeenv}{\vspace{1ex}}
+\newcommand{\spaceafterenv}{\vspace{1ex}}
+\newcommand{\myqedenv}{}
+
+
+\newcommand{\metaenvironnement}[2]  % 1er argument : nom de l'env, 2e argument : titre
+{
+  \ifthenelse{ \equal{#2}{toto} }{
+    \spacebeforeenv \noindent {\envfont #1 }
+  }{
+    \spacebeforeenv \noindent {\envfont #1  \tiret\, #2.}
+  }
+}
+
+%----------------------------------
+% Rappel
+%----------------------------------
+\newenvironment{rappel}[1][toto]
+{ \metaenvironnement{Rappel}{#1} }
+{\myqedenv\spaceafterenv}
+
+
+\newcommand{\fonction}[5]{%
+        \ensuremath{#1\colon
+        \left\{\hskip -1.5 mm
+        \begin{array}{c@{\ }c@{\ }l}
+        \medskip #2 & \longrightarrow & #3 \\
+        #4 & \longmapsto & #5 \\
+        \end{array}
+        \right .
+        }}
+\newcommand{\ph}{\varphi}
+\newcommand{\funu}[1]{\mathcal{C}^{#1}}
+\newcommand{\RR}{\mathbb{R}}
+\newcommand{\NN}{\mathbb{N}}
+\newcommand{\CC}{\mathbb{C}}
+
+\newenvironment{syst}[1][c]%
+    {\ensuremath{\left \{ \hskip -1.5 mm \begin{array}{#1@{\ =\ }l}}}%
+    {\end{array}\right.}
+
+\newcommand{\f}[2]{{\ensuremath{\mathchoice%
+    {\dfrac{#1}{#2}}
+        {\dfrac{#1}{#2}}
+    {\frac{#1}{#2}}
+    {\frac{#1}{#2}}
+    }}}
+\renewcommand{\ni}{\noindent}
+\newcommand{\ra}{\rightarrow}
+%\newcommand{\item}[1]{{\sf\bfseries #1}}
+\newcommand{\norm}[1]{\ensuremath{\Arrowvert #1 \Arrowvert}}
+\newcommand{\Ende}[3]{\ensuremath{\mathrm{End}_{#1}^{#2}(#3)}}
+\newcommand{\End}[2]{\Ende{#1}{}{#2}}
+\newcommand{\id}{\ensuremath{\mathrm{id}}}
+\renewcommand{\d}{\ensuremath{\mathrm{d}}}
+\renewcommand{\leq}{\leqslant}
+\renewcommand{\geq}{\geqslant}
+
+
+\usepackage{datetime}
+\newdateformat{annscol}{\ifthenelse{\THEMONTH > 7}{\THEYEAR--\refstepcounter{YEAR}\THEYEAR}{\addtocounter{YEAR}{-1}\THEYEAR--\refstepcounter{YEAR}\THEYEAR}}
+
+\begin{document}
+ 
+
+%------------------------------------------------------------------------------------
+\leftcentersright[0]{{\bf\sf\large Formation en Mathématiques Commune}}{}
+    {{\bf\sf\large Année~\annscol\today}}
+\leftcentersright[0]{{\bf\sf\large Calcul différentiel}}{}{{\bf\sf Valentin De Bortoli, Frédéric Pascal}}
+
+\begin{center}
+\huge{TD 2.2 \\ Différentielle d'ordre supérieur}
+\end{center}
+%------------------------------------------------------------------------------------------
+
+
+
+
+%------------------------------------------------------------------------------------------
+%------------------------------------------------------------------------------------------
+
+
+\vskip2ex 
+\begin{exo}\label{exo-cdif-exemple-contre-exemple}
+\begin{questions}
+\item Soit $f: \mathbb{R}^2 \longrightarrow \mathbb{R} $ l'application donnée par
+  \begin{displaymath}
+f(x,y)=
+\left|
+  \begin{array}{rc}
+  
+  
+  x y \frac{ x^2 - y^2}{x^2 + y^2} & \mbox{si }  (x,y) \neq (0,0) \\
+0 &  \mbox{si }(x,y) = (0,0)\\
+  \end{array}
+\right.
+\end{displaymath}
+
+      Montrer que les dérivées partielles 
+      $\frac{\partial^2{f}}{\partial{x}\partial{y}}(0,0)$ et
+      $\frac{\partial^2{f}}{\partial{y}\partial{x}}(0,0)$ existent mais ne sont pas égales.
+
+ \end{questions}
+
+\end{exo}
+
+\begin{exo}\label{exo-cdif-diffmultiples}
+\begin{questions}
+\item  Soient $E,F$ deux espaces vectoriels de dimension finie, $U$ un ouvert de $E$, $f : U \ra F$ une application
+différentiable, $a \in U$ et $v \in E$. Montrer que l'application
+$$f_{a,v} : t \longmapsto f(a +tv)$$
+ est définie sur un intervalle ouvert contenant $0$ et dérivable en tout point où elle est définie. Calculer
+la dérivée de $f_{a,v}$ en $t = 0$. On suppose que $f$ est $k$-fois différentiable en $a$.
+Calculer les dérivés successives de ${f_{a,v}}^{(k)}(0)$.
+
+\item Soient $E,F$ deux espaces vectoriels de dimension finie, $U$ un ouvert de $E$ et $f : U \ra F$ une application
+deux fois différentiable. Montrer que l'application $x \mapsto \der f(x)(x)$ est différentiable et calculer sa différentielle.
+
+\item Soient $E,F$ deux espaces vectoriels de dimension finie, $U$ un ouvert de $E$, $f : U \ra F$ une application
+de classe $C^{\infty}$, $a \in U$ et $v \in E$. Montrer que l'application $v \mapsto \der ^k f(a)(v, \ldots, v)$ est
+différentiable et calculer sa différentielle.
+  \end{questions}
+\end{exo}
+\vskip2ex
+
+\begin{exo}
+On se place dans le cas d'une fonction $f: U\rightarrow \RR$ où $U$ est un ouvert de $\RR^{n}$ et on fixe $a \in U$. Dans la suite, lorsque $f$ est suffisamment régulière, on adoptera la notation simplificatrice suivante :
+%\begin{equation*}
+$$ D^{k}f(a)(h)^{k}=D^{k}f(a)(h,h,...,h)$$
+%\end{equation*}
+\begin{questions}
+\item  Récrire explicitement la précédente expression en utilisant les dérivées partielles $k^{e}$ de $f$.
+\item On suppose pour cette question que $f$ est de classe $C^{k+1}$ sur $U$. Soit $h \in \RR^{n}$ tel que le segment $[a,a+h]$ soit inclus dans $U$. Montrer alors la formule de Taylor avec reste intégral en appliquant la formule correspondante du cas réel à une fonction bien choisie.
+\begin{equation*}
+ f(a+h)-f(a)-Df(a)(h)-...-\frac{1}{k!}D^{k}f(a)(h)^{k}=\int_{0}^{1} \frac{(1-t)^{k}}{k!} D^{k+1}f(a+th)(h)^{k+1} dt
+\end{equation*}
+\item  En supposant $f$ de classe $C^{k}$ sur $U$ et $h \in \RR^{n}$ tel que $[a,a+h]$ soit inclus dans $U$, montrer qu'il existe $\theta \in ]0,1[$ tel que :
+\begin{equation*}
+ f(a+h)-f(a)-Df(a)(h)-...-\frac{1}{(k-1)!}D^{k-1}f(a)(h)^{k-1}= \frac{1}{k!}D^{k}f(a+\theta h)(h)^{k}
+\end{equation*}
+Démontrer de même la formule de Taylor-Young à l'ordre $k$ pour une fonction de n variables.
+\item Expliciter la formule de Taylor-Young à l'ordre 2 pour une fonction de trois variables puis celui à l'ordre 3 d'une fonction de deux variables.
+\end{questions}
+\end{exo}
+\vskip2ex
+
+\begin{exo}\textbf{Dérivée seconde et développement limité}
+  Soit $f$ une fonction définie sur $U \subset E$ ($U$ ouvert) à valeurs dans $F$ avec $E$ et $F$ deux espaces vectoriels de dimension finie. Soit $a \in U$.
+  \begin{questions}
+\item Montrer que $f$ est continue $a$ si et seulement si elle admet un développement limité à l'ordre $0$ en $a$.
+  De même, montrer que $f$ est dérivable en $a$ si et seulement si elle admet un développement limité à l'ordre $1$ en $a$.
+\item Trouver une fonction $f$ qui soit $\mathcal{C}^1(U)$, qui admette un développement limité à l'ordre 2 et qui ne soit pas deux fois différentiable en $0$.
+  \end{questions}
+\end{exo}
+
+\begin{exo} \textbf{Caractérisation des fonctions convexes}
+  Soient $U$ un ouvert convexe d'un espace vectoriel normé $E$ et $f : U \ra \RR$ une application. On dit que 
+$f$ est convexe si pour tous $x,y \in U$ et tout $t \in  [0,1]$, on a
+$$f((1-t)x + ty) \leq (1-t)f(x) + tf(y)$$
+$ie$ si le graphe de $f$ est sous ses cordes.  
+\begin{questions}
+\item  On suppose que $f$ est différentiable sur $U$. Montrer que $f$ est convexe si et seulement si 
+$$f(y)-f(x) \geq \der f(x)(y-x)$$
+ pour tous $x,y \in U$ ($ie$ si le graphe est au-dessus de ses tangentes).
+
+\item On suppose que $f$ est deux fois différentiable sur $U$. Montrer que $f$ est convexe si et seulement si $\der ^2 f(x)$ est positive (en tant que forme quadratique) pour tout $x \in U$. 
+
+\end{questions}
+\end{exo}
+
+\vskip2ex
+\begin{exo}
+\begin{questions}
+\item Soit $f : \RR^n \ra \RR$ une fonction de classe $C^{\infty}$. Montrer qu'il existe des fonctions
+$g_i : \RR^n \ra \RR$ de classe $C^{\infty}$ ($1 \leq i \leq n$) telles que
+$\forall x \in \RR^n$ 
+$$f(x) = f(0) + \sum_{i=1}^{n} x_i g_i(x)$$
+ On souhaite remplacer $\RR^n$ par un ouvert $U$ de $\RR^n$, donner des hypothèses sur $U$ pour lesquelles
+le résultat est toujours valable;
+\item Soit $f : \RR^n \ra \RR$ une fonction de classe $C^{\infty}$ telle que $f(0) = 0$ et $\der f(0) = 0$.
+Montrer qu'il existe des fonctions $h_{ij} : \RR^n \ra \RR$ de classe $C^{\infty}$ ($1 \leq i,j \leq n$) telles que
+$\forall\,x \in \RR^n$, $$ f(x) = \sum_{i,j} x_ix_j h_{i,j}(x)$$
+\vspace{-1cm}
+\item Montrer que $I = \{f \in C^{\infty}(\RR^{n}, \RR), \quad f(0) = 0 \}$ est un idéal maximal de
+$C^{\infty}(\RR^{n}, \RR)$ de type fini, principal pour $n=1$.
+\end{questions}
+\end{exo}
+
+
+
+\begin{exo}\textbf{Théorème de Whitney}
+Soit F un fermé de $\RR^{n}$. On va montrer qu'il existe une fonction $f$ de classe $C^{\infty}$ de $\RR^{n}$ dans $\RR^{+}$ dont l'ensemble des zéros est exactement F. On supposera dans la suite que $F \neq \RR^{n}$.
+\begin{questions}
+\item  Donner l'exemple d'une fonction de classe $C^{\infty}$ strictement positive à l'intérieur de la boule unité et nulle partout en dehors.
+\item Justifier l'existence d'une suite de boules ouvertes $(B_{i})_{i \in \NN}$ telles que $F=\RR^{n}\backslash \bigcup_{i \in \NN} B_{i}$ ainsi que d'une suite d'applications $(\phi_{i})_{i \in \NN}$ de $\RR^{n}$ dans $\RR^{+}$ telle que chaque $\phi_{i}$ s'annule uniquement sur $\RR^{n}\backslash B_{i}$.
+\item Déterminer alors une fonction $f$ satisfaisant au problème. \\
+\end{questions}
+\end{exo}
+
+
+
+
+
+
+\end{document}
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

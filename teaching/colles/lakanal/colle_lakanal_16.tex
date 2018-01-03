@@ -1,0 +1,91 @@
+\documentclass[10pt,a4paper]{article} 
+\usepackage[utf8]{inputenc} 
+\usepackage[T1]{fontenc} 
+\usepackage[english]{babel} 
+\usepackage{supertabular} %Nécessaire pour les longs tableaux
+\usepackage[top=2.5cm, bottom=2.5cm, right=1.5cm, left=1.5cm]{geometry} %Mise en page 
+\usepackage{amsmath} %Nécessaire pour les maths 
+\usepackage{amssymb} %Nécessaire pour les maths 
+\usepackage{stmaryrd} %Utilisation des double crochets 
+\usepackage{pifont} %Utilisation des chiffres entourés 
+\usepackage{graphicx} %Introduction d images 
+\usepackage{epstopdf} %Utilisation des images .eps 
+\usepackage{amsthm} %Nécessaire pour créer des théorèmes 
+\usepackage{algorithmic} %Nécessaire pour écrire des algorithmes 
+\usepackage{algorithm} %Idem 
+\usepackage{bbold} %Nécessaire pour pouvoir écrire des indicatrices 
+\usepackage{hyperref} %Nécessaire pour écrire des liens externes 
+\usepackage{array} %Nécessaire pour faire des tableaux 
+\usepackage{tabularx} %Nécessaire pour faire de longs tableaux 
+\usepackage{caption} %Nécesaire pour mettre des titres aux tableaux (tabular) 
+\usepackage{color} %nécessaire pour écrire en couleur 
+\newtheorem{thm}{Théorème} 
+\newtheorem{mydef}{Définition} 
+\newtheorem{prop}{Proposition} 
+\newtheorem{lemma}{Lemme}
+\title{Semaine 16 - Fractions rationnelles}
+\author{Valentin De Bortoli \\ email : \ \href{mailto:valentin.debortoli@gmail.com}{valentin.debortoli@gmail.com}}
+\date{}
+\begin{document}
+\maketitle
+\section{Primitives et fractions rationnelles}
+Donner une primitive de la fonction associée à chaque fraction rationnelle.
+\subparagraph{1} $F(X)=\frac{X^2+2X+5}{X^2-3X+2}$.
+\subparagraph{2} $F(X)=\frac{3X-1}{X^2(X+1)^2}$.
+\section{Lien entre décomposition réelle et complexe}
+\subparagraph{1} Donner la décomposition en éléments simples dans $\mathbb{C}(X)$ de $F(X)= \frac{X^3-3X^2}{(X^2+1)^3}$.
+\subparagraph{2} Donner la décomposition en éléments simples dans $\mathbb{R}(X)$ de $F$.
+\subparagraph{3} Que remarque-t-on ?
+\section{Le théorème de Gauss-Lucas}
+Soit $P \in \mathbb{C}[X]$ de degré $n \ge 2$.
+\subparagraph{1}Montrer que les racines de $P'$ sont barycentres des racines de $P$.
+\section{Polynômes de Tchebychev}
+\subparagraph{1}Montrer que $\forall n \in \mathbb{N}, \ \exists P_n \in \mathbb{R}[X],\ \forall x \in \mathbb{R}, \ P_n(\cos(x))= \cos(nx)$.
+\subparagraph{2}Donner les racines de $P_n$.
+\subparagraph{3}Donner la décomposition en éléments simples sur $\mathbb{R}(X)$ de $\frac{1}{P}$.
+\subparagraph{Remarque :} les polynômes de Tchebychev (nommés en l'honneur de Pafnouti Tchebychev 1821-1894) possèdent de nombreuses propriétés remarquables (voir Wikipédia...). Ce sont également de grands classiques de concours !
+\section{Décomposition en éléments simples et combinatoire}
+\subparagraph{1}Donner la décomposition en éléments simples sur $\mathbb{R}(X)$ de $F=\frac{1}{X}+\frac{1!}{X(X+1)} + \dots + \frac{n!}{X(X+1) \dots (X+n)}$.
+\section{Racines du polynôme dérivé}
+Soit $P \in \mathbb{R}[X]$. On suppose que $P$ est scindé à racines simples sur $\mathbb{R}$.
+\subparagraph{1}Montrer que $P'$ est scindé à racines simples sur $\mathbb{R}$.
+\subparagraph{2}On note $(a_i)_{i \in \llbracket 1,n \rrbracket}$ (respectivement $(b_i)_{i \in \llbracket 1,n-1 \rrbracket}$) les racines de $P$ (respectivement de $P'$) rangées par ordre croissant. Donner un encadrement sur $b_k$ en fonction de $a_k$ et $a_{k+1}$ pour tout $k \in \llbracket 1,n-1 \rrbracket$.
+\subparagraph{3}En considérant $\frac{P'}{P}$ montrer que $\forall k \in \llbracket 1,n-1 \rrbracket, \ a_k+\delta_k <b_k<a_{k+1}- \delta_k$ avec $\delta_k =a_{k+1}-a_k$.
+\section{Un système linéaire}
+\subparagraph{1}Résoudre dans $\mathbb{R}^n$ le système suivant :
+\begin{equation}
+\left\lbrace \begin{aligned} &\frac{x_1}{\alpha_1+a_1} + \frac{x_2}{\alpha_1+a_2} + \dots + \frac{x_n}{\alpha_1+a_n} = 1 \\
+&\frac{x_1}{\alpha_2+a_1} + \frac{x_2}{\alpha_2+a_2} + \dots + \frac{x_n}{\alpha_2+a_n} = 1 \\
+&\dots \\
+&\frac{x_1}{\alpha_n+a_1} + \frac{x_2}{\alpha_n+a_2} + \dots + \frac{x_n}{\alpha_n+a_n} = 1 \\
+\end{aligned}
+\right.
+\end{equation}
+où $(\alpha_i)_{i \in \llbracket 1,n \rrbracket} \in \left(\mathbb{R}_+^* \right)^n$ et $(a_i)_{i \in \llbracket 1,n \rrbracket} \in \left(\mathbb{R}_+^* \right)^n$.
+
+\subparagraph{Remarque :} la résolution de ce système permet de montrer l'existence et l'unicité d'une fraction rationnelle (de pôles fixés) prenant des valeurs en des points (fixés) distincts des pôles. C'est donc la solution d'un problème d'interpolation. Pour aller plus loin, on pourra calculer le déterminant de la matrice associée à ce système (déterminant de Cauchy). Le déterminant à calculer pour le problème d'interpolation polynômiale est un déterminant de Van der Monde. 
+
+\section{Une équation dans les fractions rationnelles}
+\subparagraph{1}Quelles sont les solutions dans $\mathbb{C}(X)$ de l'équation suivante $F' = \frac{1}{X}$.
+\section{Degré et fractions rationnelles}
+\subparagraph{1}Montrer que $\text{deg}(F') < \text{deg}(F)-1$ si et seulement si $\text{deg}(F)=0$.
+
+\section{Coefficients et polynômes à racines réels}
+Soit $P \in \mathbb{R}[X]$ scindé sur $\mathbb{R}$.
+\subparagraph{1}Montrer que $P'$ est scindé sur $\mathbb{R}$.
+\subparagraph{2}Montrer que la fonction associée au polynôme $P'^2-PP''$ est positive.
+\subparagraph{3}On note $P = \underset{k=1}{\overset{n}{\sum}}a_k X^k$. Montrer que $\forall k \in \llbracket 1,n-1 \rrbracket, \ a_{k-1}a_{k+1} \le a_k^2$.
+
+\section{Un problème de combinatoire}
+Soit $n \in \mathbb{N}$ avec $n \ge 2$. On suppose que l'on dispose de $n$ euros. 
+
+On suppose également qu'un pain au chocolat coûte 2 euros et un beignet 3 euros.
+
+On va tenter de répondre à la question : combien y a-t-il de configuration possible (pains au chocolat/beignets) sachant que je dépense mes $n$ euros ?
+
+Par exemple, pour $n=8$ il y a deux configurations possibles (lesquelles ?).
+\subparagraph{1} Donner une manière de résoudre le problème en utilisant $F= \frac{1}{(1-X^2)(1-X^3)}$.
+\subparagraph{2}Donner la décomposition en éléments simples dans $\mathbb{C}[X]$ de cette fraction rationnelle et donner la solution du problème.
+
+\subparagraph{Remarque : } les remarques formelles introduites à la première question pourraient être justifiées en considérant l'anneau des séries formelles $\mathbb{R}[[X]]$.
+\end{document}

@@ -1,0 +1,115 @@
+\documentclass[10pt,a4paper]{article} 
+\usepackage[utf8]{inputenc} 
+\usepackage[T1]{fontenc} 
+\usepackage[english]{babel} 
+\usepackage{supertabular} %Nécessaire pour les longs tableaux
+\usepackage[top=2.5cm, bottom=2.5cm, right=1.5cm, left=1.5cm]{geometry} %Mise en page 
+\usepackage{amsmath} %Nécessaire pour les maths 
+\usepackage{amssymb} %Nécessaire pour les maths 
+\usepackage{stmaryrd} %Utilisation des double crochets 
+\usepackage{pifont} %Utilisation des chiffres entourés 
+\usepackage{graphicx} %Introduction d images 
+\usepackage{epstopdf} %Utilisation des images .eps 
+\usepackage{amsthm} %Nécessaire pour créer des théorèmes 
+\usepackage{algorithmic} %Nécessaire pour écrire des algorithmes 
+\usepackage{algorithm} %Idem 
+\usepackage{bbold} %Nécessaire pour pouvoir écrire des indicatrices 
+\usepackage{hyperref} %Nécessaire pour écrire des liens externes 
+\usepackage{array} %Nécessaire pour faire des tableaux 
+\usepackage{tabularx} %Nécessaire pour faire de longs tableaux 
+\usepackage{caption} %Nécesaire pour mettre des titres aux tableaux (tabular) 
+\usepackage{color} %nécessaire pour écrire en couleur 
+\newtheorem{thm}{Théorème} 
+\newtheorem{mydef}{Définition} 
+\newtheorem{prop}{Proposition} 
+\newtheorem{lemma}{Lemme}
+\title{Semaine 27 - Vecteurs aléatoires}
+\author{Valentin De Bortoli \\ email : \ \href{mailto:valentin.debortoli@gmail.com}{valentin.debortoli@gmail.com}}
+\date{}
+\begin{document}
+\maketitle
+
+Dans tous les exercices $X$ est une variable d'un espace probabilisé $(\Omega, \mathcal{A}, P)$ à valeurs dans un espace d'états fini $\mathcal{X}$.
+
+\section{Transformée de Laplace}
+On définit la transformée de Laplace d'une variable aléatoire $X$ par $\forall t \in \mathbb{R}, \ \phi(t) = E(e^{tX})$.
+\subparagraph{1} Montrer que $\phi \in \mathcal{C}^{\infty} \left( \mathbb{R} \right)$. Calculer $\forall n \in \mathbb{N}, \ \phi^{(n)}(0)$.
+\subparagraph{2}Soit $X$ une variable de Bernoulli de paramètre $p$. On définit $Y = 2X-1$. Quelle est la loi de $Y$ ? On dit que $Y$ suit une loi de Rademacher.
+\subparagraph{3}Calculer la transformée de Laplace de $Y$.
+
+\section{Matrice de covariance}
+Soit $(X_1, \dots, X_n)$ un vecteur aléatoire. On considère $M \in \mathcal{M}_n \left( \mathbb{R} \right)$ avec $\forall (i,j) \in \llbracket 1,n \rrbracket, \ M(i,j) = \text{Cov}(X_i,X_j)$.
+\subparagraph{1}Montrer que $M$ est symétrique définie positive.
+\subparagraph{2}Soit $(X_1^k)_{k \in \llbracket 1,N \rrbracket}$ un $N$-échantillon du vecteur $X_1$. On note $(X_i^k)_{k \in \llbracket 1,N \rrbracket}$. On pose $C_{i,j}^N = \frac{1}{N-1}\underset{k=1}{\overset{N}{\sum}}(X_i^k-\overline{X_i})(X_j^k-\overline{X_j})$ avec $\overline{X_i} = \frac{1}{N} \underset{k=1}{\overset{N}{\sum}}X_i^k$. Calculer $E(C_{i,j}^N)$.
+\subparagraph{3}Donner une interprétation de $C_{i,j}^N$. Pourquoi a-t-on divisé par $N-1$ plutôt que $N$ ?
+\subparagraph{Remarque : } Si on appelle $M_X$ la matrice des $C_{i,j}^N$ on obtient la matrice de covariance empirique. La diagonalisation de cette matrice et la projection (orthogonale) sur les premiers vecteurs propres permet de représenter des données de grandes dimensions dans des plans (ou espaces) où la covariance est maximisée. Cette technique porte un nom : ACP (Analyse en Composantes Principales) et est très utilisée en sociologie, neuroscience...
+
+\section{Entropie et information}
+On appelle entropie de la loi $p$ (définie sur $\mathcal{X}$), la quantité suivante : 
+\begin{equation*}
+H(p) = -\sum_{x \in \mathcal{X}} \log(p(x)) p(x)
+\end{equation*}
+On adoptera la convention $0 \log(0) = 0$.
+\subparagraph{1}Calculer l'entropie d'une loi de Bernoulli de paramètre $p \in [0,1]$. Que peut-on en déduire ?
+\subparagraph{2}Montrer que l'entropie est toujours positive et qu'elle est toujours plus petite que $\log(\vert \mathcal{X} \vert)$. Dans quel cas l'entropie est-elle maximale ? Minimale ?
+\subparagraph{3}On suppose que $H((p,q)) = H(p) + H(q)$ (où $(p,q)$ désigne la loi jointe de $p$ et $q$). Quelle relation lie la loi jointe et $p$ et $q$ ?
+\subparagraph{Remarque :} la notion d'entropie a été introduite par Shannon dans les années 50. Elle est extrêmement utile pour coder de manière optimale une information.
+
+\section{Kurtosis et asymétrie}
+Soit $X$ une variable aléatoire à valeurs dans $\mathcal{X}$. On note $\mu$ sa moyenne et $\sigma$ son écart-type. On définit l'asymétrie de $X$ par $\gamma(X) = E \left( \left(\frac{X-\mu}{\sigma}\right)^3\right)$. On définit le kurtosis de $X$ par $\beta_2(X) = E \left( \left(\frac{X-\mu}{\sigma}\right)^4\right)$
+\subparagraph{1}Calculer l'asymétrie d'une variable de Bernoulli. Donner une interprétation du signe.
+\subparagraph{2}En déduire l'asymétrie d'une variable binomiale.
+\subparagraph{3}Reprendre les questions précédentes pour le kurtosis.
+
+\section{Introduction aux matrices aléatoires}
+Soit $M_2$ une matrice de taille $2 \times 2$ dont les coefficients sont des Bernoulli indépendantes de paramètre $p$. Soit $M_3$ une matrice de taille $3 \times 3$ dont les coefficients sont des Bernoulli indépendantes.
+\subparagraph{1}Calculer l'espérance et la variance de la trace de $M_2$.
+\subparagraph{2}Même question pour le déterminant de $M_2$.
+\subparagraph{3}Même question pour la trace de $M_3$.
+\subparagraph{4}Même question pour le déterminant de $M_3$.
+
+\subparagraph{Remarque :} ces questions ont pour but de montrer la complexité calculatoire inhérente à la théorie des matrices aléatoires. Celle-ci s'est fortement développée dans les années 50 avec des applications en physique théorique mais aussi en théorie des nombres. 
+
+\section{La méthode de rejet}
+Soit $X$ une variable aléatoire de $\Omega$ dans $\mathcal{X}$. On note $p$ sa loi.
+Le but de cet exercice est de proposer une méthode pour simuler un échantillon de la loi $X$. On suppose qu'il existe une loi $q$ (sur le même espace) qui vérifie :
+\begin{equation*}
+\exists C \in \mathbb{R}_+^*, \ \forall x \in \mathcal{X}, \ Cq(x) \ge p(x)
+\end{equation*}
+On suppose que l'on sait échantillonner selon la loi $q$.
+On propose la démarche suivante :
+\begin{itemize}
+\item on tire un élément $Y$ selon $q$.
+\item on tire un élément $U$ selon la loi uniforme sur $\llbracket 1, q(Y) \rrbracket$.
+\item si $U \le p(Y)$ on pose $Z=Y$ sinon on reprend la première étape.
+\end{itemize}
+\subparagraph{1}Montrer que $Z$ suit bien la loi $p$.
+\subparagraph{2}Quelle est la probabilité d'acceptation de l'échantillon $Z$ ? Quel est le rôle de la constante $C$ ?
+\subparagraph{Remarque :} le problème de simulation de variables aléatoires est un domaine de la recherche encore ouvert. De nombreux autres algorithmes existent (méthode d'inversion, méthodes de Metropolis-Hastings, méthodes de Hit-and-Run). L'algorithme de Metropolis-Hastings (le plus utilisé en pratique) fonctionne de la même manière que le rejet mais prend en compte l'information "l'échantillon est rejeté".
+\section{Estimateurs et décomposition biais-variance}
+On suppose que $\mathcal{X}= \llbracket 1,N \rrbracket$
+Soit $(X_1, \dots, X_n)$ un $n-$échantillon de la loi $p$, c'est-à-dire $n \in \mathbb{N}$ variables aléatoires indépendantes de loi $p$. On suppose que la loi $p$ est uniforme sur $\mathcal{X}$. On cherche à estimer $N$.
+\subparagraph{1}Proposer une manière d'estimer $N$. On note $E_1$ cette nouvelle variable aléatoire.
+\subparagraph{2}Calculer l'espérance et la variance de $E_1$.
+\subparagraph{3}On appelle risque quadratique la quantité $R(E_1)=E( (P-E_1)^2)$. Montrer que :
+\begin{equation*}
+R(E_1) = V(E_1) + (E(E_1)-P)^2
+\end{equation*} 
+Cette décomposition est appelée biais-variance. Pourquoi ? Calculer le risque quadratique $R(E_1)$. 
+\subparagraph{4} On note $E_2 = \text{max}(X_1, \dots, X_n)$. Calculer l'espérance de $E_2$ ainsi que sa variance.
+\subparagraph{5}En déduire son risque quadratique $R(E_2)$ et comparer avec le risque quadratique $R(E_1)$.
+\subparagraph{Remarque :} le but de cet exercice est de mettre en évidence le fait suivant : il ne sert à rien de considérer un estimateur sans biais si sa variance est trop grande. Il peut être intéressant de considérer des estimateurs avec biais mais de variance petite. La borne de Cramer-Rao donne une borne inférieure pour ce risque quadratique.
+
+
+\section{Lois et moments}
+\subparagraph{1}Montrer que si deux variables $X$ et $Y$ ont les mêmes moments alors elles ont la même loi (par même moment on entend : $\forall k \in \mathbb{N}, \ E(X^k) = E(Y^k)$).
+\subparagraph{Remarque :} attention néanmoins. Cette propriété n'est plus vraie lorsque $\mathcal{X}$ n'est pas fini.
+
+\section{Fonction caractéristique}
+Soit $X$ une variable aléatoire sur $\mathcal{X}$. On définit $\phi_X: \ \mathbb{R} \ \rightarrow   \ \mathbb{C}$ par $\phi_X(\xi) = E(e^{i \xi X})$.
+\subparagraph{1} Montrer que la fonction caractéristique est $2 \pi$ périodique et $\mathcal{C}^{\infty}$.
+\subparagraph{2}Que vaut $\phi_X(0)$ ? $\phi_X'(0)$ ? $\phi_X''(0)$ ?
+\subparagraph{3}Montrer que $P(X=k) = \frac{1}{2 \pi } \int_0^{2 \pi} e^{-ik \xi} \phi_X(\xi) \text{d}\xi$. En déduire que la fonction caractéristique caractérise la loi de $X$.
+\subparagraph{4}Montrer que si $X$ et $Y$ sont indépendantes alors $\phi_{X+Y} = \phi_X \phi_Y$. En déduire facilement la fonction caractéristique de la loi binomiale.
+\subparagraph{Remarque :} contrairement à la caractérisation par les moments, cette caractérisation est toujours valable. 
+\end{document}

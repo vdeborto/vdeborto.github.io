@@ -1,0 +1,155 @@
+\documentclass[10pt,a4paper]{article} 
+\usepackage[utf8]{inputenc} 
+\usepackage[T1]{fontenc} 
+\usepackage[english]{babel} 
+\usepackage{supertabular} %Nécessaire pour les longs tableaux
+\usepackage[top=2.5cm, bottom=2.5cm, right=1.5cm, left=1.5cm]{geometry} %Mise en page 
+\usepackage{amsmath} %Nécessaire pour les maths 
+\usepackage{amssymb} %Nécessaire pour les maths 
+\usepackage{stmaryrd} %Utilisation des double crochets 
+\usepackage{pifont} %Utilisation des chiffres entourés 
+\usepackage{graphicx} %Introduction d images 
+\usepackage{epstopdf} %Utilisation des images .eps 
+\usepackage{amsthm} %Nécessaire pour créer des théorèmes 
+\usepackage{algorithmic} %Nécessaire pour écrire des algorithmes 
+\usepackage{algorithm} %Idem 
+\usepackage{bbold} %Nécessaire pour pouvoir écrire des indicatrices 
+\usepackage{hyperref} %Nécessaire pour écrire des liens externes 
+\usepackage{array} %Nécessaire pour faire des tableaux 
+\usepackage{tabularx} %Nécessaire pour faire de longs tableaux 
+\usepackage{caption} %Nécesaire pour mettre des titres aux tableaux (tabular) 
+\usepackage{color} %nécessaire pour écrire en couleur 
+\def\siecle#1{\textsc{\romannumeral #1}\textsuperscript{e}~siècle} %Nécessaire pour écrire des siècles
+\newtheorem{thm}{Théorème} 
+\newtheorem{mydef}{Définition} 
+\newtheorem{prop}{Proposition} 
+\newtheorem{lemma}{Lemme}
+\title{Semaine 3 - Fonctions circulaires, fonctions hyperboliques, réciproques}
+\author{Valentin De Bortoli \\ email : \ \href{mailto:valentin.debortoli@gmail.com}{valentin.debortoli@gmail.com}}
+\date{}
+\begin{document}
+\maketitle
+
+\section{Fonctions hyperboliques réciproques}
+\subparagraph{1}$\sinh$ est strictement croissante. En effet elle est dérivable et sa dérivée vaut $\cosh$ qui est strictement positive. Donc elle est injective. Montrons qu'elle est surjective. En effet, $\sinh$ tend vers $+\infty$ en $+\infty$ et vers $-\infty$ en $-\infty$. Donc par continuité elle atteint tous les points de $\mathbb{R}$ (la rédaction de ce point est facile à vérifier et laissée au lecteur). Donc elle est bijective.
+
+\subparagraph{2}Soit $y \in \mathbb{R}$ et $x \in \mathbb{R}$ tel que $y = \frac{e^x - e^{-x}}{2}$. Posons $X = e^x$. $X \in \mathbb{R}_+^*$, donc $2y = X - \frac{1}{X}$, c'est-à-dire, $X^2-2yX-1 = 0$, ou encore $X = y \pm \sqrt{y^2 + 1}$. Puisque $X$ est positif on a $X = y + \sqrt{y^2 +1}$ ou encore, ${x = \ln \left( y+ \sqrt{y^2+1}\right)}$. Donc $\sinh^{-1}(x) = \ln \left( x + \sqrt{x^2 +1}\right)$ et ce quel que soit $x \in \mathbb{R}$.
+
+\subparagraph{3}$\cosh$ est dérivable de dérivée $\sinh$ qui strictement positive sur $\mathbb{R}_+^*$ donc $\cosh$ est strictement croissante sur $\mathbb{R}_+$. Elle est donc injective. Montrons la surjectivité. On a $\cosh(0) = 1$ et $\cosh$ tend vers $+\infty$ en $+\infty$. On en déduit comme précédemment la surjectivité de $\cosh$ sur $[1,+\infty[$.
+
+\subparagraph{4}Calculons la réciproque de $\cosh$. Soit $y \in [1,+\infty($ et $x \in \mathbb{R}_+$ tel que $y = \frac{e^x+e^{-x}}{2}$. Posons $X = e^x$. On a $X \in \mathbb{R}_+^*$ qui vérifie la relation $X^2 -2yX +1 = 0$. Donc $X = y \pm \sqrt{y^2 - 1}$ ($y^2-1 \ge 0$ car $y \in [1,+\infty[$). Puisque $X$ est positif on en déduit $X = y +\sqrt{y^2-1}$ et donc $\forall x \in [1,+\infty[, \ \cosh^{-1}(x) = \ln \left( x + \sqrt{x^2 - 1}\right)$.
+
+\subparagraph{5} On peut écrire $\forall x \in \mathbb{R}, \ \tanh(x) = \frac{e^{2x}-1}{e^{2x}+1}$. On montre que lorsque $x$ tend vers $-\infty$, $\tanh$ tend vers $-1$ et lorsque $x$ tend vers $+\infty$, $\tanh$ tend vers $1$. Comme précédemment on en déduit la surjectivité. L'injectivité se déduit de manière similaire en remarquant que $\tanh' = 1- \tanh^2$ et que $\tanh$ est à valeurs dans $]-1,1[$. Ainsi $\tanh'$ est strictement positive et $\tanh$ est strictement croissante donc injective. D'où la surjectivité.
+
+\subparagraph{6}Pour déterminer la réciproque, on pose $y \in ]-1,1[$ et $x$ tel que $\tanh(x) = y$. Posons $X = e^{2x}$, on a : $\frac{X-1}{X+1} = y$ d'où $X(1-y) = y+1$. Ainsi, on a ${\tanh^{-1}(x) = \ln \sqrt{\frac{1+y}{1-y}}}$.
+
+\section{Quelques arctangentes célèbres}
+
+\subparagraph{1}Posons $a = \arctan \left( \frac{1}{2} \right)$ et $b = \arctan\left( \frac{1}{7}\right)$. On a $\tan(2a) = \frac{2\tan(a)}{1-\tan(a)^2} = \frac{4}{3}$. Donc,
+\begin{equation}
+\begin{aligned}
+\tan\left( 2a - b \right)& = \frac{\tan(2a)- \tan(b)}{1+ \tan(2a)\tan(b)} \\
+&= \frac{\frac{4}{3}-\frac{1}{7}}{1+ \frac{4}{21}} \\
+&= \frac{25}{25} \\
+&=1.
+\end{aligned}
+\end{equation}
+Il s'agit de montrer que $4\arctan(\frac{1}{5}) - \arctan(\frac{1}{239})$ est compris dans 
+
+D'où $\tan \left( \frac{\pi}{4}\right) = \tan\left( 2\arctan \left( \frac{1}{2} \right) - \arctan\left( \frac{1}{7} \right)\right)$. Ainsi $\frac{\pi}{4} = 2\arctan \left( \frac{1}{2} \right) - \arctan\left( \frac{1}{7} \right) + k \pi$ avec $k \in \mathbb{Z}$. Il s'agit de montrer que $k = 0$. En effet, $0 \le 2 \arctan \left( \frac{1}{2}\right) \le \frac{\pi}{2}$. D'où, $-\frac{\pi}{4} \le \arctan \left( \frac{1}{2} \right) - \arctan\left( \frac{1}{7} \right) \le \frac{\pi}{2}$. Ceci impose que $k=0$ et l'égalité est démontrée.
+
+\subparagraph{2}Le processus est identique pour démontrer cette nouvelle égalité.
+On note  $a = \arctan \left( \frac{1}{5} \right)$ et $b = \arctan\left( \frac{1}{239}\right)$. On a,
+\begin{equation}
+\begin{aligned}
+\tan(4a) &= \frac{2\tan(2a)}{1- \tan(2a)^2} \\
+&= \frac{4\tan(a)}{(1-\tan(a)^2) \left( 1- \frac{4\tan(a)^2}{(1-\tan(a)^2)^2} \right)} \\
+&= \frac{4\tan(a) (1- \tan(a)^2)}{\left(1-\tan(a)^2 \right)^2-4\tan(a)^2} \\
+\end{aligned}
+\end{equation}
+On obtient $\tan(4a) = \frac{119}{120}$. De la même manière que précédemment on calcule,
+\begin{equation}
+\begin{aligned}
+\tan(4a - b) &= \frac{\tan(4a) - \tan(b) }{1- \tan(4a)\tan(b)} \\
+&= \frac{120 \times 239 - 119}{119 \times 239 + 120} \\
+&=1
+\end{aligned}
+\end{equation}
+l'intervalle $]-\frac{3\pi}{4}, \frac{5\pi}{4}[$.  On a $\arctan(\frac{1}{5}) \le \frac{\pi}{4}$. Donc,
+\begin{equation}
+-\frac{\pi}{4} \le 4\arctan(\frac{1}{5}) - \arctan(\frac{1}{239}) \le 4 \times \frac{\pi}{4}
+\end{equation}
+On conclut comme précédemment.
+
+\subparagraph{Compléments :} le problème de trouver les solutions de l'équations $m \arctan  \left( \frac{1}{x} \right) + n \arctan \left( \frac{1}{y} \right) = k \frac{\pi}{4}$ avec $(m,n,x,y,k) \in \mathbb{Z}^5$ a été résolue par Störmer en 1899. L'article est accessible à un élève de niveau MPSI \url{http://www.numdam.org/article/BSMF_1899__27__160_1.pdf}. Il n'existe que quatre solutions à ce problème :
+\begin{itemize}
+\item $\arctan \left( \frac{1}{2} \right) + \arctan \left( \frac{1}{3} \right) = \frac{\pi}{4}$ (formule d'Euler)
+\item $2 \arctan \left( \frac{1}{2} \right) - \arctan \left( \frac{1}{7} \right) = \frac{\pi}{4}$ (formule d'Hermann)
+\item $2 \arctan \left( \frac{1}{3} \right) + \arctan \left( \frac{1}{7} \right) = \frac{\pi}{4}$ (formule de Hutton)
+\item $4 \arctan \left( \frac{1}{5} \right) - \arctan \left( \frac{1}{239} \right) = \frac{\pi}{4}$ (formule de Machin)
+\end{itemize}
+
+\section{Somme et arctangente}
+\subparagraph{1}En considérant la fonction $x \ \mapsto \ \arctan (x) = \arctan(\frac{1}{x})$, on constate que celle-ci est dérivable sur $\mathbb{R}_+^*$ et sur $\mathbb{R}_-^*$ de dérivée nulle sur chacun de ces intervalles. Ainsi la fonction est constante et en faisant tendre $x$ vers $\pm \infty$ on trouve que :
+\begin{itemize}
+\item si $a>0$ alors $\arctan(a) + \arctan(\frac{1}{a}) = \frac{\pi}{2}$,
+\item si $a<0$ alors $\arctan(a) + \arctan(\frac{1}{a}) = -\frac{\pi}{2}$.
+\end{itemize}
+
+\subparagraph{2}On a que $\tan \left( \arctan(a) + \arctan(b) \right) = \frac{a+b}{1-ab}$. Donc on a,
+\begin{equation}
+\arctan(a) + \arctan(b) = \arctan \left( \frac{a+b}{1-ab}\right) + k\pi
+\end{equation}
+avec $k \in \mathbb{Z}$. 
+Ici grâce à l'hypothèse faite et la croissance de l'arctangente on a $0<\arctan(a) + \arctan(b)<\arctan(a) + \arctan(\frac{1}{a}) < \frac{\pi}{2}$. Ceci assure que $k = 0$ puisque la fonction arctangente est à valeurs dans $]-\frac{\pi}{2},\frac{\pi}{2}[$.
+
+\subparagraph{3}En reprenant le même raisonnement on trouve que $k\ge 1$. Mais puisque $\arctan(a)+\arctan(b) \in ]0,\pi[$ on trouve également $k\le 1$ et on a $k = 1$. 
+
+\subparagraph{4}Par le même raisonnement que la question 2 on trouve que $k=0$.
+
+\subparagraph{5}Si $ab<0$ on peut suppose $a>0$ et $b<0$ dans ce cas $0 <\arctan(a) < \frac{\pi}{2}$ et $0 >\arctan(b) > -\frac{\pi}{2}$. Donc la somme appartient à l'intervalle $]-\frac{\pi}{2},\frac{\pi}{2}[$ et $k=0$.
+\section{Somme et cosinus hyperbolique}
+\subparagraph{1}On a,
+\begin{equation}
+\begin{aligned}
+\sum_{k=0}^n {n \choose k} \cosh(ak+b) &= \frac{1}{2} \left(e^b \sum_{k=0}^n {n \choose k} e^{ak} + e^{-b} \sum_{k=0}^n {n \choose k} e^{-ak} \right) \\
+&= \frac{1}{2} \left( e^b(1+e^a)^n + e^{-b}(1+e^{-a})^n \right) \\
+&= \frac{1}{2} \left( e^b e^{\frac{an}{2}}\cosh\left( \frac{a}{2} \right)^n + e^{-b} e^{-\frac{an}{2}}\cosh\left( \frac{a}{2} \right)^n\right)2^n \\
+&= 2^n \cosh \left( \frac{an}{2}+b\right)\cosh\left( \frac{a}{2} \right)^n
+\end{aligned}
+\end{equation}
+
+\section{Composée, fonctions circulaires et fonctions circulaires réciproques}
+\subparagraph{1} Soit $x \in \mathbb{R}$ alors $\cos(x) \in [-1,1]$ donc $\cos(x)$ appartient au domaine de définition de $\arccos$ et $\arccos(\cos(x))$ est bien défini. $\arccos(\cos(x))$ est défini comme le réel $\dot{x}$ de $[0,\pi]$ tel que $\cos(\dot{x}) = \cos(x)$. Donc,
+\begin{itemize}
+\item $\arccos(\cos(x)) = x [2\pi]$ si $x[2\pi] \in [0,\pi]$
+\item $\arccos(\cos(x)) = -x [2\pi]$ si $x[2\pi] \in ]\pi,2\pi[$
+\end{itemize}
+$\arccos(x)$ est le réel $y \in [0,\pi]$ tel que $\cos(y) = x$. Ainsi $\cos(\arccos(x)) = \cos(y) = x$. Il est très important de comprendre la différence fondamentale entre ces deux calculs. Celle-ci provient du fait que la fonction réciproque de cosinus ne l'est que sur un intervalle où celle-ci est bijective, en l'occurence $[0,\pi]$.
+\subparagraph{2}On a $\sin(\arccos(x))^2 + \cos(\arccos(x))^2 = 1$. Puisque $\arccos(x) \in [0,\pi], \ \sin(\arccos(x)) \ge 0$. On obtient, $\sin(\arccos(x)) = \sqrt{1-x^2}$. De la même manière puisque $\arcsin(x) \in [-\frac{\pi}{2},\frac{\pi}{2}], \ \cos(\arcsin(x)) \ge 0$. On trouve le même résultat, $\cos(\arcsin(x)) = \sqrt{1-x^2}$.
+\subparagraph{3}On a $\arctan(x) \in ]-\frac{\pi}{2}, \frac{\pi}{2}[$ donc $\cos(\arctan(x))$ est positif. De plus $\tan(x)^2 = \frac{\sin(x)^2}{\cos(x)^2} = \frac{1}{\cos(x)^2}-1$. Donc on obtient, $x^2 = \frac{1}{\cos(\arctan(x))^2}-1$ c'est-à-dire $\cos(\arctan(x)) = \frac{1}{\sqrt{1+x^2}}$. On a de plus, $\frac{\sin(\arctan(x))}{\cos(\arctan(x))} = x$ donc, $\sin(\arctan(x)) = \frac{x}{\sqrt{1+x^2}}$. Il existe une autre méthode assez originale pour trouver ce résultat. Elle fait intervenir les équations différentielles ordinaires et fait l'objet d'une correction pour la feuille 4.
+
+\section{Suite et arctangente}
+\subparagraph{1}On pose $a = k+1$ et $b = -k+1$. On obtient $\arctan \left( \frac{a+b}{1-ab}\right) = \arctan\left( \frac{2}{1+ k^2 - 1}\right) = \arctan \left( \frac{2}{k^2}\right)$.
+\subparagraph{2} $u_n = \arctan(n+1)$ par télescopage. Donc $u_n \ \longrightarrow \ \frac{\pi}{2}$.
+
+\section{Suite et tangente hyperbolique}
+\subparagraph{1} On a,
+\begin{equation}
+\begin{aligned}
+\frac{2}{\tanh(2x)} - \frac{1}{\tanh(x)} &= \frac{2(e^{2x} + 1)}{e^{2x}-1} - \frac{e^x+1}{e^x-1} \\
+ &=\frac{2(e^{2x} + 1)}{e^{2x}-1} - \frac{(e^x+1)^2}{e^{2x}-1} \\
+ &=\frac{(e^x-1)^2}{e^{2x}-1} \\
+ &=\frac{(e^x-1)^2}{(e^x-1)(e^x+1)} \\
+ &=\tanh(x)
+\end{aligned}
+\end{equation}.
+
+\subparagraph{2} On a donc $x \tanh(x) = \frac{2x}{\tanh(2x)} - \frac{x}{\tanh(x)}$. Si on pose $v_k = 2^k \tanh(2^kx)$ on a $u_n = \underset{k=0}{\overset{n}{\sum}} v_{k+1} - v_k = v_{n+1}$, par télescopage. Or $\frac{v_{n+1}}{2^{n+1}} = \tanh(2^{n+1}x)$ et donc $u_n$ tend vers $1$ si $x$ est positif, $-1$ sinon.
+
+\section{Résolution d'équations}
+\subparagraph{1}Il convient tout d'abord de remarquer que l'équation admet une et une seule solution. En effet, la somme de deux fonctions strictement croissantes est strictement croisante (donc injective) et puisque $\arctan(2x) + \arctan(x) \ \underset{\pm \infty}{\longrightarrow} \ \pm \frac{\pi}{2}$, $\frac{\pi}{4}$ est atteint. Ainsi il existe une unique solution à l'équation. Soit $x$ une solution. On a alors, en passant à la tangente, $\frac{3x}{1-2x^2} = 1$ donc $x$ racine de $2x^2+3x-1=0$. Donc $x = \frac{-3 \pm \sqrt{17}}{2}$. La solution négative est rejetée car sinon la somme de tangentes réciproques est négative. Ainsi il ne reste qu'une seule solution, $x = \frac{-3 + \sqrt{17}}{2}$.
+
+\subparagraph{2} Soit $x$ une solution de l'équation. On obtient en soustrayant par $\arcsin(\sqrt{3}x)$ et en passant au cosinus, $\cos(\arcsin(x))) = \sqrt{3}x$. Comme on l'a montré dans l'exercice "Composée, fonctions circulaires et fonctions circulaires réciproques", $\cos(\arcsin(x)) = \sqrt{1 - x^2}$. Donc en passant au carré on obtient, $4x^2 = 1$, c'est-à-dire $x = \pm \frac{1}{2}$. La solution négative ne convient pas, sinon la somme de sinus réciproques est négative. Il suffit de vérifier que $x = \frac{1}{2}$ est solution. En effet, $\arcsin(\frac{1}{2}) + \arcsin(\frac{\sqrt{3}}{2}) = \frac{\pi}{6} + \frac{\pi}{3} = \frac{\pi}{2}$.
+
+\end{document}

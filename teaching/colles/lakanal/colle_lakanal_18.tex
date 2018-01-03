@@ -1,0 +1,111 @@
+\documentclass[10pt,a4paper]{article} 
+\usepackage[utf8]{inputenc} 
+\usepackage[T1]{fontenc} 
+\usepackage[english]{babel} 
+\usepackage{supertabular} %Nécessaire pour les longs tableaux
+\usepackage[top=2.5cm, bottom=2.5cm, right=1.5cm, left=1.5cm]{geometry} %Mise en page 
+\usepackage{amsmath} %Nécessaire pour les maths 
+\usepackage{amssymb} %Nécessaire pour les maths 
+\usepackage{stmaryrd} %Utilisation des double crochets 
+\usepackage{pifont} %Utilisation des chiffres entourés 
+\usepackage{graphicx} %Introduction d images 
+\usepackage{epstopdf} %Utilisation des images .eps 
+\usepackage{amsthm} %Nécessaire pour créer des théorèmes 
+\usepackage{algorithmic} %Nécessaire pour écrire des algorithmes 
+\usepackage{algorithm} %Idem 
+\usepackage{bbold} %Nécessaire pour pouvoir écrire des indicatrices 
+\usepackage{hyperref} %Nécessaire pour écrire des liens externes 
+\usepackage{array} %Nécessaire pour faire des tableaux 
+\usepackage{tabularx} %Nécessaire pour faire de longs tableaux 
+\usepackage{caption} %Nécesaire pour mettre des titres aux tableaux (tabular) 
+\usepackage{color} %nécessaire pour écrire en couleur 
+\newtheorem{thm}{Théorème} 
+\newtheorem{mydef}{Définition} 
+\newtheorem{prop}{Proposition} 
+\newtheorem{lemma}{Lemme}
+\title{Semaine 18 - Calcul matriciel}
+\author{Valentin De Bortoli \\ email : \ \href{mailto:valentin.debortoli@gmail.com}{valentin.debortoli@gmail.com}}
+\date{}
+\begin{document}
+\maketitle
+Dans tous les exercices $n \in \mathbb{N}$.
+\section{Calcul d'un inverse}
+Soit $A = \left( \begin{matrix} 1 & 1 & \dots & 1 \\ 0 & 1 & \dots & 1 \\ \vdots & \ddots & \ddots & \vdots \\ 0 & \dots & \dots & 1 \end{matrix} \right) \in \mathcal{M}_n \left( \mathbb{R} \right)$.
+\subparagraph{1}Montrer que $A$ est inversible et donner $A^{-1}$.
+\subparagraph{2}Soit $k \in \mathbb{N}^*$. Calculer $A^{-k}$.
+\subparagraph{3}Conjecturer $A^k$ et démontrer cette conjecture par récurrence.
+
+\section{Trace et forme linéaire}
+Soit $f$ une forme linéaire de $\mathcal{M}_n \left( \mathbb{R} \right)$.
+\subparagraph{1}Soit $(i,j,k,l) \in \llbracket 1,n\rrbracket^4$. Que vaut $E_{i,j}E_{k,l}$ ?
+\subparagraph{2}Montrer qu'il existe $A \in \mathcal{M}_n\left( \mathbb{R} \right)$ tel que $\forall M \in\mathcal{M}_n \left( \mathbb{R} \right), \ f(M) = \text{tr} (AM)$.
+\subparagraph{Remarque :} l'année prochaine vous verrez qu'on peut utiliser un théorème plus fort pour conclure directement. Il s'agit d'une simple application du théorème de représentation de Riesz (il convient de remarquer que la trace est un produit scalaire sur l'espace des matrices). Néanmoins, l'utilisation de ce théorème nous empêche de choisir des matrices sur des corps finis...
+
+\section{Une condition de commutativité}
+Soit $(A,B) \in \mathcal{M}_n\left( \mathbb{R} \right)^2$. On suppose que $A+B=AB$
+\subparagraph{1} Montrer que $I_n-A$ est inversible et donner son inverse.
+\subparagraph{2} En déduire que $A$ et $B$ commutent.
+
+\section{Commutativité et matrices}
+\subparagraph{1}Déterminer $\mathcal{C}_1 = \left\lbrace N \in \mathcal{M}_n \left( \mathbb{R} \right), \ \forall M \in \mathcal{M}_n \left( \mathbb{R} \right), \ MN = NM \right\rbrace$.
+\subparagraph{2}Déterminer $\mathcal{C}_2 = \left\lbrace N \in \mathcal{M}_n \left( \mathbb{R} \right), \ \forall M \in \mathcal{G}l_n \left( \mathbb{R} \right), \ MN = NM \right\rbrace$.
+\subparagraph{3}Déterminer $\mathcal{C}_3 = \left\lbrace N \in \mathcal{M}_n \left( \mathbb{R} \right), \ \forall M \in \mathcal{S}_n \left( \mathbb{R} \right), \ MN = NM \right\rbrace$.
+
+\section{Commutativité et transposée}
+Soit $T \in \mathcal{M}_n \left( \mathbb{R} \right)$. On suppose que $T$ est triangulaire supérieure. 
+\subparagraph{1}Montrer que $T$ commute avec sa transposée si et seulement si $T$ est diagonale.
+\subparagraph{2}Que peut-on dire si $T$ n'est plus triangulaire supérieure ?
+
+\subparagraph{Remarque : } les matrices qui commutent avec leur transposée sont appelées les matrices normales (attention cela ne vaut que si le corps de base est $\mathbb{R}$ si celui-ci est $\mathbb{C}$ les matrices normales sont définies comme étant celles qui commutent avec leur transconjuguée). Elles jouent un grand rôle dans la théorie de la diagonalisation.
+
+\section{Pseudo-inverse de Moore-Penrose}
+Soit $A \in \mathcal{M}_{n,p} \left( \mathbb{R} \right)$. On suppose qu'il existe $A^+ \in \mathcal{M}_{p,n} \left( \mathbb{R} \right)$ telle que :
+\begin{itemize}
+\item $AA^+A=A$
+\item $A^+AA^+=A^+$
+\item $AA^+ \in \mathcal{S}_n \left( \mathbb{R} \right)$
+\item $A^+A \in \mathcal{S}_p \left( \mathbb{R} \right)$
+\end{itemize}
+On note cette matrice, la pseudo-inverse de $A$.
+\subparagraph{1}Montrer que la pseudo-inverse est unique.
+\subparagraph{Remarque :} avec des outils de deuxième année (diagonalisation des matrices symétriques) on peut démontrer l'existence de cette matrice. Celle-ci est très utile pour donner un sens à l'inverse d'une matrice même lorsque celle-ci n'est pas inversible, voire même pas carrée ! Elle joue un rôle dans la résolution de problèmes de type régression linéaire.
+
+\section{Matrices de permutation}
+Soit $\sigma$ une bijection de $\llbracket 1,n \rrbracket$ dans $\llbracket 1,n \rrbracket$. On note $M_{\sigma} \in \mathcal{M}_n\left( \mathbb{R} \right)$ la matrice définie par :
+\begin{equation*}
+\forall (i,j) \in \llbracket 1,n \rrbracket, \ M_{\sigma}(i,j) = \left\lbrace \begin{matrix} 0 \ \text{si } \ j \neq \sigma(i) \\ 
+1 \ \text{sinon}\end{matrix} \right.
+\end{equation*}
+\subparagraph{1}Quel est l'effet d'une multiplication à droite par une matrice de permutation ? A gauche ?
+\subparagraph{2}On suppose que la permutation considérée est une transposition, c'est-à-dire $\exists! \ (i,j) \in \llbracket 1,n \rrbracket, \ \sigma(i) \neq i \wedge \sigma(j) \neq j \wedge \sigma(i)=j$. Montrer que dans ce cas $M_{\sigma}$ peut s'écrire comme produit de matrices de type $I_n+E_{i,j}$ (matrices de transvection) et d'une matrice de dilatation (matrice diagonale inversible dont un seul des coefficients est différent de $1$).
+\subparagraph{3}En supposant que toute permutation peut s'écrire comme un composition de transpositions, conclure que toute matrice de permutation peut s'écrire comme produit de matrices de transvection et de matrices de dilatation.
+
+\section{Matrices de transvection, matrice de dilatation}
+On appelle matrices de transvection les matrices de la forme $I_n+E_{i,j}$. On appelle matrice de dilatation toute matrice diagonale inversible dont un seul des coefficients est différent de $1$. Ces deux ensembles jouent un rôle fondamental pour la description du groupe linéaire.
+\subparagraph{1}Reprendre la question 1 de l'exercice précédent. A partir de maintenant on admettra la dernière question de l'exercice précédent.
+\subparagraph{2}Montrer que tout élément du groupe linéaire peut s'écrire comme produit de matrices de transvection et de dilatation.
+
+\section{Un calcul d'inverse}
+Soit $A \in \mathcal{G}l_n\left( \mathbb{R} \right)$. On suppose de plus que $A+A^{-1}=I_n$.
+\subparagraph{1}Montrer que $\forall k \in \mathbb{N}, \ A^k+A^{-k}$ est scalaire.
+\subparagraph{2}En déduire $A^k+A^{-k}$.
+
+\section{Rang et vecteur}
+Soit $x_0 \in \mathbb{R}^n$ (vecteur colonne). On note $M = x_0 x_0^T$.
+\subparagraph{1}A quel espace appartient $M$ ?
+\subparagraph{2}Quel est le rang de $M$ ?
+
+\section{Matrices échelonnées et nombres entiers}
+\subparagraph{1}Donner la forme échelonnée selon les colonnes de $\left( \begin{matrix} 3 & 2 \\1 & 1\end{matrix}\right)$.
+\subparagraph{2} Soit $M=\left( \begin{matrix} a & b \\ c & d \end{matrix} \right) \in \mathcal{M}_2 \left( \mathbb{Z} \right)$. Montrer qu'il existe $P=\left( \begin{matrix} s & t \\ u & v \end{matrix} \right) \in \mathcal{M}_2 \left( \mathbb{Z} \right)$ inversible et d'inverse dans $\mathcal{M}_2 \left( \mathbb{Z} \right)$ tel que $MP = \left( \begin{matrix} 1 & 0 \\ c' & d' \end{matrix} \right)$ avec $(c',d') \in \mathbb{Z}^2$.
+\subparagraph{3}Comment obtenir une matrice échelonnée selon les colonnes dans $\mathbb{Z}$ ?
+\subparagraph{4}Appliquer les conclusions de la question précédente à l'exemple de la première question.
+
+\section{Un endomorphisme sur l'espace des matrices}
+Soit $D$ une matrice diagonale de $\mathcal{M}_n \left( \mathbb{R} \right)$. On note $\phi$ l'endomorphisme de $\mathcal{M}_n \left( \mathbb{R} \right)$ défini par $\phi(M) =DM-MD$.
+\subparagraph{1} Déterminer $\text{ker} \phi$ et $\text{Im} \phi$. Donner des bases de ces espaces.
+\subparagraph{2} Préciser lorsque tous les coefficients de la matrice $D$ sont distincts.
+
+\section{Somme de matrices inversibles}
+\subparagraph{1}Montrer que tout matrice $M \in \mathcal{M}_n \left( \mathbb{R} \right)$ peut s'écrire comme la somme de deux matrices inversibles.
+\end{document}

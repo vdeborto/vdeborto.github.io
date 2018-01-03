@@ -1,0 +1,87 @@
+\documentclass[10pt,a4paper]{article} 
+\usepackage[utf8]{inputenc} 
+\usepackage[T1]{fontenc} 
+\usepackage[english]{babel} 
+\usepackage{supertabular} %Nécessaire pour les longs tableaux
+\usepackage[top=2.5cm, bottom=2.5cm, right=1.5cm, left=1.5cm]{geometry} %Mise en page 
+\usepackage{amsmath} %Nécessaire pour les maths 
+\usepackage{amssymb} %Nécessaire pour les maths 
+\usepackage{stmaryrd} %Utilisation des double crochets 
+\usepackage{pifont} %Utilisation des chiffres entourés 
+\usepackage{graphicx} %Introduction d images 
+\usepackage{epstopdf} %Utilisation des images .eps 
+\usepackage{amsthm} %Nécessaire pour créer des théorèmes 
+\usepackage{algorithmic} %Nécessaire pour écrire des algorithmes 
+\usepackage{algorithm} %Idem 
+\usepackage{bbold} %Nécessaire pour pouvoir écrire des indicatrices 
+\usepackage{hyperref} %Nécessaire pour écrire des liens externes 
+\usepackage{array} %Nécessaire pour faire des tableaux 
+\usepackage{tabularx} %Nécessaire pour faire de longs tableaux 
+\usepackage{caption} %Nécesaire pour mettre des titres aux tableaux (tabular) 
+\usepackage{color} %nécessaire pour écrire en couleur 
+\newtheorem{thm}{Théorème} 
+\newtheorem{mydef}{Définition} 
+\newtheorem{prop}{Proposition} 
+\newtheorem{lemma}{Lemme}
+\title{Semaine 7 - Développements limités et équations différentielles}
+\author{Valentin De Bortoli \\ email : \ \href{mailto:valentin.debortoli@gmail.com}{valentin.debortoli@gmail.com}}
+\date{}
+\begin{document}
+\maketitle
+\section{Développements limités et dérivabilité}
+\subparagraph{1}Montrer que $f$ est continue en 0 si et seulement si $f$ admet un développement limité d'ordre 0 en 0.
+\subparagraph{2}Montrer que $f$ est dérivable en 0 si et seulement si $f$ admet un développement limité d'ordre 1 en 0.
+\subparagraph{3}Montrer que si $f$ est deux fois dérivable en 0 alors $f$ admet un développement limité d'ordre 2 en 0.
+\subparagraph{4}Montrer que $x \mapsto x^3 \sin(\frac{1}{x})$ définie sur $\mathbb{R}^*$ et prolongée par continuité en 0 admet un développement limité à l'ordre 2 mais n'est pas 2 fois dérivable en 0.
+
+\section{Calcul de développements limités}
+\subparagraph{1}Justifier l'existence et calculer un développement limité en $\frac{\pi}{2}$ à l'ordre 2 de $x \mapsto \ln(\sin(x))$.
+\subparagraph{2}Justifier l'existence et calculer un développement limité en $\frac{\pi}{2}$ à l'ordre 2 de $x \mapsto (1+\cos(x))^{\frac{1}{x}}$.
+
+\section{Fonction décroissante et équivalent}
+Soit $f$ une fonction décroissante qui de $\mathbb{R}$ dans $\mathbb{R}$. On suppose que $f(x)+f(x+1) \underset{x \rightarrow +\infty}{\sim} \frac{1}{x}$.
+\subparagraph{1}Montrer que $f$ admet une limite et la calculer.
+\subparagraph{2}Donner un équivalent de $f$.
+
+\section{Calcul de limites (1)}
+\subparagraph{1}Montrer que $x \mapsto \frac{x^{\ln(x)}}{\ln(x)}$ admet une limite en $+\infty$ et la calculer.
+\subparagraph{2}Montrer que $x \mapsto (\frac{x}{\ln(x)})^{\frac{\ln(x)}{x}}$ admet une limite en $+\infty$ et la calculer.
+\subparagraph{3}Montrer que $x \mapsto \frac{\ln(x+\sqrt{x^2+1})}{\ln(x)}$ admet une limite en $+\infty$ et la calculer.
+
+\section{Calcul de limites (2)}
+\subparagraph{1}Montrer que $x \mapsto (x+1)e^x-xe^{x+1}$ admet une limite en $+\infty$ et la calculer.
+\subparagraph{2}Montrer que $x \mapsto (x+1)\ln(x)-x\ln(x+1)$ admet une limite en $+\infty$ et la calculer.
+
+\section{Développement limité et approximation par une fraction rationnelle d'ordre 2}
+\subparagraph{1}Déterminer $(a,b)\in \mathbb{R}^2$ telle que la partie principal de $x \mapsto \cos(x) -\frac{1+ax^2}{1+bx^2}$ en $0$ soit la plus petite possible.
+\subparagraph{2}Donner un équivalent de $x \mapsto \cos(x) -\frac{1+ax^2}{1+bx^2}$ en $0$ pour les valeurs de $(a,b)$ trouvées.
+
+\section{Suite et équivalent (1)}
+\subparagraph{1}Montrer que $\forall n \in \mathbb{N}, \exists x_n \in ]n\pi-\frac{\pi}{2},n\pi+\frac{\pi}{2}[ \ \vert \ \tan(x_n)=x_n$.
+\subparagraph{2}Montrer $x_n \underset{+\infty}{\sim} n\pi$.
+\subparagraph{3}Montrer $x_n-n\pi-\frac{\pi}{2} \underset{+\infty}{\rightarrow} 0$.
+\subparagraph{4}Montrer que $x_n=n\pi+\frac{\pi}{2}-\frac{1}{n \pi}+\frac{1}{2 \pi n^2}+o(\frac{1}{n^2})$.
+
+\section{Suite et équivalent (2)}
+\subparagraph{1}Montrer que $e^x+x-n=0$ admet une unique solution sur $\mathbb{R}$. On la note $u_n$.
+\subparagraph{2}En posant $v_n=u_n-\ln(n)$, montrer que $v_n \underset{+\infty}{\rightarrow} 0$.
+\subparagraph{3}Trouver un équivalent de $v_n$ en $+\infty$.
+\subparagraph{4}En déduire un développement asymptotique de $u_n$.
+
+\section{Réciproque et développement limité}
+\subparagraph{1}Montrer que $f \ : \ x \mapsto 2 \tan(x) -x$ est une bijection $\mathcal{C}^{\infty}$ de $]-\frac{\pi}{2},\frac{\pi}{2}[$ dans $\mathbb{R}$. Montrer que $f^{-1}$ est impaire.
+\subparagraph{2}Donner un développement limité à l'ordre $6$ de $f^{-1}$.
+
+\section{Résolution d'une équation différentielle (2)}
+\subparagraph{1}Résoudre en $y$ sur $]-\infty,-1[$, sur $]-1,1[$ et sur $]1,+\infty[$ l'équation suivante : $(1-x^2)y'(x)-2xy(x)=x^2$.
+
+\section{Résolution d'une équation différentielle (3)}
+\subparagraph{1}Résoudre en $y$ sur $]-\infty,0[$ et sur $]0,+\infty[$ l'équation suivante : $\lvert x \rvert y'(x) +(x-1)y(x)=x^3$.
+
+\section{Résolution d'une équation différentielle (4)}
+\subparagraph{1}Résoudre en $y$ sur $\mathbb{R}$ l'équation suivante : $x^2y'(x)-y(x)=0$
+
+\section{Fonctions trigonométriques et équation différentielle}
+\subparagraph{1}Calculer $\cos(\arctan(x))$ pour $x \in]-1,1[$.
+\subparagraph{2}Calculer $\sin(\arctan(x))$ pour $x \in]-1,1[$.
+\end{document}

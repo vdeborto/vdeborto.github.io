@@ -1,0 +1,224 @@
+\documentclass[10pt,a4paper]{article} 
+\usepackage[utf8]{inputenc} 
+\usepackage[T1]{fontenc} 
+\usepackage[english]{babel} 
+\usepackage{supertabular} %Nécessaire pour les longs tableaux
+\usepackage[top=2.5cm, bottom=2.5cm, right=1.5cm, left=1.5cm]{geometry} %Mise en page 
+\usepackage{amsmath} %Nécessaire pour les maths 
+\usepackage{amssymb} %Nécessaire pour les maths 
+\usepackage{stmaryrd} %Utilisation des double crochets 
+\usepackage{pifont} %Utilisation des chiffres entourés 
+\usepackage{graphicx} %Introduction d images 
+\usepackage{epstopdf} %Utilisation des images .eps 
+\usepackage{amsthm} %Nécessaire pour créer des théorèmes 
+\usepackage{algorithmic} %Nécessaire pour écrire des algorithmes 
+\usepackage{algorithm} %Idem 
+\usepackage{bbold} %Nécessaire pour pouvoir écrire des indicatrices 
+\usepackage{hyperref} %Nécessaire pour écrire des liens externes 
+\usepackage{array} %Nécessaire pour faire des tableaux 
+\usepackage{tabularx} %Nécessaire pour faire de longs tableaux 
+\usepackage{caption} %Nécesaire pour mettre des titres aux tableaux (tabular) 
+\usepackage{color} %nécessaire pour écrire en couleur 
+\newtheorem{thm}{Théorème} 
+\newtheorem{mydef}{Définition} 
+\newtheorem{prop}{Proposition} 
+\newtheorem{lemma}{Lemme}
+
+\newcommand{\al}[1]{\begin{aligned} #1 \end{aligned}}
+
+\newcommand{\seq}[2]{\left( #1_{#2} \right)_{#2 \in \mathbb{N}} }
+\newcommand{\intt}[4]{\int_{#1}^{#2} #3 \mathop{}\!\mathrm{d} #4}
+\newcommand{\summ}[2]{\underset{#1}{\overset{#2}{\sum}}}
+
+\newcommand{\vertt}[1]{\vert #1 \vert}
+
+\title{Semaine 7 - Développements limités}
+\author{Valentin De Bortoli \\ email : \ \href{mailto:valentin.debortoli@gmail.com}{valentin.debortoli@gmail.com}}
+\date{}
+\begin{document}
+\maketitle
+\subparagraph{Remarque :} dans cette fiche de correction je tente de donner le détail des calculs. Il s'agit de bien comprendre comment s'attaquer à des développements limités techniques (peut-on simplifier l'expression ? Jusqu'à quel ordre pousser le développement limité dans les compositions ?). Les développements limités usuels sont supposés connus. Je rappelle qu'une bonne compréhension des développements de Taylor et des opérations possibles est fondamentale pour traiter ce chapitre. Pour s'entrainer à calculer des développements limités~\url{http://spiralconnect.univ-lyon1.fr/spiral-files/download?mode=inline&data=2794236}.
+
+\section{Développements limités (1)}
+\subparagraph{1} $x \ \mapsto \ e^x\left(\frac{1}{1+x} \right)^3$ est de classe $\mathcal{C}^{\infty}(]-1,1[)$ donc admet un développement limité autour de $0$ à tout ordre. On a 
+\[e^x = 1+ x + \frac{x^2}{2}+ \frac{x^3}{6} + \frac{x^4}{24} + o(x^4)\]
+De plus, $\frac{1}{1+x}  = 1 -x + x^2 -x^3 +x^4 + o(x^4)$. En portant le développement limité au carré on obtient,
+\[
+\left(\frac{1}{1+x} \right)^2 = 1-2x+3x^2-4x^3+5x^4+o(x^4)
+\]
+Il faut encore multiplier ce développement limité par celui de $\frac{1}{1+x}$ pour trouver celui de $\left( \frac{1}{1+x} \right)^3$. Une autre méthode est de remarquer que $x \mapsto \left( \frac{1}{1+x} \right)^3$ est de classe $\mathbb{C}^{\infty}(]-1,1[)$ et donc admet un développement limité. \textbf{Puisque cette fonction admet un développement limité à tout ordre en $0$} on peut donc considérer sa primitive d'ordre deux et dériver deux fois son développement limité. En effet $\left( \frac{1}{1+x}\right)'' = 2\left(\frac{1}{1+x}\right)^3$. Puisque,
+\[
+\al{&\frac{1}{1+x} = 1-x+x^2-x^3+x^4-x^5+x^6+o(x^6) \\
+&\left( \frac{1}{1+x} \right)^3 = 1 -3x +6x^2 -10x^3 + 15x^4 + o(x^4)}
+\]
+En multipliant les deux développements limités on obtient,
+\[
+e^x \left( \frac{1}{1+x} \right)^3 = 1 - 2x + \frac{7x^2}{2} - \frac{16x^3}{3} + \frac{181x^4}{24} + o(x^4)
+\]
+
+\subparagraph{2}
+On donne le développement de sinus à l'ordre $3$, $sin(x) = x - \frac{x^3}{6} + o(x^3)$. On compose ensuite avec le carré, $\sin(x) = x^2 - \frac{x^6}{6} + o(x^6)$.
+
+\subparagraph{3}
+Le développement de $\ln(1+x)$ commence par un terme de degré un et non un terme de degré zéro. Cela permet de considérer le développement de sinus jusqu'à l'ordre cinq seulement et non l'ordre six. Il se trouve qu'ici cette réflexion est inutile puisque la fonction sinus est impaire. Le même raisonnement s'applique car le développement de sinus commence par un terme de premier ordre.
+Ainsi,
+\[
+\left\lbrace
+\al{
+&\ln(1+x) = x - \frac{x^2}{2} + \frac{x^3}{3} - \frac{x^4}{4} + \frac{x^5}{5} + o(x^5) \\
+&\sin(x) = x - \frac{x^3}{6} + \frac{x^5}{120} + o(x^5)
+}
+\right.
+\]
+En multipliant les deux développements on obtient
+\[
+\ln(1+x)\sin(x) = x^2 - \frac{x^3}{2} + \frac{x^4}{6} - \frac{x^5}{6} + \frac{11x^6}{72} + o(x^6)
+\]
+\section{Développements limités et asymptotiques (1)}
+
+\subparagraph{1}Le moyen le plus simple d'obtenir ce développement limité (et c'est le cas pour un grand nombre de développements limités de faible ordre) est de dériver cette fonction (celle-ci étant dérivable une infinité de fois autour de zéro l'existence de son développement limité est assurée). On a $f(0) = 1$, $f'(0) = \frac{1}{2}$ et $f''(0) = \frac{3}{4}$. Ainsi le développement limité de $f$ est,
+\[
+f(x) = 1 + \frac{x}{2} + \frac{3x^2}{8} + o(x^2)
+\]
+
+\subparagraph{2} $y= 1 + \frac{x}{2}$ est une équation de la tangente en zéro. En effet $f(x) = 1+\frac{x}{2} + o(x)$. La position par rapport à cette tangente est donnée par le prochain terme du développement limité, $\frac{3x^2}{8}$. Ainsi le graphe de $f$ est au dessus de sa tangente en zéro localement.
+
+\subparagraph{3}Ici on demande un développement asymptotique, c'est-à-dire l'équivalent d'un développement limité mais pour les branches infinies. Un moyen simple de se ramener à un développement limité est de faire le changement de variable $x \rightarrow \frac{1}{x}$. On obtient alors une nouvelle fonction $g$ donc on cherche le développement limité en $0$,
+\[
+g(x) = \frac{1}{x}\sqrt{1 + x + x^2 }
+\]
+On pousse le développement asymptotique jusqu'au terme d'ordre zéro pour obtenir une équation de droite,
+\[
+g(x) = \frac{1}{x} + \frac{1}{2} + o(1)
+\]
+Donc une équation d'asymptote est $y = x + \frac{1}{2}$. Pour connaître la position du graphe par rapport à cette asymptote il faudrait pousser le développement jusqu'au prochain terme $\frac{x}{2}$ qui est positif et donc la courbe est située au dessus de son asymptote à l'infini (à droite).
+
+\section{Développements limités et asymptotiques (2)}
+\subparagraph{1}L'existence d'un tel développement limité est assurée car on est en présence d'un produit de fonctions dérivables une infinité de fois autour de zéro. Autour de zéro on peut se passer de la valeur absolue dans le logarithme et donc on a besoin des développements limités suivants,
+\[
+\al{
+&\ln(1+x) = x - \frac{x^2}{2} + \frac{x^3}{3} + o(x^3) \\
+&-\ln(1-x) = x +\frac{x^2}{2} + \frac{x^3}{3} + o(x^3) \\
+&\ln\left( \frac{1+x}{1-x} \right) = 2(x+ \frac{x^3}{3}) + o(x^3)
+}
+\]
+En multipliant par le terme polynomial on obtient
+\[
+(x^2-1)\ln\left( \frac{1+x}{1-x} \right) = -2x + \frac{4x^3}{3} + o(x^3)
+\]
+\subparagraph{2}Il s'agit de donner un développement au premier ordre en effectuant le changement de variable $x \rightarrow \frac{1}{x}$. La fonction à considérer est donc $g(x) = (\frac{1}{x^2}-1) \ln \left( \frac{1+x}{1-x} \right)$ et d'écrire son développement autour de $0$,
+\[
+g(x) = 2(\frac{1}{x^2}-1)(x+ \frac{x^3}{3} + o(x^3)) = \frac{2}{x} -\frac{4x}{3} + o(x) 
+\]
+Ainsi $y=2x$ est une asymptote pour les branches infinies. On se situe en dessous en $+ \infty$ et au dessus en $-\infty$.
+
+\section{Développements limités (2)}
+\subparagraph{1}L'existence d'un développement limité est justifié par la composition de fonctions dérivables une infinité de fois en $0$.
+\[
+\al{
+&\ln(1+x) = x - \frac{x^2}{2} + \frac{x^3}{3} -\frac{x^4}{4} + \frac{x^5}{5} + o(x^5) \\
+&-\ln(1-x) = x +\frac{x^2}{2} + \frac{x^3}{3} +\frac{x^4}{4} - \frac{x^5}{5} + o(x^5) \\
+&\ln\left( \frac{1+x}{1-x} \right) = 2(x+ \frac{x^3}{3} + \frac{x^5}{5}) + o(x^5)
+}
+\]
+Ainsi,
+\[
+\ln \left( \sqrt{\frac{1+x}{1-x}} \right) = x + \frac{x^3}{3} + \frac{x^5}{5} + o(x^5)
+\]
+Une autre manière plus détournée d'obtenir ce résultat est de dériver la fonction de départ (qui n'est rien d'autre que l'argument tangente hyperbolique). On obtient $x \ \mapsto \ \frac{1}{1-x^2}$ et il suffit d'intégrer.
+\subparagraph{2} Le numérateur doit être développé jusqu'à l'ordre cinq car le numérateur a pour premier ordre l'ordre trois. Même raisonnement pour le dénominateur,
+\[
+\left\lbrace
+\al{
+& \ln \left( \sqrt{\frac{1+x}{1-x}} \right) -x = \frac{x^3}{3} + \frac{x^5}{5} + o(x^5) \\
+&\sin(x) - x = -\frac{x^3}{6} + \frac{x^5}{120} + o(x^5)
+}\right.
+\]
+En simplifiant par $x^3$ on doit calculer le développement limité à l'ordre un de ${\frac{-6}{1 - \frac{x^2}{20}} = 1 + \frac{x^2}{20} + o(x^2) }$. On multiplie ensuite les développements limités et on obtient
+\[
+\frac{\ln \left( \sqrt{\frac{1+x}{1-x}} \right) -x}{\sin(x) - x} = -2 - \frac{13x^2}{10} + o(x^2)
+\].
+\section{Développements limités et dérivabilité}
+\subparagraph{1}$f$ admet un développement limité en zéro $\Leftrightarrow$ $f(x) = f(0) + o(1)$~$\Leftrightarrow$~$f(x) \underset{0}{\rightarrow} f(0)$ $\Leftrightarrow$ $f$ est continue en zéro.
+\subparagraph{2}$f$ admet un développement limité d'ordre un $\Leftrightarrow$ $f(x) = f(0) + ax + o(x)$ $\Leftrightarrow$ $\frac{f(x)-f(0)}{x} \underset{0}{\rightarrow} a$ $\Leftrightarrow$ $f$ est dérivable en $0$ de nombre dérivé $a$.
+\subparagraph{3}Si $f$ est deux fois dérivable alors $f'$ est dérivable donc admet un développement limité à l'ordre un, $f'(x) = f'(0) + f''(0)x + o(x)$. On peut intégrer les développements limités et on conclut sur l'existence d'un développement limité à l'ordre deux pour $f$.
+\subparagraph{4}$f(x) = x^3\sin(\frac{1}{x})$ prolongée par $0$ en 0 est continue car $\sin(\frac{1}{x})$ est bornée. Elle admet également une dérivée en $0$ pour les mêmes raisons. Sur $\mathbb{R}_+^*$ elle est deux fois dérivable, sa dérivée vaut $f'(x) = 3x^2\sin(\frac{1}{x}) - x\cos(\frac{1}{x})$ (on notera que la dérivée de $f$ est continue en $0$). Mais $\frac{f'(x) - 0}{x} = 3x\sin(\frac{1}{x}) - \cos(\frac{1}{x})$ a son premier terme qui tend vers 0 et son second qui n'admet pas de limite. Donc $f$ n'est pas deux fois dérivable en $0$. Pourtant elle possède un développement d'ordre 2 puisque $f(x) = o(x^2)$.
+
+\section{Calcul de développements limités}
+
+\subparagraph{1}L'existence du développement limité est triviale.
+\[
+\al{
+\log(\sin(\frac{\pi}{2}+h)) &= \log(\cos(h)) \\
+&= \log( 1- \frac{h^2}{2} + o(h^2)) \\
+&=-\frac{h^2}{2}+o(h^2)
+}
+\]
+
+\subparagraph{2}L'existence d'un tel développement limité n'est pas immédiate. On s'engage dans les calculs en utilisant seulement des développements limités usuels. L'obtention de la forme du développement limité prouvera son existence...
+\[
+\al{
+\left(1 + \cos(\frac{\pi}{2}+h) \right)^{\frac{1}{\frac{\pi}{2}-h}}) &= \exp\left( \frac{1}{\frac{\pi}{2}-h} \log(1+\sin(h)) \right) \\
+&= \exp\left( \frac{1}{\frac{\pi}{2}-h} \log(1+h + o(h^2)) \right) \\
+&= \exp\left( \frac{1}{\frac{\pi}{2}-h} (h - \frac{h^2}{2} +o(h^2)) \right) \\
+&= \exp\left( \frac{2}{\pi}(1 + \frac{2h}{\pi} + o(h)) (h - \frac{h^2}{2} +o(h^2)) \right) \\
+&=\exp \left( \frac{2h}{\pi} +(\frac{4}{\pi^2} - \frac{1}{\pi})h^2 + o(h^2)\right) \\
+&=1+\frac{2h}{\pi} + (\frac{6}{\pi^2}- \frac{1}{\pi})h^2 + o(h^2) \\
+&=\frac{7}{2} - \frac{\pi}{4} + (1- \frac{8}{\pi})x + (\frac{6}{\pi^2} - \frac{1}{\pi})x^2 + o(x^2)
+}
+\]
+\section{Développement limité et approximation par une fraction rationnelle d'ordre 2}
+
+\subparagraph{1} Puisqu'on a deux degrés de liberté on peut s'attendre à identifier deux coefficients et il convient donc de développer la fraction rationnelle à l'ordre un (ordre zéro et ordre un). Mais il est facile de voir que l'ordre zéro ne dépend pas des paramètres ainsi il faut pousser jusqu'à l'ordre 2. Il est aussi utile de remarquer que la fraction rationnelle est paire et donc que son développement limité à l'ordre un et à l'ordre trois sont nuls. Il convient de pousser le développement limité jusqu'à l'ordre quatre. Essayons,
+\[
+\al{
+\frac{1+ax^2}{1+bx^2} &= (1+ax^2)(1-bx^2 + b^2x^4 -b^3x^6 + o(x^4)) \\
+&=1+(a-b)x^2 +b(b-a)x^4 +o(x^4)
+}
+\]
+On pose donc $a-b = \frac{-1}{2}$ et $-\frac{b}{2}=\frac{1}{24}$. Donc $b = \frac{1}{12}$ et $a = -\frac{5}{12}$. 
+\subparagraph{2}Pour déterminer l'équivalent il convient de pousser le développement limité de la fraction rationnelle jusqu'à l'ordre six
+\[
+\frac{1+ax^2}{1+bx^2} = 1+(a-b)x^2 +b(b-a)x^4 + b^2(a-b)x^6 + o(x^6)
+\]
+On trouve alors que $\cos(x) - \frac{1 -\frac{5x^2}{12}}{1 + \frac{x^2}{12}} = \frac{x^6}{360} + o(x^6)$ et donc $\frac{x^6}{360}$ est l'équivalent de la différence. Il est intéressant de noter que de considérer une fraction rationnelle (paire) d'ordre deux permet d'améliorer l'approximation d'un ordre par rapport à une approximation par un polynôme de degré deux.
+
+\section{Suite et équivalent (1)}
+\subparagraph{1}$x \mapsto \tan(x) -x $ est bijective de $]n\pi-\frac{\pi}{2}, n+\frac{\pi}{2}[$ dans $\mathbb{R}$ (simple étude de fonction). Donc il existe un unique $x_n \in ]n\pi-\frac{\pi}{2}, n+\frac{\pi}{2}[$ tel que $\tan(x_n) = x_n$.
+\subparagraph{2}Par encadrement $n\pi - \frac{\pi}{2} < x_n < n\pi + \frac{\pi}{2}$. En divisant par $n\pi$ et en utilisant le théorème d'encadrement on obtient que $x_n \sim n\pi$. 
+\subparagraph{3}$\tan(x_n - n\pi) = \tan(x_n) = x_n \rightarrow +\infty$ donc $x_n -n\pi \rightarrow \frac{\pi}{2}$ (en passant à l'arctangente qui est continue par exemple). 
+\subparagraph{4}
+\[
+\al{
+\tan(x_n - n\pi - \frac{\pi}{2}) &= \tan(x_n -\frac{\pi}{2}) \\
+&= -\frac{1}{x_n} \\
+&= -\frac{1}{n\pi} + \frac{\pi}{2} + o(1) \\
+&=-\frac{1}{n\pi} + \frac{1}{2\pi^2n} + o(\frac{1}{n^2}) \\
+}
+\]
+Puisque $\arctan(x) = x + o(x^2)$, on obtient le développement limité voulu. On remarque que l'on ne pouvait pas pousser plus loin que l'ordre deux ici. Pour obtenir des ordres supérieurs il faut reprendre le calcul de la question quatre en injectant le nouveau développement limité de $x_n$. Pour chaque étape on gagne deux ordres.
+
+\section{Suite et équivalent (2)}
+\subparagraph{1}La bijectivité de $x\mapsto x +e^x$ de $\mathbb{R}$ dans $\mathbb{R}$ assure l'existence et l'unicité d'une telle solution. Il convient de noter que la fonction est strictement croissante. On remarque aussi que $u_n \ge 0$.
+
+\subparagraph{2}Il convient de montrer que $e^{v_n} \rightarrow 1$, c'est-à-dire $\frac{e^{u_n}}{n} \rightarrow 1$. Mais $\frac{e^{u_n}}{n} = 1 - \frac{u_n}{n}$. Mais $e^{\ln(n)} +\ln(n) -n \ge 0$ donc $u_n \le \ln(n)$ et $0 \le \frac{u_n}{n} \le \frac{\ln(n)}{n} \rightarrow 0$. 
+
+\subparagraph{3}$\frac{u_n - \ln(n)}{\ln(n)} \rightarrow 0$ donc $u_n \sim \ln(n)$. De plus, $v_n = \ln(1- \frac{u_n}{n}) = \frac{-u_n}{n} + o(\frac{u_n}{n}) \sim -\frac{\ln(n)}{n}$.
+
+\subparagraph{4}On en déduit, $u_n = \ln(n) + \frac{\ln(n)}{n} + o(\frac{\ln(n)}{n})$. En reprenant la question trois on peut augmenter les ordres d'approximations en itérant.
+
+\section{Réciproque et développement limité (1)}
+\subparagraph{1}Simple étude de fonction. On rappelle que si une fonction bijective est impaire alors sa réciproque est impaire. En effet, $f^{-1}(-y) = f^{-1}(-f(x))= f^{-1}(f(-x)) = -x = - f^{-1}(y)$.
+
+\subparagraph{2}On sait que les ordres 0, 2, 4 sont nuls. On pose $f^{-1}(x) = ax + bx^3 +o(x^4)$, $x = f(ax+bx^3 +o(x^4)) = ax + (b + \frac{2a^3}{3})x^3 + o(x^4)$ et donc $a =1$ et $b= - \frac{2}{3}$.
+
+\section{Réciproque et développement limité (2)}
+\subparagraph{1}Encore une étude de fonction.
+\subparagraph{2}$f^{-1}(x) = ax + bx^3 + o(x^4)$. En raisonnant comme dans l'exercice précédent on trouve $a = 1$ et $b= -1$.
+
+\section{Développement limité et grand ordre}
+\subparagraph{1}$\ln(\summ{k=0}{999} \frac{x^k}{k!}) = \ln(e^x -\frac{x^{1000}}{1000!} +o(x^{1000!}) = x + \ln(1 -\frac{x^{1000}e^{-x}}{1000!} + o(x^{1000}e^{-x})$. mais $e^{-x} = 1 +o(1)$ donc ${\ln(\summ{k=0}{1000} \frac{x^k}{k!}) = x - \frac{x^{1000}}{1000!} + o(x^{1000})}$.
+
+\section{Dérivée de grand ordre}
+\subparagraph{1}La est dérivable une infinité de fois sur $]-1,1[$. Son développement limité en $0$ à tout ordre coïncide donc avec son développement de Taylor-Young. Or $\frac{x^4}{1+x^6} = x^4\summ{k=0}{n}(-1)^{n}x^{6n} + o(x^{6n+4})$. Posons $n=166$, $6 \times 166 +4 = 1000$. On obtient donc que le terme d'ordre mille du développement limité en zéro de la fonction est $x^1000$. On peut donc en conclure que la dérivée millième de cette fonction en zéro vaut $1000!$.
+\end{document}

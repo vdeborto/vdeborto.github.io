@@ -1,0 +1,89 @@
+\documentclass[10pt,a4paper]{article} 
+\usepackage[utf8]{inputenc} 
+\usepackage[T1]{fontenc} 
+\usepackage[english]{babel} 
+\usepackage{supertabular} %Nécessaire pour les longs tableaux
+\usepackage[top=2.5cm, bottom=2.5cm, right=1.5cm, left=1.5cm]{geometry} %Mise en page 
+\usepackage{amsmath} %Nécessaire pour les maths 
+\usepackage{amssymb} %Nécessaire pour les maths 
+\usepackage{stmaryrd} %Utilisation des double crochets 
+\usepackage{pifont} %Utilisation des chiffres entourés 
+\usepackage{graphicx} %Introduction d images 
+\usepackage{epstopdf} %Utilisation des images .eps 
+\usepackage{amsthm} %Nécessaire pour créer des théorèmes 
+\usepackage{algorithmic} %Nécessaire pour écrire des algorithmes 
+\usepackage{algorithm} %Idem 
+\usepackage{bbold} %Nécessaire pour pouvoir écrire des indicatrices 
+\usepackage{hyperref} %Nécessaire pour écrire des liens externes 
+\usepackage{array} %Nécessaire pour faire des tableaux 
+\usepackage{tabularx} %Nécessaire pour faire de longs tableaux 
+\usepackage{caption} %Nécesaire pour mettre des titres aux tableaux (tabular) 
+\usepackage{color} %nécessaire pour écrire en couleur 
+\newtheorem{thm}{Théorème} 
+\newtheorem{mydef}{Définition} 
+\newtheorem{prop}{Proposition} 
+\newtheorem{lemma}{Lemme}
+\title{Semaine 5 - Calcul intégral}
+\author{Valentin De Bortoli \\ email : \ \href{mailto:valentin.debortoli@gmail.com}{valentin.debortoli@gmail.com}}
+\date{}
+\begin{document}
+\maketitle
+
+\section{Intégrales de Wallis}
+Soit $n \in \mathbb{N}$ on définit $I_n$ (l'intégrale de Wallis) par $I_n=\int_0^{\frac{\pi}{2}} \sin(x)^n \text{dx}$.
+\subparagraph{1}Trouver une relation entre $I_{n+2}$ et $I_n$. En déduire la valeur de $I_n$ en fonction de la parité de $n$.
+\subparagraph{2}Montrer que $\lim_{n \rightarrow +\infty}\frac{I_{2n}}{I_{2n+1}}=1$.
+\subparagraph{3}En déduire que $\lim_{n \rightarrow +\infty} \sqrt{p}\frac{(2p-1)(2p-3)\dots 1}{2p(2p-2)\dots 2}=\frac{1}{\sqrt{\pi}}$
+\subparagraph{Remarque :} ce calcul est un grand classique. Il sert notamment pour obtenir une formule très utile : la formule de Stirling. Celle-ci donne un équivalent en l'infini de la factorielle. Plus précisément : $n! \underset{+\infty}{\sim} (\frac{n}{e})^n\sqrt{2\pi n}$.
+
+\section{Suite et intégrale (1)}
+Soit $n \in \mathbb{N}$. On définit $J_n=\int_{0}^{\frac{\pi}{4}} \tan(x)^n \ \text{dx}$.
+\subparagraph{1}Donner une formule liant $J_{n+2}$ et $J_{n}$. On commencera par calculer $J_{n+2}+J_n$.
+\subparagraph{2}Après avoir calculé $J_0$ et $J_1$ exprimer $J_n$ en fonction de la parité de $n$.
+
+\section{Suite et intégrale (2)}
+Soit $n \in \mathbb{N}$. On définit $K_n=\int_{0}^{\frac{\pi}{4}} \frac{1}{\cos(x)^n}\ \text{dx}$.
+\subparagraph{1}Calculer $K_0$ et $K_1$.
+\subparagraph{2}Donner une formule liant $K_{n+2}$ et $K_{n}$. On pourra intégrer par partie $K_{n+2}$.
+
+\section{Suite et intégrale (3)}
+Soit $n \in \mathbb{N}$. On définit $L_n=\int_{1}^{e} \log(x)^n \ \text{dx}$.
+\subparagraph{1}Donner une formule liant $L_{n+1}$ et $L_{n}$.
+
+\section{Suite et intégrale (4)}
+Soit $(f_n)_{n \in \mathbb{N}}$ une suite de fonctions définie par $\forall x \in \mathbb{R}, \ f_n(x)=\frac{1}{(1+x^2)^n}$.
+\subparagraph{1}Montrer que $\forall n \in \mathbb{N}, \ f_n \ $ admet une primitive qui s'annule en $0$ notée $F_n$.
+\subparagraph{2}Déterminer $F_1$.
+\subparagraph{3}Déterminer $F_2$. On pourra penser à faire un changement de variable en tangente.
+\subparagraph{4}Trouver une formule liant $F_{n+1}$ et $F_n$.
+\subparagraph{5}Déterminer $F_3$.
+
+\section{Primitive et fonction circulaire}
+\subparagraph{1}Donner une primitive de $x \mapsto \arccos(x)$.
+\subparagraph{2}Donner une primitive de $x \mapsto \frac{1}{\cos(x)}$.
+\subparagraph{3}Donner une primitive de $x \mapsto \frac{1}{\sin(x)}$.
+\subparagraph{4}Donner une primitive de $x \mapsto \frac{1}{2+\sin(x)^2}$.
+
+\section{Primitive et fonction hyperbolique}
+\subparagraph{1}Donner une primitive de $x \mapsto \frac{1}{\cosh(x)}$.
+\subparagraph{2}Donner une primitive de $x \mapsto \frac{1}{\sinh(x)}$.
+\subparagraph{3}Donner une primitive de $x \mapsto \frac{1}{\tanh(x)}$.
+\subparagraph{4}Donner une primitive de $x \mapsto \frac{1}{1-\cosh(x)}$.
+
+\section{Primitive et fonction rationnelle en un radical (1)}
+\subparagraph{1}Donner une primitive de $x \mapsto \frac{1}{\sqrt{x+1}(x+4)}$.
+\subparagraph{2}Donner une primitive de $x \mapsto \frac{1}{\sqrt{x}(x+3)}$.
+
+\section{Primitive et fonction rationnelle en un radical (2)}
+\subparagraph{1} Donner une primitive de $x \mapsto \frac{x+1}{\sqrt{2-x^2}}$.
+\subparagraph{2}Donner une primitive de $x \mapsto \frac{1}{x+\sqrt{1+x^2}}$.
+
+\section{Calcul d'intégrales}
+\subparagraph{1}Calculer $\int_0^{\frac{\pi}{4}}\ln(1+\tan(x)) \text{d}x$.
+\subparagraph{2}Calculer $\int_0^{\frac{\pi}{2}}\frac{\sqrt{\sin(x)}}{\sqrt{\sin(x)}+\sqrt{\cos(x)}}\ \text{d}x$.
+
+\section{Fonction définie par une intégrale}
+\subparagraph{1}Montrer que $F$, d'expression $F(x)=\int_x^{2x}\frac{1}{\sqrt{1+t^4}}\ \text{d}t$ est bien définie sur un intervalle à préciser.
+\subparagraph{2}Montrer la continuité et l'imparité de $F$.
+\subparagraph{3}Trouver une formule liant $F(x)$ et $F(\frac{1}{2x})$ sur $\mathbb{R}^*$ et déterminer la limite de $F$ en $+\infty$.
+\end{document}

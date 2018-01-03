@@ -1,0 +1,85 @@
+\documentclass[10pt,a4paper]{article} 
+\usepackage[utf8]{inputenc} 
+\usepackage[T1]{fontenc} 
+\usepackage[english]{babel} 
+\usepackage{supertabular} %Nécessaire pour les longs tableaux
+\usepackage[top=2.5cm, bottom=2.5cm, right=1.5cm, left=1.5cm]{geometry} %Mise en page 
+\usepackage{amsmath} %Nécessaire pour les maths 
+\usepackage{amssymb} %Nécessaire pour les maths 
+\usepackage{stmaryrd} %Utilisation des double crochets 
+\usepackage{pifont} %Utilisation des chiffres entourés 
+\usepackage{graphicx} %Introduction d images 
+\usepackage{epstopdf} %Utilisation des images .eps 
+\usepackage{amsthm} %Nécessaire pour créer des théorèmes 
+\usepackage{algorithmic} %Nécessaire pour écrire des algorithmes 
+\usepackage{algorithm} %Idem 
+\usepackage{bbold} %Nécessaire pour pouvoir écrire des indicatrices 
+\usepackage{hyperref} %Nécessaire pour écrire des liens externes 
+\usepackage{array} %Nécessaire pour faire des tableaux 
+\usepackage{tabularx} %Nécessaire pour faire de longs tableaux 
+\usepackage{caption} %Nécesaire pour mettre des titres aux tableaux (tabular) 
+\usepackage{color} %nécessaire pour écrire en couleur 
+\newtheorem{thm}{Théorème} 
+\newtheorem{mydef}{Définition} 
+\newtheorem{prop}{Proposition} 
+\newtheorem{lemma}{Lemme}
+\title{Semaine 6 - Dérivabilité et équations différentielles du second ordre à coefficients constants}
+\author{Valentin De Bortoli \\ email : \ \href{mailto:valentin.debortoli@gmail.com}{valentin.debortoli@gmail.com}}
+\date{}
+\begin{document}
+\maketitle
+\section{Résolution d'équation différentielle du second ordre (1)}
+\subparagraph{1}Déterminer les solutions réelles de $y''(x)-3y'(x)+2y(x)=\sin(2x)$.
+
+\section{Résolution d'équation différentielle du second ordre (2)}
+\subparagraph{1}Déterminer les solutions réelles de $y''(x)+y(x)=\sinh(x)$.
+\subparagraph{2}Déterminer les solutions réelles de $y''(x)-2y'(x)+y(x)=2\cosh(x)$.
+
+\section{Résolution d'équation différentielle du second ordre (3)}
+\subparagraph{1}Déterminer les solutions réelles de $y''(x)+2y'(x)+y(x)=\sin(x)^3$.
+\subparagraph{2}Déterminer les solutions réelles de $y''(x)+y(x)=2\cos(x)^2$.
+
+\section{Résolution d'équation différentielles du second ordre (4)}
+\subparagraph{1}Déterminer les solutions réelles de $ax^2y''(x)+bxy'(x)+cy(x)=0$ sur $\mathbb{R}_+^*$.
+\subparagraph{Remarque :} on pourra penser à poser $z(t)=y(e^t)$ et remarquer que $z$ vérifie une équation différentielle.
+
+\section{Solutions bornées et équations différentielles du second ordre}
+\subparagraph{1}Déterminer les couples $(a,b)\in \mathbb{R}^2$ tels que toute solution de $y''(x)+ay'(x)+by(x)=0$ soit bornée sur $\mathbb{R}_+$.
+
+\section{Des équations presque différentielles}
+\subparagraph{1}Soit $\lambda \in \mathbb{R}$. Trouver les fonctions de classe $\mathcal{C}^1(\mathbb{R})$ qui satisfont sur $\mathbb{R}$, $f'(x) = f(\lambda - x)$.
+\subparagraph{2}Trouver les fonctions de classe $\mathcal{C}^1(\mathbb{R})$ qui satisfont sur $\mathbb{R}$, $f'(x) + f(-x) = e^x$.
+
+\section{Racines réelles de polynôme (1)}
+Soit $(a,b) \in \mathbb{R}^2$, $n \in \mathbb{N}$.
+\subparagraph{1}Montrer que le polynôme $X^n+aX+b$ admet au plus trois racines réelles.
+
+\section{Racines réelles de polynômes (2)}
+\subparagraph{1}Montrer que $P_n=((1-X^2)^n)^{(n)}$ est un polynôme de degré $n$ dont les racines sont réelles, simples et appartiennent à $[-1,1]$.
+
+\section{Théorème des accroissements finis (1)}
+Soit $(\alpha,\beta,\gamma) \in \mathbb{R}^3$. De même, soit $(a,b) \in \mathbb{R}^2$
+\subparagraph{1}Rappeler et démontrer le théorème des accroissements finis.
+\subparagraph{2}Soit $f \ : \ \mathbb{R} \ \rightarrow \ \mathbb{R}$, définie par $f(x)=\alpha x^2+\beta x +\gamma$. Déterminer le point $"c"$ du théorème des accroissements finis.
+\subparagraph{3}Interpréter géométriquement ce résultat.
+
+\section{Théorème des accroissements finis (2)}
+Soit $f: \ [a,b] \ \rightarrow \ \mathbb{R}$ et $g: \ [a,b] \ \rightarrow \ \mathbb{R}$ dérivables sur $]a,b[$, continues sur $[a,b]$, et telles que $g'$ ne s'annule pas sur $]a,b[$.
+\subparagraph{1}Montrer que $g(b) \neq g(a)$.
+\subparagraph{2}En s'inspirant de la preuve du théorème des accroissements finis, montrer que : $\exists c \in ]a,b[, \ \frac{f(b)-f(a)}{g(b)-g(a)}=\frac{f'(c)}{g'(c)}$.
+\subparagraph{3}On suppose que $\underset{x \rightarrow b}{\lim}\frac{f'(x)}{g'(x)}$ existe. Montrer que $\underset{x \rightarrow b}{\lim}\frac{f(x)-f(a)}{g(x)-g(a)}=\underset{x \rightarrow b}{\lim}\frac{f'(x)}{g'(x)}$.
+\subparagraph{4}En déduire $\underset{x \rightarrow 1^-}{\lim} \frac{\arccos(x)}{\sqrt{1-x^2}}$.
+\subparagraph{Remarque :} ce théorème est une généralisation du théorème des accroissements finis. On peut l'interpréter de la même manière que le théorème des accroissements finis classique mais pour une courbe paramétrée du plan.
+ 
+\section{Théorème de Rolle généralisé}
+Le but est de montrer le théorème de Rolle généralisé. Soit $f: \ [a,+\infty[ \ \rightarrow \ \mathbb{R}$, continue sur $[a,+\infty[$, dérivable sur $]a,+\infty[$. On suppose de plus que $f$ possède une limite en $+\infty$ et que celle-ci vaut $f(a)$. On peut alors dire : $\exists c \in ]a,+\infty[, \ f'(c)=0$.
+\subparagraph{1}On définit $g : [a,a+\frac{\pi}{2}[ \ \rightarrow \ \mathbb{R}$ par $g(x)=f(\tan(x-a))$. Montrer que l'on peut prolonger $g$ par continuité en $a+\frac{\pi}{2}$.
+\subparagraph{2}Appliquer le théorème de Rolle à $g$ et conclure sur le théorème de Rolle généralisé.
+\subparagraph{3}Montrer via le théorème de Rolle généralisé que $x \mapsto \frac{\ln(x)}{x}$ voit sa dérivée s'annuler au moins une fois sur $]1,+\infty[$.
+
+\section{Une propriété du logarithme}
+Soit $(x,y)\in \mathbb{R}^2$, avec $0<x<y$.
+\subparagraph{1}Montrer que $x < \frac{y-x}{\ln(y)-\ln(x)} <y$.
+\subparagraph{2}Considérer la fonction $f:[0,1] \ \rightarrow \ \mathbb{R}$, telle que $f(\alpha)=\ln(\alpha y+(1-\alpha)x))-\alpha \ln(y) -(1-\alpha) \ln(x)$. Montrer que $f$ est positive.
+\subparagraph{3}Interpréter géométriquement cette inégalité.
+\end{document}

@@ -1,0 +1,98 @@
+\documentclass[10pt,a4paper]{article} 
+\usepackage[utf8]{inputenc} 
+\usepackage[T1]{fontenc} 
+\usepackage[english]{babel} 
+\usepackage{supertabular} %Nécessaire pour les longs tableaux
+\usepackage[top=2.5cm, bottom=2.5cm, right=1.5cm, left=1.5cm]{geometry} %Mise en page 
+\usepackage{amsmath} %Nécessaire pour les maths 
+\usepackage{amssymb} %Nécessaire pour les maths 
+\usepackage{stmaryrd} %Utilisation des double crochets 
+\usepackage{pifont} %Utilisation des chiffres entourés 
+\usepackage{graphicx} %Introduction d images 
+\usepackage{epstopdf} %Utilisation des images .eps 
+\usepackage{amsthm} %Nécessaire pour créer des théorèmes 
+\usepackage{algorithmic} %Nécessaire pour écrire des algorithmes 
+\usepackage{algorithm} %Idem 
+\usepackage{bbold} %Nécessaire pour pouvoir écrire des indicatrices 
+\usepackage{hyperref} %Nécessaire pour écrire des liens externes 
+\usepackage{array} %Nécessaire pour faire des tableaux 
+\usepackage{tabularx} %Nécessaire pour faire de longs tableaux 
+\usepackage{caption} %Nécesaire pour mettre des titres aux tableaux (tabular) 
+\usepackage{color} %nécessaire pour écrire en couleur 
+\newtheorem{thm}{Théorème} 
+\newtheorem{mydef}{Définition} 
+\newtheorem{prop}{Proposition} 
+\newtheorem{lemma}{Lemme}
+\title{Semaine 30 - Convexité}
+\author{Valentin De Bortoli \\ email : \ \href{mailto:valentin.debortoli@gmail.com}{valentin.debortoli@gmail.com}}
+\date{}
+\begin{document}
+\maketitle
+
+\section{Entropie et information}
+On appelle entropie de la loi $p$ (définie sur $\mathcal{X}$), la quantité suivante : 
+\begin{equation*}
+H(p) = -\sum_{x \in \mathcal{X}} \log(p(x)) p(x)
+\end{equation*}
+On adoptera la convention $0 \log(0) = 0$.
+\subparagraph{1}Calculer l'entropie d'une loi de Bernoulli de paramètre $p \in [0,1]$. Que peut-on en déduire ?
+\subparagraph{2}Montrer que l'entropie est toujours positive et qu'elle est toujours plus petite que $\log(\vert \mathcal{X} \vert)$. Dans quel cas l'entropie est-elle maximale ? Minimale ?
+\subparagraph{3}On suppose que $H((p,q)) = H(p) + H(q)$ (où $(p,q)$ désigne la loi jointe de $p$ et $q$). Quelle relation lie la loi jointe et $p$ et $q$ ?
+\subparagraph{Remarque :} la notion d'entropie a été introduite par Shannon dans les années 50. Elle est extrêmement utile pour coder de manière optimale une information.
+
+
+\section{Minimisation des fonctions convexes}
+
+Soit $f$ une fonction convexe définie sur $\mathbb{R}$. On suppose que $f$ admet un minimum.
+\subparagraph{1}Montrer que l'ensemble des points tels que $f$ est minimale est un ensemble convexe.
+\subparagraph{2}Que peut-on dire si $f$ est strictement convexe ?
+\subparagraph{3}Que peut-on dire si $f$ est strictement convexe et dérivable ?
+\subparagraph{4}Soit $f$ une fonction convexe, coercive ($\underset{x \rightarrow \pm \infty}{\lim}f(x) = +\infty$) et dérivable. Montrer que le minimum de $f$ existe, est unique et donner une caractérisation de ce minimum.
+\subparagraph{Remarque :} ces premières propriétés justifient l'intérêt des mathématiciens pour la minimisation des fonctions convexes (existence et unicité facilement vérifiées). De nombreux algorithmes de minimisation ont été développés pour minimiser de telles fonctions. Ces algorithmes (comme celui de l'exercice suivant) sont utilisés même lorsque l'on n'a aucune assurance théorique de convergence ! C'est par exemple le cas dans l'apprentissage des réseaux de neurones. Cependant on obtient des résultats impressionants même sans cette assurance théorique. L'essentiel de la recherche actuelle en optimisation et théorie des réseaux de neurones est de comprendre comment la minimisation de fonctions non-convexes peut se ramener à la minimisation de fonctions convexes.
+
+
+\section{Algorithme du gradient}
+Soit $f$ une fonction strictement convexe sur $[a,b]$ telle que $f \in \mathcal{C}^1([a,b],\mathbb{R})$. Soit $x_0 \in [a,b]$ et $(x_n)_{n \in \mathbb{N}} \in  [a,b]^{\mathbb{N}}$ la suite définie par la relation de récurrence suivante ($\rho \in \mathbb{R}$),
+\begin{equation}
+\forall n \in \mathbb{N}, \ x_{n+1} = x_n - \rho f'(x_n)
+\end{equation}
+On admet que la suite est bien définie.
+\subparagraph{1}Montrer que le minimum de $f$ existe et est unique. On suppose que ce minimum est atteint en $f(z)$ avec $z \in [a,b]$.
+\subparagraph{2}Montrer que $x_n \ \rightarrow \ z$.
+\subparagraph{Remarque :} l'algorithme du gradient est très populaire en optimisation et possède de nombreuses améliorations. En effet, la fonction peut ne pas être dérivable, définie sur $\mathbb{R}$...
+
+\section{Périodicité et convexité}
+\subparagraph{1}Trouver deux fonctions $(f,g)$ définies sur $\mathbb{R}$ telles que la différence est périodique et non constante.
+
+\section{Composition et convexité}
+Soit $f$ et $g$ deuex fonctions convexes définies sur $\mathbb{R}$.
+\subparagraph{1} Montrer que $f \circ g$ n'est pas nécessairement convexe.
+\subparagraph{2}Montrer que la question précédente devient vraie si on suppose $f$ croissante.
+
+\section{Convexité, croissance et limite}
+Soit $f$ une fonction convexe, strictement croissante sur $\mathbb{R}$.
+\subparagraph{1}Montrer que $f$ tend vers $+\infty$ en $+\infty$.
+\subparagraph{2}Que peut-on dire en $-\infty$ ?
+
+\section{Majoration et convexité}
+Soit $f$ une fonction convexe définie sur $\mathbb{R}$ telle que $f$ est majorée.
+\subparagraph{1}Que peut-on dire de $f$ ?
+\subparagraph{2}Que se passe-t-il si $f$ est définie seulement sur $\mathbb{R}_+$ ?
+
+\section{Concavité et sous-additivité}
+Soit $f$ une fonction concave, dérivable sur $\mathbb{R}_+$ telle que $f(0)=0$.
+\subparagraph{1}Montrer que $\forall (x,y) \in \mathbb{R}_+^2, \ f(x+y) \le f(x) + f(y)$.
+\subparagraph{2}Que se passe-t-il si $f$ non dérivable ?
+
+\section{Asymptote et fonction convexe}
+Soit $f$ une fonction convexe définie sur $\mathbb{R}_+$ qui tend vers $0$ en $+\infty$.
+\subparagraph{1}Montrer que $f$ positive.
+\subparagraph{2}Soit $f$ une fonction convexe définie sur $\mathbb{R}_+$ qui possède une asymptote en $+\infty$. Que peut-on dire de la position de $f$ par rapport à cette asymptote ?
+
+\section{Régularité et fonctions convexes}
+Soit $f$ une fonction convexe définie sur $I$, intervalle de $\mathbb{R}$.
+\subparagraph{1}Montrer que $f$ est continue sur $I$ sauf en deux points éventuels, lesquels ?
+\subparagraph{2}Montrer que $f$ est dérivable à gauche et à droite. Montrer que la dérivée à gauche est plus petite que la dérivée à droite et que ces deux dérivées sont croissantes.
+\subparagraph{3}En déduire que le nombre de points de discontinuités de la dérivée à droite est dénombrable.
+\subparagraph{4}En déduire que $f$ est dérivable partout sauf en un nombre au plus dénombrable de points.
+\end{document}

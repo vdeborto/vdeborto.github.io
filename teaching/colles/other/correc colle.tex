@@ -1,0 +1,143 @@
+\documentclass[10pt,a4paper]{article} 
+\usepackage[utf8]{inputenc} 
+\usepackage[T1]{fontenc} 
+\usepackage[english]{babel} 
+\usepackage{supertabular} %Nécessaire pour les longs tableaux
+\usepackage[top=2.5cm, bottom=2.5cm, right=1.5cm, left=1.5cm]{geometry} %Mise en page 
+\usepackage{amsmath} %Nécessaire pour les maths 
+\usepackage{amssymb} %Nécessaire pour les maths 
+\usepackage{stmaryrd} %Utilisation des double crochets 
+\usepackage{pifont} %Utilisation des chiffres entourés 
+\usepackage{graphicx} %Introduction d images 
+\usepackage{epstopdf} %Utilisation des images .eps 
+\usepackage{amsthm} %Nécessaire pour créer des théorèmes 
+\usepackage{algorithmic} %Nécessaire pour écrire des algorithmes 
+\usepackage{algorithm} %Idem 
+\usepackage{bbold} %Nécessaire pour pouvoir écrire des indicatrices 
+\usepackage{hyperref} %Nécessaire pour écrire des liens externes 
+\usepackage{array} %Nécessaire pour faire des tableaux 
+\usepackage{tabularx} %Nécessaire pour faire de longs tableaux 
+\usepackage{caption} %Nécesaire pour mettre des titres aux tableaux (tabular) 
+\usepackage{color} %nécessaire pour écrire en couleur 
+\newtheorem{thm}{Théorème} 
+\newtheorem{mydef}{Définition} 
+\newtheorem{prop}{Proposition} 
+\newtheorem{lemma}{Lemme}
+\title{Semaine 9 - Nombres réels, suites réelles}
+\author{Valentin De Bortoli \\ email : \ \href{mailto:valentin.debortoli@gmail.com}{valentin.debortoli@gmail.com}}
+\date{}
+\begin{document}
+\maketitle
+\section{Un théorème de point fixe (1)}
+\subparagraph{1}A sous ensemble des réels non vide et borné donc admet une borne supérieure. On note $x_0$ cette borne.
+\subparagraph{2}On élimine facilement les cas $x_0=0$ et $x_0=1$. On suppose que $x_0 \in ]0,1[$, $\forall x \in [0,1],\ x>x_0 \ \Rightarrow x>f(x)$. Soit $x_n$ une suite de réels qui tend vers $x_0$ avec $x_n > x_0$. $f(x_0)\le f(x_n) \le x_n$. Donc en passant à la limite $f(x_0)\le x_0$.\\
+Puisque $x_0$ est la borne supérieure de $A$ on peut construire une suite d'éléments de $A$ qui converge vers $x_0$. $x_n\le f(x_n) \le f(x_0)$. Donc en passant à la limite $f(x_0) \ge x_0$.\\
+On conclut.
+
+\section{Un théorème de point fixe (2)}
+\subparagraph{1}Même chose que pour le premier exercice.
+\subparagraph{2}On adapte la preuve du première exercice.\\
+Tout d'abord, $\forall x \in [0,1],\ x>x_0 \ \rightarrow x>f(x)$. Soit $x_n$ une suite de réels qui tend vers $x_0$ avec $x_n > x_0$. $f(x_n) \le x_n$. Donc en passant à la limite $f(x_0)\le x_0$ (par continuité de $f$ en $x_0$).\\
+Puisque $x_0$ est la borne supérieure de $A$ on peut construire une suite d'éléments de $A$ qui converge vers $x_0$. $x_n\le f(x_n)$. Donc en passant à la limite $f(x_0) \ge x_0$ (par continuité de $f$ en $x_0$).\\
+On conclut.
+
+\section{Inégalité(s) de Shapiro}
+\subparagraph{1}On note que $\forall x \in \mathbb{R}_+^*, \ x+\frac{1}{x} \ge 2$. L'inégalité s'obtient en notant que si $x=\frac{a}{b}$ alors $\frac{1}{x}=\frac{b}{a}$. Le terme de gauche s'écrit alors comme la somme de trois termes chacun supérieur à $2$.
+\subparagraph{2}On a :
+\begin{equation}
+\begin{aligned}
+\frac{y_1+y_2}{y_3}+\frac{y_2+y_3}{y_1}+\frac{y_1+y_3}{y_1}&=\frac{2x_3+x_1+x_2}{x_1+x_2}+\frac{2x_1+x_2+x_3}{x_2+x_3}+\frac{2x_2+x_1+x_3}{x_1+x_3}\\
+&=3+2 \left(\frac{x_1}{y_1}+\frac{x_2}{y_2}+\frac{x_3}{y_3}\right)\\
+&\ge 6
+\end{aligned}
+\end{equation}
+L'inégalité s'en déduit.
+\subparagraph{3}En développant le terme de droite et en le retranchant au terme de gauche on obtient :
+\begin{equation}
+x_1^2-2x_1x_3+x_3^2+x_2^2-2x_2x_4+x_4^2=(x_1-x_3)^2+(x_2-x_4)^2
+\end{equation}
+Cette expression est donc positive et on peut conclure.
+\subparagraph{4}$ \left( \underset{i=1}{\overset{4}{\sum}}x_i y_i \right)\left( \underset{i=1}{\overset{4}{\sum}}\frac{x_i}{y_i} \right)\ge \left(\underset{i=1}{\overset{4}{\sum}}x_i \right)^2$ via l'inégalité de Cauchy-Schwarz ($\sqrt{x_iy_i} \sqrt{\frac{x_i}{y_i}}=x_i$). L'inégalité s'en déduit facilement en utilisant la question 3.
+
+
+\section{Une borne inférieure}
+\subparagraph{1}L'inégalité de Cauchy-Schwarz donne $\left(\underset{i=1}{\overset{n}{\sum}} x_i \right)\left(\underset{i=1}{\overset{n}{\sum}} \frac{1}{x_i} \right)\ge \left(\underset{i=1}{\overset{n}{\sum}} 1\right)^2$. Donc $n^2$ minorant de $A$. On traite en même temps la question 2 en montrant que $n^2$ est bien une borne inférieure car atteint par $A$. Il s'agit de trouver les cas d'égalité dans l'inégalité de Cauchy-Schwarz. On trouve $x_i= \lambda$ avec $\lambda \in \mathbb{R}_+^*$.
+
+\section{Borne inférieure et borne supérieure}
+\subparagraph{1}$\forall (x,y) \in \mathbb{R}^2, \ (x+y)^2-4xy=(x-y)^2 \ge 0$. Donc $\frac{mn}{(m+n)^2}\le \frac{1}{4}$. La minoration par $0$ est triviale.
+\subparagraph{2}A sous ensemble de $\mathbb{R}$ non vide et borné donc admet une borne supérieure et une borne inférieure. $\frac{1}{4}$ est un maximum (atteint lorsque $m=n$). $0$ est bien une borne inférieure (avec $n=1$ et $m \in \mathbb{N}$ on a une suite dans $A$ qui tend vers $0$). Il est à noter que $0$ n'est évidemment pas atteint.
+
+\section{Convergence au sens de Césaro}
+\subparagraph{1}Soit $n_0 \in \mathbb{N}$ tel que $\forall n \in \mathbb{N}, \ n \ge n_0 \ \rightarrow \vert u_n -l \vert \le \frac{\epsilon}{2}$. Soit $n_1\ge n_0$ tel que $\frac{\underset{1}{\overset{n_0-1}{\sum}} \vert u_k -l \vert }{n}\le \frac{\epsilon}{2}$. Donc on a :
+\begin{equation}
+\begin{aligned}
+\vert v_n -l \vert &= \vert v_n - \frac{nl}{n}\vert \\
+&\le \frac{\underset{1}{\overset{n_0-1}{\sum}} \vert u_k -l \vert }{n}+\frac{\underset{n_0}{\overset{n}{\sum}} \vert u_k -l \vert }{n}\\
+&\le \frac{\epsilon}{2}+\frac{n-n_0+1}{n} \frac{\epsilon}{2} \\
+&\le \epsilon
+\end{aligned}
+\end{equation}
+D'où la convergence
+\subparagraph{2}$(-1)^n$ tend vers $0$ au sens de Césaro.
+\subparagraph{3}On calcule la moyenne de Césaro de $u_n=\omega_{n+1}-\omega_n$. On obtient un télescope. On a alors : $\frac{\omega_{n+1}-\omega_0}{n} \rightarrow l$ en vertu de la première question. On obtient alors : $\omega_n \sim l n$.
+\subparagraph{4}Il s'agit de considérer $\omega_n - \frac{n(n+1)}{2n^2}l = \omega_n - \frac{\underset{1}{\overset{n}{\sum}}k l}{n^2}$. on procède ensuite de la même manière que pour la question 1. On a alors $\omega_n- \frac{n(n+1)}{2n^2}l \rightarrow 0$. Donc $\omega_n \rightarrow \frac{l}{2}$.
+
+\section{Suite sous-additive}
+\subparagraph{1}Cours
+\subparagraph{2}$u_n \le q u_m + u_r$. Or $u_n \le n u_1$ donc $u_n \le q u_m +r u_1$.
+\subparagraph{3}On suppose que la borne inférieure de cet ensemble est réelle. Si elle vaut $-\infty$ on raisonne de la même manière... Soit $m$ tel que $\frac{u_m}{u_m}\le \text{inf}\lbrace \frac{u_n}{n}, n \in \mathbb{N}^*\rbrace +\frac{\epsilon}{2}$. Soit $n \in \mathbb{N}$. $n=qm+r$ (résultat de la division euclidienne de $n$ par $m$).
+\begin{equation}
+\frac{u_n}{n} \le \frac{qm}{n}\frac{u_q}{q}+\frac{r}{n}u_1
+\end{equation}
+Le deuxième terme ($\frac{r}{n}u_1$) est inférieur à $\frac{\epsilon}{2}$ pour $n$ assez grand. On a donc pour n assez grand :
+\begin{equation}
+\frac{u_n}{n} \le \text{inf}\lbrace \frac{u_n}{n}, n \in \mathbb{N}^*\rbrace +\frac{\epsilon}{2}+\frac{\epsilon}{2}
+\end{equation}
+Donc $\vert \frac{u_n}{n} - \text{inf}\lbrace \frac{u_n}{n}, n \in \mathbb{N}^*\rbrace \vert \le \epsilon$ pour $n$ assez grand. On a donc prouvé la convergence
+\subparagraph{4} $\ln(v_n)$ est sous-additive. On en déduit que $v_n^{\frac{1}{n}}$ converge.
+
+\section{Rationnels et irrationnels}
+\subparagraph{1}$q_n$ supposée bornée. On peut extraire une suite convergente (on la nomme encore $q_n$). Donc $q_n$ stationnaire en $l \in \mathbb{N}$ (convergente et entière donc stationnaire). Donc $l r_n=p_n$ donc en passant à la limite, $p_n$ converge vers $lx$ avec $lx \in \mathbb{N}$. Donc $x$ rationnel et c'est absurde.\\
+Supposons que $q_n$ ne tende pas vers $+\infty$. Il existe $A\in\mathbb{R}_+$ et une suite extraire (encore notée $q_n$) telle que $q_n$ bornée. On applique la remarque précédente et on conclut par l'absurde.
+
+\section{Une équation et des parties entières}
+\subparagraph{1}Pour $x=8$ on a $\frac{x}{2}-\sqrt{x}=2(2-\sqrt{2})>1$. Donc à partir de $x=8$ les parties entières de $\frac{x}{2}$ et $\sqrt{x}$ sont différentes. Il s'agit maintenant de trouver les solutions pour $x<8$ (une autre solution aurait de résoudre une équation du second degré $-\sqrt{x}^2+(\frac{x}{2}-1)^2=0$. On aurait trouvé une borne similaire) :
+\begin{itemize}
+\item $\lfloor \frac{x}{2} \rfloor =0$ si et seulement si $x \in [0,2[$. $\lfloor \sqrt{x} \rfloor=0$ si et seulement si $x \in [0,1[$. Donc $[0,1[$ dans l'ensemble des solutions.
+\item $\lfloor \frac{x}{2} \rfloor =1$ si et seulement si $x \in [2,4[$. $\lfloor \sqrt{x} \rfloor=1$ si et seulement si $x \in [1,4[$. Donc $[2,4[$  dans l'ensemble des solutions.
+\item $\lfloor \frac{x}{2} \rfloor =2$ si et seulement si $x \in [4,6[$. $\lfloor \sqrt{x} \rfloor=2$ si et seulement si $x \in [4,9[$. Donc $[4,6[$  dans l'ensemble des solutions.
+\end{itemize}
+On s'arrête là car on sait que les prochaines solutions se trouvent après $x=9$. On sait donc qu'il n'y en aura plus. On a l'ensemble de solutions suivant :
+\begin{equation}
+S=[0,1[ \cup [4,6[
+\end{equation}
+\section{Une propriété de la partie entière}
+Soit $n \in \mathbb{N}^*$. Soit $x \in \mathbb{R}_+$.
+\subparagraph{1}On a :
+\begin{equation}
+\begin{aligned}
+&x\in [\lfloor x \rfloor,\lfloor x \rfloor+1[\\
+&nx \in [n\lfloor x \rfloor,n\lfloor x \rfloor+n[\\
+&\lfloor nx \rfloor \in [n\lfloor x \rfloor,\lfloor x \rfloor+n[, \ \text{car} \ n\lfloor x \rfloor \ \text{entier}\\
+&\frac{\lfloor nx \rfloor}{n} \in [\lfloor x \rfloor, \lfloor x \rfloor +1[
+\end{aligned}
+\end{equation}
+On conclut.
+
+\section{Somme et partie entière}
+Soit $n \in \mathbb{N}^*$. Soit $x \in \mathbb{R}_+$.
+\subparagraph{1}Il s'agit simplement d'écrire $x= \lfloor x \rfloor + \lbrace x \rbrace$ et $nx= \lfloor nx \rfloor + \lbrace nx \rbrace$. On multiplie par $n$ la première équation et on égalise.
+\subparagraph{2}On peut comprendre la démarche en posant $\lbrace x \rbrace < \frac{1}{n}$. On a alors $\forall k \in \llbracket 0, n-1 \rrbracket, \ \lfloor x+\frac{k}{n} \rfloor= \lfloor x \rfloor$. De plus on a $n\lbrace x \rbrace \in [0,1[$ donc $n \lbrace x \rbrace - \lbrace nx \rbrace \in ]-1,1[$ donc $n\lfloor x \rfloor = \lfloor nx \rfloor$. On peut donc conclure.\\
+Pour les autres cas, $\exists k_0 \in \llbracket 1, n-1 \rrbracket$ tel que $\lbrace x \rbrace + \frac{k_0}{n}\ge1$ et $\lbrace x \rbrace+\frac{k_0-1}{n}<1$. donc si $k \le k_0$, $\lfloor x +\frac{k}{n} \rfloor=\lfloor x \rfloor$. Sinon, $\lfloor x +\frac{k}{n} \rfloor=\lfloor x \rfloor+1$. Si on considère la somme étudiée (notée $S$) on a :
+\begin{equation}
+S=n \lfloor x \rfloor +(n-k_0+1)
+\end{equation}
+Mais $ n-k_0\le n \lbrace x \rbrace < n- k_0+1$. Donc $n-k_0 - \lbrace nx \rbrace \le n \lbrace x \rbrace - \lbrace nx \rbrace <n-k_0+1$. Mais le nombre encadré est entier et est compris dans un intervalle qui ne contient qu'un entier. Donc $n \lbrace x \rbrace - \lbrace nx \rbrace= n-k_0$. Donc en remplaçant dans l'expression trouvée pour $S$ on peut conclure.
+\section{Nombre de zéros et factorielle}
+\subparagraph{1}2 zéros
+\subparagraph{2}6 et pas 5 attention ! Si on fait la liste des termes qui rajoutent un zéro on a : $5 \times 2=10$, $10$, $15 \times 4$, $20$ et $25 \times 8$
+\subparagraph{3}La formule est la suivante :
+\begin{equation}
+\text{nombre de zéros}=\underset{k=1}{\overset{\lfloor \log_5(n) \rfloor}{\sum}} \lfloor \frac{n}{5^k} \rfloor
+\end{equation}
+\end{document}

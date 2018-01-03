@@ -1,0 +1,162 @@
+\documentclass[10pt,a4paper]{article} 
+\usepackage[utf8]{inputenc} 
+\usepackage[T1]{fontenc} 
+\usepackage[english]{babel} 
+\usepackage{supertabular} %Nécessaire pour les longs tableaux
+\usepackage[top=2.5cm, bottom=2.5cm, right=1.5cm, left=1.5cm]{geometry} %Mise en page 
+\usepackage{amsmath} %Nécessaire pour les maths 
+\usepackage{amssymb} %Nécessaire pour les maths 
+\usepackage{stmaryrd} %Utilisation des double crochets 
+\usepackage{pifont} %Utilisation des chiffres entourés 
+\usepackage{graphicx} %Introduction d images 
+\usepackage{epstopdf} %Utilisation des images .eps 
+\usepackage{amsthm} %Nécessaire pour créer des théorèmes 
+\usepackage{algorithmic} %Nécessaire pour écrire des algorithmes 
+\usepackage{algorithm} %Idem 
+\usepackage{bbold} %Nécessaire pour pouvoir écrire des indicatrices 
+\usepackage{hyperref} %Nécessaire pour écrire des liens externes 
+\usepackage{array} %Nécessaire pour faire des tableaux 
+\usepackage{tabularx} %Nécessaire pour faire de longs tableaux 
+\usepackage{caption} %Nécesaire pour mettre des titres aux tableaux (tabular) 
+\usepackage{color} %nécessaire pour écrire en couleur 
+\newtheorem{thm}{Théorème} 
+\newtheorem{mydef}{Définition} 
+\newtheorem{prop}{Proposition} 
+\newtheorem{lemma}{Lemme}
+
+
+
+\newcommand{\al}[1]{\begin{aligned} #1 \end{aligned}}
+
+\newcommand{\seq}[2]{\left( #1_{#2} \right)_{#2 \in \mathbb{N}} }
+\newcommand{\intt}[4]{\int_{#1}^{#2} #3 \mathop{}\!\mathrm{d} #4}
+\newcommand{\summ}[2]{\underset{#1}{\overset{#2}{\sum}}}
+\newcommand{\prodd}[2]{\underset{#1}{\overset{#2}{\prod}}}
+
+\newcommand{\vertt}[1]{\vert #1 \vert}
+
+
+\title{Semaine 8 - Suites numériques}
+\author{Valentin De Bortoli \\ email : \ \href{mailto:valentin.debortoli@gmail.com}{valentin.debortoli@gmail.com}}
+\date{}
+\begin{document}
+\maketitle
+\section{Divergence et suite extraites}
+
+\subparagraph{1}Supposons que $\cos(n)$ converge alors $\cos(n+1)$ aussi mais $\cos(n+1) = \cos(n)\cos(1) - \sin(n)\sin(1)$ et donc $\sin(n)$ aussi. Ainsi $e^{in}$ converge et donc $e^{i(n+1)}$ aussi (vers la même limite non nulle). Donc $\frac{e^{i(n+1)}}{e^{in}} = e^i$ converge vers $1$ ce qui est absurde.
+
+\subparagraph{2}Il suffit de reprendre le raisonnement par l'absurde avec $\sin(n)$. $\sin(n+1)$ converge mais $\sin(n+1) = \sin(n)\cos(1) + \sin(1)\cos(n)$ ce qui prouve que $\cos(n)$ converge également et on conclut de la même manière que précédemment.
+
+\subparagraph{Remarque :} une autre démonstration intéressante fait appel à la notion de groupe. On note $X= \lbrace \cos(n), \ n\in \mathbb{N} \rbrace = \lbrace \cos(n + 2k\pi) , \ (n,k) \in \mathbb{Z}^2 \rbrace = \cos \left( \mathbb{Z} + 2\pi \mathbb{Z} \right)$. En utilisant la division euclidienne on peut redémontrer un résultat sur les sous-groupes additifs de $\mathbb{R}$ : ceux-ci sont soit denses dans $\mathbb{R}$ soit de la forme $a\mathbb{Z}$. Supposons que $ \mathbb{Z} + 2\pi \mathbb{Z}$ soit de la seconde forme alors $a = \frac{1}{m}$ avec $m \in \mathbb{N}^*$ mais $a = \frac{2\pi}{m'}$ avec $m' \in \mathbb{N}$ ce qui implique que $\pi \in \mathbb{Q}$ (ce qui est absurde). De manière générale, un groupe de la forme $a \mathbb{Z} + b \mathbb{Z}$ est de la seconde forme si et seulement $\frac{a}{b}$ est rationnel. Donc $\mathbb{Z}+ 2\pi\mathbb{Z}$ est dense dans $\mathbb{R}$ et donc $\cos \left( \mathbb{Z}+ 2\pi\mathbb{Z} \right)$ est dense dans $[-1,1]$ ce résultat est bien plus fort qu'une simple divergence. En effet, il assure que l'on peut pour chaque réel de $[-1,1]$, trouver une suite extraite de $\cos(n)$ qui converge vers ce réel.
+\section{Une suite complexe}
+
+\subparagraph{1}Il convient de regarder les premiers termes pour conjecturer la forme de la suite, $z_0 = \rho e^{i\theta}$, $z_1 = \rho e^{i\frac{\theta}{2}}\cos(\frac{\theta}{2})$, $z_2= \rho \cos(\frac{\theta}{2}) \cos(\frac{\theta}{4}) e^{i\frac{\theta}{4}}$. Par récurrence on prouve que $z_n = \rho \prodd{k=1}{n} \cos\left( \frac{\theta}{2^k} \right)e^{i \frac{\theta}{2^n}}$ pour $n \in \mathbb{N}^*$.
+
+\subparagraph{2}Il s'agit d'un télescopage. En effet $\cos(\frac{\theta}{2^n})\sin(\frac{\theta}{2^n}) = \frac{1}{2}\sin(\frac{\theta}{2^{n-1}})$. 
+
+\subparagraph{3}Ainsi, $z_n = \frac{\rho e^{i\frac{\theta}{2^n}} \sin(\theta)}{2^n \sin( \frac{\theta}{2^n})}$. Le numérateur tend vers $\rho \sin(\theta)$ tandis que le dénominateur tend vers $1$. Ainsi la limite de $\seq{z}{n}$ existe et vaut $\rho \sin(\theta)$.
+
+\section{Irrationalité de e}
+
+\subparagraph{1}$\seq{u}{n}$ est croissante, différence avec $\seq{v}{n}$ tend vers $0$. Il reste à montrer que $\seq{v}{n}$ est décroissante. Soit $n \in \mathbb{N}$, $v_{n+1} - v_n = \frac{1}{(n+1)!} + \frac{1}{(n+1)!(n+1)} - \frac{1}{n!n} = \frac{1}{n!}( \frac{1}{n+1}- \frac{1}{n} + \frac{1}{(n+1)^2}) = \frac{1}{n!}( \frac{1}{(n+1)^2} - \frac{1}{n(n+1)}) \le 0$. Les deux suites sont donc adjacentes.
+
+\subparagraph{2} On applique l'inégalité de Taylor-Lagrange avec $f = x\mapsto e^x$, $a =0$, $b=1$.
+On trouve que $\vertt{1 - u_n} \le \frac{e}{(n+1)!}$ donc $u_n$ tend vers $1$.
+
+\subparagraph{3} On a $u_n < \frac{p}{q} < v_n$ (stricte croissance et décroissance des suites $\seq{u}{n}$ et $\seq{v}{n}$), d'où $u_qq!q \le pq! \le v_q q! q$. Mais $u_qq!q = v_qq!q -1$. Donc $u_q!qq < pq! < u_qq!q +1$. Or $u_qq!q$ est un entier donc l'encadrement strict est impossible. On conclut que $e$ est irrationnel. 
+
+\subparagraph{Remarque :} en fait on peut établir un résultat bien plus fort, $e$ est transcendant c'est-à-dire qu'il n'est racine d'aucun polynôme à coefficients rationnels. A titre de comparaison $\sqrt{2}$ est irrationnel mais algébrique (et même constructible) car racine de $X^2-2$. Voici un lien qui présente une démonstration de la transcendance de $e$ (ainsi que de celle de $\pi$)~: \url{https://fr.wikiversity.org/wiki/D%C3%A9monstration_de_la_transcendance_de_e_et_pi}.
+\section{Moyenne arithmético-géométrique}
+\subparagraph{1}On montre toutes ces propriétés par récurrence. L'initialisation est facile. Supposons que ces trois propriétés soient vraies au rang $n$. $u_{n+1} = \sqrt{u_n v_n} \ge \sqrt{u_n^2} \ge u_n$ et $v_{n+1} = \frac{u_n + v_n}{2} \le v_n$. ${u_{n+1} \le v_{n+1} \ \Leftrightarrow \ (2u_{n+1})^2 \le (2v_{n+1})^2}$, autrement dit, $4u_nv_n \le v_n^2 + u_n^2 + 2u_nv_n$. $u_n^2+v_n^2-2u_nv_n \ge 0$ donc on a bien l'hérédité.
+
+\subparagraph{2}$\seq{u}{n}$ est croissante et majorée par $b$ donc elle admet une limite. $\seq{v}{n}$ est décroissante et minorée par $a$. On note $l_1$ et $l_2$ leur limites respectives. $l_1^2 = l_1 l_2$ donc $l_1 = l_2$.
+
+\subparagraph{3}Il est trivial que $M(a,a) = a$ puisque les suites sont alors constantes et valent $a$. $M(\lambda a, \lambda b) = \lambda M(a,b)$ en constatant que chacun des termes de la suite avec initialisation en $(a,b)$ est multiplié par $\lambda$. $M(0,a) = 0$ en constatant que la suite $\seq{u}{n}$ est alors constante et vaut $0$.
+
+\section{Critère spécial des séries alternées}
+\subparagraph{1} $S_{2n+2} - S_{2n} = u_{2n+2} - u_{2n+1} \le 0$ donc $(S_{2n})_{n \in \mathbb{N}}$ est décroissante. De même $(S_{2n+1})_{n\in \mathbb{N}}$ est croissante. $S_{2n+1} - S_{2n} = - u_{2n+1}$ qui tend vers 0. Les suites sont donc adjacentes et admettent une même limite $S$.
+
+\subparagraph{2} Il existe $N_1$ tel que pour tout $n \ge N_1, \ \vertt{S_{2n} - S} \le \epsilon$. De même, il existe $N_2$ tel que pour tout $n \ge N_2, \ \vertt{S_{2n+1} - S} \le \epsilon$. Posons $N = 2 \max(N_1,N_2) +1$. Alors pour tout $n \ge N, \ \vertt{S_n - S} \le \epsilon$ et donc $\seq{S}{n}$ converge vers $S$.
+
+\subparagraph{3}C'est trivial car $(S_{2n+1})_{n \in \mathbb{N}}$ est croissante et $(S_{2n})_{n \in \mathbb{N}}$ est décroissante.
+
+\subparagraph{4}$\cos(k\pi) = (-1)^k$ et $x \mapsto \frac{1}{\sqrt{x}}$ bien positive, décroissante vers 0. Donc on est dans les hypothèses du critère spécial des séries aléternées et la suite converge. Il convient de remarquer que la suite $S_n = \summ{k=1}{n} \frac{1}{\sqrt{n}}$ diverge...
+
+\section{Suite sous-additive}
+
+\subparagraph{1}La borne inférieure d'un ensemble est le plus grand des minorants de cet ensemble. Dans le cas de l'ensemble des réels. La borne inférieure d'un ensemble $X \subset \mathbb{R}$, $a$ est définie par
+\[
+\left\lbrace
+\al{
+&\forall x \in X, \ a \le x \\
+&\forall \epsilon \in \mathbb{R}_+^*, \ \exists x_{\epsilon} \in X, \ x_{\epsilon}-\epsilon \le a
+}
+\right.
+\]
+Dans le cas où $X = \lbrace \frac{u_n}{n}, n \in \mathbb{N}^* \rbrace$ cette définition devient
+\[
+\left\lbrace
+\al{
+&\forall n \in \mathbb{N}^*, \ a \le \frac{u_n}{n} \\
+&\forall \epsilon \in \mathbb{R}_+^*, \ \exists n \in \mathbb{N}, \ \frac{u_n}{n}-\epsilon \le a
+}
+\right.
+\]
+
+\subparagraph{2}
+$u_n = u_{qm+r} \le u_{qm} + u_r \le mu_q + ru_1$.
+
+\subparagraph{3}
+On a, $a \le \frac{u_n}{n} \le \frac{m}{n}u_q + \frac{ru_1}{n} \le \frac{u_q}{q} + \frac{ru_1}{n}$. Soit $\left(\frac{u_{\phi(n)}}{\phi(n)}\right)_{n \in \mathbb{N}}$ une suite extraite tendant vers $a$, la borne inférieure. Soit $N_1$ tel que $a \le \frac{u_{\phi(N_1)}}{\phi(N_1}\le a +\frac{\epsilon}{2}$. Soit $N_2$ tel que pour tout $n \ge N_2$ $\frac{\phi(N1)}{n} \le \frac{\epsilon}{2}$. On a alors $a \le \frac{u_{n}}{n} \le a + \epsilon$ pour tout $n \ge N_2$. Donc $\frac{u_n}{n} \rightarrow a$. 
+
+\subparagraph{4}Cette fois-ci on considère une suite sous-multiplicative. En passant au logarithme on revient au cas sous-additif et on obtient $\frac{\ln(v_n)}{n} \rightarrow a$. On peut passer à l'exponentielle et on obtient $v_n^{\frac{1}{n}} \rightarrow a$.
+
+\subparagraph{Remarque : } cet exercice constitue un lemme appelé lemme de Fekete. Il permet de montrer l'existence de limites à peu de frais. Un exemple original et le nombre de chemins auto-évitants. Soit $\mathcal{C}$ un chemin de longueur $n$ sur les arêtes d'un réseau (réseau $\mathbb{Z}^2$, réseau hexagonal...). On note $c(n)$ le nombre de chemins auto-évitants de longueur $n$. Il est facile de vérifier que $c(n+m) \le c(n)c(m)$. Ainsi $c(n)^{\frac{1}{n}} \rightarrow c$. Cette constante $c$ est appelée la constante de connectivité du réseau. Depuis 2010 on dispose, grâce aux travaux de Duminil-Copin et Smirnov, de la valeur de $c = \sqrt{2+\sqrt{2}}$ pour un réseau hexagonal, $\sqrt{2+\sqrt{2}} = 1.848$. On ne dispose que d'une valeur approchée pour le réseau $\mathbb{Z}^2, \ c \approx 2.638$. Pour plus d'informations, \url{http://www.math.polytechnique.fr/xups/xups16-03.pdf}.
+
+\section{Récurrence et nombre d'or}
+\subparagraph{1}Soit la suite $\seq{u}{n}$ définie par
+\[
+\left\lbrace
+\al{
+&u_0 = 1 \\
+&u_{n+1} = \sqrt{u_n +1}
+}
+\right.
+\]
+et la suite $\seq{v}{n}$ définie par 
+\[
+\left\lbrace
+\al{
+&v_0 = 1 \\
+&v_{n+1} = 1+\frac{1}{v_n}
+}
+\right.
+\]
+Si $\seq{u}{n}$ et $\seq{v}{n}$ admettent respectivement les limites $l_1$ et $l_2$ celles-ci sont des racines positives de $X^2 = X+1$. Il n'y en a qu'une seule $\frac{1+\sqrt{5}}{2}$ et donc les deux suites convergent vers le nombre d'or. Il s'agit maintenant de prouver cette convergence. On montre que la suite $\seq{u}{n}$ est majorée par le nombre d'or $l$. $u_0 \le l$ mais $\sqrt{1+l} = l$ et donc $u_1 \le l$. Par récurrence $u_n \in [0,l]$. De plus $u_{n+1} \ge u_n$ si et seulement si $u_n \in [0,l]$. Donc $u_n$ est croissante et bornée, elle admet une limite : le nombre d'or. Le même raisonnement s'applique sur l'autre suite.
+
+\section{Suite et équivalent}
+
+\subparagraph{1} On montre par récurrence que $\seq{u}{n} \in ]0, \frac{\pi}{2}[^{\mathbb{N}}$. De plus, sur cet intervalle, $\sin(x) \le x$. Donc $\seq{u}{n}$ est décroissante minorée par $0$. Elle converge donc vers une limite $l$. Celle-ci vérife $\sin(l) = l$, donc $l=0$.
+
+\subparagraph{2}On a
+\[
+\al{
+\frac{1}{u_{n+1}^2} - \frac{1}{u_n^2} &= \frac{u_n^2 - u_{n+1}^2}{u_n^2u_{n+1}^2} \\
+&= \frac{u_n^2 - (u_n^2 -\frac{u_n^4}{3} + o(u_n^4))}{u_n^2 (u_n^2 -\frac{u_n^4}{3} + o(u_n^4))} \\
+&= \frac{\frac{u_n^4}{3} + o(u_n^4)}{u_n^4 + o(u_n^4)} \\
+&= \frac{1}{3}
+}
+\]
+
+\subparagraph{3}On anticipe sur le chapitre des séries et donc puisque la série de terme générale $\frac{1}{3}$ est divergente on a équivalence $\sum{k=0}{n} \frac{1}{u_{n+1}^2} - \frac{1}{u_n} \sim \frac{n}{3}$. Mais le premier terme se télescope et puisque les constantes sont négligeables devant $\frac{1}{u_n}$ on obtient que $u_n \sim \sqrt{\frac{3}{n}}$.
+
+\subparagraph{Remarque :} cette technique permet d'obtenir de nombreux équivalents pour des suites définies par récurrence lorsque que la fonction qui intervient dans la récurrence admet un développement limité autour de la limite de la suite. D'autres exemples et une généralisation sont proposés en exercice dans les livres d'exercices "Oraux X-ENS".
+
+\section{Méthode de Newton}
+
+\subparagraph{1}$y = f(x_n) + f'(x_n) (x- x_n)$ (équation de la tangente à $x_n$) lorsque l'on égale $y$ à $0$ on trouve la mise à jour en $x$. 
+
+\subparagraph{2}$x_{n+1} -c = \frac{1}{f'(x_n)} \left( (x_n-c)f'(x_n) -f(x_n) \right)$. En écrivant l'inégalité de Taylor-Lagrange à l'ordre deux en $b = c$, $a = x_n$. En rappelant que $f'$ est borné et par des constantes strictement positives sur $[a,b]$ on obtient l'inégalité voulue.
+
+\subparagraph{3}$x_{n+1} = \frac{x_n + \frac{a}{x_n}}{2}$.
+\end{document}

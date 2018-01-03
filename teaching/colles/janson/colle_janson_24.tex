@@ -1,0 +1,126 @@
+\documentclass[10pt,a4paper]{article} 
+\usepackage[utf8]{inputenc} 
+\usepackage[T1]{fontenc} 
+\usepackage[english]{babel} 
+\usepackage{supertabular} %Nécessaire pour les longs tableaux
+\usepackage[top=2.5cm, bottom=2.5cm, right=1.5cm, left=1.5cm]{geometry} %Mise en page 
+\usepackage{amsmath} %Nécessaire pour les maths 
+\usepackage{amssymb} %Nécessaire pour les maths 
+\usepackage{stmaryrd} %Utilisation des double crochets 
+\usepackage{pifont} %Utilisation des chiffres entourés 
+\usepackage{graphicx} %Introduction d images 
+\usepackage{epstopdf} %Utilisation des images .eps 
+\usepackage{amsthm} %Nécessaire pour créer des théorèmes 
+\usepackage{algorithmic} %Nécessaire pour écrire des algorithmes 
+\usepackage{algorithm} %Idem 
+\usepackage{bbold} %Nécessaire pour pouvoir écrire des indicatrices 
+\usepackage{hyperref} %Nécessaire pour écrire des liens externes 
+\usepackage{array} %Nécessaire pour faire des tableaux 
+\usepackage{tabularx} %Nécessaire pour faire de longs tableaux 
+\usepackage{caption} %Nécesaire pour mettre des titres aux tableaux (tabular) 
+\usepackage{color} %nécessaire pour écrire en couleur 
+\newtheorem{thm}{Théorème} 
+\newtheorem{mydef}{Définition} 
+\newtheorem{prop}{Proposition} 
+\newtheorem{lemma}{Lemme}
+\title{Semaine 24 - Séries et dénombrement}
+\author{Valentin De Bortoli \\ email : \ \href{mailto:valentin.debortoli@gmail.com}{valentin.debortoli@gmail.com}}
+\date{}
+\begin{document}
+\maketitle
+\section{Permutations et probabilités}
+On suppose que trois personnes ($1,2$ et $3$) sont assises à une table. Les trois chaises portent les noms $A,B$ et $C$. Toutes les minutes, deux personnes échangent de place.
+\subparagraph{1}Quelle est la probabilité pour qu'au bout de $n$ minutes on retrouve la configuration initiale ?
+
+\section{Formule de Vandermonde}
+Soit $(p,n) \in \mathbb{N}^2$. Soit $k \in \llbracket 1, \text{min}(p,n) \rrbracket$.
+\subparagraph{1}Montrer que $\binom{n+p}{k} = \underset{j=0}{\overset{k}{\sum}} \binom{n}{j} \binom{p}{k-j}$.
+
+\section{Nombre de surjections}
+Soit $E$ de cardinal $n$ et $F$ de cardinal $p$. On note $S_n^p$ le nombre de surjections de $E$ dans $F$. Le but de cet exercice est de donner une formule pour $S_n^p$.
+\subparagraph{1}Que peut-on dire si $p=1$ ? Si $p=n$ ? Si $p>n$ ?
+\subparagraph{2}Dans le cas où $p\le n$ donner une formule liant $S_n^p$, $S_{n-1}^{p-1}$ et $S_{n-1}^p$.
+\subparagraph{3}En déduire que $S_n^p = \underset{k=0}{\overset{n}{\sum}}(-1)^{n-k} \binom{n}{k} k^p$.
+
+\subparagraph{Remarque :} on peut retrouver ce résultat d'une manière plus naturelle en utilisant la formule du crible : $\text{card} \left( \underset{i=1}{\overset{n}{\bigcup}} A_i \right) = \underset{k=1}{\overset{n}{\sum}}(-1)^{k+1} \underset{1\le i_1 \le \dots \le i_k \le n}{\sum} \text{card} \left( \underset{i_j  \in \lbrace i_1,\dots,i_n \rbrace }{\bigcap} A_j \right)$ et en posant $A_i$ l'ensemble des applications de $E$ dans $F$ tel que l'élément numéro $i$ de $F$ n'a pas d'antécédent.
+
+\section{Nombre de dérangements}
+On considère l'espace des permutations de $\llbracket 1,n \rrbracket$. On appelle dérangement toute permutation sans point fixe. Notre but ici est de donner une formule explicite du nombre de dérangements de $\llbracket 1,n \rrbracket$.
+\subparagraph{1}En s'inspirant de la remarque de l'exercice précédent montré que le nombre de dérangements $D_n = \underset{k=0}{\overset{n}{\sum}} \frac{(-1)^k}{k!}$.
+\subparagraph{2}En déduire le nombre de permutations de $\llbracket 1,n \rrbracket$ ayant exactement $r$ points fixes.
+\subparagraph{Remarque :} $\frac{D_n}{n!} \rightarrow e^{-1}$. Ainsi lors du tirage des noms pour un "Secret Santa", on a en gros une probabilité de $0.36$ pour que personne ne tombe sur son propre prénom.
+
+\section{Suites croissantes (1)}
+Soit $n \in \mathbb{N}^*$ et $p \le n$.
+\subparagraph{1}Combien existe-t-il de suites strictement croissantes de $p$ entiers compris entre $1$ et $n$ ?
+\subparagraph{2}En déduire le nombre de suites de $p$ éléments de $\mathbb{N}^*$, $(x_k)_{k \in \llbracket 1,p \rrbracket}$ qui vérifient $x_1 + \dots + x_p \le n$.
+\subparagraph{2}En déduire le nombre de suites de $p$ éléments de $\mathbb{N}^*$, $(x_k)_{k \in \llbracket 1,p \rrbracket}$ qui vérifient $x_1 + \dots + x_p = n$.
+
+\section{Suites croissantes (2)}
+Soit $n \in \mathbb{N}^*$ et $p \le n$.
+\subparagraph{1}Combien existe-t-il de suites strictement croissantes de $p$ entiers compris entre $1$ et $n$ ?
+Soit $n \in \mathbb{N}^*$ et $p \le n$.
+\subparagraph{2}Combien existe-t-il de suites croissantes de $p$ entiers compris entre $1$ et $n$ ?
+
+\section{Des droites et des triangles}
+Soient $n$ droites du plan en position générale (deux droites choisies arbitrairement ne sont pas parallèles, trois droites choisies arbitrairement ne sont pas concourantes).
+\subparagraph{1}Combien forme-t-on de triangles ?
+
+\section{Relations d'ordre}
+Soit $E$ un ensemble à $n$ éléments. 
+\subparagraph{1} Combien existe-t-il de relations d'ordre total sur $E$ ?
+
+\section{Des anagrammes}
+Soit un mot de longueur $n$. On suppose que la lettre numéro $j$ apparaît $p_j$ fois.
+\subparagraph{1}Combien d'anagrammes peut-on écrire à partir du mot de longueur $n$ ?
+
+\section{Le paradoxe du prince de Toscane}
+On lance trois dés (valeurs comprises entre $1$ et $6$). On note $X$ la valeur de la somme des valeurs obtenues (exemple $5=3+2+1$).
+\subparagraph{1}Combien y a-t-il de manière d'écrire $10$ comme somme de trois chiffres ? $9$ ?
+\subparagraph{2}En déduire la probabilité $p_9$ que $X$ vaille $9$ et la probabilité $p_10$ que $X$ vaille $10$.
+
+\section{Dimension d'un espace vectoriel}
+Soit $k \in \mathbb{N}$ et $n \in \mathbb{N}$. On considère l'espace $k_n[X_1, \dots, X_k]$ des polynômes à $k$ indéterminées de degré $n$, par exemple $XY +X^2+Y^2+10X \in k_2[X,Y]$.
+\subparagraph{1}Après avoir montré que $k_n[X_1, \dots, X_k]$ est un $k$-espace vectoriel, déterminer sa dimension.
+
+
+
+\section{Sommes de Riemann et équivalent}
+\subparagraph{1} Soit $\alpha \in ]0,1[$. Donner un équivalent de $\underset{k=1}{\overset{n}{\sum}} \frac{1}{k^{\alpha}}$ lorsque $n$ tend vers l'infini.
+\subparagraph{2} Soit $\alpha \in ]1,+\infty[$. Donner un équivalent de $\underset{k=n}{\overset{+\infty}{\sum}} \frac{1}{k^{\alpha}}$ lorsque $n$ tend vers l'infini.
+
+\section{Une série convergente ?}
+\subparagraph{1}Que peut-on dire de la convergence de la série de terme général : $u_n = \frac{1+ \frac{1}{2}+ \dots + \frac{1}{n}}{\ln(n!)}$ ?
+
+\section{Un produit convergent ?}
+\subparagraph{1}Que peut-on dire de la convergence du produit de terme général $u_n = 1+ \frac{(-1)^n}{\sqrt{n}}$ ?
+
+\section{Séries de Bertrand}
+On note $u_{n,\alpha,\beta} = \frac{1}{n^{\alpha} \ln(n) ^{\beta}}$.
+\subparagraph{1}Que peut-on dire de la convergence de la série de terme générale $u_{n, \alpha, \beta}$ pour $\alpha>1$ ? Pour $\alpha <1$ ? Pour $\alpha=1$ et $\beta>1$ ? Pour $\alpha=1$ et $\beta \le 1$ ?
+\subparagraph{2}Que peut-on dire de la convergence de la série de terme général $u_n = \frac{1}{\underset{k=1}{\overset{n}{\sum}}\ln(k)^2}$ ?
+
+\section{Calcul de limite (1)}
+\subparagraph{1}Montrer que la série de terme général $u_n = \arctan \left( \frac{1}{n^2+n+1} \right)$ converge et déterminer cette limite.
+
+\section{Calcul de limite (2)}
+\subparagraph{1}Montrer que $S(a)=\underset{n=0}{\overset{+\infty}{\sum}} \frac{a}{a^2+n^2}$ est bien définie sur $\mathbb{R}_+^*$ et calculer la limite de $S(a)$ en $+\infty$.
+
+\section{Somme des inverses des nombres premiers}
+On énumère les nombres premiers dans l'ordre croissant : $(p_n)_{n \in \mathbb{N}}$.
+\subparagraph{1}Montrer que la convergence de la série de terme général $p_n$ est équivalente à la convergence de la suite $(v_n)_{n \in \mathbb{N}}$ définie par $v_n = \underset{k=1}{\overset{n}{\prod}}\frac{1}{1- \frac{1}{p_k}}$.
+\subparagraph{2}Montrer que $v_n \ge \underset{k=1}{\overset{n}{\sum}} \frac{1}{k}$. Conclure.
+\subparagraph{3}Discuter en fonction de $\alpha \in \mathbb{R}_+^*$ la convergence de la série de terme général $\frac{1}{p_n^{\alpha}}$.
+
+\section{Transformation d'Abel et application}
+Soit $(u_n)_{n \in \mathbb{N}}$ et $(v_n)_{n \in \mathbb{N}}$ deux suites de nombres complexes. On note $s_n = \underset{k=0}{\overset{n}{\sum}}v_k$
+\subparagraph{1}On considère $S_n = \underset{k=0}{\overset{n}{\sum}}u_k v_k$. Montrer que :
+\begin{equation*}
+S_n = u_n s_n - u_0s_0 - \underset{k=1}{\overset{n-1}{\sum}}(u_{k}-u_{k-1}) s_k
+\end{equation*}
+\subparagraph{2}En déduire la convergence de la série de terme général $u_n = \sin \left( \frac{\sin(n)}{\sqrt[3]{n}} \right)$.
+\subparagraph{Remarque :} la transformation d'Abel n'est rien de moins qu'une intégration par partie en discret. Il est peut être utile de garder cette transformation en tête lorsque l'on ne parvient pas à démontrer la convergence de la série avec des règles type Cauchy mais que la forme du terme général nous invite à poursuivre dans cette direction.
+
+\section{Valeur absolue et sinus}
+\subparagraph{1}Que peut-on dire de la convergence de la série de terme général $u_n = \frac{\vert \sin(n) \vert}{n}$ ?
+\end{document}

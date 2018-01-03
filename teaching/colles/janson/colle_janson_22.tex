@@ -1,0 +1,115 @@
+\documentclass[10pt,a4paper]{article} 
+\usepackage[utf8]{inputenc} 
+\usepackage[T1]{fontenc} 
+\usepackage[english]{babel} 
+\usepackage{supertabular} %Nécessaire pour les longs tableaux
+\usepackage[top=2.5cm, bottom=2.5cm, right=1.5cm, left=1.5cm]{geometry} %Mise en page 
+\usepackage{amsmath} %Nécessaire pour les maths 
+\usepackage{amssymb} %Nécessaire pour les maths 
+\usepackage{stmaryrd} %Utilisation des double crochets 
+\usepackage{pifont} %Utilisation des chiffres entourés 
+\usepackage{graphicx} %Introduction d images 
+\usepackage{epstopdf} %Utilisation des images .eps 
+\usepackage{amsthm} %Nécessaire pour créer des théorèmes 
+\usepackage{algorithmic} %Nécessaire pour écrire des algorithmes 
+\usepackage{algorithm} %Idem 
+\usepackage{bbold} %Nécessaire pour pouvoir écrire des indicatrices 
+\usepackage{hyperref} %Nécessaire pour écrire des liens externes 
+\usepackage{array} %Nécessaire pour faire des tableaux 
+\usepackage{tabularx} %Nécessaire pour faire de longs tableaux 
+\usepackage{caption} %Nécesaire pour mettre des titres aux tableaux (tabular) 
+\usepackage{color} %nécessaire pour écrire en couleur 
+\newtheorem{thm}{Théorème} 
+\newtheorem{mydef}{Définition} 
+\newtheorem{prop}{Proposition} 
+\newtheorem{lemma}{Lemme}
+\title{Semaine 22 - Systèmes linéaires et suites récurrentes}
+\author{Valentin De Bortoli \\ email : \ \href{mailto:valentin.debortoli@gmail.com}{valentin.debortoli@gmail.com}}
+\date{}
+\begin{document}
+\maketitle
+Dans la suite $k$ est un corps (on se limite à $\mathbb{R}$ et $\mathbb{C}$) et $E$ un $k$-espace vectoriel.
+
+\section{Matrices circulantes et polygones}
+Soit $(a_i)_{i \in \llbracket 1,n\rrbracket} \in \mathbb{C}^n$ ($n \in \mathbb{N}$).
+\subparagraph{1}Peut-on trouver $(z_i)_{i \in \llbracket 1,n \rrbracket}$ un polygone du plan complexe tel que $a_i$ soit le milieu de $[z_i,z_{i+1}]$ si $i<n$ et $a_n$ milieu de $[z_n,z_1]$ ?
+
+
+\section{Un calcul d'inverse}
+Soit $A \in \mathcal{G}l_n\left( \mathbb{R} \right)$. On suppose de plus que $A+A^{-1}=I_n$.
+\subparagraph{1}Montrer que $\forall k \in \mathbb{N}, \ A^k+A^{-k}$ est scalaire.
+\subparagraph{2}En déduire $A^k+A^{-k}$.
+
+
+\section{Matrices de permutation}
+Soit $\sigma$ une bijection de $\llbracket 1,n \rrbracket$ dans $\llbracket 1,n \rrbracket$. On note $M_{\sigma} \in \mathcal{M}_n\left( \mathbb{R} \right)$ la matrice définie par :
+\begin{equation*}
+\forall (i,j) \in \llbracket 1,n \rrbracket, \ M_{\sigma}(i,j) = \left\lbrace \begin{matrix} 0 \ \text{si } \ j \neq \sigma(i) \\ 
+1 \ \text{sinon}\end{matrix} \right.
+\end{equation*}
+\subparagraph{1}Quel est l'effet d'une multiplication à droite par une matrice de permutation ? A gauche ?
+\subparagraph{2}On suppose que la permutation considérée est une transposition, c'est-à-dire $\exists! \ (i,j) \in \llbracket 1,n \rrbracket, \ \sigma(i) \neq i \wedge \sigma(j) \neq j \wedge \sigma(i)=j$. Montrer que dans ce cas $M_{\sigma}$ peut s'écrire comme produit de matrices de type $I_n+E_{i,j}$ (matrices de transvection) et d'une matrice de dilatation (matrice diagonale inversible dont un seul des coefficients est différent de $1$).
+\subparagraph{3}En supposant que toute permutation peut s'écrire comme un composition de transpositions, conclure que toute matrice de permutation peut s'écrire comme produit de matrices de transvection et de matrices de dilatation.
+
+\section{Matrices de transvection, matrice de dilatation}
+On appelle matrices de transvection les matrices de la forme $I_n+E_{i,j}$. On appelle matrice de dilatation toute matrice diagonale inversible dont un seul des coefficients est différent de $1$. Ces deux ensembles jouent un rôle fondamental pour la description du groupe linéaire.
+\subparagraph{1}Reprendre la question 1 de l'exercice précédent. A partir de maintenant on admettra la dernière question de l'exercice précédent.
+\subparagraph{2}Montrer que tout élément du groupe linéaire peut s'écrire comme produit de matrices de transvection et de dilatation.
+
+\section{Matrices échelonnées et nombres entiers}
+\subparagraph{1}Donner la forme échelonnée selon les colonnes de $\left( \begin{matrix} 3 & 2 \\1 & 1\end{matrix}\right)$.
+\subparagraph{2} Soit $M=\left( \begin{matrix} a & b \\ c & d \end{matrix} \right) \in \mathcal{M}_2 \left( \mathbb{Z} \right)$. Montrer qu'il existe $P=\left( \begin{matrix} s & t \\ u & v \end{matrix} \right) \in \mathcal{M}_2 \left( \mathbb{Z} \right)$ inversible et d'inverse dans $\mathcal{M}_2 \left( \mathbb{Z} \right)$ tel que $MP = \left( \begin{matrix} 1 & 0 \\ c' & d' \end{matrix} \right)$ avec $(c',d') \in \mathbb{Z}^2$.
+\subparagraph{3}Comment obtenir une matrice échelonnée selon les colonnes dans $\mathbb{Z}$ ?
+\subparagraph{4}Appliquer les conclusions de la question précédente à l'exemple de la première question.
+
+
+\section{Somme de matrices inversibles}
+\subparagraph{1}Montrer que tout matrice $M \in \mathcal{M}_n \left( \mathbb{R} \right)$ peut s'écrire comme la somme de deux matrices inversibles.
+
+\section{Dimension d'un espace matriciel}
+Soit $A \in \mathcal{M}_n \left( \mathbb{R} \right)$ de rang $r$.
+\subparagraph{1}Montrer que $\mathcal{A} = \lbrace B \in \mathcal{M}_n\left( \mathbb{R} \right), ABA=0 \rbrace$ est un espace-vectoriel et donner sa dimension.
+
+\section{Somme de matrice inversible}
+Soit $(A,B) \in \left( \mathcal{M}_n\left( \mathbb{R} \right) \right)^2$.
+\subparagraph{1} On suppose que $\text{rg}(A)+\text{rg}(B) \ge n$. Montrer qu'il existe $U$ et $V$ deux matrices de $\mathcal{G}l_n\left(\mathbb{R} \right)$ telles que $UA+BV$ inversible.
+
+\section{Suite et équivalent}
+Soit $(u_n)_{n \in \mathbb{N}}$ définie de la manière suivante :
+\begin{equation*}
+\left\lbrace
+\begin{aligned}
+& u_0 \in ]0,\frac{\pi}{2}[\\
+& u_{n+1}=\sin(u_n)
+\end{aligned}
+\right.
+\end{equation*}
+\subparagraph{1}Montrer que $u_n \rightarrow 0$.
+\subparagraph{2}Montrer que $\frac{1}{u_{n+1}^2}-\frac{1}{u_n^2}$ admet une limite en $+\infty$ et la calculer.
+\subparagraph{3}En utilisant la question 3 de l'exercice précédent déterminer un équivalent de $u_n$ lorsque $n \rightarrow +\infty$.
+\section{Méthode de Newton}
+Soit $f \in \mathcal{C}^2([a,b])$ à valeurs réelles avec $f'>0$ sur $[a,b]$. On définit $(x_n)_{n \in \mathbb{R}} \in \mathbb{R}^{\mathbb{N}}$ de la manière suivante :
+\begin{equation*}
+x_{n+1}=x_n-\frac{f(x_n)}{f'(x_{n})}
+\end{equation*}
+On suppose également que $f$ s'annule en $c \in ]a,b[$. Enfin on suppose que $\forall n \in \mathbb{N}, \ x_n \in [a,b]$.
+\subparagraph{1}Montrer que $\forall n \in \mathbb{N}, \ x_{n+1}$ correspond à l'abscisse du point d'intersection entre la tangente à $f$ en $x_n$ et l'axe des abscisses. Faire un dessin.
+\subparagraph{2}Montrer que $\forall n \in \mathbb{N}, \ \vert x_{n+1}-c \vert \le C \vert x_n-c \vert^2$ avec $C \in \mathbb{R}_+$.
+\subparagraph{3}Donner la formule liant $x_{n+1}$ et $x_n$ dans le cas où $f : \ x \mapsto x^2-a$ et $f $ définie sur $[0,2a], \ (a\in\mathbb{R}_+)$.
+\subparagraph{Remarque :} cette méthode est très utilisée pour trouver le minimum de fonctionnelle. Néanmoins $f$ n'est pas toujours dérivable ou peut être très compliquée à dériver. On utilise alors d'autres algorithmes (méthode de la corde, méthode de la sécante, dichotomie et bien d'autres...). 
+
+\section{Récurrence et nombre d'or}
+\subparagraph{1}Montrer que $\sqrt{1+\sqrt{1+\sqrt{\dots}}}=1+\frac{1}{1+\frac{1}{1+\dots}}=\frac{1+\sqrt{5}}{2}$.
+
+\section{Une suite complexe}
+Soit la suite $(z_n)_{n \in \mathbb{N}} \in \mathbb{C}^{\mathbb{N}}$ définie par :
+\begin{equation*}
+\left\lbrace\begin{aligned}
+&z_0=\rho e^{i\theta} \in \mathbb{C}, \ \rho \in \mathbb{R}_+, \theta \in [-\pi,\pi] \\
+&z_{n+1}=\frac{z_n+\vert z_n \vert}{2}, \ \forall n \in \mathbb{N}
+\end{aligned} \right.
+\end{equation*}
+\subparagraph{1}Exprimer $z_n$ sous la forme d'un produit.
+\subparagraph{2}Montrer que $\forall n \in \mathbb{N}^*, \ \underset{k=1}{\overset{n}{\prod}}\cos(\frac{\theta}{2^k})=\frac{\sin(\theta)}{2^n\sin(\frac{\theta}{2^n})}$.
+\subparagraph{3}Montrer que $z_n$ admet une limite et la calculer.
+\end{document}

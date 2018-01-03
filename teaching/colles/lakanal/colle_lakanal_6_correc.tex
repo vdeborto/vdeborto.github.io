@@ -1,0 +1,110 @@
+\documentclass[10pt,a4paper]{article} 
+\usepackage[utf8]{inputenc} 
+\usepackage[T1]{fontenc} 
+\usepackage[english]{babel} 
+\usepackage{supertabular} %Nécessaire pour les longs tableaux
+\usepackage[top=2.5cm, bottom=2.5cm, right=1.5cm, left=1.5cm]{geometry} %Mise en page 
+\usepackage{amsmath} %Nécessaire pour les maths 
+\usepackage{amssymb} %Nécessaire pour les maths 
+\usepackage{stmaryrd} %Utilisation des double crochets 
+\usepackage{pifont} %Utilisation des chiffres entourés 
+\usepackage{graphicx} %Introduction d images 
+\usepackage{epstopdf} %Utilisation des images .eps 
+\usepackage{amsthm} %Nécessaire pour créer des théorèmes 
+\usepackage{algorithmic} %Nécessaire pour écrire des algorithmes 
+\usepackage{algorithm} %Idem 
+\usepackage{bbold} %Nécessaire pour pouvoir écrire des indicatrices 
+\usepackage{hyperref} %Nécessaire pour écrire des liens externes 
+\usepackage{array} %Nécessaire pour faire des tableaux 
+\usepackage{tabularx} %Nécessaire pour faire de longs tableaux 
+\usepackage{caption} %Nécesaire pour mettre des titres aux tableaux (tabular) 
+\usepackage{color} %nécessaire pour écrire en couleur 
+\newtheorem{thm}{Théorème} 
+\newtheorem{mydef}{Définition} 
+\newtheorem{prop}{Proposition} 
+\newtheorem{lemma}{Lemme}
+\title{Semaine 6 - Dérivabilité et équations différentielles du second ordre à coefficients constants}
+\author{Valentin De Bortoli \\ email : \ \href{mailto:valentin.debortoli@gmail.com}{valentin.debortoli@gmail.com}}
+\date{}
+\begin{document}
+\maketitle
+\section{Résolution d'équation différentielle du second ordre (1)}
+\subparagraph{1}On considère l'équation homogène associée $r^2-3r+2 = (r-2)(r-1)$. Donc les solutions de l'équations homogènes sont de la forme, $y(x) = Ae^x + Be^{2x}$ avec $(A,B) \in \mathbb{R}^2$. Il s'agit de trouver une solution de l'équation avec second membre. On pose $y_0(x) = \alpha\sin(2x) + \beta \cos(x)$ et on calcule,
+\[
+y_0''(x) - 3y_0'(x) +2y_0(x) = (6\beta - 2\alpha) \sin(2x) -(6\alpha +2\beta) \cos(2x)
+\]
+Donc en posant $\alpha = - \frac{1}{3}\beta$ et $\beta = \frac{3}{20}$ on obtient une solution particulière. Ainsi l'ensemble des solutions de l'équation différentielle linéaire du second ordre à coefficients constants avec second membre proposé est,
+\[
+\mathcal{S} = \left\lbrace y, \exists (A,B) \in \mathbb{R}^2, \ \forall x \in \mathbb{R}, \ y(x) = \frac{1}{20}\left( 3\cos(2x) - \sin(2x)\right) + Ae^x +Be^{2x}\right\rbrace
+\]
+
+\subparagraph{Remarque :} dans les exercices 1 à 4 on ne détaille pas la technique pour trouver les solutions de ces équations, celle-ci étant similaire à celle présentée dans cette exercice. On conseille néanmoins de garder à l'esprit les concepts de superposition des solutions lorsque le second membre peut-être décomposé (par exemple $\sinh(x) = \frac{e^x}{2} + \frac{e^{-x}}{2}$. De même il peut être compliqué de trouver des solutions particulières. Lorsque le second membre est de la forme $P(x)e^{s x}$ avec $s \in C$ on sait qu'une solution sera de la forme $Q(x)e^{s x}$ avec $Q$ de même degré que $P$ (éventuellement $+m$ si $s$ est racine de l'équation homogène avec multiplicité $m$). Puisque $s \in \mathbb{C}$ cette technique peut-être appliquée pour les fonctions trigonométriques. Ainsi, si le second membre est de la forme $P(x)\sin(x) + Q(x)\cos(x)$ on peut chercher une solution particulière de la forme $R(x)\sin(x) + S(x) \cos(x)$, le degré de $R$ et de $S$ étant égal au maximum entre celui de $P$ et $Q$ (éventuellement $+m$ si $s$ est racine de l'équation homogène avec multiplicité $m$). Enfin il convient de remarque qu'un polynôme en cosinus et sinus peut être linéarisé et donc les techniques décrites précédemment peuvent être appliquées sans problèmes.
+\section{Résolution d'équation différentielle du second ordre (2)}
+\subparagraph{1}\(
+\mathcal{S} = \left\lbrace y, \exists (A,B) \in \mathbb{R}^2, \ \forall x \in \mathbb{R}, \ y(x) = \frac{\sinh(x)}{2}+A\cos(x) + B\sin(x)\right\rbrace
+\)
+\subparagraph{2}\(
+\mathcal{S} = \left\lbrace y, \exists (A,B) \in \mathbb{R}^2, \ \forall x \in \mathbb{R}, \ y(x) = (A+Bx)e^x + \frac{x^2e^x}{2} + \frac{e^{-x}}{4}\right\rbrace
+\)
+
+\section{Résolution d'équation différentielle du second ordre (3)}
+\subparagraph{1}\(
+\mathcal{S} = \left\lbrace y, \exists (A,B) \in \mathbb{R}^2, \ \forall x \in \mathbb{R}, \ y(x) = (A+Bx)e^{-x} -\frac{3}{16} \cos(x) + \frac{1}{100}\sin(3x) + \frac{3}{400} \cos(3x)\right\rbrace
+\)
+\subparagraph{2}\(
+\mathcal{S} = \left\lbrace y, \exists (A,B) \in \mathbb{R}^2, \ \forall x \in \mathbb{R}, \ y(x) = A\cos(x) + B\sin(x) + 1 -\frac{1}{3} \cos(2x)\right\rbrace
+\)
+
+\section{Résolution d'équation différentielles du second ordre (4)}
+\subparagraph{1}On va  d'abord remarquer qu'on peut faire le changement de variable $e^t$ dans l'équation différentielle. On cherche alors les fonctions $y$ telles que $ae^{2t}y''(e^t) +be^ty'(e^t) +cy(e^t) = 0$. Ce changement est possible car l'équation est définie pour $x$ dans $\mathbb{R}_+^*$, i.e l'image de la fonction exponentielle. Posons maintenant $z(t) = y(e^t)$. $z'(t) = e^ty'(e^t)$ et $z''(t) = e^t y'(e^t) + e^{2t}y''(e^t)$. Ainsi, $e^{2t}y''(t) = z''(t) - z'(t)$ et on peut réécrire la première équation différentielle linéaire du second ordre à coefficients non constants sans second membre comme une équation différentielle linéaire du second ordre à coefficients constants sans second membre. On obtient donc
+\[
+az''(t) + (b-a)z'(t) +cz= 0
+\]
+Soit $(r_1,r_2)$ les solutions de l'équation homogène associée. On a donc les solutions en $z$ qui sont de la forme $Ae^{r_1 t} + Be^{r_2 t}$ avec $(A,B) \in \mathbb{R}^2$ si $r_1$ et $r_2$ réels et distincts (on considère seulement ce cas les autres étant similaires). On effectue le changement de variable $t = \ln(x)$ et on obtient les solutions en $y$, $Ax^{r_1} + Bx^{r_2}$.
+\section{Solutions bornées et équations différentielles du second ordre}
+\subparagraph{1}Procédons par analyse-synthèse. Il est facile de voir que si une des racines de l'équation homogène est de partie réelle positive alors on diverge. $\Delta = a^2 - 4b$. Si $\Delta>0$ alors on doit avoir $a \pm \Delta \ge 0$. Si $\Delta \le 0$ alors on doit avoir $a\ge 0$.
+
+\section{Des équations presque différentielles}
+Il convient de remarquer (voir feuille 4, exercice 12) que toute solution d'une de ces équations est dérivable une infinité de fois. Ainsi on peut rigoureusement dériver autant de fois que l'on veut les égalités.
+\subparagraph{1} $f'(x) = f(\lambda -x)$. Raisonnons par analyse-synthèse, on obtient en dérivant $f''(x) = -f'(\lambda-x) = -f(\lambda - (\lambda -x)) = -f(x)$. Donc on a $f(x) = C\cos(x+\theta)$. Il est astucieux d'écrire la fonction candidat de cette manière. En effet, on doit considérer des déphasages et il serait assez malvenu d'écrire la solution comme somme de sinus et de cosinus à cet effet. On remplace dans l'équation originale et on trouve $\cos(\lambda + \theta -x) = \cos(\frac{\pi}{2} + \theta + x)$, d'où $\theta = \frac{-\lambda}{2} - \frac{\pi}{4}[\pi]$ ou $\lambda = \frac{\pi}{2}[2\pi]$ mais alors dans ce cas $\sin(\theta -x) = \sin(\theta + x)$ et ce pour tout $x$. Ce n'est pas possible et donc l'ensemble des solutions est --après vérification (synthèse--
+\[
+\mathcal{S} = \left\lbrace f, \exists C \in \mathbb{R}, \forall x \in \mathbb{R}, \ f(x) = C\cos(x -\frac{\lambda}{2} - \frac{\pi}{4})\right\rbrace
+\] 
+\subparagraph{2}Même chose on raisonne par analyse-synthèse en dérivant et en changeant de variable $x \mapsto -x$, $f''(-x) - f'(x) = e^{-x}$. Si on ajoute l'équation originale on trouve que $f(x) = A\cos(x) + B\sin(x) + \cosh(x)$. En remplaçant dans l'équation originale on trouve $-(B+A) \sin(x) + (A+B)\cos(x) + \cosh(x) + \sinh(x) = e^x + (A+B) (\cos(x) - \sin(x))$ doit être égal à $e^x$. Cela impose $A = -B$. Et donc l'ensemble des solutions est
+\[
+\mathcal{S} = \left\lbrace f, \exists C \in \mathbb{R}, \forall x \in \mathbb{R}, \ f(x) = C(\cos(x) - \sin(x)) + \cosh(x) \right\rbrace
+\] 
+\section{Racines réelles de polynôme (1)}
+Le nombre de racines réelles de $P'$ est supérieur ou égal au nombre de racines réelles de $P$ $-1$ (les racines sont comptées avec leur ordre de multiplicité). En effet, le nombre de racines réelles de $P'$ est supérieur à la somme des ordres (moins un) des racines distinctes de $P$ et le théorème de Rolle assure l'existence d'une racine de $P'$ entre chaque intervalle de deux racines distinctes.
+
+Or $P' = nX^{n-1} +a$ a au plus deux racines réelles donc $P$ a au plus trois racines réelles.
+
+\section{Racines réelles de polynômes (2)}
+\subparagraph{1}Trivialement $P_n$ est un polynôme de degré $n$. Les racines de $(1-X^2)^n$ sont $1$ et $-1$ et sont d'ordre $n$. Ainsi $1$ et $-1$ sont des racines d'ordre $n-1$ de $\left((1-X^2)^n\right)'$ et il existe une racine dans $]-1,1[$ par le théorème de Rolle. Par récurrence on montre que les racines de $\left((1-X^2)^n \right)^{(k)}$ sont $1$ et $-1$ à l'ordre $n-k$ et $k$ racines distinctes dans $]-1,1[$. Ainsi on peut conclure en posant $k=n$ (les racines sont alors distinctes).
+
+\section{Théorème des accroissements finis (1)}
+\subparagraph{1}En admettant le théorème de Rolle le théorème des accroissements finis est facile. Il suffit de retirer à la fonction que l'on considère la corde qui relie $f(a)$ à $f(b)$. On considère alors $g(x) = f(x) - (f(a) + \frac{f(b) -f(a)}{b-a}(x-a))$. On vérifie que l'on est bien dans les hypothèses du théorème de Rolle, $g$ dérivable sur $]a,b[$, continue sur $[a,b]$ et $g(a) = g(b) = 0$. Donc il existe $c$ tel que $g'(c) = f'(c) - \frac{f(b)-f(a)}{b-a} = 0$. Donc $f'(c) = \frac{f(b) - f(a)}{b-a}$ et le théorème est démontré.
+
+\subparagraph{2} $f'(x) = 2\alpha x+\beta$ et $\frac{f(b)-f(a)}{b-a} = \alpha(a+b) + \beta$. Donc on trouve que le point $c$ pour lequel $f'(c) = \frac{f(b) - f(a)}{b-a}$ est $c = \frac{a+b}{2}$.
+\subparagraph{3}Géométriquement cela veut dire que la tangente au graphe de la courbe de la fonction $x \mapsto x^2$ prise au milieu d'un segment est parallèle à la corde reliant les images des extrémités du segment.
+
+\section{Théorème des accroissements finis (2)}
+
+\subparagraph{1}Si $g(b) = g(a)$ alors on peut utiliser le théorème de Rolle pour trouver un point d'annulation de $g'$. C'est absurde.
+
+\subparagraph{2}On considère $h(x) = f(x) - (f(a) + \frac{f(b) -f(a)}{g(b)-g(a)}(g(x)-g(a)))$. On a $h$ qui vérifie les hypothèses du théorème de Rolle et donc on est assuré de l'existence de $c \in ]a,b[$ tel que $\exists c \in ]a,b[, \ \frac{f(b)-f(a)}{g(b)-g(a)}=\frac{f'(c)}{g'(c)}$.
+
+\subparagraph{3}Soit $b_n$ une suite qui tend vers $b$ on peut appliquer le théorème des accroissements finis généralisés entre $b_n$ et $b$. On obtient une suite $c_n$ qui tend vers $b$ telle que $\frac{f(b_n)-f(a)}{g(b_n) - g(a)} = \frac{f'(c_n)}{g'(c_n)}$. Le terme de droite admet une limite par hypothèse et donc la suite $\left( \frac{f(b_n)-f(a)}{g(b_n) - g(a)}\right)_{n\in \mathbb{N}}$. Ce résultat est valable pour n'importe quelle suite qui tend vers $b$ et donc on a l'existence de la limite pour la fonction.
+
+\subparagraph{4}$\text{arccos}(1) = 0$ et $\sqrt{1-1^2}=0$ de plus les fonctions arc cosinus et $x \mapsto \sqrt{1-x^2}$ vérifie les hypothèses de l'exercice sur $[0,1]$. La dérivée de l'arc cosinus est $x \mapsto \frac{-1}{\sqrt{1-x^2}}$ et celle de $x\mapsto \sqrt{1-x^2}$ est $\frac{-2x}{\sqrt{1-x^2}}$ donc la limite annoncée existe et vaut $\frac{1}{2}$.
+ 
+\section{Théorème de Rolle généralisé}
+\subparagraph{1}$\tan(x-a) \underset{x \rightarrow +\frac{\pi}{2}}{\rightarrow} +\infty$ et donc par composition et continuité de la fonction $f$ sur $[a,+\infty[$ on a $f(\tan(x-a)) \underset{x \rightarrow +\frac{\pi}{2}}{\rightarrow} f(a)$. Ainsi on peut prolonger $g$ par continuité.
+\subparagraph{2}Cette fonction est continue sur $[a,a+\frac{\pi}{2}]$, dérivable sur l'intervalle ouvert et $g(a) = g(a+\frac{\pi}{2})$. Donc il existe $c \in ]a,a+\frac{\pi}{2}[$ tel que $g'(c) = (1+ \tan^2(c-a)) f'(\tan(c-a)) = 0$. Ainsi, $f'(d) = 0$ avec $d \in ]a,+\infty[$. On a réussi à étendre le théorème de Rolle a un intervalle non borné.
+\subparagraph{3}Il suffit de vérifier que la fonction proposée vérifie les hypothèses du théorème de Rolle généralisé.
+
+\section{Une propriété du logarithme}
+\subparagraph{1} Il suffit d'appliquer le théorème de Rolle à la fonction $\ln$. On trouve qu'il existe $c \in ]x,y[$ tel que $\frac{1}{y} < frac{\ln(y) - \ln(x) }{y-x} = \frac{1}{c} < \frac{1}{x}$. En inversant on trouve les inégalités voulues.
+\subparagraph{2} On calcule $f'(\alpha) = \frac{\ln(y) - \ln(x)}{x + \alpha(y-x)} \left( \frac{y-x}{\ln(y) - \ln(x)} -(x+ \alpha(y-x))\right)$. $\frac{\ln(y) - \ln(x)}{x + \alpha(y-x)}$ est positif et $\frac{y-x}{\ln(y) - \ln(x)} -(x+ \alpha(y-x))$ est linéaire décroissant, positif en $0$, négatif en $1$. Donc $f$ est croissante puis décroissante et $f(0) = f(1) = 0$ donc la fonction est positive.
+\subparagraph{3}On a montré la concavité de la fonction logarithme. Les propriétés de convexité/concavité sont très importantes dans de très nombreux domaines des mathématiques (analyse fonctionnelle, géométrie, optimisation...). Il existe de nombreuses caractérisations des fonctions convexes (concaves dans ce cas-ci). L'inégalité obtenue s'interprète sur le graphe de la fonction logarithme. Elle énonce que la corde entre deux points du graphe est située en dessous de la courbe du graphe reliant ces deux points.
+\end{document}

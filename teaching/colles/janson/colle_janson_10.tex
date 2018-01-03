@@ -1,0 +1,129 @@
+\documentclass[10pt,a4paper]{article} 
+\usepackage[utf8]{inputenc} 
+\usepackage[T1]{fontenc} 
+\usepackage[english]{babel} 
+\usepackage{supertabular} %Nécessaire pour les longs tableaux
+\usepackage[top=2.5cm, bottom=2.5cm, right=1.5cm, left=1.5cm]{geometry} %Mise en page 
+\usepackage{amsmath} %Nécessaire pour les maths 
+\usepackage{amssymb} %Nécessaire pour les maths 
+\usepackage{stmaryrd} %Utilisation des double crochets 
+\usepackage{pifont} %Utilisation des chiffres entourés 
+\usepackage{graphicx} %Introduction d images 
+\usepackage{epstopdf} %Utilisation des images .eps 
+\usepackage{amsthm} %Nécessaire pour créer des théorèmes 
+\usepackage{algorithmic} %Nécessaire pour écrire des algorithmes 
+\usepackage{algorithm} %Idem 
+\usepackage{bbold} %Nécessaire pour pouvoir écrire des indicatrices 
+\usepackage{hyperref} %Nécessaire pour écrire des liens externes 
+\usepackage{array} %Nécessaire pour faire des tableaux 
+\usepackage{tabularx} %Nécessaire pour faire de longs tableaux 
+\usepackage{caption} %Nécesaire pour mettre des titres aux tableaux (tabular) 
+\usepackage{color} %nécessaire pour écrire en couleur 
+\newtheorem{thm}{Théorème} 
+\newtheorem{mydef}{Définition} 
+\newtheorem{prop}{Proposition} 
+\newtheorem{lemma}{Lemme}
+\title{Semaine 10 - Suites numériques, groupes}
+\author{Valentin De Bortoli \\ email : \ \href{mailto:valentin.debortoli@gmail.com}{valentin.debortoli@gmail.com}}
+\date{}
+\begin{document}
+\maketitle
+\section{Divergence et suite extraites}
+\subparagraph{1}Montrer que $(\cos(n))_{n \in \mathbb{N}}$ est divergente.
+\subparagraph{2}Montrer de même que  $(\sin(n))_{n \in \mathbb{N}}$ est divergente.
+\section{Une suite complexe}
+Soit la suite $(z_n)_{n \in \mathbb{N}} \in \mathbb{C}^{\mathbb{N}}$ définie par :
+\begin{equation*}
+\left\lbrace\begin{aligned}
+&z_0=\rho e^{i\theta} \in \mathbb{C}, \ \theta \in [-\frac{\pi}{2},\frac{\pi}{2}], \ \rho \in \mathbb{R}_+ \\
+&z_{n+1}=\frac{z_n+\vert z_n \vert}{2}, \ \forall n \in \mathbb{N}
+\end{aligned} \right.
+\end{equation*}
+\subparagraph{1}Exprimer $z_n$ sous la forme d'un produit.
+\subparagraph{2}Montrer que $\forall n \in \mathbb{N}^*, \ \underset{k=1}{\overset{n}{\prod}}\cos(\frac{\theta}{2^k})=\frac{\sin(\theta)}{2^n\sin(\frac{\theta}{2^n})}$.
+\subparagraph{3}Montrer que $z_n$ admet une limite et la calculer.
+\section{Irrationalité de e}
+Soit $(u_n)_{n \in \mathbb{N}} \in \mathbb{R}^{\mathbb{N}}$ et $(v_n)_{n \in \mathbb{N}} \in \mathbb{R}^{\mathbb{N}}$ définies par $\forall n \in \mathbb{N}, \ u_n=\underset{k=0}{\overset{n}{\sum}}\frac{1}{k!}$ et $v_n=u_n+\frac{1}{n! n}$
+\subparagraph{1}Montrer que les suites $(u_n)_{n \in \mathbb{N}}$ et $(v_n)_{n \in \mathbb{N}}$ sont adjacentes.
+\subparagraph{2}On admet l'inégalité de Taylor-Lagrange. Celle-ci assure que pour toute fonction $f \ : \ [a,b] \rightarrow \mathbb{R} \ \in \mathcal{C}^n([a,b])$ et dérivable $n+1$ fois sur $]a,b[$ et telle que $f^{(n+1)}$ est bornée, on a :
+\begin{equation*}
+\vert f(b)-f(a)-\frac{f'(a)}{1!}(b-a)-\frac{f''(a)}{2!}(b-a)^2-\dots-\frac{f^{(n)}(a)}{n!}(b-a)^n \vert \le \frac{(b-a)^{n+1}}{(n+1)!} \underset{x \in ]a,b[}{\sup}(\vert f^{(n+1)} \vert)
+\end{equation*}
+En l'appliquant à la fonction $x \mapsto e^x$ montrer que $u_n \rightarrow e$.
+\subparagraph{3}On suppose que $e=\frac{p}{q}$ avec $(p,q)\in \mathbb{N}\times \mathbb{N}^*$. En considérant $u_q q! q$ et $v_q q! q$ aboutir à une contradiction.
+\section{Moyenne arithmético-géométrique}
+Soit $(a,b)\in \mathbb{R}_+^2$. On définit $(u_n)_{n \in \mathbb{N}} \in \mathbb{R}^{\mathbb{N}}$ et $(v_n)_{n \in \mathbb{N}} \in \mathbb{R}^{\mathbb{N}}$ de la manière suivante :
+\begin{equation*}
+\left\lbrace 
+\begin{aligned}
+&u_0=a, \ v_0=b \\
+&u_{n+1}=\sqrt{u_n v_n}, \ v_{n+1}=\frac{v_n+u_n}{2}, \ \forall n \in \mathbb{N}
+\end{aligned}
+\right.
+\end{equation*}
+\subparagraph{1}Montrer que $\forall n \in \mathbb{N}, \ u_n \le v_n$ ainsi que $u_n \le u_{n+1}$ et $v_{n+1} \le v_n$. En déduire que $(u_n)_{n \in \mathbb{N}}$ et $(v_n)_{n \in \mathbb{N}}$ admettent des limites.
+\subparagraph{2}Montrer que ces limites sont égales. On la note $M(a,b)$ et on l'appelle moyenne arithmético-géométrique de $a$ et $b$.
+\subparagraph{3}Calculer $M(a,a)$, $M(a,0)$ ainsi que $M( \lambda a, \lambda b)$  pour $\lambda \in \mathbb{R}_+$.
+\section{Critère spécial des séries alternées}
+Soit $(u_n)_{n \in \mathbb{N}} \in \mathbb{R}^{\mathbb{N}}$ une suite positive, décroissante qui tend vers $0$ lorsque $n \rightarrow +\infty$. On pose $S_n=\underset{k=0}{\overset{n}{\sum}}(-1)^ku_k$.
+\subparagraph{1}Montrer que $(S_{2n})_{n \in \mathbb{N}}$ et $(S_{2n+1})_{n \in \mathbb{N}}$ sont deux suites adjacentes.
+\subparagraph{2}En déduire que $(S_n)_{n \in \mathbb{N}}$ converge. On note $S$ sa limite.
+\subparagraph{3}Montrer que $\forall n \in \mathbb{N}, \ S_{2n+1}\le S \le S_{2n}$.
+\subparagraph{4}Que peut-on dire de la convergence de la suite $\underset{k=1}{\overset{n}{\sum}} \frac{\cos(k\pi)}{\sqrt{k}}$ ?
+\section{Suite sous-additive}
+Soit $(u_n)_{n \in \mathbb{N}} \in \mathbb{R}^{\mathbb{N}}$ une suite sous-additive au sens où :
+\begin{equation*}
+\forall (p,q) \in \mathbb{N}^2, \ u_{p+q}\le u_p+u_q
+\end{equation*}
+\subparagraph{1}Rappeler la définition de $\inf \left\lbrace  \frac{u_n}{n}, \ n \in \mathbb{N}^*\right\rbrace$.
+\subparagraph{2}Soit $n=qm+r$, $r \in \llbracket 0,q-1 \rrbracket$, la division euclidienne de $n$ par $q$. Établir une inégalité faisant intervenir $u_n$, $u_q$ et $u_1$.
+\subparagraph{3}Montrer que la suite $(\frac{u_n}{n})_{n \in \mathbb{N}^*}$ tend vers $\inf \left\lbrace  \frac{u_n}{n}, \ n \in \mathbb{N}^*\right\rbrace$.
+\subparagraph{2}Soit $(v_n)_{n \in \mathbb{N}} \in \mathbb{R_+^*}^{\mathbb{N}}$ qui vérifie :
+\begin{equation*}
+\forall (p,q) \in \mathbb{N}^2, \ v_{p+q}\le v_p v_q
+\end{equation*}
+Que peut-on dire de la suite $(v_n)_{n \in \mathbb{N}}$ ?
+\section{Convergence au sens de Césaro}
+Soit $(u_n)_{n \in \mathbb{N}^*} \in \mathbb{C}^{\mathbb{N}^*}$. On définit $(v_n)_{n \in \mathbb{N}^*}$ de la manière suivante :
+\begin{equation*}
+\forall n \in \mathbb{N}^*, \ v_n=\frac{\underset{k=1}{\overset{n}{\sum}}u_k}{n}
+\end{equation*}
+\subparagraph{1}Montrer que  $ u_n \rightarrow l \in \mathbb{C} \ \Rightarrow \ v_n \rightarrow l \in \mathbb{C}$.
+\subparagraph{2}Trouver un contrexemple à la réciproque.
+\subparagraph{3}Supposons que $(\omega_n)_{n \in \mathbb{N}} \in \mathbb{C}^{\mathbb{N}}$ et $\omega_{n+1}-\omega_n \rightarrow l \in \mathbb{C}^*$. Montrer que $\omega_n \underset{+\infty}{\sim} ln$.
+\subparagraph{4}On définit $(w_n)_{n \in \mathbb{N}^*}$ de la manière suivante :
+\begin{equation*}
+\forall n \in \mathbb{N}^*, \ w_n=\frac{\underset{k=1}{\overset{n}{\sum}}ku_k}{n^2}
+\end{equation*}
+Montrer que $w_n \rightarrow \frac{l}{2}$.
+\section{Loi de groupe et géométrie}
+On donne le procédé de construction suivant. Dans le plan on place $A(1,0)$ et $B(0,1)$. On considère également les points $M_0(x_0,y_0)$ et $M_1(x_1,y_1)$. On place $P_0$ de la manière suivante :
+\begin{itemize}
+\item $P_0 \in (AB)$.
+\item $(P_0 M_0)$ parallèle à $(Ox)$. 
+\end{itemize}
+On place $Q_0$ de la manière suivante :
+\begin{itemize}
+\item $(P_0 Q_0)$ et $(M_1B)$ parallèles.
+\item $Q_0 \in (AM_1)$
+\end{itemize}
+On place $M_2$ de manière à ce que $M_0P_0Q_0M_2$ forme un parallélogramme.
+\subparagraph{1}Montrer que les coordonnées de $Q_0$ sont $(1+x_0y_1,y_0y_1)$.
+\subparagraph{2}En déduire que $M_2$ a pour coordonnées $(x_0+x_1y_0,y_0y_1)$.
+\subparagraph{3}Montrer que $\mathcal{P}'=\lbrace M(x,y), \ y \neq 0 \rbrace$ est un groupe pour la loi $*$ définie par $M_0*M_1=M_2$.
+\section{Un sous groupe d'un groupe abélien}
+Soit $G$ un groupe abélien. Soit $H=\lbrace g, g \in G \ \text{et} \ \exists n \in \mathbb{N}, \ x^n=1 \rbrace$.
+\subparagraph{1}Montrer que $G$ est un groupe.
+\subparagraph{Remarque : } cela n'est plus vrai si $G$ n'est pas abélien.
+\section{Nombres réels et sous groupes}
+Soit $G$ un sous groupe de $(\mathbb{R},+)$. On note $G_+=G \cap \mathbb{R}_+^*$. On note $x_0=\text{inf}G_+$.
+\subparagraph{1}Vérifier que $x_0$ est bien défini.
+\subparagraph{2}Montrer que si $x_0=0$ alors $G$ est dense dans $\mathbb{R}$.
+\subparagraph{3}Montrer que si $x_0 \neq 0$ alors $x_0=\min G_+$, c'est-à-dire $x_0 \in G_+$.
+\subparagraph{4}Montrer alors que $G=x_0 \mathbb{Z}$.
+\subparagraph{5}Conclure sur la forme des sous-groupes du groupe additif $(\mathbb{R},+)$
+\section{Ordre d'un élément et commutativité}
+Soit $G$ un groupe dans lequel tout élément est d'ordre $2$, c'est-à-dire que $\forall g \in G, \ g^2=1$.
+\subparagraph{1}Montrer que $G$ est abélien.
+\subparagraph{2}Déterminer à isomorphisme près tous les groupes de cardinal $4$. 
+\end{document}

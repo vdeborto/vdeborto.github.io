@@ -1,0 +1,128 @@
+\documentclass[10pt,a4paper]{article} 
+\usepackage[utf8]{inputenc} 
+\usepackage[T1]{fontenc} 
+\usepackage[english]{babel} 
+\usepackage{supertabular} %Nécessaire pour les longs tableaux
+\usepackage[top=2.5cm, bottom=2.5cm, right=1.5cm, left=1.5cm]{geometry} %Mise en page 
+\usepackage{amsmath} %Nécessaire pour les maths 
+\usepackage{amssymb} %Nécessaire pour les maths 
+\usepackage{stmaryrd} %Utilisation des double crochets 
+\usepackage{pifont} %Utilisation des chiffres entourés 
+\usepackage{graphicx} %Introduction d images 
+\usepackage{epstopdf} %Utilisation des images .eps 
+\usepackage{amsthm} %Nécessaire pour créer des théorèmes 
+\usepackage{algorithmic} %Nécessaire pour écrire des algorithmes 
+\usepackage{algorithm} %Idem 
+\usepackage{bbold} %Nécessaire pour pouvoir écrire des indicatrices 
+\usepackage{hyperref} %Nécessaire pour écrire des liens externes 
+\usepackage{array} %Nécessaire pour faire des tableaux 
+\usepackage{tabularx} %Nécessaire pour faire de longs tableaux 
+\usepackage{caption} %Nécesaire pour mettre des titres aux tableaux (tabular) 
+\usepackage{color} %nécessaire pour écrire en couleur 
+\newtheorem{thm}{Théorème} 
+\newtheorem{mydef}{Définition} 
+\newtheorem{prop}{Proposition} 
+\newtheorem{lemma}{Lemme}
+\title{Semaine 17 - Théorie de la dimension et applications linéaires}
+\author{Valentin De Bortoli \\ email : \ \href{mailto:valentin.debortoli@gmail.com}{valentin.debortoli@gmail.com}}
+\date{}
+\begin{document}
+\maketitle
+La plupart des corrections ne sont pas très détaillées et ne comportent que les grandes lignes pour vous guider dans la résolution. Si vous avez des questions n'hésitez pas.
+
+\section{Une famille libre ?}
+\subparagraph{1} Pour montrer que cette famille est libre on choisit arbitrairement une sous famille \textbf{finie}. Il s'agit ensuite de montrer que $(x \mapsto \cos(n_k x))_{k \in \llbracket 1,N \rrbracket}$ est une famille libre (on a fixé $N$ et les $n_k$). Pour cela deux méthodes :
+\begin{itemize}
+\item on peut raisonner par récurrence sur $N$ et on raisonne comme suit pour l'hérédité. On a $(\lambda_i)_{i \llbracket 1,N \rrbracket}$ tels que $\forall x \in \mathbb{R},\ \underset{i=1}{\overset{N}{\sum}} \lambda_i \cos(n_i x) =0$. On veut montrer que les $\lambda_i$ sont nuls. On dérive deux fois la relation et je vous laisse conclure.
+\item on peut aussi remarquer que $\int_0^{2 \pi} \cos(nx)\cos(mx) \text{dx}=0$ sauf si $n \neq m$ (que vaut l'intégrale dans ce cas ?). Conclure à partir de cette remarque.
+\end{itemize}
+
+\section{Espace vectoriel et fonctions affines}
+\subparagraph{1}Il est facile de vérifier que l'on a bien un sous-espace vectoriel de $\mathcal{F}(\mathbb{R},\mathbb{R})$.
+\subparagraph{2}On peut utiliser la base suivante à trois éléments :
+\begin{itemize}
+\item la fonction qui vaut $0$ sur $[-1,0]$ et l'identité sinon. On la note $f_1$
+\item la fonction qui vaut $0$ sur $[0,1]$ et l'identité sinon. On la note $f_2$
+\item la constante égale à 1. On la note $f_3$
+\end{itemize} 
+C'est une famille libre. En effet si on a une combinaison linéaire nulle alors on a une combinaison linéaire nulle de $f_1$ et $f_3$ sur $[0,1]$ (car $f_2$ est nulle). Il est facile de montrer que sur $[0,1]$ $f_1$ et $f_3$ sont libres. Donc $f_1=f_3=0$. On conclut $f_2=0$.
+
+C'est une famille génératrice. En effet on a que $f-f(0)$ est linéaire sur $[0,1]$ et sur $[-1,0]$. Il s'agit simplement de déterminer les coefficients linéaires sur ces intervalles (on les note $\alpha$ et $\beta$). On a alors $f = \alpha f_1 + \beta f_2 +f_3$.
+
+On peut conclure.  
+
+\section{Une base de polynômes}
+
+On montre seulement que c'est une famille libre. On peut conclure par dimension pour le caractère base. Soit $\lambda_i$ une famille de $n+1$ scalaires tels que $\underset{i=1}{\overset{n}{\sum}} \lambda_i X^i(1-X)^{n-i}=0$. On dérive n fois et évalue en $0$. On trouve que $n! \lambda_n=0$. Donc $\lambda_n=0$. On reprend l'opération en dérivant $n-1$ fois et en évaluant en $0$. On trouve que $(n-1)! \lambda_{n-1}=0$. On peut conclure par récurrence.
+
+\section{Nombres réels et espace vectoriel}
+Attention : erreur typographique on considère $\log(p_n)$ ici et non $p_n$.
+
+On suppose qu'on dispose de $\lambda_i= \frac{r_i}{q_i} \in \mathbb{Q}$ une famille de $N$ rationnels tels que $\underset{i=1}{\overset{N}{\sum}} \frac{r_i}{q_i} \log( p_i)=0$. Donc $\underset{i=1}{\overset{n}{\prod}} p_i^{\frac{r_i}{q_i}}=1$. En mettant tout cela à la puissance $q_1 q_2 \dots q_n$ on trouve que $\underset{i=1}{\overset{n}{\prod}} p_i^{r_i \underset{j \neq i}{\prod} q_j}=1$. Il s'agit ensuite de séparer les cas où $r_i$ est positif des cas où il est négatif. $\underset{r_i >0}{\overset{n}{\prod}} p_i^{r_i \underset{j \neq i}{\prod} q_j}=\underset{r_i  \le 0}{\overset{n}{\prod}} p_i^{r_i \underset{j \neq i}{\prod} q_j}$. Par unicité de la décomposition en produit de facteurs premiers on trouve que $r_i  \underset{j \neq i}{\prod} q_j=0$ et donc $r_i=0$. D'où $\lambda_i=0$.
+
+\subparagraph{2} Autre erreur typographique : on va trouver un polynôme de degré $N$ qui annule x et non $N-1$.
+
+Il s'agit simplement de constater que $(1,x,\dots,x^n)$ est une famille de $n+1$ éléments de $\mathbb{R}$ donc une famille liée. On peut donc conclure sur l'existence d'un polynôme annulateur de degré n.
+\subparagraph{3} L'erreur typographique se poursuit ici. On considère $2^{n+1}$. $P=X^{n+1}-2$ annule ce réel. On admet son irréductibilité dans $\mathbb{Q}$. Soit un autre polynôme annulateur de degré strictement inférieur à $n+1$. On le note $Q$. On remarque que $Q \wedge P$ est toujours annulateur de $x$. Si il existe un polynôme annulateur de degré plus petit ou égal à $n$ alors on a un polynôme annulateur de degré plus petit ou égal à n qui divise $P$. Mais $P$ est irréductible donc le polynôme annulateur $Q$ n'existe pas et on a une contradiction avec notre hypothèse de départ.
+\section{Polynômes à valeurs entières}
+On suppose $\lambda_i$, $n+1$ scalaires tels que $$ \sum_{i=0}^n \lambda_i P_i=0$$. En évaluant en $0$ on trouve que $\lambda_0=0$. En évaluant en $1$ on trouve ensuite que $\lambda_1=0$. On poursuit par récurrence jusqu'à $\lambda_n=0$. On conclut sur le caractère de base via la dimension.
+\subparagraph{2}Trivial pour $P_0$. On pose $k>1$. On a plusieurs cas :
+\begin{itemize}
+\item si $m \ge k$ on trouve $P_k(m) = \binom{k}{m}$.
+\item si $m \in \llbracket 0,k-1 \rrbracket$ alors $P_k(m)=0$.
+\item si $m<0$ on trouve $P_k(m)= \binom{k}{m+k} (-1)^k$.
+\end{itemize}
+\subparagraph{3}On a que $$P = \sum_{k=0}^n \lambda_k P_k$$. En évaluant en $0$ on trouve que $\lambda_0$ est un entier. Ainsi de suite on trouve que tous les $\lambda_k$ sont entiers. Réciproquement si un polynôme s'écrit comme $$\sum_{k=0}^n \lambda_k P_k$$ avec $\lambda_k \in \mathbb{Z}$ il est trivial qu'il prend des valeurs entières sur les entiers.
+
+\section{Divisibilité et sous-espace vectoriel}
+\subparagraph{1}Simple vérification. 
+\subparagraph{2}Une base de cet espace peut être exhibé de la manière suivante. On suppose que le degré de $A$ est $p\le n$ : $(A,AX,\dots AX^{n-p})$. Cette famille est libre car de degré échelonnée. Elle est génératrice car puisque tout polynôme de notre sous-espace vectoriel est divisible par $A$ et dans $\mathbb{R}_n[X]$ il s'écrit comme combinaison linéaire des polynômes exprimés. 
+
+Pour trouver un supplémentaire on pose $\mathbb{R}_p[X]$. Tout polynôme s'écrit de manière unique $P=AQ+R$ avec $R \in \mathbb{R}_p[X]$ (division euclidienne). Cela suffit à montrer la proposition.
+
+\section{Une équation polynômiale}
+\subparagraph{1}Montrer qu'il existe un unique polynôme $P\in \mathbb{R}_{n+1}[X]$ tel que $P(0)=0$ et $P(X+1)-P(X)=X^n$.
+
+On considère $\phi : \ \mathbb{R}_{n+1}[X] \ \rightarrow \ \mathbb{R}_n[X]$ et tel que $\phi(P)=P(X+1)-P(X)$. $\phi$ endomorphisme de noyau les polynômes constants. En appliquant le théorème du rang on montre que cet endomorphisme est surjectif. Donc l'ensemble des polynômes qui vérifie $P(X+1)-P(X)=X^n$ est un sous-espace vectoriel de dimension 1. En fixant la constante on démontre l'unicité.
+
+\section{Une somme directe}
+\subparagraph{1}Soit $P \in F_j$. On a que $$Q=\prod_{i=0, i\neq j}^n (X-i)$$ divise $P$. Mais pour des raisons de degré $P = \lambda Q$ avec $\lambda \in k^*$. On conclut que $F_j \cup \lbrace 0 \rbrace$ est un sous-espace vectoriel de dimension 1.
+\subparagraph{2}Il est facile de montrer que les $F_j$ sont en somme directe. On conclut sur l'égalité avec $\mathbb{R}_n[X]$ par dimension.
+
+\section{Drapeaux}
+Soit $u$ un endomorphisme de $E$. 
+\subparagraph{1}Il est facile de démontrer que l'on a des inclusions croissantes sur le noyau et décroissantes sur les images.
+\subparagraph{2}On suppose qu'il existe $p \in \mathbb{N}$ tel que $\text{ker}u^n=\text{ker}u^{n+1}$. Montrer que pour tout $p \in \mathbb{N}, \ p \ge n \ \Rightarrow \ \text{ker}u^p=\text{ker}u^{p+1}$.
+
+On démontre la proposition par récurrence. Elle est vraie pour $p=n$ on suppose que $p>n$
+Soit $x \in \text{ker} u^{p+1}$. $u^p(u(x))=0$. Donc $u(x) \in \text{ker} u^p =\text{ker} u^{p-1}$. Donc $u^{p-1}(u(x))= u^p(x)=0$. Donc on peut conclure sur l'égalité des noyaux.
+\subparagraph{3}La propriété de somme directe n'est pas compliquée à établir. Il suffit de montrer que l'intersection est vide. On conclut ensuite grâce au théorème du rang que $E = \text{ker} u^n \bigoplus \text{Im} u^n$.
+
+\section{Stabilisation et endomorphismes}
+\subparagraph{1} Les homothéties vérifient cette propriété. Soit un endomorphisme qui stabilise les droites. Il convient de remarquer que si la dimension de $E$ est égale à $1$ alors les seules endomorphismes sont les homothéties et que ceux-ci stabilisent les droites... On suppose donc que $\text{dim} E >2$. Soit $x \in E$. On choisit $x'$ tel que $(x,x')$ est une famille libre. Puisque $u$ stabilise les droites, $\exists \lambda_1 \in k, \ u(x) = \lambda_1 x$, $\exists \lambda_2 \in k, \ u(x') = \lambda_2 x'$, $\exists \lambda_3 \in k, \ u(x+x') = \lambda_3 (x+x')$. Par linéarité on trouve que $(\lambda_1-\lambda_3)x+(\lambda_2-\lambda_3)x'=0$. On peut donc conclure que $\lambda_1=\lambda_2=\lambda_3$. Donc on a bien une homothétie.
+\subparagraph{2}Il suffit de remarquer que tout sous-espace vectoriel de dimension $k-1$ peut s'écrire comme intersection de sous-espaces vectoriels de dimension $k$. En raisonnant par récurrence on montre que à nouveau les homothéties sont les seuls endomorphismes qui ont cette propriété.
+
+\section{Polynômes annulateurs}
+Soit $u$ un endomorphisme de $E$. On suppose que $E$ est de dimension finie.
+\subparagraph{1} On pose $n=\text{dim}E$. $(Id, u, \dots, u^{n^2} )$ famille liée. Donc il existe un polynôme annulateur.
+\subparagraph{2}Si $u$ bijectif et $P(u)=0$ alors on compose par $u^-1$ autant de fois que nécessaire pour que $P(u)u^{-k}$ ait un coefficient constant non-nul et on a toujours $P(u)u^{-k}$ annulateur. Réciproquement, $a_0 Id + Q(u)u=0$ (en regroupant les termes sans coefficient d'ordre 0). On trouve donc que $u$ est inversible d'inverse $-\frac{1}{a_0}Q(u)$.
+\subparagraph{3}$uQ(u)=0$ avec $Q \wedge X =1$. Donc $\text{ker}Q(u)$ et $\text{ker}u$ sont en somme directe. De plus si $x \in \text{ker} Q(u)$, $a_0x+u(\tilde{Q}(u(x)))=0$. Donc $x \in \text{Im}(u)$. On peut conclure via un argument de dimension. La réciproque est plus compliquée. On considère $X$ qui est annulateur de la restriction de $u$ à $ker{u}$ et $Q$ qui est annulateur de la restriction de $u$ à $\text{Im}(u)$. Puisque la restriction de $u$ à son image est injective on peut considérer que $Q$ n'est pas divisible par $X$ (voir question 1). Ensuite il convient de vérifier que $XQ$ est bien annulateur de $u$. Une fois cela vérifié on peut conclure.
+\subparagraph{4}On n'a pas forcément de polynôme annulateur. Considérer l'endomorphisme dérivation sur les polynômes...
+
+\section{Rang et endomorphisme}
+\subparagraph{1} L'image de $u+v$ est incluse dans la somme de l'image de $u$ et de l'image de $v$. En utilisant la formule de Grassmann on a que $n=\text{rg}(u+v) \le \text{rg}(u) +\text{rg}(v)$. 
+
+De plus, $u \circ v=0$ donc $\text{Im}(v) \subset \text{ker}u$. Le théorème du rang donne donc $\text{rg}(u) +\text{rg}(v) \le n$. On peut donc conclure.
+
+\section{Rang et composition}
+\subparagraph{1}On applique le théorème du rang à la restriction de $f$ à $\text{Im}g$. On a alors $\text{rg}g= \text{rg}(f \circ g) + \text{dim} \left( \text{ker} f \cap \text{Im}g \right)$. Mais ce dernier ensemble est bien inclus dans le noyau de $f$ et on peut conclure en utilisant le théorème du rang sur $f$.
+\subparagraph{2} On trouve les endomorphismes de rang $1$ dont l'image est incluse dans le noyau.
+
+\section{Rang et sous-espace vectoriel}
+\subparagraph{1}Il s'agit simplement de considérer la restriction de l'endomorphisme à $F$ et d'appliquer le théorème du rang.
+
+\section{Endomorphismes et polynômes}
+Il y a une erreur dans l'exercice. A la dernière question il faut remplacer $P_n(X+2)-P_n(X+1)$ par $P_n(X+2)+P_n(X+1)$
+\subparagraph{1}Le noyau est vide donc on a isomorphisme. On peut donc construire une base comme image réciproque de la base proposée.
+\subparagraph{2}$P_n(X+2)+P_n(X+1)=\phi(P_n(X+1))$ mais on a aussi que $P_n(X+2)+P_n(X+1)=2(X+1)^n$. Donc $$\phi(P_n(X+1))=\sum_{k=0}^n \binom{k}{n} 2X^k$$. D'où $$P_n(X+1)=\sum_{k=0}^n \binom{k}{n} P_k$$. Donc puisque $P_n(X+1)+P_n(X)=2X^n$ on trouve $$P_n = X^n - \frac{1}{2} \sum_{k=0}^{n-1} \binom{k}{n} P_k$$.
+\end{document}

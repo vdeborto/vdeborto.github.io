@@ -1,0 +1,238 @@
+\documentclass[10pt,a4paper]{article} 
+\usepackage[utf8]{inputenc} 
+\usepackage[T1]{fontenc} 
+\usepackage[english]{babel} 
+\usepackage{supertabular} %Nécessaire pour les longs tableaux
+\usepackage[top=2.5cm, bottom=2.5cm, right=1.5cm, left=1.5cm]{geometry} %Mise en page 
+\usepackage{amsmath} %Nécessaire pour les maths 
+\usepackage{amssymb} %Nécessaire pour les maths 
+\usepackage{stmaryrd} %Utilisation des double crochets 
+\usepackage{pifont} %Utilisation des chiffres entourés 
+\usepackage{graphicx} %Introduction d images 
+\usepackage{epstopdf} %Utilisation des images .eps 
+\usepackage{amsthm} %Nécessaire pour créer des théorèmes 
+\usepackage{algorithmic} %Nécessaire pour écrire des algorithmes 
+\usepackage{algorithm} %Idem 
+\usepackage{bbold} %Nécessaire pour pouvoir écrire des indicatrices 
+\usepackage{hyperref} %Nécessaire pour écrire des liens externes 
+\usepackage{array} %Nécessaire pour faire des tableaux 
+\usepackage{tabularx} %Nécessaire pour faire de longs tableaux 
+\usepackage{caption} %Nécesaire pour mettre des titres aux tableaux (tabular) 
+\usepackage{color} %nécessaire pour écrire en couleur 
+\newtheorem{thm}{Théorème} 
+\newtheorem{mydef}{Définition} 
+\newtheorem{prop}{Proposition} 
+\newtheorem{lemma}{Lemme}
+\title{Semaine 4 - Primitives et équations différentielles linéaires}
+\author{Valentin De Bortoli \\ email : \ \href{mailto:valentin.debortoli@gmail.com}{valentin.debortoli@gmail.com}}
+\date{}
+\begin{document}
+\maketitle
+
+\section{Intégrales de Wallis}
+Soit $n \in \mathbb{N}$ on définit $I_n$ (l'intégrale de Wallis) par $I_n=\int_0^{\frac{\pi}{2}} \sin(x)^n \text{dx}$.
+\subparagraph{1} 
+On a la relation suivante,
+\begin{equation}
+\begin{aligned}
+I_{n+2} &= \underset{0}{\overset{\frac{\pi}{2}}{\int}} \sin(x)^{n+2} \text{dx} \\
+&= \underset{0}{\overset{\frac{\pi}{2}}{\int}} \sin(x)^n (1- \cos(x)^2) \text{dx} \\
+&= I_n - \frac{1}{n+1} \underset{0}{\overset{\frac{\pi}{2}}{\int}} \cos(x) \left(\sin(x)^{n+1} \right)' \text{dx} \\
+&= I_n - \frac{1}{n+1}I_{n+2} \\
+&=\frac{n+1}{n+2}I_n
+\end{aligned}
+\end{equation}
+Donc ${I_{2n} = \frac{\underset{k=0}{\overset{n-1}{\prod}}(2k+1)}{\underset{k=1}{\overset{n}{\prod}}2k}I_0 = \frac{(2n)!\pi}{2^{2n-1}n!^2}}$ car $I_0 = \frac{\pi}{2}$. De la même manière, puisque $I_1 = 1$ on a ${I_{2n+1} = \frac{\underset{k=1}{\overset{n}{\prod}}2k}{\underset{k=0}{\overset{n}{\prod}}(2k+1)}I_1 = \frac{2^{2n} n!^2}{(2n+1)!}}$.
+
+\subparagraph{2} On montre par récurrence que $I_n$ est décroissante. En effet, $\forall n \in \mathbb{N}, \ \forall x \in [0, \frac{\pi}{2}], \ \sin(x)^{n+1} \le \sin(x)^n$. Donc on a les encadrements suivants,
+\begin{equation}
+\frac{2n+2}{2n+1} \ge \frac{I_{2n}}{I_{2n+2}} \ge \frac{I_{2n}}{I_{2n+1}} \ge 1
+\end{equation}
+Le terme de gauche tend vers $1$ donc par encadrement le terme central tend vers $1$. Donc $\underset{n \rightarrow +\infty}{\lim}\frac{I_{2n}}{I_{2n+1}}=1$.
+
+\subparagraph{3}Il convient de calculer le rapport de la question précédente,
+\begin{equation}
+\frac{I_{2n}}{I_{2n+1}} = \frac{\pi(2n+1) \left( \underset{k=0}{\overset{n-1}{\prod}}(2k-1) \right)^2}{2\left(\underset{k=1}{\overset{n}{\prod}}2k \right)^2}
+\end{equation}
+Donc en passant à la racine et en remarquant que $\frac{2n+1}{2} \sim n$ on obtient le résultat voulu.
+
+\subparagraph{Remarque :} je conclus en donnant la suite de l'exercice qui permet de donner un équivalent de la factorielle. On pose $u_n = \sqrt{n} \left( \frac{n}{e} \right)^n \frac{1}{n!}$ et $v_n = \log(u_{n+1}) - \log(u_n)$. Montrons que $u_n$ converge, c'est-à-dire que la série de terme général $v_n$ converge. On commence par donner plus de détails sur $v_n$,
+\begin{equation}
+\begin{aligned}
+v_n &= \log \left( \frac{\sqrt{1+\frac{1}{n}}(n+1)^{n+1}}{(n+1) e n^n} \right) \\
+ &= \log \left( \frac{(1+ \frac{1}{n})^{n+\frac{1}{2}}}{e}\right) \\
+ &= (n+\frac{1}{2}) \log(1+\frac{1}{n}) - 1 \\
+ &= - \frac{1}{12n^2} + o(\frac{1}{n^2})
+ \end{aligned}.
+ \end{equation}
+La dernière égalité est obtenue en effectuant un développement à l'ordre trois du logarithme. Ainsi le terme général de la série est équivalent à $\frac{-1}{12n^2}$ et donc la série est convergente. Il existe donc une constante $C$ tel que $n! \ \sim \ C \sqrt{n} \left( \frac{n}{e} \right)^n$. En remplaçant dans l'égalité trouvée à la question précédente, on trouve que $C = \sqrt{2\pi}$ et donc l'équivalent annoncé. Il n'est pas évident d'avoir l'intuition d'une telle formule. Une manière de l'obtenir est de considérer (formellement) le développement d'Euler Mac-Laurin de la fonction $x \mapsto \ln(x)$ au premier ordre. Cette formule permet de donner un lien entre des sommes discrètes et des intégrales.
+
+\section{Suite et intégrale (1)}
+\subparagraph{1} $J_{n+2} + J_n = \underset{0}{\overset{\frac{\pi}{4}}{\int}}(1+ \tan(x)^2) \tan(x)^n \text{dx} = \frac{1}{n+1} \underset{0}{\overset{\frac{\pi}{4}}{\int}} (\tan(.)^{n+1})'(x) \text{dx} = \frac{1}{n+1}$.
+\subparagraph{2} $J_0 = \frac{\pi}{4}$, $J_1 = \underset{0}{\overset{\frac{\pi}{4}}{\int}} \frac{\sin(x)}{\cos(x)} \text{dx} = -\ln(\cos(\frac{\pi}{4})) = \frac{1}{2}\ln(2)$.
+On a donc les formules suivantes selon la parité de $n$ :
+\begin{itemize}
+\item $J_{2n} = (-1)^n \left( \underset{k=1}{\overset{n}{\sum}}\frac{(-1)^k}{2k-1} + \frac{\pi}{4} \right)$
+\item $J_{2n+1} = (-1)^n \left(\frac{1}{2}\underset{k=1}{\overset{n}{\sum}}\frac{(-1)^k}{k} + \frac{1}{2}\ln(2) \right)$
+\end{itemize}
+
+\section{Suite et intégrale (2)}
+\subparagraph{1}$K_0 = \frac{\pi}{4}$ et $K_1= \int_0^{\frac{\pi}{4}} \frac{1}{\cos(x)} \text{dx}$. En utilisant les règles de Bioche qui sont rappelées à la fin de cet exercice, on trouve que le changement de variable en sinus est adapté ici. On obtient, $K_1= \int_0^{\frac{\pi}{4}} \frac{1}{\cos(x)} \text{dx} = \int_0^{\frac{\sqrt{2}}{2}} \frac{1}{1-x^2} \text{dx} = \frac{1}{2} \left( \int_0^{\frac{\sqrt{2}}{2}} \frac{1}{1+x} + \frac{1}{1-x} \text{dx} \right)$. En intégrant, on trouve, $K_1 = \ln \left( \sqrt{\frac{2+ \sqrt{2}}{2 - \sqrt{2}}}\right)= \ln(1 + \sqrt{2})$.
+
+\subparagraph{2} On a,
+\begin{equation}
+\begin{aligned}
+K_{n+2} &= \int_0^{\frac{\pi}{4}} \frac{1}{\cos(x)^2} \frac{1}{\cos(x)^n} \text{dx} \\
+&= \int_0^{\frac{\pi}{4}} \tan(x)' \frac{1}{\cos(x)^n} \text{dx} \\
+&= 2^{\frac{n}{2}} - n \int_0^{\frac{\pi}{4}} \tan(x) \sin(x) \frac{1}{\cos(x)^{n+1}} \text{dx} \\
+&= 2^{\frac{n}{2}} - n \int_0^{\frac{\pi}{4}} \frac{1-\cos(x)^2}{\cos(x)^{n+2}} \text{dx} \\
+&=2^{\frac{n}{2}} - n K_{n+2} +nK_n \\
+&=\frac{2^{\frac{n}{2}}}{n+1} + \frac{n}{n+1} K_n
+\end{aligned}
+\end{equation}.
+Ainsi on a entièrement déterminé la suite $(K_n)_{n \in \mathbb{N}}$.
+
+\subparagraph{Remarque :} on rappelle ici les règles de Bioche qui sont très utiles pour calculer des intégrales de fonctions trigonométriques.
+On pose $f(x) = g(\cos(x), \sin(x), \tan(x))$ et $F(x) = f(x) \text{dx}$. Si :
+\begin{itemize}
+\item $F(x) = F(-x)$ alors on effectue le changement de variable $x \ \mapsto \ \cos(x)$
+\item $F(x) = F(\pi-x)$ alors on effectue le changement de variable $x \ \mapsto \ \sin(x)$
+\item $F(x) = F(\pi+x)$ alors on effectue le changement de variable $x \ \mapsto \ \tan(x)$
+\end{itemize}.
+\section{Suite et intégrale (3)}
+
+\subparagraph{1}$L_{n+1} = \int_1^e \log(x)^{n+1} \text{dx} = [x \log(x)^{n+1}]_1^e - (n+1)L_n = e - (n+1)L_n$. De plus, $L_0 = e-1$. On détermine donc de manière unique la suite $(L_n)_{n \in \mathbb{N}}$.
+\subparagraph{2}Le changement de variable $u = \log(x)$ permet d'écrire $L_n = \int_0^1 u^n e^{-nu} \text{du} \le \int_0^1 u^n \text{du} \ \longrightarrow \ 0$. Donc ${e - (n+1)L_n \ \longrightarrow \ 0}$. D'où $L_n \sim \frac{e}{n}$.
+
+
+\section{Primitive et fonction circulaire}
+\subparagraph{1} On a,
+\begin{equation}
+\begin{aligned}
+\int_0^x \arccos(t) \text{dt} &= -\int_{\frac{\pi}{2}}^{\arccos(x)} t\sin(t) \text{dt} \\
+&= \arccos(x)x - \sin(\arccos(x)) +1 \\
+&= \arccos(x) x - \sqrt{1-x^2} + 1
+\end{aligned}
+\end{equation}
+
+\subparagraph{2}Voir l'exercice "Suite et intégrale (1)". On trouve $\int_0^x \frac{1}{\cos(x)} \text{dx} = \ln \left( \sqrt{\frac{1 + \sin(x)}{1 - \sin(x)} } \right)$.
+\subparagraph{3} De la même manière que précédemment, en utilisant les règles de Bioche on constate qu'un changement de variable judicieux est $x \ \mapsto \ \cos(x)$. On obtient alors, $\int_{\frac{\pi}{2}}^x \frac{1}{\sin(x)} \text{dx} = - \ln \left( \sqrt{ \frac{1 + \cos(x)}{1 - \cos(x)}} \right)$.
+
+\subparagraph{4}Pour cette dernière primitive, les règles de Bioche vont encore nous servir. Le changement de variable $x \ \mapsto \pi + x$ est adapté et on a $\int_0^x \frac{1}{2+\sin(t)^2} \text{dt} = \int_0^{\tan(x)} \frac{1}{3t^2+2} \text{dt} = \frac{1}{2} \int_0^{\tan(x)} \frac{1}{\left( \sqrt{\frac{3}{2}}t\right)^2 +1} \text{dt} = \frac{\sqrt{3}}{2\sqrt{2}} \int_0^{\sqrt{\frac{3}{2}}\tan(x)} \frac{1}{u^2 +1} \text{dt}$. On obtient donc,
+$\int_0^x \frac{1}{2+\sin(t)^2} \text{dt}= \frac{\sqrt{3}}{2\sqrt{2}}\arctan\left( \sqrt{\frac{3}{2}} \tan(x) \right) $.
+
+\section{Primitive et fonction hyperbolique}
+Les primitives de fonctions hyperboliques sont souvent plus simples à calculer que celles de fonctions circulaires. En effet, un changement de variable exponentiel est souvent une bonne idée. L'équivalent sur les fonctions circulaires serait un changement de variable en $e^{it}$ ce qui n'est pas un changement de coordonnées valide (si on ne connaît pas un minimum d'analyse complexe).
+\subparagraph{1} On a $\int_0^x \frac{2}{e^t +e^{-t}} \text{dt} = \int_1^{e^x} \frac{1}{1+t^2} \text{dt} = 2 \left( \arctan \left(e^x \right) - \frac{\pi}{4}\right)$.
+\subparagraph{2}On a $\int_0^x \frac{2}{e^t -e^{-t}} \text{dt} = -\int_1^{e^x} \frac{1}{1-t^2} \text{dt} = -\frac{1}{2} \left( \int_1^{e^x} \frac{1}{1-t} \text{dt} + \int_1^{e^x} \frac{1}{1+t} \text{dt}\right) = -\ln \left( \sqrt{\frac{e^x+1}{e^{x}-1}} \right)$.
+\subparagraph{3}Ici pas de changement de variable. Il suffit de constater que  $\sinh'(x) = \cosh(x)$ et que $\frac{1}{\tanh(x)} = \frac{\sinh'(x)}{\sinh(x)}$. Ainsi, $\int_1^x \frac{1}{\tanh(x)} = \ln(\sinh(x)) - \ln(\sinh(1))$.
+\subparagraph{4} $\int_{\ln(2)}^x \frac{1}{1-\cosh(t)} \text{dt} = -\int_{\ln(2)}^x \frac{2e^t}{e^{2t} -2e^t +1} \text{dt} = -\int_{2}^{e^x} \frac{2}{(t-1)^2} \text{dt} = 2 [\frac{1}{t-1}]_2^{e^x} = -2 \left( 1 - \frac{1}{e^x-1} \right)$.
+
+\section{Résolution d'une équation différentielle (1)}
+\subparagraph{Remarque :} dans tous les exercices suivants il est utile de d'abord bien préciser à quel type d'équation différentielle on a affaire. Par exemple dans la question 1 de l'exercice 7 il s'agit de résoudre une équation différentielle linéaire du premier ordre à coefficients constants avec second membre.
+
+\subparagraph{1} On résout d'abord l'équation homogène $y' + y = 0$. On trouve que ${x \mapsto Ae^{-x}}$ sur $\mathbb{R}$ avec $A \in \mathbb{R}$ sont solutions de l'équation homogène. Il s'agit désormais de considérer $A$ comme une fonction dérivable pour appliquer la méthode de la variation de la constante. On trouve alors que $A'(x) = \frac{e^x}{1+2e^x}$ sur $\mathbb{R}$. D'où $A(x) = \frac{1}{2} \ln \left( 1 + 2e^x\right) + B$ sur $\mathbb{R}$ avec $B \in \mathbb{R}$. Ainsi l'ensemble des solutions de l'équation différentielle originale est, ${\mathcal{S} = \left\lbrace y, \exists B \in \mathbb{R}, \ \forall t \in \mathbb{R}, \ y(t) = \frac{e^{-t}}{2}\ln \left( 1 + 2e^t\right) + Be^{-t} \right\rbrace}$.
+
+\subparagraph{2}On divise par $x^2$ des deux côtés et on obtient, $y'(x) + \frac{1}{x}y(x) = \frac{1}{x^2}+1$. En résolvant l'équation homogène on trouve que $y(x) = \frac{A}{x}$ avec $A \in \mathbb{R}$. Par la méthode de la variation de la constante on obtient, $A'(x) = \frac{1}{x}+x$. Ainsi l'ensemble des solutions de l'équation différentielle originale est, ${\mathcal{S} = \left\lbrace y, \exists B \in \mathbb{R}, \ \forall t \in \mathbb{R}, \ y(t) = \frac{\ln(x)}{x} + \frac{x}{2} + \frac{b}{x} \right\rbrace}$.
+
+\section{Résolution d'une équation différentielle (2)}
+\subparagraph{1}Sur chaque intervalle on peut diviser par $1-x^2$. On obtient l'équation suivante, $y'(x) + \frac{-2x}{1-x^2}y(x) = \frac{x^2}{1-x^2}$. Quel que soit l'intervalle la solution de l'équation différentielle homogène associée est $y(x) = \frac{A}{\vert 1-x^2 \vert}$ avec $A \in \mathbb{R}$. On applique ensuite la variation de la constante et on trouve que
+\begin{equation*}
+\exists (A,\tilde{B},C) \in \mathbb{R}^2, \ \left\lbrace
+\begin{aligned}
+&\forall x \in ]-\infty,-1[, \ y(x) = \frac{A - \frac{x^3}{3}}{x^2 - 1} \\
+&\forall x \in ]-1,1[, \ y(x) = \frac{\tilde{B} + \frac{x^3}{3}}{1- x^2} =  \frac{B - \frac{x^3}{3}}{x^2-1}\\
+&\forall x \in ]1,+\infty[, \ y(x) = \frac{C - \frac{x^3}{3}}{x^2 - 1}
+\end{aligned}
+\right.
+\end{equation*}
+avec $B = -\tilde{B}$. On remarque que l'expression est toujours la même, seule change la constante. On peut donc s'interroger : peut-on trouver une solution continue sur $\mathbb{R}$ ? Dans ce cas $A = -\frac{1}{3}$ et $y(-1) = -\frac{1}{2}$ (on peut voir cela en posant $z = x^2$ et retrouver le taux d'accroissement de la fonction $\frac{-x^{\frac{3}{2}}}{3}$). Puisque l'expresssion est la même sur chaque intervalle on doit poser $B = -\frac{1}{3}$. On obtient bien une fonction continue sur $]-\infty,1[$ mais on ne peut éviter la discontinuité en $1$. De même sur $]-1,+\infty[$.
+
+Il convient également de remarquer que puisque l'unique valeur possible d'une solution en $-1$ est $-\frac{1}{2}$ on ne peut pas trouver de solution à l'équation différentielle sur $]-\infty,1[$. En effet une telle solution devrait vérifier $y(-1) = \frac{1}{2}$ (en remplaçant $x$ par $1$ dans l'équation différentielle originale).
+
+\section{Résolution d'une équation différentielle (3)}
+\subparagraph{1}Il s'agit là de résoudre deux équations différentielles sur deux domaines différents,
+\begin{equation*}
+\left\lbrace
+\begin{aligned}
+&y'(x) + (1 - \frac{1}{x})y(x) = x^2 \ \text{sur } \mathbb{R}_+^* \\
+&y'(x) - (1 - \frac{1}{x})y(x) = -x^2 \ \text{sur } \mathbb{R}_-^*
+\end{aligned}
+\right. .
+\end{equation*}
+En considérant les équations homogènes associées il existe $(A,B) \in \mathbb{R}^2$ tels que
+\begin{equation*}
+\left\lbrace
+\begin{aligned}
+& y(x) = A x e^{-x} \ \text{sur } \mathbb{R}_+^* \\
+& y(x) = \frac{Be^x}{x} \ \text{sur } \mathbb{R}_-^*
+\end{aligned}
+\right. .
+\end{equation*}
+En considérant la méthode de la variation de la constante on obtient les équations différentielles suivantes sur $A$ et $B$ considérés comme des fonctions,
+\begin{equation*}
+\left\lbrace
+\begin{aligned}
+&A'(x) = xe^x \\
+&B'(x) = -x^3e^{-x}
+\end{aligned}
+\right. .
+\end{equation*}
+Il existe plusieurs manières de trouver de telles primitives. On peut soit procéder par intégration par partie en dérivant le polynôme et en intégrant le terme exponentiel ou alors on peut s'interroger sur la forme d'une primitive potentielle et constater que la primitive de $P(x)e^{s x}$ avec $s \in \mathbb{C}$ est de la forme $Q(x)e^{s x}$ avec $Q$ du même degré que $P$. Il suffit ensuite d'identifier les coefficients en dérivant et on obtient la primitive. Par exemple dans le cas $B'(x) = -x^3e^{-x}$ on pose $b(x) = (\alpha + \beta x + \gamma x^2 + \delta x^3) e^{-x}$. On trouve que $b'(x) = \left( (-\alpha + \beta) + (-\beta + 2 \gamma)x + (-\gamma + 3 \delta)x^2 - \delta x^3 \right)e^{-x}$. En posant $\alpha = \beta$, $\beta = 2\gamma$ et $\gamma = 3\delta$ et $\delta = 1$ on obtient que $b'(x) = B'(x)$. Donc $B(x) = b(x) + c$ avec $c \in \mathbb{R}$.
+
+\subparagraph{Remarque :} pour la seconde technique il convient de remarquer qu'elle fonctionne avec $s \in \mathbb{C}$ ce qui couvre en particulier les cas $P(x) R(\sin(x),\cos(x))$ où $R$ est un polynôme à deux variables.
+
+En utilisant l'une ou l'autre des techniques on trouve l'existence de $(C,D) \in \mathbb{R}^2$ tels que 
+\begin{equation*}
+\left\lbrace
+\begin{aligned}
+&A(x) = (x-1)e^x + C\\
+&B(x) = (x^3 +3x^2 + 6x +6)e^{-x} +D
+\end{aligned}
+\right. .
+\end{equation*}
+On trouve que les solutions de l'équation différentielle originale sont de la forme,
+\begin{equation*}
+\left\lbrace
+\begin{aligned}
+&y(x) = x(x-1) + Cxe^{-x} \ \text{sur } \mathbb{R}_+^* \\
+&y(x) =  x^2+3x+6+\frac{6}{x} + \frac{De^x}{x}\ \text{sur } \mathbb{R}_-^*
+\end{aligned}
+\right. .
+\end{equation*}
+Peut-on trouver une solution de l'équation différentielle sur $\mathbb{R}_+^*$ et $\mathbb{R}_-^*$, continue sur $\mathbb{R}$ ? Dans ce cas $y(0) = 0$ (condition obtenue en considérant la forme sur les réels positifs et en faisant tendre $x$ vers $0$). Pour que la forme sur les réels négatifs ne diverge pas en $0$ on doit poser $D=-6$ et alors on obtient bien que $y(0)=0$ en considérant le prolongement sur les réels négatifs. Il suffit donc de poser $D=-6$ pour obtenir des solutions continues sur $\mathbb{R}$. Il convient de remarquer que ces solutions sont également des solutions de l'équation différentielle originale sur $\mathbb{R}$ tout entier.
+\section{Résolution d'une équation différentielle (4)}
+\subparagraph{1}Comme auparavant il convient de résoudre d'abord l'équation sur $\mathbb{R}_-$ et sur $\mathbb{R}_+$ puis de chercher un raccordement. En résolvant l'équation différentielle linéaire du premier ordre sans second membre sur les deux intervalles on obtient que $y(x) = Ae^{-\frac{1}{x}}$ si $x >0$ et $y(x) = Be^{-\frac{1}{x}}$ avec $(A,B) \in \mathbb{R}^2$. En $0$ on doit avoir $y(0) =0$. $y(0^+) = A \times 0 = 0$ mais $y(0^-) = \pm \infty$ dès que $B \neq 0$. Ainsi on pose $B= 0$ et on obtient l'ensemble des solutions sur $\mathbb{R}$.
+
+\section{Fonctions trigonométriques et équation différentielle}
+On note $c(x) = \cos(\arctan(x))$ et $s(x) = \sin(\arctan(x))$. Ce sont les expressions de deux fonctions bien définies sur $\mathbb{R}$ et dérivables une infinité de fois sur cet intervalle.
+\subparagraph{1} On remarque que pour tout $x \in \mathbb{R}, \ \frac{\sin(\arctan(x))}{\cos(\arctan(x))} = x$ donc $s(x) = x c(x)$. En dérivant $c$ et en utilisant la relation précédente on trouve que $c'(x) = \frac{-x}{1+x^2}c(x)$ et donc $c(x) = \frac{C}{\sqrt{1+x^2}}$ avec $C \in \mathbb{R}$. La condition $c(0) = 1$ donne $C = 1$. On obtient donc,
+\begin{equation*}
+\forall x \in \mathbb{R}, \ 
+\left\lbrace
+\begin{aligned}
+&\cos(\arctan(x)) = \frac{1}{\sqrt{1+x^2}} \\
+&\sin(\arctan(x)) = \frac{x}{\sqrt{1+x^2}}
+\end{aligned}
+\right. .
+\end{equation*}
+Il existe une manière plus directe d'obtenir ces formules en utilisant seulement des formules trigonométriques (voir feuille 3).
+
+\section{Des équations différentielles et fonctionnelles}
+Il convient de remarquer dans les deux cas que si $f$ est une fonction solution alors elle est dérivable une infinité de fois. En effet, $f'(x) = f(0) + f(1) - f(x)$ et donc $f'$ est dérivable. Donc $f$ est deux fois dérivable et donc $f'$ également en vertu de la dernière égalité. Par récurrence on obtient que $f$ est dérivable une infinité de fois. Cette remarque permet de nous assurer que l'on peut dériver autant de fois que l'on veut en restant rigoureux.
+
+\subparagraph{1}En procédant par analyse-synthèse, on dérive l'égalité et on obtient $\forall x \in \mathbb{R}, \ f''(x) + f'(x) = 0$. Donc $f'(x) = Ae^{-x}$ avec $A \in \mathbb{R}$ et donc $f(x) = -Ae^{-x} + B$. $f(0)+f(1) = 2B - (1+e^{-1})A = B$. Donc $B = (1+e^{-1})A$ et donc l'ensemble des solutions est
+\begin{equation*}
+\mathcal{S} = \left\lbrace f, \ \exists A \in \mathbb{R}, \ \forall x \in \mathbb{R}, \ f(x) = A \left( -e^{-x} + 1 +e^{-1} \right) \right\rbrace .
+\end{equation*}
+
+\subparagraph{2} On applique la même technique qu'à la question précédente et on obtient $f(x) = -Ae^{-x} +B$ et donc $\int_0^1 f(t) \text{dt} = -e^{-1}A +B + A = B = f(x) + f'(x)$, d'où $A = 0$ et les seules solutions sont les fonctions constantes.
+
+\section{Barrières et entonnoirs}
+\subparagraph{Remarque :} l'exercice suivant est une introduction à l'étude qualitative des solutions des équations différentielles. On peut définir rigoureusement les termes de barrières et entonnoirs, voir \url{http://www.math.unicaen.fr/~falguieres/docs/agreg/TD6.pdf} (exercice 2). Dans ce qui suit, on démontre dans le cas particulier des propriétés vraies dans un cadre beaucoup plus général.
+
+\subparagraph{1} 
+On sait qu'il existe $A \in \mathbb{R}$ tel que $\forall x \ge A, \ f(x) + f'(x) \le \epsilon$. Posons, $g$ solution du problème de Cauchy, $g(A) = f(A)$ et $g(x) + g'(x) = \epsilon$. On peut donner une forme explicite pour $g$, $\forall x \in \mathbb{R}, \ g(x) = \epsilon + Ae^{-x}$ avec $a =  \left( f(A) - \epsilon \right)e^A$. On pose $h = f-g$, $h$ est solution de l'inéquation différentielle suivante $h'(x) + h(x) \le 0$ et $h(A) = 0$. Soit $\mathcal{T} = \lbrace t \ge A, \ \forall u \in [A,t], \ h(u) \le A \rbrace$. $\mathcal{T}$ est un intervalle fermé de $\mathbb{R}$. Supposons qu'il est borné à droite alors il existe $t_0 \in \mathcal{T}$ et $\eta>0$ tel que $\forall t \in ]t_0, t_0 +\eta[, \ h(t)>0$. Mais alors $\forall t \in ]t_0, t_0 +\eta[, \ h'(t)<0$ (car $h+h' \le 0$) et donc $h(t) = h(t_0)+ \int_{t_0}^t h(u) \text{du} < h(t_0) = 0$, c'est absurde. Donc l'intervalle n'est pas borné à droite et on a $h \le 0$. Donc $f \le g$ et donc $\forall x \in [A,+\infty[, \ f(x) \le \epsilon + Ae^{-x}$. Donc pour $x$ assez grand on obtient que $f(x) \le 2\epsilon$. 
+
+En reprenant les mêmes raisonnements pour minorer $f$ on trouve que pour $x$ assez grand, $f(x) \ge -2\epsilon$. Donc pour $x$ assez grand, $f(x) \in [-\epsilon,\epsilon]$ ce qui correspond à la définition de $\underset{x \rightarrow +\infty}{\lim} f(x) = 0$.
+\end{document}

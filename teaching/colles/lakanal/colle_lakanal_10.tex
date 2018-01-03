@@ -1,0 +1,95 @@
+\documentclass[10pt,a4paper]{article} 
+\usepackage[utf8]{inputenc} 
+\usepackage[T1]{fontenc} 
+\usepackage[english]{babel} 
+\usepackage{supertabular} %Nécessaire pour les longs tableaux
+\usepackage[top=2.5cm, bottom=2.5cm, right=1.5cm, left=1.5cm]{geometry} %Mise en page 
+\usepackage{amsmath} %Nécessaire pour les maths 
+\usepackage{amssymb} %Nécessaire pour les maths 
+\usepackage{stmaryrd} %Utilisation des double crochets 
+\usepackage{pifont} %Utilisation des chiffres entourés 
+\usepackage{graphicx} %Introduction d images 
+\usepackage{epstopdf} %Utilisation des images .eps 
+\usepackage{amsthm} %Nécessaire pour créer des théorèmes 
+\usepackage{algorithmic} %Nécessaire pour écrire des algorithmes 
+\usepackage{algorithm} %Idem 
+\usepackage{bbold} %Nécessaire pour pouvoir écrire des indicatrices 
+\usepackage{hyperref} %Nécessaire pour écrire des liens externes 
+\usepackage{array} %Nécessaire pour faire des tableaux 
+\usepackage{tabularx} %Nécessaire pour faire de longs tableaux 
+\usepackage{caption} %Nécesaire pour mettre des titres aux tableaux (tabular) 
+\usepackage{color} %nécessaire pour écrire en couleur 
+\newtheorem{thm}{Théorème} 
+\newtheorem{mydef}{Définition} 
+\newtheorem{prop}{Proposition} 
+\newtheorem{lemma}{Lemme}
+\title{Semaine 10 - Structure de groupe}
+\author{Valentin De Bortoli \\ email : \ \href{mailto:valentin.debortoli@gmail.com}{valentin.debortoli@gmail.com}}
+\date{}
+\begin{document}
+\maketitle
+A moins que cela ne soit explicitement précisé on adopte la notation multiplicative pour la loi du groupe $G$.
+\section{Ordre d'un élément et commutativité}
+Soit $G$ un groupe dans lequel tout élément est d'ordre $2$, c'est-à-dire que $\forall g \in G, \ g^2=1$.
+\subparagraph{1}Montrer que $G$ est abélien.
+\subparagraph{2}Déterminer à isomorphisme près tous les groupes de cardinal $4$. 
+\subparagraph{Remarque :} on pourra utiliser le résultat de l'exercice 6, question 5.
+\section{Groupe distingué, groupe quotient}
+Soit $G$ un groupe. On dit que $H$ est un sous groupe distingué de $G$ si $H$ est un sous groupe de $G$ et si $\forall (g,h) \in G \times H, \ ghg^{-1} \in H$. Soit $H$ un tel groupe.
+\subparagraph{1}Montrer que tout sous groupe d'un groupe abélien est distingué.
+\subparagraph{2}On note $G/H= \lbrace gH, \ g \in G\rbrace$. Montrer que $G/H$ muni de la loi $(gH)(g'H)=gg'H$ est un groupe. On dit que $G/H$ est le groupe quotient de $G$ par $H$.
+\subparagraph{3}Soit $\phi$ un morphisme de $G$ dans $K$ (un groupe). Montrer que $\text{ker}(\phi)$ est distingué.
+\subparagraph{4}Montrer que $\overline{\phi}$ qui va de $G/\text{ker}(\phi)$ dans $\text{Im}(\phi)$ défini par $\overline{\phi}(G/ \text{ker}(\phi))=\phi(g)$ est un isomorphisme.
+\subparagraph{Remarque :} cette technique est appelée dévissage et elle permet de comprendre la structure de groupe compliqués en se ramenant à des groupes plus simples (les groupes simples...). On peut dresser toute une zoologie des groupes simples. Celle-ci a été complété en 1983 par Daniel Gorenstein (et comporte des milliers de pages de preuves !).
+\section{Somme des images et morphisme}
+Soit $\phi$ un morphisme non constant de $G$ dans $\mathbb{C}^*$.
+\subparagraph{1}Que vaut $\underset{g \in G}{\sum} \phi(g)$.
+\section{Un isomorphisme ?}
+\subparagraph{1}Montrer que $(\mathbb{Q},+)$ est un groupe.
+\subparagraph{2}Montrer que $(\mathbb{Q}^*,\times)$ est un groupe.
+\subparagraph{3}Y a-t-il isomorphisme entre ces deux groupes ?
+\section{Un sous groupe d'un groupe abélien}
+Soit $G$ un groupe abélien. Soit $H=\lbrace g, g \in G \ \text{et} \ \exists n \in \mathbb{N}, \ x^n=1 \rbrace$.
+\subparagraph{1}Montrer que $G$ est un groupe.
+\subparagraph{Remarque : } cela n'est plus vrai si $G$ n'est pas abélien.
+\section{Le théorème de Lagrange}
+Soit $G$ un groupe fini. Soit $H$ un sous groupe de $G$.
+\subparagraph{1} Soit $a \in G$. Montrer que le cardinal de $aH$ est le même que celui de $H$.
+\subparagraph{2} Montrer que $aH \cap bH \neq \emptyset \ \Rightarrow \ aH=bH$.
+\subparagraph{3} Montrer que $G=\underset{g \in G}{\cup} gH$.
+\subparagraph{4} En déduire que le cardinal d'un sous groupe divise toujours le cardinal du groupe.
+\subparagraph{5} Soit $H_x=\lbrace x^n, n \in \mathbb{N} \rbrace$. On appelle \textbf{ordre} de $x$ le cardinal de ce sous-groupe. Montrer que l'ordre de $x$ divise le cardinal du groupe.
+\section{Le théorème de Cayley}
+Soit $G$ un groupe fini. On note $\mathfrak{S}_G$ l'ensemble des bijections de $G$ dans $G$. On note 
+$\tau_x$ ($x \in G$) la fonction qui va de $G$ dans $G$ et qui est définie par $\forall g \in G, \ \tau_x(g)=xg$.
+\subparagraph{1}Vérifier que $\tau_x$ est un élément de $\mathfrak{S}_G$.
+\subparagraph{2}Vérifier que $\mathfrak{S}_G$ est un groupe.
+\subparagraph{3}Montrer que $\phi$ qui va de $G$ dans $\mathfrak{S}_G$ définie par $\phi(x)=\tau_x$ est un morphisme de groupe injectif.
+\subparagraph{4}En déduire que $G$ est isomorphe à un sous groupe de $\mathfrak{S}_G$.
+\section{Nombres réels et sous groupes}
+Soit $G$ un sous groupe de $(\mathbb{R},+)$ non réduit à un élément. On note $G_+=G \cap \mathbb{R}_+^*$. On note $x_0=\text{inf}G_+$.
+\subparagraph{1}Vérifier que $x_0$ est bien défini.
+\subparagraph{2}Montrer que si $x_0=0$ alors $G$ est dense dans $\mathbb{R}$.
+\subparagraph{3}Montrer que si $x_0 \neq 0$ alors $x_0=\min G_+$, c'est-à-dire $x_0 \in G_+$.
+\subparagraph{4}Montrer alors que $G=x_0 \mathbb{Z}$.
+\subparagraph{5}Conclure sur la forme des sous-groupes du groupe additif $(\mathbb{R},+)$
+\section{Le groupe symétrique}
+Soit $\mathfrak{S}_n$ l'ensemble des bijections de $\llbracket 1,n \rrbracket$.
+\subparagraph{1}Montrer que $\mathfrak{S}_n$ est un groupe. On le nomme groupe symétrique.
+\subparagraph{2}Soit $(a \ b)$ la bijection qui échange $a$ et $b$ (on la nomme permutation). Montrer que tout élément de $\mathfrak{S}_n$ peut s'exprimer comme composition de permutations.
+\section{Loi de groupe et géométrie}
+On donne le procédé de construction suivant. Dans le plan on place $A(1,0)$ et $B(0,1)$. On considère également les points $M_0(x_0,y_0)$ et $M_1(x_1,y_1)$. On place $P_0$ de la manière suivante :
+\begin{itemize}
+\item $P_0 \in (AB)$.
+\item $(P_0 M_0)$ parallèle à $(Ox)$. 
+\end{itemize}
+On place $Q_0$ de la manière suivante :
+\begin{itemize}
+\item $(P_0 Q_0)$ et $(M_1B)$ parallèles.
+\item $Q_0 \in (AM_1)$
+\end{itemize}
+On place $M_2$ de manière à ce que $M_0P_0Q_0M_2$ forme un parallélogramme.
+\subparagraph{1}Montrer que les coordonnées de $Q_0$ sont $(1+x_0y_1,y_0y_1)$.
+\subparagraph{2}En déduire que $M_2$ a pour coordonnées $(x_0+x_1y_0,y_0y_1)$.
+\subparagraph{3}Montrer que $\mathcal{P}'=\lbrace M(x,y), \ y \neq 0 \rbrace$ est un groupe pour la loi $*$ définie par $M_0*M_1=M_2$.
+\end{document}

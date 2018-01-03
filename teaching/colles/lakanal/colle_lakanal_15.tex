@@ -1,0 +1,87 @@
+\documentclass[10pt,a4paper]{article} 
+\usepackage[utf8]{inputenc} 
+\usepackage[T1]{fontenc} 
+\usepackage[english]{babel} 
+\usepackage{supertabular} %Nécessaire pour les longs tableaux
+\usepackage[top=2.5cm, bottom=2.5cm, right=1.5cm, left=1.5cm]{geometry} %Mise en page 
+\usepackage{amsmath} %Nécessaire pour les maths 
+\usepackage{amssymb} %Nécessaire pour les maths 
+\usepackage{stmaryrd} %Utilisation des double crochets 
+\usepackage{pifont} %Utilisation des chiffres entourés 
+\usepackage{graphicx} %Introduction d images 
+\usepackage{epstopdf} %Utilisation des images .eps 
+\usepackage{amsthm} %Nécessaire pour créer des théorèmes 
+\usepackage{algorithmic} %Nécessaire pour écrire des algorithmes 
+\usepackage{algorithm} %Idem 
+\usepackage{bbold} %Nécessaire pour pouvoir écrire des indicatrices 
+\usepackage{hyperref} %Nécessaire pour écrire des liens externes 
+\usepackage{array} %Nécessaire pour faire des tableaux 
+\usepackage{tabularx} %Nécessaire pour faire de longs tableaux 
+\usepackage{caption} %Nécesaire pour mettre des titres aux tableaux (tabular) 
+\usepackage{color} %nécessaire pour écrire en couleur 
+\newtheorem{thm}{Théorème} 
+\newtheorem{mydef}{Définition} 
+\newtheorem{prop}{Proposition} 
+\newtheorem{lemma}{Lemme}
+\title{Semaine 15 - Applications linéaires}
+\author{Valentin De Bortoli \\ email : \ \href{mailto:valentin.debortoli@gmail.com}{valentin.debortoli@gmail.com}}
+\date{}
+\begin{document}
+\maketitle
+$E$ est un espace vectoriel sur $\mathbb{C}$ dans tous les exercices qui suivent.
+\section{Des projecteurs}
+Soit $p$ et $q$ deux endomorphismes de $E$.
+\subparagraph{1}Montrer que si $p \circ q = p$ et $q \circ p = q$ alors ce sont deux projecteurs de même noyau.
+\subparagraph{2}On suppose que $p$ et $q$ sont deux projecteurs. Montrer que si $p \circ q = q \circ p$ alors $p \circ q$ est un projecteur. Quel est son noyau ? Son image ?
+\subparagraph{3}On suppose que $p$ et $q$ sont deux projecteurs. Montrer que $p+q$ est un projecteur si et seulement si $p \circ q = q \circ p = 0$. Quel est son noyau ? Son image ?
+
+\section{Endomorphismes de carré nul}
+Soit $u$ un endomorphisme de $E$ tel qu'il existe un projecteur $p$ avec $u = p \circ u - u \circ p$.
+\subparagraph{1}Montrer que $u(\text{ker}p) \subset \text{Im}p$ et $\text{Im}p \subset \text{ker}u$.
+\subparagraph{2}En déduire $u^2=0$.
+\subparagraph{3}Que peut-on dire de la réciproque ?
+
+\section{Carré, noyau et image}
+Soit $u$ un endomorphisme de $E$.
+\subparagraph{1}Montrer que $\text{Im}u \cap \text{ker} u = \lbrace 0 \rbrace \ \Leftrightarrow \ \text{ker}u=\text{ker} u^2$.
+\subparagraph{2}Montrer que $E= \text{Im}u+\text{ker}u \ \Leftrightarrow \ \text{Im}u=\text{Im}u^2$.
+
+\section{Introduction à la réduction}
+Soit $u$ un endomorphisme de $E$ tel que $u^2-3u+2 \text{Id}=0$.
+\subparagraph{1}Montrer que $u$ est inversible et que son inverse est un polynôme en $u$.
+\subparagraph{2}Montrer que $\text{ker}(u-\text{Id})$ et $\text{ker}(u-2\text{Id})$ sont des sous-espaces supplémentaires de $E$.
+
+\section{Trois endomorphismes}
+Soient $(f,g,h)$ trois endomorphismes de $E$ tels que $f \circ g =h$, $g \circ h =f$ et $h \circ f =g$.
+\subparagraph{1}Montrer que $f,g$ et $h$ ont même noyau et même image.
+\subparagraph{2}Montrer que $f^5=f$.
+\subparagraph{3}En déduire que l'image et le noyau de $f$ sont supplémentaires.
+
+\section{Deux endomorphismes}
+Soient $(f,g)$ deux endomorphismes de $E$ tels que $g \circ f \circ g =g$ et $f=f \circ g \circ f$.
+\subparagraph{1}Montrer que $\text{Im}f$ et $\text{ker}g$ sont supplémentaires.
+\subparagraph{2}Montrer que $f(\text{Im}g)=\text{Im}f$.
+
+\section{Drapeaux}
+Soit $u$ un endomorphisme de $E$. 
+\subparagraph{1}Montrer que $\forall k \in  \mathbb{N}, \ \text{ker}u^k \subset \text{ker}u^{k+1}$. Conjecturer et prouver une propriété similaire sur $\text{Im}u^k$.
+\subparagraph{2}On suppose qu'il existe $p \in \mathbb{N}$ tel que $\text{ker}u^n=\text{ker}u^{n+1}$. Montrer que pour tout $p \in \mathbb{N}, \ p \ge n \ \Rightarrow \ \text{ker}u^p=\text{ker}u^{p+1}$.
+\subparagraph{3}En déduire que pour ce $n$, $\text{ker}u^n$ et $\text{Im}u^n$ sont en somme directe.
+
+\section{Anneau de Boole}
+Soit $(A,+,\times)$ un anneau de Boole, c'est-à-dire un anneau tel que tout élément est idempotent ($x^2=x$).
+\subparagraph{1}$\forall (x,y) \in A^2,  \ xy+yx=0$. En déduire que $x+x=0$ et que l'anneau est commutatif.
+\subparagraph{2}Montrer que la relation binaire définie par $x \le y \ \Leftrightarrow \ yx=x$ est une relation d'ordre.
+\subparagraph{3}Montrer que $\forall (x,y) \in A^2, \ xy(x+y)=0$ et en déduire qu'un anneau de Boole intègre ne peut contenir que deux éléments.
+
+\section{Sous-corps des rationnels}
+Soit $k$ un sous corps des rationnels , $\mathbb{Q}$.
+\subparagraph{1}Montrer que $k=\mathbb{Q}$.
+
+\section{Inversibles d'un anneau}
+Soit $(a,b)$ deux éléments d'un anneau $(A,+, \times)$. 
+\subparagraph{1} Montrer que si $1-ab$ est inversible alors $1-ba$ l'est aussi.
+\subparagraph{2} Montrer que si $ab$ est inversible et $b$ n'est pas un diviseur de $0$ alors $a$ et $b$ sont inversibles.
+
+
+\end{document}

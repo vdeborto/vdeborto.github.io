@@ -1,0 +1,95 @@
+\documentclass[10pt,a4paper]{article} 
+\usepackage[utf8]{inputenc} 
+\usepackage[T1]{fontenc} 
+\usepackage[english]{babel} 
+\usepackage{supertabular} %Nécessaire pour les longs tableaux
+\usepackage[top=2.5cm, bottom=2.5cm, right=1.5cm, left=1.5cm]{geometry} %Mise en page 
+\usepackage{amsmath} %Nécessaire pour les maths 
+\usepackage{amssymb} %Nécessaire pour les maths 
+\usepackage{stmaryrd} %Utilisation des double crochets 
+\usepackage{pifont} %Utilisation des chiffres entourés 
+\usepackage{graphicx} %Introduction d images 
+\usepackage{epstopdf} %Utilisation des images .eps 
+\usepackage{amsthm} %Nécessaire pour créer des théorèmes 
+\usepackage{algorithmic} %Nécessaire pour écrire des algorithmes 
+\usepackage{algorithm} %Idem 
+\usepackage{bbold} %Nécessaire pour pouvoir écrire des indicatrices 
+\usepackage{hyperref} %Nécessaire pour écrire des liens externes 
+\usepackage{array} %Nécessaire pour faire des tableaux 
+\usepackage{tabularx} %Nécessaire pour faire de longs tableaux 
+\usepackage{caption} %Nécesaire pour mettre des titres aux tableaux (tabular) 
+\usepackage{color} %nécessaire pour écrire en couleur 
+\newtheorem{thm}{Théorème} 
+\newtheorem{mydef}{Définition} 
+\newtheorem{prop}{Proposition} 
+\newtheorem{lemma}{Lemme}
+\title{Semaine 29 - Formules de Taylor, matrices équivalentes, matrices semblables}
+\author{Valentin De Bortoli \\ email : \ \href{mailto:valentin.debortoli@gmail.com}{valentin.debortoli@gmail.com}}
+\date{}
+\begin{document}
+\maketitle
+Dans tous les exercices $n \in \mathbb{N}$.
+\section{Matrices inversibles}
+\subparagraph{1}Montrer que toute matrice $M \in \mathcal{M}_n\left( \mathbb{R} \right)$ peut s'écrire comme somme de deux matrices inversibles.
+
+\section{Déterminant linéaire ?}
+Soit $A \in \mathcal{M}_n \left( \mathbb{R} \right)$. On suppose que $\forall B \in \mathcal{M}_n \left( \mathbb{R} \right), \ \det(A+B) = \det(A) + \det(B)$.
+\subparagraph{1}Que peut-on dire de $A$ ?
+
+\section{Une caractérisation de la similitude en basse dimension}
+\subparagraph{1}L'égalité des traces et des déterminants ne suffit pas à montrer que deux matrices sont semblables. Trouver un exemple illustrant cette affirmation.
+\subparagraph{2}Soient $(A,B) \in \mathcal{M}_n \left( \mathbb{R} \right)^2$ deux matrices semblables. Soit $P \in \mathbb{R}[X]$. Montrer que $P(A) = 0 \ \Leftrightarrow \ P(B) =0$.
+\subparagraph{3}Montrer que la réciproque est fausse.
+\subparagraph{Remarque :} \textit{(remarque utile pour la spé !)} en dimension inférieure à 2 on peut montrer que l'égalité des traces et déterminants suffit à montrer que deux matrices sont semblables. Cela est faux dès la dimension 3. Il suffit de considérer des matrices dont les polynômes caractéristiques sont $X^3+X^2+X+1$ et $X^3+X^2+1$. La condition de la question 2 est équivalente au fait que les polynômes minimaux de $A$ et $B$ sont égaux ce qui n'implique pas que les polynômes caractéristiques sont égaux. Par exemple il suffit de prendre les matrices $\left( \begin{matrix} 1 & 0 & 0 \\
+0 & 2 & 0  \\ 
+0 & 0 & 2\end{matrix} \right)$ et $\left( \begin{matrix} 1 & 0 & 0 \\
+0 & 1 & 0  \\ 
+0 & 0 & 2\end{matrix} \right)$. Par contre, en dimension 3, si les polynômes minimaux et polynômes caractéristiques sont égaux alors les matrices sont semblables. Cette remarque ne tient plus en dimension 4.
+
+\section{Inversibilité et application multiplicative}
+Soit $f$ une application de $\mathcal{M}_n \left( \mathbb{R} \right)$ dans $\mathbb{R}$ non constante telle que,
+\begin{equation}
+\forall (A,B) \in \mathcal{M}_n \left( \mathbb{R} \right)^2, \ f(AB) = f(A) f(B).
+\end{equation}
+\subparagraph{1}Montrer que $f(A) \neq 0 \ \Leftrightarrow \ A \in \mathcal{G}l_n \left( \mathbb{R} \right)$. 
+
+\section{Rang et somme de matrices}
+Soit $(A,B) \in \mathcal{M}_n \left( \mathbb{R} \right)$.
+\subparagraph{1}Montrer qu'il existe $(U,V) \in \mathcal{G}l_n \left( \mathbb{R} \right)$ telles que,
+\begin{equation}
+\text{rg}(UA + BV) = \min(n, \text{rg}(A)+ \text{rg}(B))
+\end{equation} 
+\subparagraph{2}On suppose que $\text{rg}(A)+ \text{rg}(B) \ge n$ que peut-on dire de $UA+BV$ ?
+
+\section{Trace et similitude}
+Soit $A \in \mathcal{M}_n \left( \mathbb{R} \right)$ tel que $\text{Tr}(A) = 0$.
+\subparagraph{1}Montrer que $A$ est semblable à une matrice de diagonale nulle.
+\subparagraph{2}On considère l'endomorphisme sur l'espace des matrices $\phi(M) = DM-MD$ avec $D$ matrice diagonale dont tous les éléments sont distincts. Donner le noyau et l'image de cet endormophisme.
+\subparagraph{3}
+Montrer que $A$ est de trace nulle si et seulement si il existe $(R,S) \in \mathcal{M}_n \left( \mathbb{R} \right)$ tels que $A = RS -SR$.
+\section{Une équation matricielle}
+Soit $A \in \mathcal{M}_3 \left( \mathbb{R} \right)$ tel que $A^3+A = 0$. On suppose que $A \neq 0$.
+\subparagraph{1}Montrer que $A$ est semblable à $\left( \begin{matrix}
+0 & 0 & 0 \\ 
+0 & 0 & -1 \\
+0 & 1 & 0
+\end{matrix} \right)$.
+
+\section{Rang et similitude}
+
+Soit $A$ une matrice de rang 1.
+\subparagraph{1}Montrer que $A^2 = \text{Tr}(A)A$ et $\det(I_n +A) = 1 + \text{Tr}(A)$.
+
+\section{Changement de corps et similitude}
+Soit $(A,B) \in \mathcal{M}_n \left( \mathbb{R} \right)^2$. On suppose que $A$ et $B$ sont semblables dans $\mathcal{M}_n\left( \mathbb{C} \right)$.
+\subparagraph{1}Montrer que $A$ et $B$ sont semblables dans $\mathcal{M}_n \left( \mathbb{R} \right)$.
+
+\section{Un schéma numérique}
+Soit $f \in \mathcal{C}^2\left( \mathbb{R}, \mathbb{R} \right)$. Soit $a \in \mathbb{R}$.
+\subparagraph{1}Donner la limite de $\frac{f(a+h) - 2f(a) +f(a-h)}{h^2}$ lorsque $h$ tend vers $0$.
+
+\section{Une approximation}
+Soit $f \in \mathcal{C}^2 \left( [0,1], \mathbb{R} \right)$. On pose $S_n = \underset{k=1}{\overset{n}{\sum}}f(\frac{k}{n^2}) - nf(0)$.
+\subparagraph{1}Donner la limite de la suite $S_n$.
+
+\end{document}

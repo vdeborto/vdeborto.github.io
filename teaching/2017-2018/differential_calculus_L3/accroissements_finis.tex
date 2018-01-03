@@ -1,0 +1,33 @@
+\documentclass[10pt,a4paper]{article}
+\input{header}
+\begin{document}
+Soit $E$ et $F$ deux espaces vectoriels normés.
+Soit $U$ un ouvert de $E$.
+Soit $f$ différentiable de $U$ dans $F$.
+\begin{thm}[Accroissements finis]
+  Soit $[x,y] \subset U$. On suppose que $df$ est majorée par $M\in\R_+$ sur  $[x,y]$.
+  \[\|f(x) -f(y)| \le M \|x-y\|\]
+\end{thm}
+\remark{
+  Il est remarquable qu'une telle propriété persiste même en dehors de la dimension un.
+  En effet en dimension un la preuve se base sur le théorème de Rolle et l'égalité des accroissements finis. Pour étendre l'inégalité des accroissements finis à la dimension finie on peut appliquer l'égalité des accroissements finis sur chaque composante et majorer. En dimension infinie cela n'est plus possible.
+  }
+  \begin{proof}
+
+    Soit $\epsilon \in \R_+$. On définit
+    \[F_{\epsilon} =  \lbrace z \in [x,y], \ \| f(z) - f(x) \| \le (M+\epsilon)\|z-x\| \rbrace \]
+    On définit également \[F_{\epsilon,+} = \lbrace z \in [x,y], \ \forall z' \in [x,z],  z' \in F_{\epsilon} \rbrace\]
+    Par continuité de $f$ , $F_{\epsilon}$ est fermé. De même, $F_{\epsilon,+}$ est fermé. En effet soit $\seq{z}{n} \in F_{\epsilon,+}^{\mathbb{N}}$ qui converge vers $z$. Soit $z' \in [x,y]$ tel que $\|z'-x\| \le \|z-x\|$. Il existe $n_0$ tel que pour tout $n \ge n_0$ on a $\|z_n-z\| \le \|z-z'\|$. On a forcément $\|z-x\| \le \|z-z'\|$. Donc $\|z'-x\| = \|z-x\| - \|z-z'\| \le \|z_n -x \|$. Donc $z' \in F_{\epsilon}$.\\
+    On va maintenant mon que $F_{\epsilon,+}$ est ouvert. Soit $z \in F_{\epsilon}$ et on pose $z'\in [z,z+\eta(y-x)]$ avec $\eta \in \R_+$. On a
+    \[ \al{\|f(z') - f(x) \| &\le \| f(z) - f(x) \| + \| f(z') - f(z) \|\\
+        &\le (M+\epsilon)\|z-x\| + (M+\epsilon)\|z'-z|\\
+        &\le (M+\epsilon) \|z'-x|
+      }\]
+    Donc $F_{\epsilon,+}$ est ouvert. De plus $[x,y]$ est connexe (non vide $x \in F_{\epsilon}$) donc $[x,y] \subset F_{\epsilon}$.
+    Ce résultat est valable pour tout $\epsilon$ donc on peut faire tendre $\epsilon$ vers $0$ et on obtient l'inégalité des accroissements finis.
+\end{proof}
+\end{document}
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

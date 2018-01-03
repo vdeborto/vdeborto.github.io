@@ -1,0 +1,120 @@
+\documentclass[10pt,a4paper]{article} 
+\usepackage[utf8]{inputenc} 
+\usepackage[T1]{fontenc} 
+\usepackage[english]{babel} 
+\usepackage{supertabular} %Nécessaire pour les longs tableaux
+\usepackage[top=2.5cm, bottom=2.5cm, right=1.5cm, left=1.5cm]{geometry} %Mise en page 
+\usepackage{amsmath} %Nécessaire pour les maths 
+\usepackage{amssymb} %Nécessaire pour les maths 
+\usepackage{stmaryrd} %Utilisation des double crochets 
+\usepackage{pifont} %Utilisation des chiffres entourés 
+\usepackage{graphicx} %Introduction d images 
+\usepackage{epstopdf} %Utilisation des images .eps 
+\usepackage{amsthm} %Nécessaire pour créer des théorèmes 
+\usepackage{algorithmic} %Nécessaire pour écrire des algorithmes 
+\usepackage{algorithm} %Idem 
+\usepackage{bbold} %Nécessaire pour pouvoir écrire des indicatrices 
+\usepackage{hyperref} %Nécessaire pour écrire des liens externes 
+\usepackage{array} %Nécessaire pour faire des tableaux 
+\usepackage{tabularx} %Nécessaire pour faire de longs tableaux 
+\usepackage{caption} %Nécesaire pour mettre des titres aux tableaux (tabular) 
+\usepackage{color} %nécessaire pour écrire en couleur 
+\newtheorem{thm}{Théorème} 
+\newtheorem{mydef}{Définition} 
+\newtheorem{prop}{Proposition} 
+\newtheorem{lemma}{Lemme}
+\title{Semaine 12 - Arithmétique et polynômes}
+\author{Valentin De Bortoli \\ email : \ \href{mailto:valentin.debortoli@gmail.com}{valentin.debortoli@gmail.com}}
+\date{}
+\begin{document}
+\maketitle
+\section{Carrés parfaits}
+Soit $n \in \mathbb{N}$ si il existe $m \in \mathbb{N}$ tel que $n=m^2$. On dit que $n$ est un carré parfait.
+\subparagraph{1}Montrer que $\forall n \in \mathbb{N}$, $8n+7$ n'est pas un carré parfait.
+\subparagraph{2}Montrer que la somme de cinq nombres consécutifs au carré n'est pas un carré parfait.
+\section{Implication et primalité}
+Soit $p$ un nombre premier.
+\subparagraph{1}Montrer que $8p^2+1 \ \text{premier} \ \Rightarrow 8p^2-1 \ \text{premier}.$
+\subparagraph{Remarque :} on pourra différencier les cas selon la valeur de $p$ modulo 3.
+\section{Puissance et nombres premiers entre eux}
+\subparagraph{1}Montrer que $\forall n \in \mathbb{N}, \ (1+\sqrt{2})^n=a_n+b_n\sqrt{2}$ avec $a_n$ et $b_n$ deux entiers.
+\subparagraph{2}Montrer que $a_n \wedge b_n=1$.
+\section{Équations et arithmétique}
+Résoudre dans $\mathbb{Z}^2$ les équations suivantes :
+\subparagraph{1} \begin{equation*}
+\left\lbrace
+\begin{aligned}
+&x+y=56 \\
+& x \vee y =105
+\end{aligned}
+\right.
+\end{equation*}
+\subparagraph{2}
+\begin{equation*}
+\left\lbrace
+\begin{aligned}
+&x \wedge y = x-y \\
+&x \vee y =72
+\end{aligned}
+\right.
+\end{equation*}
+\subparagraph{3} $x \vee y - x \wedge y=243$
+\section{Triplets pythagoriciens}
+On appelle triplet pythagoricien tout triplet $(x,y,z)\in \mathbb{Z}^3$ tel que $x^2+y^2=z^2$.
+\subparagraph{1}Exhiber un tel triplet.
+\subparagraph{2}Montrer que l'on peut se restreindre au cas où $x,y$ et $z$ sont premiers entre eux dans leur ensemble.
+\subparagraph{3}Montrer qu'alors ils sont premiers entre eux deux à deux.
+\subparagraph{4}Dans ce cas, montrer que deux sont impairs et que $z$ est impair. On suppose alors que $y=2y'$ et $x$ et $z$ impairs.
+\subparagraph{5}On pose $X=\frac{x+z}{2}$ et $Z=\frac{z-x}{2}$. Montrer que $X \wedge Z=1$ et que $X$ et $Z$ sont des carrés parfaits.
+\subparagraph{6}En déduire l'ensemble des triplets pythagoriciens.
+\subparagraph{Remarque :} il n'existe pas de solutions si l'exposant est strictement supérieur à $2$. Il s'agit du grand théorème de Fermat que celui-ci pensait avoir montré. Une démonstration rigoureuse a été donnée par Wiles en 1995 après de nombreuses années de recherche.
+\section{Écriture binaire et polynôme}
+Soit $P_n(x)=(1+X)(1+X^2) \dots (1+X^{2^n})$ avec $n \in \mathbb{N}$.
+\subparagraph{1}Donner la forme développée de $P_n$.
+\subparagraph{2}Montrer que tout entier $p \in \mathbb{N}$ s'écrit de manière unique comme la somme de puissance de deux.
+\subparagraph{Remarque :} ce résultat permet de montrer de manière élégante, l'existence et l'unicité de l'écriture binaire des entiers.
+\section{Équations polynomiale(s) (1)}
+Résoudre dans $k[X]$ les équations suivantes.
+\subparagraph{1} $Q^2=XP^2$ en $(P,Q)$.
+\subparagraph{2} $P \circ P =P$ en $P$.
+\subparagraph{3} $P(X^2)=(X^2+1)P(X)$ en $P$
+\section{Équations polynomiale(s) (2)}
+Soit $P \in \mathbb{C}[X]$ tel que $P(X^2)=P(X)P(X-1)$ et $P$ non nul.
+\subparagraph{1}Montrer que les racines de $P$ sont de module 1.
+\subparagraph{2}Déduire $P$.
+\section{Intégration et polynômes (1)}
+Soit $[ a,b ]$ un intervalle non vide de $\mathbb{R}$. Soit $f \in \mathcal{C}([a,b])$. Soit $n \in \mathbb{N}$.
+\subparagraph{1}On suppose que $\forall k \in \llbracket 0,n \rrbracket, \ \int_a^b f(t) t^k \text{d}t=0$. Montrer que $f$ s'annule au moins $n+1$ fois.
+\subparagraph{Remarque :} le théorème de Weierstrass permet de montrer une version limite de ce théorème à savoir : si $\forall P \in \mathbb{R}[X], \ \int_a^b f(x)P(x) \text{d}x=0$, alors $f=0$.
+\section{Intégration et polynômes (2)}
+\subparagraph{1}Trouver tous les polynômes de $\mathbb{R}[X]$ qui vérifient : $\forall k \in \mathbb{N}, \ \int_k^{k+1}P(x) \text{d}x= k+1$.
+\section{Localisation des racines}
+Soit $P=X^n+a_{n-1}X^{n-1}+ \dots +a_0$ un polynôme de $\mathbb{C}[X]$. Soit $z$ une racine complexe de $P$.
+\subparagraph{1}Montrer que $\vert z \vert \le 1 + \underset{j \in \llbracket 0,n-1 \rrbracket}{\max} \vert a_j \vert$.
+\subparagraph{Remarque :} cette majoration permet de réduire l'ensemble de recherche des racines du polynômes. D'autres techniques permettent d'affiner le domaine : règle de changement des signes de Descartes, suites de Sturm, disques de Gershgörin.
+\section{Le théorème de Gauss-Lucas}
+Soit $P \in \mathbb{C}[X]$.
+\subparagraph{1}Montrer que toute racine de $P'$ est barycentre des racines de $P$.
+\section{Majoration des coefficients}
+Soit $P=a_nX^n+a_{n-1}X^{n-1}+ \dots +a_0$.
+\subparagraph{1}Calculer $P(1)+P(\omega)+\dots+P(\omega^n)$ avec $\omega$ une racine $n+1$-ème de l'unité.
+\subparagraph{2}En déduire que $\forall k \in \llbracket 0,n\rrbracket, \ \vert a_k \vert \le M$ avec $M=\underset{z \in \mathbb{U}}{\sup}(\vert P(z) \vert)$.
+\section{Localité et polynômes}
+Soit $f$ une fonction sur $\mathbb{R}$ localement polynômiale :
+\begin{equation*}
+\forall x_0 \in \mathbb{R}, \ \exists (\epsilon,P_{x_0}) \in \mathbb{R}_+^* \times \mathbb{R}[X], \ \forall x \in ]x_0-\epsilon,x_0+\epsilon[, \ f(x)=P(x)
+\end{equation*}
+\subparagraph{1}Montrer que $f$ est un polynôme.
+\subparagraph{Remarque :} on peut encore affaiblir les hypothèses (théorème de Balaguer-Corominas) :
+\begin{equation*}
+\forall x \in \mathbb{R}, \ \exists n_x, \ f^{(n_x)}(x)=0 \ \Leftrightarrow \ f \ \text{est polynômiale.}
+\end{equation*}
+\section{Trigonométrie et polynômes}
+\subparagraph{1}Peut-on écrire la fonction $\cos$ comme un polynôme ?
+\section{Racines réelles de polynôme (1)}
+Soit $(a,b) \in \mathbb{R}^2$, $n \in \mathbb{N}$.
+\subparagraph{1}Montrer que le polynôme $X^n+aX+b$ admet au plus trois racines réelles.
+
+\section{Racines réelles de polynômes (2)}
+\subparagraph{1}Montrer que $P_n=((1-X^2)^n)^{(n)}$ est un polynôme de degré $n$ dont les racines sont réelles, simples et appartiennent à $[-1,1]$.
+\end{document}

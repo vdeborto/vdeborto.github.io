@@ -1,0 +1,123 @@
+\documentclass[10pt,a4paper]{article} 
+\usepackage[utf8]{inputenc} 
+\usepackage[T1]{fontenc} 
+\usepackage[english]{babel} 
+\usepackage{supertabular} %Nécessaire pour les longs tableaux
+\usepackage[top=2.5cm, bottom=2.5cm, right=1.5cm, left=1.5cm]{geometry} %Mise en page 
+\usepackage{amsmath} %Nécessaire pour les maths 
+\usepackage{amssymb} %Nécessaire pour les maths 
+\usepackage{stmaryrd} %Utilisation des double crochets 
+\usepackage{pifont} %Utilisation des chiffres entourés 
+\usepackage{graphicx} %Introduction d images 
+\usepackage{epstopdf} %Utilisation des images .eps 
+\usepackage{amsthm} %Nécessaire pour créer des théorèmes 
+\usepackage{algorithmic} %Nécessaire pour écrire des algorithmes 
+\usepackage{algorithm} %Idem 
+\usepackage{bbold} %Nécessaire pour pouvoir écrire des indicatrices 
+\usepackage{hyperref} %Nécessaire pour écrire des liens externes 
+\usepackage{array} %Nécessaire pour faire des tableaux 
+\usepackage{tabularx} %Nécessaire pour faire de longs tableaux 
+\usepackage{caption} %Nécesaire pour mettre des titres aux tableaux (tabular) 
+\usepackage{color} %nécessaire pour écrire en couleur 
+\newtheorem{thm}{Théorème} 
+\newtheorem{mydef}{Définition} 
+\newtheorem{prop}{Proposition} 
+\newtheorem{lemma}{Lemme}
+\title{Semaine 24 - Variables aléatoires}
+\author{Valentin De Bortoli \\ email : \ \href{mailto:valentin.debortoli@gmail.com}{valentin.debortoli@gmail.com}}
+\date{}
+\begin{document}
+\maketitle
+Dans tous les exercices $X$ est une variable aléatoire de $\Omega$ dans $\mathcal{X}$ où $\mathcal{X}$ est un espace fini.
+\section{La méthode de rejet}
+Soit $X$ une variable aléatoire de $\Omega$ dans $\mathcal{X}$. On note $p$ sa loi.
+Le but de cet exercice est de proposer une méthode pour simuler un échantillon de la loi $X$. On suppose qu'il existe une loi $q$ (sur le même espace) qui vérifie :
+\begin{equation*}
+\exists C \in \mathbb{R}_+^*, \ \forall x \in \mathcal{X}, \ Cq(x) \ge p(x)
+\end{equation*}
+On suppose que l'on sait échantillonner selon la loi $q$.
+On propose la démarche suivante :
+\begin{itemize}
+\item on tire un élément $Y$ selon $q$.
+\item on tire un élément $U$ selon la loi uniforme sur $\llbracket 1, q(Y) \rrbracket$.
+\item si $U \le p(Y)$ on pose $Z=Y$ sinon on reprend la première étape.
+\end{itemize}
+\subparagraph{1}Montrer que $Z$ suit bien la loi $p$.
+\subparagraph{2}Quelle est la probabilité d'acceptation de l'échantillon $Z$ ? Quel est le rôle de la constante $C$ ?
+\subparagraph{Remarque :} le problème de simulation de variables aléatoires est un domaine de la recherche encore ouvert. De nombreux autres algorithmes existent (méthode d'inversion, méthodes de Metropolis-Hastings, méthodes de Hit-and-Run). L'algorithme de Metropolis-Hastings (le plus utilisé en pratique) fonctionne de la même manière que le rejet mais prend en compte l'information "l'échantillon est rejeté".
+\section{Estimateurs et décomposition biais-variance}
+On suppose que $\mathcal{X}= \llbracket 1,N \rrbracket$
+Soit $(X_1, \dots, X_n)$ un $n-$échantillon de la loi $p$, c'est-à-dire $n \in \mathbb{N}$ variables aléatoires indépendantes de loi $p$. On suppose que la loi $p$ est uniforme sur $\mathcal{X}$. On cherche à estimer $N$.
+\subparagraph{1}Proposer une manière d'estimer $N$. On note $E_1$ cette nouvelle variable aléatoire.
+\subparagraph{2}Calculer l'espérance et la variance de $E_1$.
+\subparagraph{3}On appelle risque quadratique la quantité $R(E_1)=E( (P-E_1)^2)$. Montrer que :
+\begin{equation*}
+R(E_1) = V(E_1) + (E(E_1)-P)^2
+\end{equation*} 
+Cette décomposition est appelée biais-variance. Pourquoi ? Calculer le risque quadratique $R(E_1)$. 
+\subparagraph{4} On note $E_2 = \text{max}(X_1, \dots, X_n)$. Calculer l'espérance de $E_2$ ainsi que sa variance.
+\subparagraph{5}En déduire son risque quadratique $R(E_2)$ et comparer avec le risque quadratique $R(E_1)$.
+\subparagraph{Remarque :} le but de cet exercice est de mettre en évidence le fait suivant : il ne sert à rien de considérer un estimateur sans biais si sa variance est trop grande. Il peut être intéressant de considérer des estimateurs avec biais mais de variance petite. La borne de Cramer-Rao donne une borne inférieure pour ce risque quadratique.
+
+\section{Loi binomiale et cas limite}
+Soit $X$ une variable aléatoire binomiale de paramètre $n$ et $p \in ]0,1[$.
+\subparagraph{1}Pour quel valeur de $k \in \llbracket 0,n \rrbracket$, $P(X=k) = b(k,n,p)$ est-elle maximale ? On note $m$ cette valeur.
+\subparagraph{2}Montrer que si $m \in [ np, (n+1) p ]$ :
+\begin{equation*}
+b(m,n,\frac{m}{n+1}) \le b(m,n,p) \le b(m,n \frac{m}{n})
+\end{equation*}
+\subparagraph{3}Déduire un encadrement similaire si $m \in [(n+1)p-1, np]$.
+\subparagraph{4}Donner un équivalent de $b(m,n,p)$ lorsque $n \rightarrow +\infty$.
+
+\section{Lois et moments}
+\subparagraph{1}Montrer que si deux variables $X$ et $Y$ ont les mêmes moments alors elles ont la même loi (par même moment on entend : $\forall k \in \mathbb{N}, \ E(X^k) = E(Y^k)$).
+\subparagraph{Remarque :} attention néanmoins. Cette propriété n'est plus vraie lorsque $\mathcal{X}$ n'est pas fini.
+
+\section{Fonction caractéristique}
+Soit $X$ une variable aléatoire sur $\mathcal{X}$. On définit $\phi_X: \ \mathbb{R} \ \rightarrow   \ \mathbb{C}$ par $\phi_X(\xi) = E(e^{i \xi X})$.
+\subparagraph{1} Montrer que la fonction caractéristique est $2 \pi$ périodique et $\mathcal{C}^{\infty}$.
+\subparagraph{2}Que vaut $\phi_X(0)$ ? $\phi_X'(0)$ ? $\phi_X''(0)$ ?
+\subparagraph{3}Montrer que $P(X=k) = \frac{1}{2 \pi } \int_0^{2 \pi} e^{-ik \xi} \phi_X(\xi) \text{d}\xi$. En déduire que la fonction caractéristique caractérise la loi de $X$.
+\subparagraph{4}Montrer que si $X$ et $Y$ sont indépendantes alors $\phi_{X+Y} = \phi_X \phi_Y$. En déduire facilement la fonction caractéristique de la loi binomiale.
+\subparagraph{Remarque :} contrairement à la caractérisation par les moments, cette caractérisation est toujours valable. 
+
+
+\section{Paradoxe des anniversaires}
+\subparagraph{1}Quelle est la probabilité pour que deux personnes d'une classe de 30 élèves soient nées le même jour ?
+\subparagraph{2}Soit $n \in \mathbb{N}$. On note $C_n$ le nombre de $n$-uplets d'élèves ayant leur anniversaire le même jour. Calculer l'espérance de $C_n$.
+\subparagraph{Remarque :} on a $E(C_3) \approx 0.03$ et $E(C_4) \approx 5.6 \times 10^{-4}$. Pour une discussion très approfondie sur le sujet voir \textit{From Gestalt Theory to Image Analysis} d'Agnès Desolneux, Lionel Moisan et Jean-Michel Morel. Si $E(C_n)$ est assez simple à calculer les formules pour $P(C_n \ge 1)$ sont très lourdes et compliquées. L'inégalité de Markov permet ensuite d'établir une inégalité entre ces deux quantités.
+
+\section{Paradoxe de Feller}
+Vous allez à la poste et attendez un certain temps pour envoyer un colis. Pour savoir si vous avez eu de la chance et êtes tombé sur un guichet rapide vous envoyez un de vos amis déposer un colis dans les mêmes conditions (indépendance et même loi d'attente). Si il a attendu plus longtemps que vous on pose $M=1$. Sinon on envoie un autre ami faire la même expérience. S'il a attendu plus longtemps que vous on pose $M=2$ sinon on recommence. $M$ est une variable aléatoire qui représente notre "score de malchance".
+\subparagraph{1}Montrer que l'espérance de $M$ est égale à $\underset{n \rightarrow +\infty}{\lim} \underset{k=0}{\overset{n}{\sum}}P(M>k)$.
+\subparagraph{2}En déduire l'espérance de $M$.
+\subparagraph{Remarque :} ce paradoxe permet d'expliquer que chaque année on annonce des inondations, sécheresses ou autres catastrophes naturelles "exceptionnelles". Sans nier la réalité du changement climatique ce constat probabiliste nous permet de relativiser notre impression de vivre dans une époque "hors du commun".
+
+\section{Moyenne et médiane}
+Soit $X$ une variable aléatoire sur $\mathcal{X}$.
+\subparagraph{1}Déterminer $a$ tel que $E((X-a)^2)$ est minimal.
+\subparagraph{2}Déterminer $b$ tel que $E(\vert X-b \vert)$ est minimal.
+\subparagraph{Remarque :} $b$ est appelé la médiane. Cette quantité est bien plus compliquée à manipuler que la moyenne (elle n'est pas linéaire...). Par contre elle est bien souvent plus significative que la moyenne qui est trop sensible aux valeurs extrêmes.
+
+\section{Archer (1)}
+Un archer tire sur $n$ cibles. A chaque tir il a une probabilité $p$ d'atteindre la cible. Il tente d'abord sa chance une première fois sur chacune des cibles. A l'issue de ce premier essai on note $X$ le nombre de cibles touchées. Il tente ensuite une seconde fois sa chance sur les cibles restantes. Le nombre de cibles touchées au deuxième essai est noté $Y$.
+\subparagraph{1}Quelle est la loi de $Z=  X + Y$ ?
+
+\section{Archer (2)}
+Deux archers tirent de manière indépendante sur $n$ cibles. A chaque tir le premier archer a une probabilité $p$ de toucher la cible et le second une probabilité $q$. 
+\subparagraph{1}Quelle est la loi suivie par le nombre de cibles touchées au moins une fois ?
+\subparagraph{2}Quelle est la loi suivie par le nombre de cibles épargnées ?
+
+\section{Un peu de théorie de l'information}
+On appelle entropie de la loi $p$ (définie sur $\mathcal{X}$), la quantité suivante : 
+\begin{equation*}
+H(p) = -\sum_{x \in \mathcal{X}} \log(p(x)) p(x)
+\end{equation*}
+On adoptera la convention $0 \log(0) = 0$.
+\subparagraph{1}Calculer l'entropie d'une loi de Bernoulli de paramètre $p \in [0,1]$. Que peut-on en déduire ?
+\subparagraph{2}Montrer que l'entropie est toujours positive et qu'elle est toujours plus petite que $\log(\vert \mathcal{X} \vert)$. Dans quel cas l'entropie est-elle maximale ? Minimale ?
+\subparagraph{3}On suppose que $H((p,q)) = H(p) + H(q)$ (où $(p,q)$ désigne la loi jointe de $p$ et $q$). Quelle relation lie la loi jointe et $p$ et $q$ ?
+\subparagraph{Remarque :} la notion d'entropie a été introduite par Shannon dans les années 50. Elle est extrêmement utile pour coder de manière optimale une information.
+
+
+\end{document}

@@ -1,0 +1,82 @@
+\documentclass[10pt,a4paper]{article} 
+\usepackage[utf8]{inputenc} 
+\usepackage[T1]{fontenc} 
+\usepackage[english]{babel} 
+\usepackage{supertabular} %Nécessaire pour les longs tableaux
+\usepackage[top=2.5cm, bottom=2.5cm, right=1.5cm, left=1.5cm]{geometry} %Mise en page 
+\usepackage{amsmath} %Nécessaire pour les maths 
+\usepackage{amssymb} %Nécessaire pour les maths 
+\usepackage{stmaryrd} %Utilisation des double crochets 
+\usepackage{pifont} %Utilisation des chiffres entourés 
+\usepackage{graphicx} %Introduction d images 
+\usepackage{epstopdf} %Utilisation des images .eps 
+\usepackage{amsthm} %Nécessaire pour créer des théorèmes 
+\usepackage{algorithmic} %Nécessaire pour écrire des algorithmes 
+\usepackage{algorithm} %Idem 
+\usepackage{bbold} %Nécessaire pour pouvoir écrire des indicatrices 
+\usepackage{hyperref} %Nécessaire pour écrire des liens externes 
+\usepackage{array} %Nécessaire pour faire des tableaux 
+\usepackage{tabularx} %Nécessaire pour faire de longs tableaux 
+\usepackage{caption} %Nécesaire pour mettre des titres aux tableaux (tabular) 
+\usepackage{color} %nécessaire pour écrire en couleur 
+\newtheorem{thm}{Théorème} 
+\newtheorem{mydef}{Définition} 
+\newtheorem{prop}{Proposition} 
+\newtheorem{lemma}{Lemme}
+\title{Semaine 5 - Uniforme continuité, lipschitzianité, comparaison de fonctions}
+\author{Valentin De Bortoli \\ email : \ \href{mailto:valentin.debortoli@gmail.com}{valentin.debortoli@gmail.com}}
+\date{}
+\begin{document}
+\maketitle
+
+\section{Uniforme continuité et borne affine}
+Soit $f$ une fonction uniformément continue de $I$ dans $\mathbb{R}$ avec $I$ un intervalle de $\mathbb{R}_{+}$.
+\subparagraph{1}Montrer qu'il existe $(\alpha,\beta) \in \mathbb{R}^2$ tels que $\forall x \in I, \  \vert f(x) \vert \le \alpha \vert x \vert + \beta$. Traduire cette propriété graphiquement.
+\subparagraph{2}Supposons maintenant que $I$ est borné. Montrer que $f$ l'est aussi.
+
+\section{Uniforme continuité et limite}
+Soit $f$ une fonction continue de $\mathbb{R}$ dans $\mathbb{R}$.
+\subparagraph{1}On suppose que $f$ admet des limites finies en $+\infty$ et $-\infty$. Que peut-on en déduire sur $f$ ?
+\subparagraph{Remarque :} on pensera à effectuer un dessin pour clarifier la situation.
+
+\section{Ensemble de k-lipschitzianité}
+Soit $f$ une fonction k-lipschitzienne avec $k \in \mathbb{R}_{+}$. Soit $A$, l'ensemble des constantes de k-lipschitzianité valides pour $f$, c'est-à-dire : $A=\{ k \in \mathbb{R}_{+}, \ \forall(x,y) \in I^2 \vert f(x)-f(y) \vert \le k \vert x-y \vert \}$.
+\subparagraph{1}Montrer que $A$ est de la forme $\left[B,+\infty\right[$ avec $B \in \mathbb{R}_+$.
+
+\section{Théorème de Picard}
+Soit $f$ une fonction de $\mathbb{R}$ dans $\mathbb{R}$, k-lipschitzienne avec $k<1$. On dit alors f est contractante. On admet que si $(x_n)_{n \in \mathbb{N}}$ est une suite réelle qui vérifie : $\forall \epsilon \in \mathbb{R}_{+}^*, \ \exists N_0 \in \mathbb{N} \ | \ \forall (n,p) \in \mathbb{N}, \ n \ge N_0 \Rightarrow \vert x_{n+p}-x_n \vert \le \epsilon$ (on dit que $(x_n)_{n \in \mathbb{N}}$ est une suite de Cauchy) alors $(x_n)_{n \in \mathbb{N}}$ admet une limite dans $\mathbb{R}$.
+\subparagraph{1}Montrer que la suite définie par $x_0 \in \mathbb{R}$ et $x_{n+1}=f(x_n)$ est de Cauchy.
+\subparagraph{2}En déduire que $f$ admet un point fixe.
+\subparagraph{Remarque :} ce théorème est très utilisé dans de nombreux domaines des mathématiques (calcul différentiel, analyse fonctionnelle...). Vous étudierez l'année prochaine plus en détail les suites de Cauchy.
+\subparagraph{Remarque :} le concept de suite de Cauchy est fondamental. Il intervient notamment dans une des constructions possibles du corps des réels. $\mathbb{R}$ est alors défini comme l'ensemble des suites de Cauchy de $\mathbb{Q}$ quotienté par la relation d'équivalence "$(u_n)_{n \in \mathbb{N}}$ et $(v_n)_{n \in \mathbb{N}}$ sont semblables si et seulement si $\underset{n \rightarrow +\infty}{\lim}  \vert u_n-v_n \vert = 0$". On dit alors que $\mathbb{R}$ est le complété de $\mathbb{Q}$. Un autre choix de distance sur $\mathbb{Q}$ amène d'autres corps que celui des réels, les corps de nombres $p$-adiques (Hensel, 1897). Ces corps ont des propriétés étonnantes (tout triangle y est isocèle...) et de nombreuses applications en théorie des nombres ou pour la résolution d'équations diophantiennes.
+
+\section{Limite et uniforme continuité}
+Soit $f$ une fonction uniformément continue de $\mathbb{R}$ dans $\mathbb{R}$.
+\subparagraph{1}On suppose que $\forall x\in \mathbb{R}_+^*, \ \underset{n \rightarrow +\infty}{\lim}f(nx)=0$. Montrer que $\underset{x \rightarrow +\infty}{\lim}f(x)=0$.
+\section{Produit et équivalent}
+\subparagraph{1}Montrer que $x \mapsto \ln(x)\ln(1-x)$ admet une limite en $1^-$ et la calculer.
+
+\section{Fonction décroissante et équivalent}
+Soit $f$ une fonction décroissante qui de $\mathbb{R}$ dans $\mathbb{R}$. On suppose que $f(x)+f(x+1) \underset{x \rightarrow +\infty}{\sim} \frac{1}{x}$.
+\subparagraph{1}Montrer que $f$ admet une limite et la calculer.
+\subparagraph{2}Donner un équivalent de $f$.
+
+\section{Calcul de limites (1)}
+\subparagraph{1}Montrer que $x \mapsto \frac{x^{\ln(x)}}{\ln(x)}$ admet une limite en $+\infty$ et la calculer.
+\subparagraph{2}Montrer que $x \mapsto (\frac{x}{\ln(x)})^{\frac{\ln(x)}{x}}$ admet une limite en $+\infty$ et la calculer.
+\subparagraph{3}Montrer que $x \mapsto \frac{\ln(x+\sqrt{x^2+1})}{\ln(x)}$ admet une limite en $+\infty$ et la calculer.
+
+\section{Calcul de limites (2)}
+\subparagraph{1}Montrer que $x \mapsto (x+1)e^x-xe^{x+1}$ admet une limite en $+\infty$ et la calculer.
+\subparagraph{2}Montrer que $x \mapsto (x+1)\ln(x)-x\ln(x+1)$ admet une limite en $+\infty$ et la calculer.
+
+\section{Quelques considérations sur l'exponentielle}
+\subparagraph{1}Montrer que $\forall (n,x)\in \mathbb{N}\times \mathbb{R}_{+}, \ (1+\frac{x}{n})^n \le e^x$.
+\subparagraph{2}Montrer que $\lim_{n \rightarrow +\infty} (1+\frac{x}{n})^n=e^x$.
+
+\section{Logarithme, exponentielle et équivalent}
+Soit $a \in I$ et $f$ et $g$ deux fonctions de $I$ dans $\mathbb{R}_+^*$.
+\subparagraph{1}Donner des conditions nécessaires et suffisantes pour que $e^f \underset{a}{\sim} e^g$ et $\ln(f) \underset{a}{\sim} \ln(g)$.
+\subparagraph{2}Trouver $f$ et $g$, deux fonctions de $I$ dans $\mathbb{R}_+^*$, telles que ces deux fonctions soit équivalentes en $a$ mais que leurs compositions à gauche par l'exponentielle ne soient pas équivalentes. Même question pour la composition par le logarithme.
+\subparagraph{3}Calculer un équivalent de $x \mapsto \ln(\cos(x))$ en $\frac{\pi}{2}$.
+\end{document}

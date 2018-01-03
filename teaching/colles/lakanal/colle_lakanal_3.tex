@@ -1,0 +1,77 @@
+\documentclass[10pt,a4paper]{article} 
+\usepackage[utf8]{inputenc} 
+\usepackage[T1]{fontenc} 
+\usepackage[english]{babel} 
+\usepackage{supertabular} %Nécessaire pour les longs tableaux
+\usepackage[top=2.5cm, bottom=2.5cm, right=1.5cm, left=1.5cm]{geometry} %Mise en page 
+\usepackage{amsmath} %Nécessaire pour les maths 
+\usepackage{amssymb} %Nécessaire pour les maths 
+\usepackage{stmaryrd} %Utilisation des double crochets 
+\usepackage{pifont} %Utilisation des chiffres entourés 
+\usepackage{graphicx} %Introduction d images 
+\usepackage{epstopdf} %Utilisation des images .eps 
+\usepackage{amsthm} %Nécessaire pour créer des théorèmes 
+\usepackage{algorithmic} %Nécessaire pour écrire des algorithmes 
+\usepackage{algorithm} %Idem 
+\usepackage{bbold} %Nécessaire pour pouvoir écrire des indicatrices 
+\usepackage{hyperref} %Nécessaire pour écrire des liens externes 
+\usepackage{array} %Nécessaire pour faire des tableaux 
+\usepackage{tabularx} %Nécessaire pour faire de longs tableaux 
+\usepackage{caption} %Nécesaire pour mettre des titres aux tableaux (tabular) 
+\usepackage{color} %nécessaire pour écrire en couleur 
+\def\siecle#1{\textsc{\romannumeral #1}\textsuperscript{e}~siècle} %Nécessaire pour écrire des siècles
+\newtheorem{thm}{Théorème} 
+\newtheorem{mydef}{Définition} 
+\newtheorem{prop}{Proposition} 
+\newtheorem{lemma}{Lemme}
+\title{Semaine 3 - Fonctions circulaires, fonctions hyperboliques, réciproques}
+\author{Valentin De Bortoli \\ email : \ \href{mailto:valentin.debortoli@gmail.com}{valentin.debortoli@gmail.com}}
+\date{}
+\begin{document}
+\maketitle
+
+\section{Fonctions hyperboliques réciproques}
+\subparagraph{1}Montrer que $\sinh$ est une bijection de $\mathbb{R}$ dans $\mathbb{R}$.
+\subparagraph{2}Déterminer la réciproque de $\sinh$.
+\subparagraph{3}Montrer que $\cosh$ est une bijection de $\mathbb{R}$ dans $[1,+\infty[$.
+\subparagraph{4}Déterminer la réciproque de $\cosh$.
+\subparagraph{5}Montrer que $\tanh$ est une bijection de $\mathbb{R}$ dans $]-1,1[$.
+\subparagraph{6}Déterminer la réciproque de $\tanh$.
+
+\section{Quelques arctangentes célèbres}
+\subparagraph{1}Montrer que $\frac{\pi}{4}=2\arctan(\frac{1}{2})-\arctan(\frac{1}{7})$ (Jakob Hermann 1678-1733).
+\subparagraph{2}Montrer que $\frac{\pi}{4}=4\arctan(\frac{1}{5})-\arctan(\frac{1}{239})$ (John Machin 1680-1751).
+\subparagraph{Remarque :} ces formules et d'autres du même type ont longtemps été utilisées pour calculer $\pi$ avec précision. Depuis le début du \siecle{20} on utilise les formules trouvées par Srinivasa Ramunajan qui permettent de calculer plus rapidement les décimales de $\pi$.
+
+\section{Somme et arctangente}
+Soit $(a,b)\in \mathbb{R}^2$.
+\subparagraph{1}On suppose que $ab=1$, calculer $\arctan(a)+\arctan(b)$.
+\subparagraph{2}On suppose que $a>0$ et $0<ab<1$, calculer $\arctan(a)+\arctan(b)$ en fonction de $\arctan(\frac{a+b}{1-ab})$.
+\subparagraph{3}Même question si $a>0$ et $ab>1$.
+\subparagraph{4}Même question si $a<0$ et $ab>1$.
+\subparagraph{5}Même question si $ab<0$.
+
+\section{Somme et cosinus hyperbolique}
+Soit $n \in \mathbb{N}$. Soit $(a,b)\in \mathbb{R}^2$.
+\subparagraph{1}Exprimer $\sum_{k=0}^n {n \choose k} \cosh(ak+b)$ comme produit de fonctions hyperboliques.
+
+\section{Composée, fonctions circulaires et fonctions circulaires réciproques}
+Soit $x \in \mathbb{R}$.
+\subparagraph{1}Rappeler les valeurs de $\arccos(\cos(x))$ et $\cos(\arccos(x))$ si elles existent.
+\subparagraph{2}Simplifier $\sin(\arccos(x))$ et $\cos(\arcsin(x))$.
+\subparagraph{3}Simplifier $\cos(\arctan(x))$ et $\sin(\arctan(x))$.
+
+\section{Suite et arctangente}
+Pour cet exercice on admettra que si $(a,b) \in \mathbb{R}^2$ et $ab<0$ alors $\arctan(a)+\arctan(b)=\arctan(\frac{a+b}{1-ab})$ (on pourra trouver une démonstration de ce résultat à l'exercice 2).
+\subparagraph{1}Montrer que $\forall k \in \mathbb{N}^{*}$, $\arctan(\frac{2}{k^2})=\arctan(k+1)-\arctan(k-1)$.
+\subparagraph{2}En déduire que la suite $(u_n)_{n \in \mathbb{N}}$ définie par $u_n=\sum_{k=1}^n \arctan(\frac{2}{k^2})$ admet une limite lorsque $n \rightarrow +\infty$ et la déterminer.
+
+\section{Suite et tangente hyperbolique}
+Soit $x \in \mathbb{R}^{*}$.
+\subparagraph{1}Montrer que $\tanh(x)=\frac{2}{\tanh(2x)}-\frac{1}{\tanh(x)}$.
+\subparagraph{2}Soit $(u_n)_{n \in \mathbb{N}}$ la suite définie par $u_n=\sum_{k=0}^n 2^k \tanh(2^kx)$. Grâce à la question précédente, montrer que $(\frac{u_n}{2^{n+1}})_{n \in \mathbb{N}}$ admet une limite lorsque $n \rightarrow +\infty$ et la déterminer.
+
+\section{Résolution d'équations}
+\subparagraph{1}Résoudre dans $\mathbb{R}$, $\arctan(2x)+\arctan(x)=\frac{\pi}{4}$.
+\subparagraph{2}Résoudre dans $[-1,1]$, $\arcsin(x)+\arcsin(\sqrt{3}x)=\frac{\pi}{2}$.
+\end{document}

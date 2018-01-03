@@ -1,0 +1,143 @@
+\documentclass[10pt,a4paper]{article} 
+\usepackage[utf8]{inputenc} 
+\usepackage[T1]{fontenc} 
+\usepackage[english]{babel} 
+\usepackage{supertabular} %Nécessaire pour les longs tableaux
+\usepackage[top=2.5cm, bottom=2.5cm, right=1.5cm, left=1.5cm]{geometry} %Mise en page 
+\usepackage{amsmath} %Nécessaire pour les maths 
+\usepackage{amssymb} %Nécessaire pour les maths 
+\usepackage{stmaryrd} %Utilisation des double crochets 
+\usepackage{pifont} %Utilisation des chiffres entourés 
+\usepackage{graphicx} %Introduction d images 
+\usepackage{epstopdf} %Utilisation des images .eps 
+\usepackage{amsthm} %Nécessaire pour créer des théorèmes 
+\usepackage{algorithmic} %Nécessaire pour écrire des algorithmes 
+\usepackage{algorithm} %Idem 
+\usepackage{bbold} %Nécessaire pour pouvoir écrire des indicatrices 
+\usepackage{hyperref} %Nécessaire pour écrire des liens externes 
+\usepackage{array} %Nécessaire pour faire des tableaux 
+\usepackage{tabularx} %Nécessaire pour faire de longs tableaux 
+\usepackage{caption} %Nécesaire pour mettre des titres aux tableaux (tabular) 
+\usepackage{color} %nécessaire pour écrire en couleur 
+\newtheorem{thm}{Théorème} 
+\newtheorem{mydef}{Définition} 
+\newtheorem{prop}{Proposition} 
+\newtheorem{lemma}{Lemme}
+\title{Semaine 23 - Déterminants }
+\author{Valentin De Bortoli \\ email : \ \href{mailto:valentin.debortoli@gmail.com}{valentin.debortoli@gmail.com}}
+\date{}
+\begin{document}
+\maketitle
+\section{Déterminant et polynôme}
+Soit $\phi$ une application de $\mathbb{C}$ dans $\mathcal{G}l_n \left(\mathbb{C} \right)$. On pose $\psi$ l'application de $\mathbb{C}$ dans $\mathcal{G}l_n \left(\mathbb{C} \right)$ telle que $\psi(z) = \phi(z)^{-1}$. On suppose de plus que $\forall (i,j) \in \llbracket 1,n \rrbracket^2, \ \phi(z)(i,j)=P_{i,j}(z)$ avec $P_{i,j} \in \mathbb{C}[X]$.
+\subparagraph{1}Montrer qu'il existe $Q_{i,j} \in \mathbb{C}[X]$ tel que $\psi(z)(i,j) = Q_{i,j}(z)$.
+\section{Déterminant et nombres entiers (1)}
+Soit $M \in \mathcal{M}_n \left( \mathbb{Z} \right)$.
+\subparagraph{1}Montrer que $M$ est inversible (c'est-à-dire qu'il existe $N \in \mathcal{M}_n \left( \mathbb{Z} \right)$ tel que $MN =NM=Id$) si et seulement si $\vert \text{det}(M) \vert=1$.
+\subparagraph{2}Montrer que $(a_1,\dots,a_n) \in \mathbb{Z}^n$ sont premiers entre eux dans leur ensemble si et seulement si il existe $M\in \mathcal{G}l_n \left( \mathbb{Z} \right)$ telle que la première ligne de $M$ soit $(a_1,\dots,a_n)$.
+
+\section{Déterminants et nombres entiers (2)}
+Soit $(A,B) \in \mathcal{M}_n\left( \mathbb{R} \right)^2$. On suppose que pour tout $k \in \llbracket 0,2n \rrbracket$, $A+kB \in \mathcal{G}l_n\left( \mathbb{Z} \right)$.
+\subparagraph{1}Calculer $\text{det}(A)$ et $\text{det}(B)$.
+\subparagraph{Indication :} on pourra utiliser la question 1 de l'exercice précédent.
+
+\section{Déterminants de Cauchy}
+Soit $(a_1,\dots,a_n) \in \left(\mathbb{R}_+^*\right)^n$ et $(b_1,\dots,b_n) \in \left(\mathbb{R}_+^*\right)^n$.
+\subparagraph{1}Calculer $\left| \begin{matrix} \frac{1}{a_1+b_1} & \dots & \frac{1}{a_n+b_1} \\
+\vdots & \vdots & \vdots \\ \frac{1}{a_1+b_n} & \dots & \frac{1}{a_n+b_n}\end{matrix}\right|$.
+\subparagraph{Remarque :} dans le cas très particulier où $a_i=i$ et $b_j=j$ on parle de déterminant de Hilbert. Que vaut le déterminant dans ce cas ?
+
+
+
+\section{Déterminants de Van der Monde et Van der Monde généralisé}
+Soit $(a_1,\dots,a_n) \in \left(\mathbb{R}_+^*\right)^n$ (on les suppose distincts et rangés par ordre croissant).
+\subparagraph{1}Calculer $\left| \begin{matrix} 1 & \dots & 1 \\ a_1 & \dots & a_n \\ \vdots & \vdots & \vdots \\ a_1^n & \dots & a_n^n \end{matrix} \right|$.
+\subparagraph{2}En déduire l'existence et l'unicité du polynôme interpolateur de Lagrange aux points $(a_1,\dots,a_n)$.
+
+\subparagraph{3}Calculer $\left| \begin{matrix} 1 & \dots & 1 & 0 & \dots & 0 \\ a_1 & \dots & a_n & 1 & \dots & 1 \\ a_1^2 & \dots & a_n^2 & 2a_1 & \dots & 2a_n \\ \vdots & \vdots & \vdots & \vdots & \vdots & \vdots \\ a_1^{2n} & \dots & a_n^{2n} & (2n-1)a_1^{2n} & \dots & (2n-1)a_n^{2n} \end{matrix} \right|$.
+\subparagraph{4}Soit $f$ une application dérivable de $\mathbb{R}$ dans $\mathbb{R}$. Déduire de la question précédente l'existence et l'unicité d'un polynôme de $\mathbb{R}_{2n}[X]$ tel que $P(a_i)=f(a_i)$ et $P'(a_i)=f'(a_i)$.
+\subparagraph{Remarque :} ces polynômes sont appelés les polynômes de Hermite et possèdent, comme les polynômes de Lagrange, de nombreuses propriétés.
+
+\section{Transformée de Fourier discrète}
+Soit $(a,b) \in \mathbb{C}^2$.
+\subparagraph{1}Calculer $\left| \begin{matrix}
+a+b & a & \dots & \dots & a \\ a & a+b & a & \dots & \vdots \\ 
+\vdots & \ddots & \ddots & \ddots & \vdots 
+\\
+\vdots & \ddots & a & a+b & a\\
+\dots & \dots & \dots & a & a+b
+\end{matrix} \right|$
+\subparagraph{2}Soit $(a_1, \dots,a_n) \in \mathbb{C}^n$. On considère $C(a_1,\dots,a_n)$ la matrice circulante associée : $C(a_1, \dots a_n) = \left( \begin{matrix}
+a_1 & \dots & \dots & a_n \\
+a_n & a_1 & \dots & a_{n-1} \\
+\vdots & \vdots & \vdots & \vdots \\
+a_2 & \dots & a_n & a_1
+\end{matrix}\right).$. On pose $\omega = e^{\frac{2i \pi}{n}}$. On pose $\Lambda_k = \left( \begin{matrix}
+\omega^k \\ \omega^{2k} \\ \vdots \\ \omega^{nk}
+\end{matrix}\right)$. Montrer que $(\Lambda_k)_{k \in \llbracket 1,n \rrbracket}$ est une base de $\mathbb{C}^n$ qui diagonalise $C(a_1, \dots, a_n)$.
+\subparagraph{3}En déduire le déterminant de $C(a_1,\dots,a_n)$.
+
+\section{Déterminants de Hurwitz}
+Soit $(\lambda_1, \dots, \lambda_n) \in \mathbb{C}^n$ et $a \in \mathbb{C}$.
+\subparagraph{1}Calculer $\left| \begin{matrix}
+a+\lambda_1 & a & \dots & \dots & a \\ a & a+\lambda_2 & a & \dots & \vdots \\ 
+\vdots & \ddots & \ddots & \ddots & \vdots 
+\\
+\vdots & \ddots & a & a+\lambda_{n-1} & a\\
+\dots & \dots & \dots & a & a+\lambda_n
+\end{matrix} \right|$.
+
+\section{Matrice antisymétrique et déterminant (1)}
+Soit $A$ une matrice antisymétrique de $\mathcal{M}_n\left( \mathbb{C} \right)$.
+\subparagraph{1}Montrer que si $n$ est impair le déterminant de $A$ est nul.
+\subparagraph{2}Que peut-on dire si $n$ est pair ?
+
+\section{Matrice antisymétrique et déterminant (2)}
+Soit $A$ une matrice antisymétrique de $\mathcal{M}_n\left( \mathbb{C} \right)$ et $J$ la matrice de $\mathcal{M}_n \left( \mathbb{C} \right)$ dont tous les coefficients sont égaux à 1.
+\subparagraph{1}Montrer que $\forall z \in \mathbb{C}, \ \text{det}(A+zJ) = \text{det}(A)$.
+
+\section{Une équation sur les endomorphismes}
+On suppose que $f$ est un endomorphisme de $\mathbb{R}^3$. On suppose également que $f^3+f=Id$. On suppose que $\text{ker}f \neq 0$.
+\subparagraph{1}Montrer que $\text{dim}(\text{ker}f)=1$.
+
+\section{Un déterminant linéaire ?}
+\subparagraph{1}Déterminer tous les $A \in \mathcal{M}_n\left( \mathbb{C} \right)$ tels que $\forall X\in \mathcal{M}_n \left( \mathbb{C} \right), \ \text{det}(A+X)=\text{det}(A)+ \text{det}(X)$.
+\subparagraph{Remarque :} on pourra commencer par traiter le cas de la dimension 1...
+
+\section{Matrice de rang 1 et déterminant}
+Soit $(A,H) \in \mathcal{M}_n\left( \mathbb{R} \right)^2$. On suppose que $\text{rg}(H)=1$.
+\subparagraph{1}Montrer que $\text{det}(A+H)\text{det}(A-H) \le \left( \text{det}(A) \right)^2$.
+
+\section{Déterminant par bloc}
+Soit $(A,B,C,D) \in \mathcal{M}_n \left( \mathbb{C} \right)^4$. On suppose que $D$ est inversible et que $D$ commute avec $C$.
+\subparagraph{1} Montrer que $\text{det} \left( \begin{matrix} A & B \\ 0 & D \end{matrix} \right)= \text{det}(A) \text{det}(D)$.
+\subparagraph{2}Montrer que $\text{det} \left( \begin{matrix} A & B \\ C & D \end{matrix} \right)= \text{det}(AD-BC)$.
+\subparagraph{3}Que peut-on dire si $D$ n'est plus inversible ?
+\subparagraph{4}En déduire que si $AB = BA$, $\text{det}(A^2+B^2) \ge 0$.
+\subparagraph{Indication :} on pourra penser à introduire $\left( \begin{matrix}
+A & B \\ -B & A
+\end{matrix} \right)$ et multiplier les n dernières colonnes par $i$ et les n dernière lignes par $i$.
+
+\section{Au signe près...}
+Soit $A = (a_{i,j})_{i \in \llbracket 1,n \rrbracket, j\in \llbracket 1,n \rrbracket} \in \mathcal{M}_n\left( \mathbb{C} \right)$. On considère $\tilde{A} = ((-1)^{i+j}a_{i,j})_{i \in \llbracket 1,n \rrbracket, j\in \llbracket 1,n \rrbracket} \in \mathcal{M}_n\left( \mathbb{C} \right)$.
+\subparagraph{1}Que dire du déterminant de $\text{det}(\tilde{A})$ en fonction de $\text{det}(A)$ ?
+
+\section{Divisibilité et déterminant} 
+Soit $A \in \mathcal{M}_n \left( \mathbb{C} \right)$. On suppose que les coefficients de $A$ appartiennent tous à $\lbrace -1, 1 \rbrace$.
+\subparagraph{1}Montrer que $2^{n-1}$ divise $\text{det}(A)$.
+
+\section{Déterminant et maximum}
+Soit $(a_1,\dots,a_n) \in \mathbb{C}^n$. 
+\subparagraph{1}Que vaut $\text{det}(a_{\text{max}(i,j)})$ ?
+\subparagraph{2}Que vaut $\text{det}(\text{max}(i,j))$ ? $\text{det}(\text{min}(i,j))$ ?
+
+\section{Un dernier calcul...}
+Soit $(a_1, \dots, a_n) \in \mathbb{C}^n$.
+\subparagraph{1}Calculer $\left| \begin{matrix}
+a_1 & a_2 & a_3 & \dots & a_n \\
+a_1 & a_1 & a_2 & \dots & a_{n-1} \\ 
+\vdots & \ddots & \ddots & \ddots & \vdots \\
+\vdots & \ddots & \ddots & \ddots & \vdots \\
+a_1 & \dots & \dots & \dots & a_1 
+\end{matrix}\right|$.
+\end{document}

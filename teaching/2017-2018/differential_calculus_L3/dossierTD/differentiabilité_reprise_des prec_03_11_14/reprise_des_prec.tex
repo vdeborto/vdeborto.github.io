@@ -1,0 +1,312 @@
+\documentclass[12pt]{article}
+%\usepackage[frenchb]{babel}
+\usepackage[T1]{fontenc}                % Accents codés dans la fonte.
+\usepackage[utf8x]{inputenc}           % Accents 8 bits dans le fichier.
+\usepackage{ifthen}                     % Faire des tests if/then/else.
+\usepackage{amsmath}    % Les symboles les plus fréquents.
+\usepackage{amsfonts}   % Des fontes, eg pour \mathbb.
+\usepackage{vmargin}                    % Régler la taille de la feuille.
+\usepackage{amssymb}
+\usepackage{lastpage}
+\usepackage{accents}
+\usepackage{enumitem}
+
+% La taille de la page
+\setpapersize{A4}
+\setmarginsrb{20mm}{10mm}{14mm}{15mm}{10mm}{6mm}{0mm}{10mm}
+
+% La mise en page
+\newcounter{vcenterstest}
+\newlength{\leftlength}
+\newlength{\rightlength}
+\newlength{\vcentersskip}
+\newcommand{\leftcentersright}[4][2]{%
+        \settowidth{\leftlength}{#2}%
+        \settowidth{\rightlength}{#4}%
+        \setcounter{vcenterstest}{#1}%
+        \ifthenelse{\value{vcenterstest} = 0}
+                {\setlength{\vcentersskip}{0pt}}{}%
+        \ifthenelse{\value{vcenterstest} = 1}
+                {\setlength{\vcentersskip}{\smallskipamount}}{}%
+        \ifthenelse{\value{vcenterstest} = 2}
+                {\setlength{\vcentersskip}{\medskipamount}}{}%
+        \ifthenelse{\value{vcenterstest} = 3}
+                {\setlength{\vcentersskip}{\bigskipamount}}{}%
+        \ifthenelse{\value{vcenterstest} = 4}
+                {\setlength{\vcentersskip}{1cm}}{}%
+                % On laisse un espace vertical défini par l'argument
+                % optionnel #1
+        \vskip\vcentersskip
+                % On place #2 et on recule de sa longueur
+        \noindent#2\hskip-\leftlength%
+                % On centre #3
+        \hfill#3\hfill%
+                % On va au bout de la ligne, on recule de la longueur de #4 et
+                % on place #4
+        \mbox{}\hskip-\rightlength#4%
+                % On laisse un espace vertical défini par l'argument
+                % optionnel #1
+        \vskip\vcentersskip%
+    }
+\newcommand{\centers}[2][2]{\leftcentersright[#1]{}{#2}{}}
+\newcommand{\leftcenters}[3][2]{\leftcentersright[#1]{#2}{#3}{}}
+\newcommand{\centersright}[3][2]{\leftcentersright[#1]{}{#2}{#3}}
+\newcommand{\leftencadreright}[4][2]{\leftcentersright[#1]{#2}{\fbox{#3}}{#4}}
+
+\newcommand{\numtoi}[1]{
+  \ifthenelse{ \equal{#1}{1} }{i}{
+  \ifthenelse{ \equal{#1}{2} }{ii}{
+  \ifthenelse{ \equal{#1}{3} }{iii}{
+  \ifthenelse{ \equal{#1}{4} }{iv}{
+  \ifthenelse{ \equal{#1}{5} }{v}{
+  \ifthenelse{ \equal{#1}{6} }{vi}{
+  \ifthenelse{ \equal{#1}{7} }{vii}{
+  \ifthenelse{ \equal{#1}{8} }{viii}{
+  \ifthenelse{ \equal{#1}{9} }{ix}{
+  \ifthenelse{ \equal{#1}{10} }{x}{
+  \ifthenelse{ \equal{#1}{11} }{xi}{
+  \ifthenelse{ \equal{#1}{12} }{xii}{
+  \ifthenelse{ \equal{#1}{13} }{xiii}{
+  \ifthenelse{ \equal{#1}{14} }{xiv}{
+  \ifthenelse{ \equal{#1}{15} }{xv}{
+  \ifthenelse{ \equal{#1}{16} }{xvi}{
+  \ifthenelse{ \equal{#1}{17} }{xvii}{
+  \ifthenelse{ \equal{#1}{18} }{xviii}{
+    ERREUR,~MODIFIER~LA~MACRO~numtoi
+  } } } } } } } } } } } } } } } } } }
+}
+
+\newcounter{cretraiti}
+\newenvironment{ri}[1]{
+
+\begin{list}{($\numtoi{\thecretraiti}$)}{
+  \usecounter{cretraiti}
+  \topsep=0.5ex
+  \itemsep=0.3ex
+  \labelsep=0.3em
+  \parsep=0ex
+  \listparindent=1em
+  \settowidth{\labelwidth}{(#1)}
+  \leftmargin=\labelwidth
+  %\addtolength{\leftmargin}{\labelsep}
+}}{\end{list}
+}
+
+
+% Quelques raccourcis pour taper des maths
+\newcommand{\Sfr}{\mathfrak{S}}
+\newcommand{\Afr}{\mathfrak{A}}
+\newcommand{\QQ}{\mathbb{Q}}
+\newcommand{\ZZ}{\mathbb{Z}}
+\newcommand{\si}{\sigma}
+\newcommand{\ins}[1]{{\ensuremath{\textrm{#1}}}}
+\newcommand{\tiret}{\rule[0.6ex]{1.3ex}{0.26ex}}
+\newcommand{\accolades}[1]{\ensuremath{\left\{#1\right\}}}
+\newcommand{\paa}[1]{\ensuremath{\accolades{#1}}}       % Synonyme
+\newcommand{\ds}{\displaystyle}
+   \newcommand{\der}{
+      \mathop{}\mathopen{}\mathrm{d}
+   }
+
+% Numerotation des pages / la derniere
+\makeatletter
+\renewcommand{\@evenfoot}%
+        {\thepage \slash \pageref{LastPage}}
+\renewcommand{\@oddfoot}{\@evenfoot}
+\makeatother
+
+
+%%%%% Pour faire les exos
+\newcommand{\envfont}{\sf\bfseries}
+\newcounter{cexo}
+\renewcommand{\thecexo}{\arabic{cexo}}
+
+\newenvironment{exo}[1][toto]
+{
+  \refstepcounter{cexo}
+  \ifthenelse{ \equal{#1}{toto} }{
+   \noindent {\envfont Exercice \thecexo}
+  }{
+   \noindent {\envfont Exercice \thecexo{} \tiret\, #1.}
+  }
+%\newline
+%\indent
+}
+{}
+
+\newcounter{cquestions}
+\newenvironment{questions}{
+\begin{list}{{\envfont\alph{cquestions})}}{
+  \usecounter{cquestions}
+  \topsep=0.5ex
+  \partopsep=1em
+  \labelsep=0.3em
+  \itemsep=0.3ex
+  \settowidth{\labelwidth}{{\envfont b)}}\listparindent=1em
+  \leftmargin=\labelwidth \addtolength{\leftmargin}{\labelsep}
+}}{\end{list} }
+
+\newcommand{\poubelle}[1]{}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newcommand{\spacebeforeenv}{\vspace{1ex}}
+\newcommand{\spaceafterenv}{\vspace{1ex}}
+\newcommand{\myqedenv}{}
+
+
+\newcommand{\metaenvironnement}[2]  % 1er argument : nom de l'env, 2e argument : titre
+{
+  \ifthenelse{ \equal{#2}{toto} }{
+    \spacebeforeenv \noindent {\envfont #1 }
+  }{
+    \spacebeforeenv \noindent {\envfont #1  \tiret\, #2.}
+  }
+}
+
+%----------------------------------
+% Rappel
+%----------------------------------
+\newenvironment{rappel}[1][toto]
+{ \metaenvironnement{Rappel}{#1} }
+{\myqedenv\spaceafterenv}
+
+
+\newcommand{\fonction}[5]{%
+        \ensuremath{#1\colon
+        \left\{\hskip -1.5 mm
+        \begin{array}{c@{\ }c@{\ }l}
+        \medskip #2 & \longrightarrow & #3 \\
+        #4 & \longmapsto & #5 \\
+        \end{array}
+        \right .
+        }}
+\newcommand{\ph}{\varphi}
+\newcommand{\funu}[1]{\mathcal{C}^{#1}}
+\newcommand{\RR}{\mathbb{R}}
+\newcommand{\NN}{\mathbb{N}}
+\newcommand{\CC}{\mathbb{C}}
+
+\newenvironment{syst}[1][c]%
+    {\ensuremath{\left \{ \hskip -1.5 mm \begin{array}{#1@{\ =\ }l}}}%
+    {\end{array}\right.}
+
+\newcommand{\f}[2]{{\ensuremath{\mathchoice%
+    {\dfrac{#1}{#2}}
+        {\dfrac{#1}{#2}}
+    {\frac{#1}{#2}}
+    {\frac{#1}{#2}}
+    }}}
+\renewcommand{\ni}{\noindent}
+\newcommand{\ra}{\rightarrow}
+\newcommand{\question}[1]{{\sf\bfseries #1}}
+\newcommand{\norm}[1]{\ensuremath{\Arrowvert #1 \Arrowvert}}
+\newcommand{\Ende}[3]{\ensuremath{\mathrm{End}_{#1}^{#2}(#3)}}
+\newcommand{\End}[2]{\Ende{#1}{}{#2}}
+\newcommand{\id}{\ensuremath{\mathrm{id}}}
+\renewcommand{\d}{\ensuremath{\mathrm{d}}}
+\renewcommand{\leq}{\leqslant}
+\renewcommand{\geq}{\geqslant}
+
+
+\usepackage{datetime}
+\newdateformat{annscol}{\ifthenelse{\THEMONTH > 7}{\THEYEAR--\refstepcounter{YEAR}\THEYEAR}{\addtocounter{YEAR}{-1}\THEYEAR--\refstepcounter{YEAR}\THEYEAR}}
+
+\begin{document}
+ 
+
+%------------------------------------------------------------------------------------
+\leftcentersright[0]{{\bf\sf\large Formation en Mathématiques Commune Cachan / P7}}{}
+    {{\bf\sf\large Année~\annscol\today}}
+\leftcentersright[0]{{\bf\sf\large Calcul différentiel}}{}{{\bf\sf Mariano Rodríguez, Frédéric Pascal}}
+%------------------------------------------------------------------------------------------
+
+
+
+
+%------------------------------------------------------------------------------------------
+%------------------------------------------------------------------------------------------
+
+\vspace{1cm}
+
+\poubelle{
+
+\begin{exo}\label{Exercise-cdif-exemple-concret} \\
+On considère l'application $f : \RR ^2 \ra \RR^2$ telle que  $f(x,y)=(x+y , x y)$
+ 
+\begin{questions}   \item  Montrer que $f$ est de classe $C^{\infty}$. Calculer la différentielle de $f$ en $(x,y)$.
+      Déterminer l'ensemble $S$ des points $(x,y) \in \RR^2$ en lesquels $\mathrm{d} f_{(x,y)}$ est inversible.
+
+\item Calculer $f(\RR^2)$. L'application $f$ est-elle un difféomorphisme de $\RR^2$ sur $f(\RR^2)$ ?
+      L'application $f$ est-elle un difféomorphisme de $S$ sur $f(S)$ ? Trouver un ouvert connexe maximal $U$
+      de $\RR^2$ tel que $f$ soit un difféomorphisme de $U$ sur $f(S)$.
+ 
+\end{questions}   \end{exo} 
+
+\vskip2ex
+
+\begin{exo}
+%\vspace{-1cm}
+\begin{questions}   \item  Soit $f : \RR^n \ra \RR$ une fonction de classe $C^{\infty}$. Montrer qu'il existe des fonctions
+$g_i : \RR^n \ra \RR$ de classe $C^{\infty}$ ($1 \leq i \leq n$) telles que
+$\forall x \in \RR^n$ 
+$$f(x) = f(0) + \sum_{i=1}^{n} x_i g_i(x)$$
+ On souhaite remplacer $\RR^n$ par un ouvert $U$ de $\RR^n$, donner des hypothèses sur $U$ pour lesquelles
+le résultat est toujours valable;
+\item Soit $f : \RR^n \ra \RR$ une fonction de classe $C^{\infty}$ telle que $f(0) = 0$ et $\der f(0) = 0$.
+Montrer qu'il existe des fonctions $h_{ij} : \RR^n \ra \RR$ de classe $C^{\infty}$ ($1 \leq i,j \leq n$) telles que
+$\forall\,x \in \RR^n$, $$ f(x) = \sum_{i,j} x_ix_j h_{i,j}(x)$$
+%\vspace{-1cm}
+\item Montrer que $I = \{f \in C^{\infty}(\RR^{n}, \RR), \quad f(0) = 0 \}$ est un idéal maximal de
+$C^{\infty}(\RR^{n}, \RR)$ de type fini, principal pour $n=1$.
+\end{questions}   \end{exo} 
+
+
+}
+
+\begin{exo} On munit l'espace $\RR^{n}$ d'une norme quelconque et on note $B_{r}$ la boule de centre $0$ et de rayon $r$. Soit $f$ un $C^{1}$ difféomorphisme entre deux ouverts $U$ et $V$ de $\RR^{n}$ contenant l'origine. On supposera pour simplifier que $f(0)=0$. 
+ 
+\begin{questions}   \item  Soit $\epsilon \in ]0,1[$ fixé. Montrer qu'il existe $R>0$ tel que pour tout $x \in B_{R}$,
+\begin{equation*}
+ \|\der f(0)^{-1}(f(x))-x\|\leq \epsilon \|x\|
+\end{equation*}
+
+\item Montrer qu'il existe $R'>0$ tel que, pour $0\leq r \leq R'$,
+\begin{equation*}
+ (1-\epsilon) \der f(0)(B_{r})\subset f(B_{r}) \subset (1+\epsilon) \der f(0)(B_{r})
+\end{equation*}
+Indication : Pour la première inclusion, observer que $f(B_{R})$ est un voisinage de $0$.
+
+\item Soit $\lambda$ la mesure de Lebesgue sur $\RR^{n}$ dont on admet qu'elle satisfait la relation $\lambda(AX)=|det(A)|\lambda(X)$ pour tout ensemble Lebesgue-mesurable X et toute application linéaire $A \in \mathcal{L}(\RR^{n})$. Montrer alors que :
+\begin{equation*}
+ |det \der f(0)|= \lim_{r\rightarrow 0} \dfrac{\lambda(f(B_{r}))}{\lambda(B_{r})}
+\end{equation*}
+ 
+\end{questions}   \end{exo} 
+
+
+\vskip1ex
+\begin{exo}[Théorème de Whitney]
+Soit F un fermé de $\RR^{n}$. On va montrer qu'il existe une fonction $f$ de classe $C^{\infty}$ de $\RR^{n}$ dans $\RR^{+}$ dont l'ensemble des zéros est exactement F. On supposera dans la suite que $F \neq \RR^{n}$.
+\begin{questions}
+\item Donner l'exemple d'une fonction de classe $C^{\infty}$ strictement positive à l'intérieur de la boule unité et nulle partout en dehors.
+\item Justifier l'existence d'une suite de boules ouvertes $(B_{i})_{i \in \NN}$ telles que $F=\RR^{n}\backslash \bigcup_{i \in \NN} B_{i}$ ainsi que d'une suite d'applications $(\phi_{i})_{i \in \NN}$ de $\RR^{n}$ dans $\RR^{+}$ telle que chaque $\phi_{i}$ s'annule uniquement sur $\RR^{n}\backslash B_{i}$.
+\item Déterminer alors une fonction $f$ satisfaisant au problème. \\
+\ni Indication : Exprimer $f$ comme une série pondérée des fonctions $\phi_{i}$ de façon à obtenir une convergence normale de toutes les séries dérivées.
+\end{questions}
+\end{exo}
+
+\vskip2ex
+\begin{exo}[Un peu de calcul des variations]
+Le calcul des variations est une généralisation du calcul différentiel en dimension finie à des espaces de Banach de dimension infinie, typiquement des espaces de fonctions, de courbes, etc... Pour un espace de Banach E quelconque et $f$ une application de E dans un evn F, on définit la différentiabilité de $f$ en un point $x_{0} \in E$ par l'existence d'une application linéaire \textbf{continue} $df(x_{0}) \in \mathcal{L}_{c}(E,F)$ telle que :
+\begin{equation*}
+ f(x_{0}+h)-f(x_{0})-df(x_{0})(h)=o(\lVert h \rVert_{E})
+\end{equation*}
+On se place désormais dans le cas où E est l'espace des fonctions $C^{1}$ sur un intervalle compact $I=[a,b]$ à valeurs réelles, muni de la norme $\lVert f \rVert= \lVert f \rVert_{\infty} + \lVert f' \rVert_{\infty}$. Soit $L: \ \RR^{3}\rightarrow \RR$ de classe $C^{1}$ qui définit une fonctionnelle $\mathcal{F}$ sur E par :
+\begin{equation*}
+ \mathcal{F}(f)= \int_{a}^{b} L(x,f(x),f'(x)) dx
+\end{equation*}
+Montrer que $\mathcal{F}$ est différentiable sur $E$ et exprimer sa différentielle à partir des dérivées partielles de $L$.
+\end{exo}
+
+
+\end{document}

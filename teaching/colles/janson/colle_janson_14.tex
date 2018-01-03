@@ -1,0 +1,93 @@
+\documentclass[10pt,a4paper]{article} 
+\usepackage[utf8]{inputenc} 
+\usepackage[T1]{fontenc} 
+\usepackage[english]{babel} 
+\usepackage{supertabular} %Nécessaire pour les longs tableaux
+\usepackage[top=2.5cm, bottom=2.5cm, right=1.5cm, left=1.5cm]{geometry} %Mise en page 
+\usepackage{amsmath} %Nécessaire pour les maths 
+\usepackage{amssymb} %Nécessaire pour les maths 
+\usepackage{stmaryrd} %Utilisation des double crochets 
+\usepackage{pifont} %Utilisation des chiffres entourés 
+\usepackage{graphicx} %Introduction d images 
+\usepackage{epstopdf} %Utilisation des images .eps 
+\usepackage{amsthm} %Nécessaire pour créer des théorèmes 
+\usepackage{algorithmic} %Nécessaire pour écrire des algorithmes 
+\usepackage{algorithm} %Idem 
+\usepackage{bbold} %Nécessaire pour pouvoir écrire des indicatrices 
+\usepackage{hyperref} %Nécessaire pour écrire des liens externes 
+\usepackage{array} %Nécessaire pour faire des tableaux 
+\usepackage{tabularx} %Nécessaire pour faire de longs tableaux 
+\usepackage{caption} %Nécesaire pour mettre des titres aux tableaux (tabular) 
+\usepackage{color} %nécessaire pour écrire en couleur 
+\newtheorem{thm}{Théorème} 
+\newtheorem{mydef}{Définition} 
+\newtheorem{prop}{Proposition} 
+\newtheorem{lemma}{Lemme}
+\title{Semaine 14 - Continuité}
+\author{Valentin De Bortoli \\ email : \ \href{mailto:valentin.debortoli@gmail.com}{valentin.debortoli@gmail.com}}
+\date{}
+\begin{document}
+\maketitle
+
+\section{Théorèmes de point fixe}
+\subparagraph{1} Soit $f \in \mathcal{C}([0,1],[0,1])$. Montrer que $f$ admet un point fixe.
+\subparagraph{2} Soit $f \in \mathcal{C}(\mathbb{R},\mathbb{R})$ décroissante. Montrer que $f$ admet un point fixe.
+\subparagraph{Remarque :} la première question donne un cas particulier d'un théorème plus général, le théorème de Brouwer. Celui-ci assure que si $f \in \mathcal{C}(K,K)$ avec $K$ un compact de dimension finie alors $f$ admet un point fixe (le résultat reste vrai en dimension infinie et se nomme théorème de Schauder).
+
+\section{Périodicité et limite}
+Soit $f \in \mathcal{C}(\mathbb{R},\mathbb{R})$, périodique et qui admet une limite finie en $+\infty$. 
+\subparagraph{1} Montrer que $f$ est constante.
+
+\section{Étude de continuité (1)}
+Donner l'ensemble de définition et étudier la continuité des fonctions suivantes :
+\subparagraph{1} $x \mapsto \lfloor x \rfloor + \sqrt{x- \lfloor x \rfloor}$
+\subparagraph{2} $x \mapsto \lfloor x \rfloor + (x- \lfloor x \rfloor)^2$
+
+\section{Étude de continuité (2)}
+\subparagraph{1} Montrer que $x \mapsto \sup_{n \in \mathbb{N}} \frac{x^n}{n !}$ est bien définie sur $\mathbb{R}_+$ et étudier sa continuité.
+
+\section{Croissance et continuité}
+Soit $f$ une fonction qui va de $\mathbb{R}_+^*$ dans $\mathbb{R}$ avec $f$ croissante et $x \mapsto \frac{f(x)}{x}$ décroissante.
+\subparagraph{1}Montrer que $f$ est continue.
+
+\section{Égalité de normes}
+Soit $f$ et $g$ deux fonctions de $\mathcal{C}(\mathbb{R},\mathbb{R})$ telles que $\forall x \in \mathbb{R}, \ \vert f(x) \vert = \vert g(x) \vert \neq 0$.
+\subparagraph{1} Montrer que $f=g$ ou $f=-g$.
+
+\section{Les morphismes continus réels}
+Soit $\phi$ un morphisme continu de $\mathbb{R}$, c'est-à-dire $\phi: \ \mathbb{R} \ \rightarrow  \ \mathbb{R}$ qui vérifie $\forall (a,b) \in \mathbb{R}^2, \ \phi(a+b)=\phi(a)+\phi(b)$. On suppose de plus que cette fonction est continue.
+\subparagraph{1}Montrer que $\phi$ est linéaire.
+\subparagraph{Indication :} Que peut-on dire de $\phi$ sur les entiers naturels ? Sur les entiers relatifs ? Sur les rationnels ? Une fois qu'on a l'expression de $\phi$ sur les rationnels comment étendre aux réels ?
+
+\section{Les morphismes continus du cercle unité}
+Soit $\phi$ un morphisme continu du cercle unité, c'est-à-dire $\phi : \ \mathbb{U} \ \rightarrow \ \mathbb{C}^*$ qui vérifie $\forall (a,b) \in \mathbb{U}^2, \ \phi(ab)=\phi(a)\phi(b)$. On suppose de plus que cette fonction est continue.
+\subparagraph{1}Montrer que $\phi$ est à valeurs dans le cercle unité.
+\subparagraph{2} Montrer que $\phi(z)=z^n$ avec $n \in \mathbb{N}$.
+\subparagraph{Remarque :} on admettra le théorème de relèvement : $\exists! \ \psi \in \mathcal{C}([0,2\pi[,\mathbb{R})$ telle que $\phi(e^{it})=e^{i\psi(t)}$ si $\phi$ est à valeurs dans le cercle unité.
+
+\section{Équation fonctionnelle (1)}
+Soit $f \in \mathcal{C}(\mathbb{R},\mathbb{R})$ qui vérifie : $\forall x \in \mathbb{R}, \ f \left( \frac{x+1}{2} \right) = f(x)$.
+\subparagraph{1} Montrer que $f$ est constante.
+
+\section{Équation fonctionnelle (2)}
+Soit $f \in \mathcal{C}(\mathbb{R},\mathbb{R})$ qui vérifie : $\forall x \in \mathbb{R}, \ f(2x)=f(x) \cos(x)$. 
+\subparagraph{1} Déterminer $f$.
+
+\section{Équation fonctionnelle (3)}
+Soit $f$ une fonction de $\mathcal{C}(\mathbb{R},\mathbb{R})$ continue en $0$ et en $1$ qui vérifie $\forall x \in \mathbb{R}, f(x^2)=f(x)$.
+\subparagraph{1}Montrer que $f$ est constante.
+
+\section{Les cordes rationnelles}
+Soit $f \in \mathcal{C}([0,1])$ telle que $f(0)=f(1)$. Soit $n \in \mathbb{N}^*$.
+\subparagraph{1} Montrer qu'il existe $\alpha \in [0,1-\frac{1}{n}[$ tel que $f(\alpha+\frac{1}{n})=f(\alpha)$.
+\subparagraph{2} Pourquoi ce théorème s'appelle-t-il théorème des cordes rationnelles ?
+
+\section{Image et périodicité}
+Soit $f \in \mathcal{C}(\mathbb{R},\mathbb{R})$ périodique de période $T$.
+\subparagraph{1}Montrer que $f$ est bornée.
+\subparagraph{2}Montrer qu'il existe $x \in \mathbb{R}$ tel que $\text{Im}f=f([x,x+\frac{T}{2}])$.
+
+\section{Antécédent et continuité}
+Soit $f \in \mathcal{C}(\mathbb{R},\mathbb{R})$ tel que chaque $y \in \mathbb{R}$ admet au plus deux antécédents.
+\subparagraph{1}Montrer qu'il existe $y \in \mathbb{R}$ tel que $y$ admet exactement un antécédent.
+\end{document}

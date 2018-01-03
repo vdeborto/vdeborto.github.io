@@ -1,0 +1,106 @@
+\documentclass[10pt,a4paper]{article} 
+\usepackage[utf8]{inputenc} 
+\usepackage[T1]{fontenc} 
+\usepackage[english]{babel} 
+\usepackage{supertabular} %Nécessaire pour les longs tableaux
+\usepackage[top=2.5cm, bottom=2.5cm, right=1.5cm, left=1.5cm]{geometry} %Mise en page 
+\usepackage{amsmath} %Nécessaire pour les maths 
+\usepackage{amssymb} %Nécessaire pour les maths 
+\usepackage{stmaryrd} %Utilisation des double crochets 
+\usepackage{pifont} %Utilisation des chiffres entourés 
+\usepackage{graphicx} %Introduction d images 
+\usepackage{epstopdf} %Utilisation des images .eps 
+\usepackage{amsthm} %Nécessaire pour créer des théorèmes 
+\usepackage{algorithmic} %Nécessaire pour écrire des algorithmes 
+\usepackage{algorithm} %Idem 
+\usepackage{bbold} %Nécessaire pour pouvoir écrire des indicatrices 
+\usepackage{hyperref} %Nécessaire pour écrire des liens externes 
+\usepackage{array} %Nécessaire pour faire des tableaux 
+\usepackage{tabularx} %Nécessaire pour faire de longs tableaux 
+\usepackage{caption} %Nécesaire pour mettre des titres aux tableaux (tabular) 
+\usepackage{color} %nécessaire pour écrire en couleur 
+\newtheorem{thm}{Théorème} 
+\newtheorem{mydef}{Définition} 
+\newtheorem{prop}{Proposition} 
+\newtheorem{lemma}{Lemme}
+\title{Semaine 17 - Théorie de la dimension et applications linéaires}
+\author{Valentin De Bortoli \\ email : \ \href{mailto:valentin.debortoli@gmail.com}{valentin.debortoli@gmail.com}}
+\date{}
+\begin{document}
+\maketitle
+Dans la suite $k$ est un corps (on se limite à $\mathbb{R}$ et $\mathbb{C}$) et $E$ un $k$-espace vectoriel.
+
+\section{Une famille libre ?}
+\subparagraph{1}Montrer que $(x \mapsto\cos(nx))_{n \in \mathbb{N}}$ est une famille libre de $\mathcal{F}(\mathbb{R},\mathbb{R})$.
+
+\subparagraph{Remarque :} on peut montrer de manière plus générale qu'une famille de fonctions $(f_i)_{i \in \llbracket 1,n \rrbracket}$ est libre dans $\mathcal{F}(\mathbb{R},\mathbb{R})$ si et seulement si il existe $n$ réels $(x_i)_{i \in \llbracket 1,n \rrbracket}$ tels que $(f_i(x_j))_{(i,j) \in \llbracket 1,n\rrbracket^2}$ soit une matrice inversible. 
+
+\section{Espace vectoriel et fonctions affines}
+\subparagraph{1}Soit $F$ l'ensemble des fonctions continues de $[-1,1]$ affines sur $[-1,0]$ et affines sur $[0,1]$. Montrer que $F$ est un sous-espace vectoriel (de quel espace vectoriel ?).
+\subparagraph{2}Trouver une base de $F$. 
+
+\section{Une base de polynômes}
+\subparagraph{1}Montrer que $(P_k)_{k \in \llbracket 0,n \rrbracket}$ avec $P_k=X^k(1-X)^{n-k}$ est une base de $\mathbb{R}_n[X]$. 
+
+\section{Nombres réels et espace vectoriel}
+Le but de cet exercice est d'étudier $\mathbb{R}$ comme $\mathbb{Q}$-espace vectoriel. On note $(p_n)_{n \in \mathbb{N}}$ l'ensemble des nombres premiers rangés par ordre croissant.
+\subparagraph{1} Montrer que $\forall N \in \mathbb{N}, \ (p_n)_{n \in \llbracket 1,N \rrbracket}$ est une famille libre de $\mathbb{R}$. En déduire qu'il n'existe pas de base finie de $\mathbb{R}$ comme $\mathbb{Q}$-espace vectoriel.
+\subparagraph{2} Autre démonstration : si $(x_n)_{n \in \llbracket 1,N \rrbracket}$ est une base de $\mathbb{R}$ comme $\mathbb{Q}$-espace vectoriel en déduire que tout $x\in \mathbb{R}$ est racine d'un polynôme de degré $N-1$.
+\subparagraph{3}En considérant $2^{1/N}$ en déduire une contradiction (on admettra que $X^n-2$ est un polynôme irréductible de $\mathbb{Q}[X]$).
+
+\subparagraph{Remarque :} en fait on peut même montrer en considérant la famille $(\underset{n \ge 1}{\sum} \frac{1}{10^{\lfloor a^n \rfloor}})_{a>1}$ que toute base de $\mathbb{R}$ comme $\mathbb{Q}$-espace vectoriel est de cardinal celui de $\mathbb{R}$. L'existence d'une base de $\mathbb{R}$ est assurée par l'axiome du choix (bases de Hamel) mais n'est pas constructible.
+
+\section{Polynômes à valeurs entières}
+\subparagraph{1}Montrer que $(P_k)_{k \in \llbracket 0,n\rrbracket}$ avec $\forall k \in \llbracket 1,n \rrbracket, \ P_k = \frac{X (X-1) \dots (X-k+1)}{k !}$ et $P_0=1$. Montrer que $(P_k)_{k \in \llbracket 0,n\rrbracket}$ base de $\mathbb{R}_n[X]$.
+\subparagraph{2}Montrer que $\forall m \in \mathbb{Z}, \forall k \in \llbracket 0,n\rrbracket, \ P_k(m) \in \mathbb{Z}$.
+\subparagraph{3}En déduire la forme des polynômes de $\mathbb{R}_n[X]$ qui prennent des valeurs entières sur les entiers.
+
+\section{Divisibilité et sous-espace vectoriel}
+Soit $A$ polynôme de $\mathbb{R}_n[X]$.
+\subparagraph{1}Montrer que $F=\lbrace P \in \mathbb{R}_n[X], A \vert P \rbrace$ est un sous-espace vectoriel.
+\subparagraph{2}Exhiber une base et un supplémentaire de cet espace.
+
+\section{Une équation polynômiale}
+\subparagraph{1}Montrer qu'il existe un unique polynôme $P\in \mathbb{R}_{n+1}[X]$ tel que $P(0)=0$ et $P(X+1)-P(X)=X^n$.
+
+\section{Une somme directe}
+\subparagraph{1}Soit $i \in \llbracket 0,n \rrbracket$ et  $F_i=\lbrace P \in \mathbb{R}_n[X], \forall j \in \llbracket 0,n \rrbracket \backslash \lbrace i \rbrace, \ P(j)=0, \ P(i) \neq 0 \rbrace$. Montrer que $F_i \cup \lbrace 0 \rbrace$ est un espace vectoriel.
+\subparagraph{2}Montrer que $\mathbb{R}_n[X]=F_0 \oplus \dots \oplus F_n$.
+
+\section{Drapeaux}
+Soit $u$ un endomorphisme de $E$. 
+\subparagraph{1}Montrer que $\forall k \in  \mathbb{N}, \ \text{ker}u^k \subset \text{ker}u^{k+1}$. Conjecturer et prouver une propriété similaire sur $\text{Im}u^k$.
+\subparagraph{2}On suppose qu'il existe $p \in \mathbb{N}$ tel que $\text{ker}u^n=\text{ker}u^{n+1}$. Montrer que pour tout $p \in \mathbb{N}, \ p \ge n \ \Rightarrow \ \text{ker}u^p=\text{ker}u^{p+1}$.
+\subparagraph{3}En déduire que pour ce $n$, $\text{ker}u^n$ et $\text{Im}u^n$ sont en somme directe. Que peut-on dire dans le cas de la dimension finie ?
+
+\section{Stabilisation et endomorphismes}
+Soit $u$ un endomorphisme de $E$.
+\subparagraph{1} On suppose que $u$ stabilise toutes les droites (sous espaces vectoriels de dimension 1), c'est-à-dire que pour toute droite $D$, $u(D) \subset D$. Que peut-on dire de $u$ ?
+\subparagraph{2}On suppose maintenant que $u$ stabilise tous les sous-espaces vectoriels de dimension k. Que peut-on dire de $u$ ?
+
+\section{Polynômes annulateurs}
+Soit $u$ un endomorphisme de $E$. On suppose que $E$ est de dimension finie.
+\subparagraph{1}Montrer qu'il existe $P \in k[X]$ tel que $P(u)= \underset{k=0}{\overset{\deg P}{\sum}}a_k u^k=0.$
+\subparagraph{2}Montrer que $u$ est bijectif si et seulement un de ses polynômes annulateurs vérifie $a_0 \neq 0$.
+\subparagraph{3}Montrer que $\text{ker}u$ et $\text{Im}u$ sont en somme directe si et seulement il existe un polynôme annulateur dont 0 est racine d'ordre au plus 1.
+\subparagraph{4}Que se passe-t-il en dimension infinie ?
+
+\section{Rang et endomorphisme}
+Soit $u $ et $v$ deux endomorphismes de $E$ ($k-$espace vectoriel de dimension finie) tels que $u\circ v=0$ et $u+v$ bijectif.
+\subparagraph{1}Montrer que $\text{rg} u +\text{rg}v= \text{dim}E$.
+
+\section{Rang et composition}
+Soit $(f,g)$ deux endomorphismes de $E$ un $k-$espace vectoriel de dimension $n \in \mathbb{N}$. 
+\subparagraph{1}Montrer que $\text{rg} f+\text{rg} f -n \le \text{rg} f \circ g$.
+\subparagraph{2} En déduire les endomorphismes $u$ de $\mathbb{R}^3$ tels que $u^2=0$.
+
+\section{Rang et sous-espace vectoriel}
+Soit $f$ un endomorphisme de $E$ ($k-$espace vectoriel de dimension $n \in \mathbb{N}$). Soit $F$ un sous-espace vectoriel de $E$.
+\subparagraph{1}Montrer que $\text{dim} (\text{ker}f \cap F) \ge \text{dim}F - \text{rg}f$
+
+\section{Endomorphismes et polynômes}
+Soit $n \in \mathbb{N}$ on note $\phi : \ \mathbb{R}_n[X] \ \rightarrow  \ \mathbb{R}_n[X]$ défini par $\phi(P)=P(X+1)+P(X)$.
+\subparagraph{1}Montrer que $\phi$ est un isomorphisme. On note $\forall k \in \llbracket 0,n \rrbracket, \ P_k=\phi^{-1}(2X^k)$.
+\subparagraph{2}Montrer que $P_n(X+1)$ est combinaison linéaire des $(P_k)_{k \in \llbracket 0,n \rrbracket}$. En considérant $P_n(X+2)-P_n(X+1)$ expliciter cette combinaison linéaire.
+\subparagraph{3} Donner une relation liant $P_n$ aux $(P_k)_{k \in \llbracket 0,n-1 \rrbracket}$.
+\end{document}

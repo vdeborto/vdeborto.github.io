@@ -1,0 +1,94 @@
+\documentclass[10pt,a4paper]{article} 
+\usepackage[utf8]{inputenc} 
+\usepackage[T1]{fontenc} 
+\usepackage[english]{babel} 
+\usepackage{supertabular} %Nécessaire pour les longs tableaux
+\usepackage[top=2.5cm, bottom=2.5cm, right=1.5cm, left=1.5cm]{geometry} %Mise en page 
+\usepackage{amsmath} %Nécessaire pour les maths 
+\usepackage{amssymb} %Nécessaire pour les maths 
+\usepackage{stmaryrd} %Utilisation des double crochets 
+\usepackage{pifont} %Utilisation des chiffres entourés 
+\usepackage{graphicx} %Introduction d images 
+\usepackage{epstopdf} %Utilisation des images .eps 
+\usepackage{amsthm} %Nécessaire pour créer des théorèmes 
+\usepackage{algorithmic} %Nécessaire pour écrire des algorithmes 
+\usepackage{algorithm} %Idem 
+\usepackage{bbold} %Nécessaire pour pouvoir écrire des indicatrices 
+\usepackage{hyperref} %Nécessaire pour écrire des liens externes 
+\usepackage{array} %Nécessaire pour faire des tableaux 
+\usepackage{tabularx} %Nécessaire pour faire de longs tableaux 
+\usepackage{caption} %Nécesaire pour mettre des titres aux tableaux (tabular) 
+\usepackage{color} %nécessaire pour écrire en couleur 
+\newtheorem{thm}{Théorème} 
+\newtheorem{mydef}{Définition} 
+\newtheorem{prop}{Proposition} 
+\newtheorem{lemma}{Lemme}
+\title{Semaine 22 - Probabilités et dénombrement}
+\author{Valentin De Bortoli \\ email : \ \href{mailto:valentin.debortoli@gmail.com}{valentin.debortoli@gmail.com}}
+\date{}
+\begin{document}
+\maketitle
+\section{Permutations et probabilités}
+On suppose que trois personnes ($1,2$ et $3$) sont assises à une table. Les trois chaises portent les noms $A,B$ et $C$. Toutes les minutes, deux personnes échangent de place.
+\subparagraph{1}Quelle est la probabilité pour qu'au bout de $n$ minutes on retrouve la configuration initiale ?
+
+\section{Nombre de dérangements}
+On considère l'espace des permutations de $\llbracket 1,n \rrbracket$. On appelle dérangement toute permutation sans point fixe. Notre but ici est de donner une formule explicite du nombre de dérangements de $\llbracket 1,n \rrbracket$.
+\subparagraph{1} on donne ici la formule du crible $\text{card} \left( \underset{i=1}{\overset{n}{\bigcup}} A_i \right) = \underset{k=1}{\overset{n}{\sum}}(-1)^{k+1} \underset{1\le i_1 \le \dots \le i_k \le n}{\sum} \text{card} \left( \underset{i_j  \in \lbrace i_1,\dots,i_k \rbrace }{\bigcap} A_{i_j} \right)$. Expliquer cette formule.
+\subparagraph{2}En utilisant la formule du crible montrer que le nombre de dérangements $D_n = n! \underset{k=0}{\overset{n}{\sum}} \frac{(-1)^k}{k!}$.
+\subparagraph{3}En déduire le nombre de permutations de $\llbracket 1,n \rrbracket$ ayant exactement $r$ points fixes.
+\subparagraph{4}$D_n \underset{+\infty}{\rightarrow} \frac{1}{e}$ (admis). Quelle est la probabilité que personne ne tire son nom lors d'un "Secret Santa" ?
+
+
+\section{Suites croissantes (1)}
+Soit $n \in \mathbb{N}^*$ et $p \le n$.
+\subparagraph{1}Quelle est la proportion de suites strictement croissantes de $p$ entiers compris entre $1$ et $n$ parmi toutes les suites de $p$ entiers compris entre $1$ et $n$ ?
+\subparagraph{2}En déduire la proportion de suites de $p$ éléments de $\mathbb{N}^*$, $(x_k)_{k \in \llbracket 1,p \rrbracket}$ qui vérifient $x_1 + \dots + x_p \le n$.
+\subparagraph{2}En déduire la proportion de $p$ éléments de $\mathbb{N}^*$, $(x_k)_{k \in \llbracket 1,p \rrbracket}$ qui vérifient $x_1 + \dots + x_p = n$.
+
+\section{Suites croissantes (2)}
+Soit $n \in \mathbb{N}^*$ et $p \le n$.
+\subparagraph{1}Quelle est la proportion de suites strictement croissantes de $p$ entiers compris entre $1$ et $n$ parmi toutes les suites de $p$ entiers compris entre $1$ et $n$ ?
+\subparagraph{2} Quelle est la proportion de suites croissantes de $p$ entiers compris entre $1$ et $n$ parmi toutes les suites de $p$ entiers compris entre $1$ et $n$ ?
+
+\section{Le paradoxe du prince de Toscane}
+On lance trois dés (valeurs comprises entre $1$ et $6$). On note $X$ la valeur de la somme des valeurs obtenues (exemple $5=3+2+1$).
+\subparagraph{1}Combien y a-t-il de manière d'écrire $10$ comme somme de trois chiffres ? $9$ ?
+\subparagraph{2}En déduire la probabilité $p_9$ que $X$ vaille $9$ et la probabilité $p_{10}$ que $X$ vaille $10$.
+
+\section{Paradoxe des anniversaires}
+\subparagraph{1}Quelle est la probabilité pour que deux personnes d'une classe de 30 élèves soient nées le même jour ?
+\subparagraph{2}Soit $n \in \mathbb{N}$. On note $C_n$ le nombre de $n$-uplets d'élèves ayant leur anniversaire le même jour. Calculer l'espérance de $C_n$.
+\subparagraph{Remarque :} on a $E(C_3) \approx 0.03$ et $E(C_4) \approx 5.6 \times 10^{-4}$. Pour une discussion très approfondie sur le sujet voir \textit{From Gestalt Theory to Image Analysis} d'Agnès Desolneux, Lionel Moisan et Jean-Michel Morel. Si $E(C_n)$ est assez simple à calculer les formules pour $P(C_n \ge 1)$ sont très lourdes et compliquées. L'inégalité de Markov permet ensuite d'établir une inégalité entre ces deux quantités.
+
+\section{Paradoxe de Feller}
+Vous allez à la poste et attendez un certain temps pour envoyer un colis. Pour savoir si vous avez eu de la chance et êtes tombé sur un guichet rapide vous envoyez un de vos amis déposer un colis dans les mêmes conditions (indépendance et même loi d'attente). Si il a attendu plus longtemps que vous on pose $M=1$. Sinon on envoie un autre ami faire la même expérience. S'il a attendu plus longtemps que vous on pose $M=2$ sinon on recommence. $M$ est une variable aléatoire qui représente notre "score de malchance".
+\subparagraph{1}Montrer que l'espérance de $M$ est égale à $\underset{n \rightarrow +\infty}{\lim} \underset{k=0}{\overset{n}{\sum}}P(M>k)$.
+\subparagraph{2}En déduire l'espérance de $M$.
+\subparagraph{Remarque :} ce paradoxe permet d'expliquer que chaque année on annonce des inondations, sécheresses ou autres catastrophes naturelles "exceptionnelles". Sans nier la réalité du changement climatique ce constat probabiliste nous permet de relativiser notre impression de vivre dans une époque "hors du commun".
+
+\section{Paradoxe des trois portes}
+Dans un jeu télévisé l'animateur vous propose trois portes (A,B et C). Derrière l'une d'entre elles se trouve une voiture, derrière les deux autres rien du tout. Vous choisissez une porte (A par exemple). L'animateur ouvre ensuite une porte (B ou C) qui ne mène pas à la voiture. Il vous propose de changer de portes.
+\subparagraph{1}A-t-on intérêt à changer notre décision initiale ? Justifier.
+\subparagraph{Remarque :} Il s'agit d'un paradoxe bien connu que l'on retrouve dans la littérature anglo-saxonne sous le nom de paradoxe de Monty Hall.
+
+\section{Paradoxe des familles}
+ La famille Smith a deux enfants.
+\subparagraph{1}Quelle est la probabilité que ces deux enfants soient des garçons sachant que l'ainé est un garçon ?
+\subparagraph{2}Quelle est la probabilité que ces deux enfants soient des garçons sachant que l'un des deux est un garçon ?
+\subparagraph{3} Quelle est la probabilité que ces deux enfants soient des garçons sachant que l'un des deux est un garçon né le 29 février ?
+\subparagraph{Remarque :} le problème original a été proposé par Martin Gardner en 1959 sous le titre \textit{The Two Children Problem}. Il s'agit ici d'une légère variante de l'énigme.
+
+\section{Un calcul de probabilité}
+\subparagraph{1}Montrer que pour les évènements $A$ et $B$ on a $| P(A \cap B) - P(A)P(B) | \le \frac{1}{4}$. On pourra penser à introduire les quantités $x= P(A \cap B)$, $y= P(A \cap \overline{B})$, $z= P(\overline{A} \cap B)$, $t= P(\overline{A} \cap \overline{B})$.
+
+\section{Indépendance et évènements quelconques}
+Soit trois variables aléatoires sur un espace d'états finis $\mathcal{X}$. On note $X,Y$ et $Z$ ces trois variables. On suppose de plus que :
+\begin{itemize}
+\item $X$ est indépendant de $Y$ conditionnellement à $Z$.
+\item $X$ et $Y$ sont indépendants.
+\end{itemize}
+On considère la propriété $\mathcal{P}$ : $X$ est indépendant avec $Z$ ou $Y$ est indépendant avec $Z$.
+\subparagraph{1}Trouver un contre-exemple à cette propriété.
+\subparagraph{2}Montrer que cette propriété devient vraie si on suppose que $Z$ est binaire.
+\end{document}

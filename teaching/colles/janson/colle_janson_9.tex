@@ -1,0 +1,116 @@
+\documentclass[10pt,a4paper]{article} 
+\usepackage[utf8]{inputenc} 
+\usepackage[T1]{fontenc} 
+\usepackage[english]{babel} 
+\usepackage{supertabular} %Nécessaire pour les longs tableaux
+\usepackage[top=2.5cm, bottom=2.5cm, right=1.5cm, left=1.5cm]{geometry} %Mise en page 
+\usepackage{amsmath} %Nécessaire pour les maths 
+\usepackage{amssymb} %Nécessaire pour les maths 
+\usepackage{stmaryrd} %Utilisation des double crochets 
+\usepackage{pifont} %Utilisation des chiffres entourés 
+\usepackage{graphicx} %Introduction d images 
+\usepackage{epstopdf} %Utilisation des images .eps 
+\usepackage{amsthm} %Nécessaire pour créer des théorèmes 
+\usepackage{algorithmic} %Nécessaire pour écrire des algorithmes 
+\usepackage{algorithm} %Idem 
+\usepackage{bbold} %Nécessaire pour pouvoir écrire des indicatrices 
+\usepackage{hyperref} %Nécessaire pour écrire des liens externes 
+\usepackage{array} %Nécessaire pour faire des tableaux 
+\usepackage{tabularx} %Nécessaire pour faire de longs tableaux 
+\usepackage{caption} %Nécesaire pour mettre des titres aux tableaux (tabular) 
+\usepackage{color} %nécessaire pour écrire en couleur 
+\newtheorem{thm}{Théorème} 
+\newtheorem{mydef}{Définition} 
+\newtheorem{prop}{Proposition} 
+\newtheorem{lemma}{Lemme}
+\title{Semaine 9 - Nombres réels, suites réelles}
+\author{Valentin De Bortoli \\ email : \ \href{mailto:valentin.debortoli@gmail.com}{valentin.debortoli@gmail.com}}
+\date{}
+\begin{document}
+\maketitle
+\section{Un théorème de point fixe (1)}
+Soit $f$ une application croissante de $[0,1]$ dans $[0,1]$.
+\subparagraph{1}Soit $A=\{ x \in [0,1], \ f(x) \geq x \}$. Montrer que $A$ admet une borne supérieure.
+\subparagraph{2}Montrer que $f$ admet un point fixe, c'est-à-dire, $\exists \ x_0 \in [0,1] \ | \ f(x_0)=x_0$.
+
+\section{Un théorème de point fixe (2)}
+Soit $f$ une application continue de $[0,1]$ dans $[0,1]$.
+\subparagraph{1}Soit $A=\{ x \in [0,1], \ f(x) \geq x \}$. Montrer que $A$ admet une borne supérieure.
+\subparagraph{2}Montrer que $f$ admet un point fixe, c'est-à-dire, $\exists \ x_0 \in [0,1] \ | \ f(x_0)=x_0$.
+
+\section{Inégalité(s) de Shapiro}
+\subparagraph{1}Montrer que $\forall (a,b,c) \in {\mathbb{R}_+^*}^3$ on  $\frac{b+c}{a}+\frac{c+a}{b}+\frac{a+b}{c} \ge 6$.
+\subparagraph{2}Soit $(x_1,x_2,x_3)\in {\mathbb{R}_+^*}^3$. On pose $y_1=x_2+x_3$, $y_2=x_1+x_3$ et $y_3=x_1+x_2$. Montrer que $\frac{x_1}{y_1}+\frac{x_2}{y_2}+\frac{x_2}{y_2} \ge \frac{3}{2}$.
+\subparagraph{3} Soit $(x_1,x_2,x_3,x_4)\in {\mathbb{R}_+^*}^3$. On pose $y_1=x_2+x_3$, $y_2=x_3+x_4$, $y_3=x_4+x_1$ et $y_4=x_1+x_2$. Montrer que $(x_1+x_2+x_3+x_4)^2 \ge 2(x_1 y_1+x_2 y_2 +x_3 y_3+x_4 y_4)$.
+\subparagraph{4}Montrer que $\sum_{i=1}^4 \frac{x_i}{y_i} \ge 2$.
+\subparagraph{Remarque :} ces inégalités sont appelées les inégalités de Shapiro et on a $\sum_{i=1}^n \frac{x_i}{x_{i+1}+x_{i+2}} \ge \frac{n}{2}$ (où l'addition est à prendre modulo $n$) pour $n \le 12 $ dans le cas pair et $n \le 23$ dans le cas impair. On remarquera qu'ici on a montré les cas $n=3$ et $n=4$. Un contre-exemple pour le cas $n=14$ a été trouvé en 1985 par Troesch, le voici : $(0, 42, 2, 42, 4, 41, 5, 39, 4, 38, 2, 38, 0, 40)$.
+
+\section{Une borne inférieure}
+Soit $n \in \mathbb{N}^*$.
+\subparagraph{1}Déterminer $\inf \left\lbrace \left( x_1+ \dots + x_n \right) \left( \frac{1}{x_1}+ \dots + \frac{1}{x_n} \right), \ (x_1, \dots x_n) \in \mathbb{R}_+^n\right\rbrace$.
+\subparagraph{2}Cet infimum est-il atteint ?
+
+\section{Borne inférieure et borne supérieure}
+Soit $A= \left\lbrace \frac{mn}{(m+n)^2}, \ (m,n) \in \mathbb{N}^* \right\rbrace$.
+\subparagraph{1}Montrer que $\forall x \in  A, 0<x \le \frac{1}{4}$.
+\subparagraph{2}Montrer que $A$ admet une borne supérieure et une borne inférieure et les déterminer.
+\subparagraph{3}L'infimum est-il atteint ? Même question concernant le supremum.
+
+\section{Convergence au sens de Césaro}
+Soit $(u_n)_{n \in \mathbb{N}^*} \in \mathbb{C}^{\mathbb{N}^*}$. On définit $(v_n)_{n \in \mathbb{N}^*}$ de la manière suivante :
+\begin{equation*}
+\forall n \in \mathbb{N}^*, \ v_n=\frac{\underset{k=1}{\overset{n}{\sum}}u_k}{n}
+\end{equation*}
+\subparagraph{1}Montrer que  $ u_n \rightarrow l \in \mathbb{C} \ \Rightarrow \ v_n \rightarrow l \in \mathbb{C}$.
+\subparagraph{2}Trouver un contrexemple à la réciproque.
+\subparagraph{3}Supposons que $(\omega_n)_{n \in \mathbb{N}} \in \mathbb{C}^{\mathbb{N}}$ et $\omega_{n+1}-\omega_n \rightarrow l \in \mathbb{C}^*$. Montrer que $\omega_n \underset{+\infty}{\sim} ln$.
+\subparagraph{4}On définit $(w_n)_{n \in \mathbb{N}^*}$ de la manière suivante :
+\begin{equation*}
+\forall n \in \mathbb{N}^*, \ w_n=\frac{\underset{k=1}{\overset{n}{\sum}}ku_k}{n^2}
+\end{equation*}
+Montrer que $w_n \rightarrow \frac{l}{2}$.
+
+\section{Suite sous-additive}
+Soit $(u_n)_{n \in \mathbb{N}} \in \mathbb{R}^{\mathbb{N}}$ une suite sous-additive au sens où :
+\begin{equation*}
+\forall (p,q) \in \mathbb{N}^2, \ u_{p+q}\le u_p+u_q
+\end{equation*}
+\subparagraph{1}Rappeler la définition de $\inf \left\lbrace  \frac{u_n}{n}, \ n \in \mathbb{N}^*\right\rbrace$.
+\subparagraph{2}Soit $n=qm+r$, $r \in \llbracket 0,q-1 \rrbracket$, la division euclidienne de $n$ par $q$. Établir une inégalité faisant intervenir $u_n$, $u_q$ et $u_1$.
+\subparagraph{3}Montrer que la suite $(\frac{u_n}{n})_{n \in \mathbb{N}^*}$ tend vers $\inf \left\lbrace  \frac{u_n}{n}, \ n \in \mathbb{N}^*\right\rbrace$.
+\subparagraph{2}Soit $(v_n)_{n \in \mathbb{N}} \in \mathbb{R_+^*}^{\mathbb{N}}$ qui vérifie :
+\begin{equation*}
+\forall (p,q) \in \mathbb{N}^2, \ v_{p+q}\le v_p v_q
+\end{equation*}
+Que peut-on dire de la suite $(v_n)_{n \in \mathbb{N}}$ ?
+
+\section{Rationnels et irrationnels}
+Soit $\left( r_n=\frac{p_n}{q_n} \right)_{n \in \mathbb{N}}$ une suite de rationnels ($(p_n)_{n\in \mathbb{N}} \in \mathbb{Z}^{\mathbb{N}}$ et $(q_n)_{n \in \mathbb{N}} \in \left(\mathbb{N} \backslash \lbrace 0 \rbrace \right) ^{\mathbb{N}}$). On suppose que $r_n \rightarrow x \in \mathbb{R} \backslash \mathbb{Q}$.
+\subparagraph{1} Montrer que $q_n \rightarrow +\infty$.
+
+\section{Une équation et des parties entières}
+\subparagraph{1}Pour $x=8$ on a $\frac{x}{2}-\sqrt{x}=2(2-\sqrt{2})>1$. Donc à partir de $x=8$ les parties entières de $\frac{x}{2}$ et $\sqrt{x}$ sont différentes. Il s'agit maintenant de trouver les solutions pour $x<8$ (une autre solution aurait de résoudre une équation du second degré $-\sqrt{x}^2+(\frac{x}{2}-1)^2=0$. On aurait trouvé une borne similaire) :
+\begin{itemize}
+\item $\lfloor \frac{x}{2} \rfloor =0$ si et seulement si $x \in [0,2[$. $\lfloor \sqrt{x} \rfloor=0$ si et seulement si $x \in [0,1[$. Donc $[0,1[$ dans l'ensemble des solutions.
+\item $\lfloor \frac{x}{2} \rfloor =1$ si et seulement si $x \in [2,4[$. $\lfloor \sqrt{x} \rfloor=1$ si et seulement si $x \in [1,4[$. Donc $[2,4[$  dans l'ensemble des solutions.
+\item $\lfloor \frac{x}{2} \rfloor =2$ si et seulement si $x \in [4,6[$. $\lfloor \sqrt{x} \rfloor=2$ si et seulement si $x \in [4,8[$. Donc $[4,6[$  dans l'ensemble des solutions.
+\end{itemize}
+On s'arrête là car on sait que les prochaines solutions se trouvent après $x=9$. On sait donc qu'il n'y en aura plus. On a l'ensemble de solutions suivant :
+\begin{equation}
+S=[0,1[ \cup [4,6[
+\end{equation}
+\section{Une propriété de la partie entière}
+Soit $n \in \mathbb{N}^*$. Soit $x \in \mathbb{R}_+$.
+\subparagraph{1}Montrer que $\lfloor \frac{\lfloor  nx \rfloor}{n} \rfloor =\lfloor x \rfloor$.
+
+\section{Somme et partie entière}
+Soit $n \in \mathbb{N}^*$. Soit $x \in \mathbb{R}_+$.
+\subparagraph{1}Montrer que $\lfloor nx \rfloor - n \lfloor x \rfloor = n \lbrace x \rbrace - \lbrace nx \rbrace$. En déduire que $n \lbrace x \rbrace - \lbrace nx \rbrace \in \mathbb{Z}$.
+\subparagraph{2}Montrer que $\underset{k=0}{\overset{n-1}{\sum}} \lfloor x +\frac{k}{n}\rfloor= \lfloor nx \rfloor$.
+\subparagraph{Remarque :} on pourra commencer par considérer $x$ tel que $\lbrace x \rbrace < \frac{1}{n}$.
+
+\section{Nombre de zéros et factorielle}
+\subparagraph{1}Donner le nombre de zéros à la fin de $10!$.
+\subparagraph{2}Même question mais pour $25!$
+\subparagraph{3}Même question mais pour $n!$ avec $n\in \mathbb{N}$. On exprimera le résultat en utilisant la fonction partie entière.
+\end{document}

@@ -1,0 +1,291 @@
+\documentclass[12pt]{article}
+%\usepackage[frenchb]{babel}
+\usepackage[T1]{fontenc}    
+%\usepackage[latin1]{inputenc}
+\usepackage{graphicx,amssymb,amsmath} % extensions pour maths avancées
+\usepackage{graphicx}              % Accents codés dans la fonte.
+\usepackage[utf8x]{inputenc}           % Accents 8 bits dans le fichier.
+\usepackage{ifthen}                     % Faire des tests if/then/else.
+\usepackage{amsmath}    % Les symboles les plus fréquents.
+\usepackage{amsfonts}   % Des fontes, eg pour \mathbb.
+\usepackage{vmargin}                    % Régler la taille de la feuille.
+\usepackage{amssymb}
+\usepackage{lastpage}
+\usepackage{accents}
+\usepackage{enumitem}
+
+% La taille de la page
+\setpapersize{A4}
+\setmarginsrb{20mm}{10mm}{14mm}{15mm}{10mm}{6mm}{0mm}{10mm}
+
+% La mise en page
+\newcounter{vcenterstest}
+\newlength{\leftlength}
+\newlength{\rightlength}
+\newlength{\vcentersskip}
+\newcommand{\leftcentersright}[4][2]{%
+        \settowidth{\leftlength}{#2}%
+        \settowidth{\rightlength}{#4}%
+        \setcounter{vcenterstest}{#1}%
+        \ifthenelse{\value{vcenterstest} = 0}
+                {\setlength{\vcentersskip}{0pt}}{}%
+        \ifthenelse{\value{vcenterstest} = 1}
+                {\setlength{\vcentersskip}{\smallskipamount}}{}%
+        \ifthenelse{\value{vcenterstest} = 2}
+                {\setlength{\vcentersskip}{\medskipamount}}{}%
+        \ifthenelse{\value{vcenterstest} = 3}
+                {\setlength{\vcentersskip}{\bigskipamount}}{}%
+        \ifthenelse{\value{vcenterstest} = 4}
+                {\setlength{\vcentersskip}{1cm}}{}%
+                % On laisse un espace vertical défini par l'argument
+                % optionnel #1
+        \vskip\vcentersskip
+                % On place #2 et on recule de sa longueur
+        \noindent#2\hskip-\leftlength%
+                % On centre #3
+        \hfill#3\hfill%
+                % On va au bout de la ligne, on recule de la longueur de #4 et
+                % on place #4
+        \mbox{}\hskip-\rightlength#4%
+                % On laisse un espace vertical défini par l'argument
+                % optionnel #1
+        \vskip\vcentersskip%
+    }
+\newcommand{\centers}[2][2]{\leftcentersright[#1]{}{#2}{}}
+\newcommand{\leftcenters}[3][2]{\leftcentersright[#1]{#2}{#3}{}}
+\newcommand{\centersright}[3][2]{\leftcentersright[#1]{}{#2}{#3}}
+\newcommand{\leftencadreright}[4][2]{\leftcentersright[#1]{#2}{\fbox{#3}}{#4}}
+
+\newcommand{\numtoi}[1]{
+  \ifthenelse{ \equal{#1}{1} }{i}{
+  \ifthenelse{ \equal{#1}{2} }{ii}{
+  \ifthenelse{ \equal{#1}{3} }{iii}{
+  \ifthenelse{ \equal{#1}{4} }{iv}{
+  \ifthenelse{ \equal{#1}{5} }{v}{
+  \ifthenelse{ \equal{#1}{6} }{vi}{
+  \ifthenelse{ \equal{#1}{7} }{vii}{
+  \ifthenelse{ \equal{#1}{8} }{viii}{
+  \ifthenelse{ \equal{#1}{9} }{ix}{
+  \ifthenelse{ \equal{#1}{10} }{x}{
+  \ifthenelse{ \equal{#1}{11} }{xi}{
+  \ifthenelse{ \equal{#1}{12} }{xii}{
+  \ifthenelse{ \equal{#1}{13} }{xiii}{
+  \ifthenelse{ \equal{#1}{14} }{xiv}{
+  \ifthenelse{ \equal{#1}{15} }{xv}{
+  \ifthenelse{ \equal{#1}{16} }{xvi}{
+  \ifthenelse{ \equal{#1}{17} }{xvii}{
+  \ifthenelse{ \equal{#1}{18} }{xviii}{
+    ERREUR,~MODIFIER~LA~MACRO~numtoi
+  } } } } } } } } } } } } } } } } } }
+}
+
+\newcounter{cretraiti}
+\newenvironment{ri}[1]{
+
+\begin{list}{($\numtoi{\thecretraiti}$)}{
+  \usecounter{cretraiti}
+  \topsep=0.5ex
+  \itemsep=0.3ex
+  \labelsep=0.3em
+  \parsep=0ex
+  \listparindent=1em
+  \settowidth{\labelwidth}{(#1)}
+  \leftmargin=\labelwidth
+  %\addtolength{\leftmargin}{\labelsep}
+}}{\end{list}
+}
+
+
+% Quelques raccourcis pour taper des maths
+\newcommand{\Sfr}{\mathfrak{S}}
+\newcommand{\Afr}{\mathfrak{A}}
+\newcommand{\QQ}{\mathbb{Q}}
+\newcommand{\ZZ}{\mathbb{Z}}
+\newcommand{\si}{\sigma}
+\newcommand{\ins}[1]{{\ensuremath{\textrm{#1}}}}
+\newcommand{\tiret}{\rule[0.6ex]{1.3ex}{0.26ex}}
+\newcommand{\accolades}[1]{\ensuremath{\left\{#1\right\}}}
+\newcommand{\paa}[1]{\ensuremath{\accolades{#1}}}       % Synonyme
+\newcommand{\ds}{\displaystyle}
+   \newcommand{\der}{
+      \mathop{}\mathopen{}\mathrm{d}
+   }
+
+% Numerotation des pages / la derniere
+\makeatletter
+\renewcommand{\@evenfoot}%
+        {\thepage \slash \pageref{LastPage}}
+\renewcommand{\@oddfoot}{\@evenfoot}
+\makeatother
+
+
+%%%%% Pour faire les exos
+\newcommand{\envfont}{\sf\bfseries}
+\newcounter{cexo}
+\renewcommand{\thecexo}{\arabic{cexo}}
+
+\newenvironment{exo}[1][toto]
+{
+  \refstepcounter{cexo}
+  \ifthenelse{ \equal{#1}{toto} }{
+   \noindent {\envfont Exercice \thecexo}
+  }{
+   \noindent {\envfont Exercice \thecexo{} \tiret\, #1.}
+  }
+%\newline
+%\indent
+}
+{}
+
+\newcounter{cquestions}
+\newenvironment{questions}{
+\begin{list}{{\envfont\alph{cquestions})}}{
+  \usecounter{cquestions}
+  \topsep=0.5ex
+  \partopsep=1em
+  \labelsep=0.3em
+  \itemsep=0.3ex
+  \settowidth{\labelwidth}{{\envfont b)}}\listparindent=1em
+  \leftmargin=\labelwidth \addtolength{\leftmargin}{\labelsep}
+}}{\end{list} }
+
+\newcommand{\poubelle}[1]{}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newcommand{\spacebeforeenv}{\vspace{1ex}}
+\newcommand{\spaceafterenv}{\vspace{1ex}}
+\newcommand{\myqedenv}{}
+
+
+\newcommand{\metaenvironnement}[2]  % 1er argument : nom de l'env, 2e argument : titre
+{
+  \ifthenelse{ \equal{#2}{toto} }{
+    \spacebeforeenv \noindent {\envfont #1 }
+  }{
+    \spacebeforeenv \noindent {\envfont #1  \tiret\, #2.}
+  }
+}
+
+%----------------------------------
+% Rappel
+%----------------------------------
+\newenvironment{rappel}[1][toto]
+{ \metaenvironnement{Rappel}{#1} }
+{\myqedenv\spaceafterenv}
+
+
+\newcommand{\fonction}[5]{%
+        \ensuremath{#1\colon
+        \left\{\hskip -1.5 mm
+        \begin{array}{c@{\ }c@{\ }l}
+        \medskip #2 & \longrightarrow & #3 \\
+        #4 & \longmapsto & #5 \\
+        \end{array}
+        \right .
+        }}
+\newcommand{\ph}{\varphi}
+\newcommand{\funu}[1]{\mathcal{C}^{#1}}
+\newcommand{\RR}{\mathbb{R}}
+\newcommand{\NN}{\mathbb{N}}
+\newcommand{\CC}{\mathbb{C}}
+
+\newenvironment{syst}[1][c]%
+    {\ensuremath{\left \{ \hskip -1.5 mm \begin{array}{#1@{\ =\ }l}}}%
+    {\end{array}\right.}
+
+\newcommand{\f}[2]{{\ensuremath{\mathchoice%
+    {\dfrac{#1}{#2}}
+        {\dfrac{#1}{#2}}
+    {\frac{#1}{#2}}
+    {\frac{#1}{#2}}
+    }}}
+\renewcommand{\ni}{\noindent}
+\newcommand{\ra}{\rightarrow}
+\newcommand{\question}[1]{{\sf\bfseries #1}}
+\newcommand{\norm}[1]{\ensuremath{\Arrowvert #1 \Arrowvert}}
+\newcommand{\Ende}[3]{\ensuremath{\mathrm{End}_{#1}^{#2}(#3)}}
+\newcommand{\End}[2]{\Ende{#1}{}{#2}}
+\newcommand{\id}{\ensuremath{\mathrm{id}}}
+\renewcommand{\d}{\ensuremath{\mathrm{d}}}
+\renewcommand{\leq}{\leqslant}
+\renewcommand{\geq}{\geqslant}
+
+
+\usepackage{datetime}
+\newdateformat{annscol}{\ifthenelse{\THEMONTH > 7}{\THEYEAR--\refstepcounter{YEAR}\THEYEAR}{\addtocounter{YEAR}{-1}\THEYEAR--\refstepcounter{YEAR}\THEYEAR}}
+
+\begin{document}
+ 
+
+%------------------------------------------------------------------------------------
+\leftcentersright[0]{{\bf\sf\large Formation en Mathématiques Commune Cachan / P7}}{}
+    {{\bf\sf\large Année~\annscol\today}}
+\leftcentersright[0]{{\bf\sf\large Calcul différentiel}}{}{{\bf\sf Barbara Gris, Frédéric Pascal}}
+
+%------------------------------------------------------------------------------------------
+
+
+
+
+%------------------------------------------------------------------------------------------
+%------------------------------------------------------------------------------------------
+
+
+\begin{center}
+\huge{TD 7 \\ Sous-variétés}
+\end{center}
+
+
+\begin{exo}
+Soient $0 \leq r \leq n $ des entier (avec $n \geq 2$).
+
+
+\begin{questions}
+\item Montrer que $SL_n (\RR)$ est une sous-variété $C^\infty$.
+
+\item Montrer que l'ensemble des matrices de $M_n (\RR)$ de rang $n-1$ est une sous-variété.
+
+\item Montrer qu'il existe un voisinage $U$ de $0$ dans $M_n (\RR)$ tel que si \begin{equation*}  
+ \left(
+\begin{array}{cc}
+A & C \\ B & D \\
+\end{array} \right) \in U
+\end{equation*} 
+alors la matrice  \begin{equation*}  
+ \left(
+\begin{array}{cc}
+I_r + A & C \\ B & D \\
+\end{array} \right) 
+\end{equation*} 
+
+est de rang $r$ $ssi$ $D = B (I_r + A)^{-1} C$.
+
+\item Soit $V_r \subset M_n (\RR)$ l'ensemble des matrices de rang $r$. Montrer que c'est une sous-variété et donner sa dimension.
+
+%\item Montrer que l'ensemble des matrices de rang $\leq n-1$ ne forme pas une sous-variété.
+
+\item Montrer que l'ensemble des matrices symétriques de rang $r$ forment une sous-variété de l'espace des matrices symétriques. Donner sa dimension.
+\poubelle{
+\item Montrer que les projecteurs orthogonaux de rang $r$ forment une sous-variété. Donner sa dimension.}
+
+\end{questions}
+\end{exo}
+
+
+\begin{exo}
+Montrer que l'ensemble $N = \{ M \in M_2 (\RR) , \quad M \neq 0 , \quad M^2 = 0 \}$ est une sous-variété. Donner sa dimension.
+\textit{Remarque: On pourra commencer par chercher une caractérisation de $N$ à l'aide de la trace et du déterminant}
+
+\end{exo}
+\hfill
+
+
+\begin{exo}
+Soit $\gamma : \ I \rightarrow \RR^{2}$ de classe $C^{1}$ avec $I$ intervalle ouvert de $\RR$ et $\gamma'(t)\neq 0$ pour tout $t \in I$. $\mathcal{C}=\{ \gamma(t) / \ t \in I \}$ définit une courbe paramétrée du plan. $\mathcal{C}$ est-elle nécessairement une sous-variété de $\RR^{2}$ ? Et si l'on suppose de plus que $\gamma$ est injective ?
+
+
+\end{exo}
+
+
+
+\end{document}

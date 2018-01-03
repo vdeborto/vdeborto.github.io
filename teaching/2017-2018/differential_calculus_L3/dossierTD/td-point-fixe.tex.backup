@@ -1,0 +1,415 @@
+\documentclass[12pt]{article}
+\usepackage[english,frenchb]{babel}
+\usepackage[T1]{fontenc}                % Accents codés dans la fonte.
+\usepackage[latin1]{inputenc}           % Accents 8 bits dans le fichier.
+\usepackage{ifthen}                     % Faire des tests if/then/else.
+\usepackage{amsmath}    % Les symboles les plus fréquents.
+\usepackage{amsfonts}   % Des fontes, eg pour \mathbb.
+\usepackage{vmargin}                    % Régler la taille de la feuille.
+\usepackage{amssymb}
+% La taille de la page
+\setpapersize{A4}
+\setmarginsrb{20mm}{10mm}{20mm}{15mm}{10mm}{6mm}{0mm}{10mm}
+
+% La mise en page
+\newcounter{vcenterstest}
+\newlength{\leftlength}
+\newlength{\rightlength}
+\newlength{\vcentersskip}
+\newcommand{\leftcentersright}[4][2]{%
+        \settowidth{\leftlength}{#2}%
+        \settowidth{\rightlength}{#4}%
+        \setcounter{vcenterstest}{#1}%
+        \ifthenelse{\value{vcenterstest} = 0}
+                {\setlength{\vcentersskip}{0pt}}{}%
+        \ifthenelse{\value{vcenterstest} = 1}
+                {\setlength{\vcentersskip}{\smallskipamount}}{}%
+        \ifthenelse{\value{vcenterstest} = 2}
+                {\setlength{\vcentersskip}{\medskipamount}}{}%
+        \ifthenelse{\value{vcenterstest} = 3}
+                {\setlength{\vcentersskip}{\bigskipamount}}{}%
+        \ifthenelse{\value{vcenterstest} = 4}
+                {\setlength{\vcentersskip}{1cm}}{}%
+                % On laisse un espace vertical défini par l'argument
+                % optionnel #1
+        \vskip\vcentersskip
+                % On place #2 et on recule de sa longueur
+        \noindent#2\hskip-\leftlength%
+                % On centre #3
+        \hfill#3\hfill%
+                % On va au bout de la ligne, on recule de la longueur de #4 et
+                % on place #4
+        \mbox{}\hskip-\rightlength#4%
+                % On laisse un espace vertical défini par l'argument
+                % optionnel #1
+        \vskip\vcentersskip%
+    }
+\newcommand{\centers}[2][2]{\leftcentersright[#1]{}{#2}{}}
+\newcommand{\leftcenters}[3][2]{\leftcentersright[#1]{#2}{#3}{}}
+\newcommand{\centersright}[3][2]{\leftcentersright[#1]{}{#2}{#3}}
+\newcommand{\leftencadreright}[4][2]{\leftcentersright[#1]{#2}{\fbox{#3}}{#4}}
+
+\newcommand{\numtoi}[1]{
+  \ifthenelse{ \equal{#1}{1} }{i}{
+  \ifthenelse{ \equal{#1}{2} }{ii}{
+  \ifthenelse{ \equal{#1}{3} }{iii}{
+  \ifthenelse{ \equal{#1}{4} }{iv}{
+  \ifthenelse{ \equal{#1}{5} }{v}{
+  \ifthenelse{ \equal{#1}{6} }{vi}{
+  \ifthenelse{ \equal{#1}{7} }{vii}{
+  \ifthenelse{ \equal{#1}{8} }{viii}{
+  \ifthenelse{ \equal{#1}{9} }{ix}{
+  \ifthenelse{ \equal{#1}{10} }{x}{
+  \ifthenelse{ \equal{#1}{11} }{xi}{
+  \ifthenelse{ \equal{#1}{12} }{xii}{
+  \ifthenelse{ \equal{#1}{13} }{xiii}{
+  \ifthenelse{ \equal{#1}{14} }{xiv}{
+  \ifthenelse{ \equal{#1}{15} }{xv}{
+  \ifthenelse{ \equal{#1}{16} }{xvi}{
+  \ifthenelse{ \equal{#1}{17} }{xvii}{
+  \ifthenelse{ \equal{#1}{18} }{xviii}{
+    ERREUR,~MODIFIER~LA~MACRO~numtoi
+  } } } } } } } } } } } } } } } } } }
+}
+
+\newcounter{cretraiti}
+\newenvironment{ri}[1]{
+
+\begin{list}{($\numtoi{\thecretraiti}$)}{
+  \usecounter{cretraiti}
+  \topsep=0.5ex
+  \itemsep=0.3ex
+  \labelsep=0.3em
+  \parsep=0ex
+  \listparindent=1em
+  \settowidth{\labelwidth}{(#1)}
+  \leftmargin=\labelwidth
+  %\addtolength{\leftmargin}{\labelsep}
+}}{\end{list}
+}
+
+
+% Quelques raccourcis pour taper des maths
+\newcommand{\Sfr}{\mathfrak{S}}
+\newcommand{\Afr}{\mathfrak{A}}
+\newcommand{\QQ}{\mathbb{Q}}
+\newcommand{\ZZ}{\mathbb{Z}}
+\newcommand{\RR}{\mathbb{R}}
+\newcommand{\NN}{\mathbb{N}}
+\newcommand{\al}{\alpha}
+\newcommand{\si}{\sigma}
+\newcommand{\ins}[1]{{\ensuremath{\textrm{#1}}}}
+\newcommand{\tiret}{\rule[0.6ex]{1.3ex}{0.26ex}}
+\newcommand{\accolades}[1]{\ensuremath{\left\{#1\right\}}}
+\newcommand{\paa}[1]{\ensuremath{\accolades{#1}}}       % Synonyme
+
+\newcommand{\TestGauche}[1]{\ifthenelse{\equal{#1}{}}{\minf}{#1}}
+\newcommand{\TestDroite}[1]{\ifthenelse{\equal{#1}{}}{\pinf}{#1}}
+\newcommand{\intff}[2]{\ensuremath{\left [ \, \TestGauche{#1} \,,%
+    \TestDroite{#2} \, \right ] }}
+\newcommand{\intof}[2]{\ensuremath{\left ] \, \TestGauche{#1} \,,%
+    \TestDroite{#2} \, \right ] }}
+\newcommand{\intfo}[2]{\ensuremath{\left [ \, \TestGauche{#1} \,,%
+    \TestDroite{#2} \, \right [ }}
+\newcommand{\intoo}[2]{\ensuremath{\left ] \, \TestGauche{#1} \,,%
+    \TestDroite{#2} \, \right [ }}
+
+% intervalles d'entiers
+\newcommand{\intn}[2]{\ensuremath{[\![ \, #1 \,,\, #2 \,]\!]}}
+\newcommand{\intnn}[2]{\intn{#1}{#2}}    
+
+
+%%%%% Pour faire les exos
+\newcommand{\envfont}{\sf\bfseries}
+\newcounter{cexo}
+\renewcommand{\thecexo}{\arabic{cexo}}
+
+\newenvironment{exo}[1][toto]
+{
+  \refstepcounter{cexo}
+  \ifthenelse{ \equal{#1}{toto} }{
+   \noindent {\envfont Exercice \thecexo}
+  }{
+   \noindent {\envfont Exercice \thecexo{} \tiret\, #1.}
+  }
+%\newline
+%\indent
+}
+{}
+
+\newcounter{cquestions}
+\newenvironment{questions}{
+\begin{list}{{\envfont\alph{cquestions})}}{
+  \usecounter{cquestions}
+  \topsep=0.5ex
+  \partopsep=1em
+  \labelsep=0.3em
+  \itemsep=0.3ex
+  \settowidth{\labelwidth}{{\envfont b)}}\listparindent=1em
+  \leftmargin=\labelwidth \addtolength{\leftmargin}{\labelsep}
+}}{\end{list} }
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newcommand{\spacebeforeenv}{\vspace{1ex}}
+\newcommand{\spaceafterenv}{\vspace{1ex}}
+\newcommand{\myqedenv}{}
+
+
+\newcommand{\metaenvironnement}[2]  % 1er argument : nom de l'env, 2e argument : titre
+{
+  \ifthenelse{ \equal{#2}{toto} }{
+    \spacebeforeenv \noindent {\envfont #1 }
+  }{
+    \spacebeforeenv \noindent {\envfont #1  \tiret\, #2.}
+  }
+}
+
+%----------------------------------
+% Rappel
+%----------------------------------
+\newenvironment{rappel}[1][toto]
+{ \metaenvironnement{Rappel}{#1} }
+{\myqedenv\spaceafterenv}
+
+
+\newcommand{\fonction}[5]{%
+        \ensuremath{#1\colon
+        \left\{\hskip -1.5 mm
+        \begin{array}{c@{\ }c@{\ }l}
+        \medskip #2 & \longrightarrow & #3 \\
+        #4 & \longmapsto & #5 \\
+        \end{array}
+        \right .
+        }}
+\newcommand{\ph}{\varphi}
+\newcommand{\funu}[1]{\mathcal{C}^{#1}}
+
+\newenvironment{syst}[1][c]%
+    {\ensuremath{\left \{ \hskip -1.5 mm \begin{array}{#1@{\ =\ }l}}}%
+    {\end{array}\right.}
+
+\newcommand{\f}[2]{{\ensuremath{\mathchoice%
+    {\dfrac{#1}{#2}}
+        {\dfrac{#1}{#2}}
+    {\frac{#1}{#2}}
+    {\frac{#1}{#2}}
+    }}}
+\renewcommand{\ni}{\noindent}
+\newcommand{\ra}{\rightarrow}
+\newcommand{\question}[1]{{\sf\bfseries #1}}
+\newcommand{\norm}[1]{\ensuremath{\Arrowvert #1 \Arrowvert}}
+\newcommand{\Ende}[3]{\ensuremath{\mathrm{End}_{#1}^{#2}(#3)}}
+\newcommand{\End}[2]{\Ende{#1}{}{#2}}
+\newcommand{\id}{\ensuremath{\mathrm{id}}}
+\renewcommand{\d}{\ensuremath{\mathrm{d}}}
+\renewcommand{\leq}{\leqslant}
+\renewcommand{\geq}{\geqslant}
+\newcommand{\Om}{\Omega}
+\newcommand{\barre}[1]{\overline{#1}}
+\newcommand{\ep}{\varepsilon}
+\newcommand{\la}{\lambda}
+\newcommand{\mat}[2]{\ensuremath{\mathrm M}_{#1}(#2)}
+\newcommand{\prods}[2]{{\langle #1,#2 \rangle}}
+\newcommand{\trans}[1]{\ensuremath{\sideset{^t}{}%
+        {\mathop{\mathstrut #1 \!}}}\,}
+\newcommand{\Id}{\ensuremath{\mathrm{Id}}}
+\newcommand{\diag}{\ensuremath{\mathrm{diag\,}}}
+\newcommand{\tr}{\ensuremath{\mathrm{tr\,}}}
+
+\usepackage{datetime}
+\newdateformat{annscol}{\ifthenelse{\THEMONTH > 7}{\THEYEAR--\refstepcounter{YEAR}\THEYEAR}{\addtocounter{YEAR}{-1}\THEYEAR--\refstepcounter{YEAR}\THEYEAR}}
+
+\begin{document}
+
+%------------------------------------------------------------------------------------------
+\leftcentersright[0]{{\bf\sf\large Calcul différentiel}}{}
+    {{\bf\sf\large Année~\annscol\today \tiret\, ENS Cachan}}
+\leftcentersright[0]{}{}{{\bf\sf Nicolas Charon}}
+\vskip3ex\centers{{\bf\sf \Large Théorèmes de point fixe}}
+%------------------------------------------------------------------------------------------
+
+\vskip3ex
+\begin{exo}[Théorème de Picard, exemple et contre-exemple]
+\begin{questions}
+\item Montrer que le théorème de Picard n'est plus vrai si on ne suppose pas $X$ complet.
+
+\item Montrer que le théorème de Picard n'est plus vrai si on ne suppose pas l'application contractante (même avec l'inégalité $d(f(x),f(y)) < d(x,y)$ pour tous $x,y \in X$).
+
+\item Montrer que le théorème de Picard n'est plus vrai si on ne suppose pas $f: X \ra X$. Si ôter cette hypothèse paraît absurde en théorie (pour avoir un point fixe $x$, il faut bien que $f(x)$ soit dans l'ensemble de départ), dans la pratique, il ne faut pas l'oublier. En effet, on est souvent confronté à la situation suivante : on dispose de $f : Y \ra Y$ et d'une partie $X$ sur laquelle $f$ est contractante (grâce par exemple à l'inégalité de la moyenne). Il s'agit alors pour obtenir un point fixe de vérifier que $f(X) \subset X$. 
+\end{questions}
+\end{exo}
+
+\vskip2ex
+
+\begin{exo}[Version faible du théorème de Picard et applications] 
+\begin{questions}
+\item Soient $(X,d)$ un espace métrique complet non vide et $f : X \rightarrow X$ une application (qu'on ne suppose pas continue).
+On suppose qu'il existe $N \in \NN$ et $\alpha \in [0,1[$ tels que \\
+$d(f^N(x),f^N(y)) \leq \alpha d(x,y)$  pour tous $x,y \in X$, c'est à dire que $f^N$ est une contraction. 
+Montrer que $f$ a un unique point fixe $x_0$ et que, pour tout $x \in X$, la suite définie par $u_0 =x$ et $u_{n+1} = f(u_n)$ converge vers $x_0$.
+Quelle est la vitesse de convergence de la suite $(u_n)_{n\in\NN}$ ?
+
+\vskip1ex {\bf Applications.} 
+Soient $a,b \in \RR$ et $I = [a,b]$ un intervalle compact. On considère une fonction $K : I \times I \ra \RR$ une fonction continue
+et $\ph$ une fonction continue de $I$ dans $\RR$.
+\item  On suppose que $(b-a)\norm{K}_{\infty} < 1$. Montrer qu'il existe une unique application continue $x : I \ra \RR$ telle que
+\centersright[1]{$x(t) = \ph(t) + \int_{a}^{b} K(s,t)x(s) \d\,s\,.$}
+\ni 
+
+\item Montrer qu'il existe une unique fonction $x : I \ra \RR$ telle que 
+\centersright[1]{$x(t) = \ph(t) + \int_{a}^{t} K(s,t)x(s) \d\,s\,.$}
+\ni
+\end{questions}
+\end{exo}
+
+\vskip2ex
+
+\begin{exo}[Une démonstration plus topologique du théorème de Picard] \\
+\textbf{1.} On notera, pour $A$ une partie d'un espace métrique, $\delta(A)=\sup \{d(x,y) \ / \ x,y \in A \}$ le diamètre de $A$. Démontrer le résultat suivant (théorème dit des fermés emboîtés) : \\
+Un espace métrique $(X,d)$ est complet ssi l'intersection de toute suite décroissante $(A_{n})_{n \in \NN}$ de parties fermées non vides de $X$ telles que $\lim_{n\rightarrow + \infty} \delta(A_{n})=0$ est non vide. \vskip1ex
+\noindent \textbf{2.} Soit $(X,d)$ un espace métrique complet non vide et $f : \ X\rightarrow X$ lipschitzienne de rapport $k \in [0,1[$. Pour $R \in \RR^{+}$, on pose $A_{R}=\{x \in X \ / \ d(x,f(x))\leq R\}$. 
+\begin{questions}
+\item Montrer que $f(A_{R}) \subset A_{kR}$ et en déduire que pour tout $R \in \RR^{+}_{\ast}$, $A_{R}$ est une partie fermée non vide de $X$.
+
+\item Soient $x,y \in A_{R}$. Montrer que $d(x,y)\leq 2R+d \left ( f(x),f(y) \right )$ et en déduire que $\delta(A_{R})\leq \frac{2R}{1-k}$. 
+
+\item Montrer que $A_{0}=\bigcap_{n \in \NN^{\ast}} A_{1/n}$ et en conclure que $A_{0}$ est non vide.
+\end{questions}
+\end{exo}
+
+\newpage 
+\begin{exo}[Suite de points fixes] Soient $(X,d)$ un espace métrique complet et $f_n : X \ra X$ une suite de fonctions continues.
+On suppose que $f_n$ admet un point fixe $x_n$.
+
+Pour les questions~\question{a}, \question{b} et~\question{c}, on suppose que $(f_n)_{n \in \NN}$ converge uniformément vers $f$ sur $X$.
+\begin{questions}
+\item On suppose que $(x_n)_{n \in \NN}$ converge (vers $x_0$). Montrer que $x_0$ est un point fixe pour $f$.
+
+\item On suppose que $(f(x_n))_{n \in \NN}$ converge (vers $x_0$). Montrer que $x_0$ est un point fixe pour $f$.
+
+\item On suppose que $f$ est contractante. Montrer que $(x_n)_{n \in \NN}$ converge vers l'unique point fixe de $f$. 
+
+Pour les questions~\question{d}, \question{e} et~\question{f}, on suppose que $(f_n)_{n \in \NN}$ converge simplement vers $f$ sur $X$.
+On suppose aussi qu'il existe $\alpha >0$, pour tout $n \in \NN$, $f_n$ soit $\alpha$-lipschiztienne.
+
+\item Montrer que $f$ est $\alpha$-lipschiztienne. En déduire que si $(x_n)_{n \in \NN}$ converge vers $x_0$ alors $x_0$ est un point fixe de $f$.
+
+\item On suppose $\alpha < 1$. Montrer que $(x_n)_{n\in \NN}$ converge vers l'unique point fixe de $f$. Montrer qu'on ne peut pas remplacer la condition $\alpha < 1$ par la condition $\alpha_n < 1$ pour tout $n \in \NN$ (où $f_n$ est $\alpha_n$-lipschitzienne).
+On pourra considérer l'opérateur $f_n : \ell^2 \ra \ell^2$ défini par 
+\centers[1]{$f_n((x_k)_{k \in \NN}) = (0,\ldots, 0, (1-1/n)x_n + 1/n,0,\ldots)$.}
+
+\item {\bf Application.} Soient $X$ un compact non vide d'un espace vectoriel normé qu'on suppose étoilé par rapport à l'un de ses points $x_0$ 
+(c'est le cas par exemple si $X$ est convexe). On suppose que $\norm{f(x)-f(y)} \leq \norm{x-y}$ pour tous $x,y \in X$. 
+Montrer que $f$ a un point fixe (on pourra introduire une suite $(t_n)_{n \in \NN}$ qui tend vers $0$ et les fonctions $f_n(x) = (1-t_n)f(x) + t_n x_0$).
+Peut-on retirer l'hypothèse de compacité ? (Pensez à une translation sur $\RR$).  Peut-on retirer l'hypothèse 'étoilé' ? (Pensez à une rotation sur le cercle).
+\end{questions}
+\end{exo}
+
+\vskip3ex
+\begin{exo}[Inversion globale et point fixe] 
+\begin{questions} 
+\item Soit $(Y,d)$ un espace métrique complet et $B= B(y_0,r)$ la boule ouverte de centre $y_0$ et de rayon $r$. 
+On considère $f: B \ra Y$ une application contractante de rapport $\al <1$. Montrer que si $d(f(y_0),y_0) < (1-\al)r$ alors $f$ a un point fixe 
+(on pourra introduire la boule fermé de centre $y_0$ et de rayon $\ep< r$ avec $\ep$ bien choisi qui est alors un espace complet). 
+
+\vskip2ex Dans les questions qui suivent, on considère $X$ un espace de Banach, $U$ un ouvert de $X$ et $F : U \ra X$ une application contractante (de constante $\al$). 
+Pour $x \in U$, on pose $f(x) = x - F(x)$. 
+
+\item Soient $x \in U$ et $r > 0$ tels que $B(x,r) \subset U$. Montrer que $B(f(x), (1-\al)r) \subset f(B(x,r))$ (pour $y \in B(f(x), (1-\al)r)$, on pourra introduire
+la fonction $G: u \mapsto F(u) + y$ et utiliser la question~\question{a}). 
+
+\item Montrer que si $V$ est un ouvert de $U$ alors $f(V)$ est ouvert. 
+
+\item Montrer que $f$ est un homéomorphisme de $U$ sur $f(U)$. 
+
+\item On suppose que $U = X$. Montrer que $f(U) = X$ et que $f$ est un homéomorphisme de $X$ sur lui-même.  
+\end{questions}
+\end{exo}
+
+\newpage
+\begin{exo}[Méthode de Newton] Soit $f : \intff{c}{d} \ra \RR$ une fonction de classe $\funu{2}$. On suppose $f(c) < 0 < f(d)$ et $f'(x) > 0$ pour 
+tout $x \in \intff{c}{d}$. On considère la suite récurrente $x_{0} \in \intff{c}{d}$ et $x_{n+1} = F(x_n)$ pour $n\neq 0$ avec 
+\centers{$F(x) = x-\f{f(x)}{f'(x)}$}
+\begin{questions}
+\item Montrer que $f$ a un unique zéro $a \in \intff{c}{d}$. 
+
+\item Calculer $F'(a)$.
+
+\item Montrer que pour tout $x \in \intff{c}{d}$, il existe $z \in \intff{a}{x}$ tel que 
+\centers{$F(x)-a = \f{f''(z)}{2f'(x)}(x-a)^2$\,.}
+
+\item En déduire qu'il existe $C > 0$ tel que $|F(x)-a| \leq C|x-a|^2$ pour tout $x \in \intff{c}{d}$. 
+
+\item En déduire qu'il existe $\al > 0$ tel que $\intff{a-\al}{a+\al}$ est stable par $F$ et que $(x_n)_{n \in \NN}$ converge quadratiquement vers $a$.
+
+\item On suppose de plus que $f$ est strictement convexe sur $\intff{c}{d}$ et que $x_0 \in \intof{a}{d}$. 
+Montrer que la suite $(x_n)_{n \in \NN}$ reste dans $\intof{a}{d}$, est strictement décroissante et montrer que 
+\centers{$(x_{n+1}-a) \sim \f{f''(a)}{2f'(a)}(x_n-a)^2$\,.}
+
+\item Montrer qu'on peut calculer l'inverse (approché) de $a > 0$ en utilisant uniquement des additions, soustraction et multiplication grâce à la méthode de Newton. 
+
+\item Montrer qu'on peut calculer $\sqrt{a}$ pour $a > 0$ avec la méthode de Newton appliqué à la fonction $x \mapsto x^2 -a$. 
+Donner une expression exacte de $x_n$ en fonction de $n$ et $x_0$ (on pourra effectuer le changement de variable $y= (x-\sqrt{a})/(x+\sqrt{a})$). 
+\end{questions}
+\textsf{Remarque:} D'un point de vue numérique, il se peut qu'on ne dispose pas des valeurs de la dérivée de $f$. Dans ce cas, on remplace $f'(x_{n})$ par son approximation par différences finies $\frac{f(x_{n})-f(x_{n-1})}{x_{n}-x_{n-1}}$. La méthode ainsi obtenue s'appelle \textbf{méthode de la sécante}. On peut prouver que son ordre de convergence est égal asymptotiquement au nombre d'or $\frac{1+\sqrt{5}}{2}$. 
+\end{exo}
+
+\vskip3ex
+\begin{exo}[Attraction, répulsion] Soient $f : I \ra \RR$ une fonction de classe $\funu{1}$ sur un intervalle ouvert $I$ et $a \in I$ un point fixe de $f$.
+\begin{questions}
+\item On suppose que $|f'(a)| < 1$. Montrer qu'il existe un intervalle fermé $J$ stable par $f$ de centre $a$ tel que, pour tout $x_0 \in J$, la suite définie par 
+$u_0 = x_0$ et $u_n = f(u_{n-1})$ pour $n \geq 1$ converge vers $a$.
+
+\item Sous les hypothèses de~\question{a}, on suppose de plus que $f'$ ne s'annule pas sur $J$. Montrer que si $x_0 \neq a$ alors $u_n \neq a$ pour tout $n \in \NN$ et 
+que $u_{n+1}- a \sim f'(a)(u_n-a)$.
+
+\item Toujours sous les hypothèses de~\question{a}, on suppose que $f$ est de classe $\funu{2}$ que $f'(a) = 0$ et que $f''$ ne s'annule pas sur $J$. 
+Montrer que, si $x_0 \in J$ et $x_0 \neq a$ alors $u_n \neq a$ pour tout $n \in \NN$ et que $u_{n+1}-a \sim f''(a)(u_n-a)^2$. 
+
+\item On suppose que $|f'(a)| > 1$. Montrer qu'il existe un intervalle fermé $J$ de centre $a$ tel que pour tout $x_0 \in J$ et $x_0 \neq a$ 
+la suite $(u_n)_{n\in \NN}$ sort de $J$.
+\end{questions}
+\end{exo}
+
+\newpage
+\begin{exo}[Un cas de convergence des systèmes dynamiques discrets]
+\begin{questions}
+\item Montrer que l'ensemble des valeurs d'adhérence d'une suite réelle $(u_{n})$ telle que \\ 
+$|u_{n+1}-u_{n}|\rightarrow 0$ est connexe. (NB : ce résultat reste vrai dans un espace métrique compact quelconque)
+
+\item Soit $X$ un intervalle compact de $\RR$ et $f: \ X \ra X$ une fonction continue. On considère une suite $(u_{n})_{n\in \NN}$ définie par $u_{0} \in X$ et $u_{n+1}=f(u_{n})$ et on suppose que $|u_{n+1}-u_{n}| \ra 0$. Montrer que la suite $(u_{n})$ converge.
+\end{questions}
+\end{exo}
+
+\vskip3ex
+\begin{exo}[Un exemple de bifurcation pour un système dynamique discret] Dans cet exercice, on va étudier le comportement de la suite récurrente $(x_n)_{n\in \NN}$ définie par $x_{0}\in \intoo{0}{1}$ et $x_{n+1}=1-\lambda x_{n}^{2}$ où $\lambda$ est un paramètre appartenant à $\intof{0}{1}$. On notera $f(x)=1-\lambda x^{2}$ pour $x \in \intff{0}{1}$.
+\begin{questions}
+\item Etudier la monotonie de la fonction $f \circ f$ et en déduire le comportement des sous-suites $(x_{2n})$ et $(x_{2n+1})$.
+
+\item Déterminer en fonction de $\lambda$ les points fixes de $f \circ f$.
+
+\item En déduire selon les cas obtenus le comportement général de la suite $(x_n)_{n\in \NN}$ (pour le dernier cas, montrer que l'unique point fixe de $f$ dans $\intff{0}{1}$ est répulsif, en déduire que la suite $(x_n)$ ne peut pas converger à moins d'être stationnaire puis conclure).
+
+\end{questions}
+\end{exo}
+
+\vskip3ex
+\begin{exo}[Théorème de Sarkowski] Soit $I$ un segment de $\mathbb{R}$ et $f : \ I\rightarrow I$ une application continue. Pour $x \in I$, on dit que $x$ est un point n-périodique lorsque $f^{n}(x)=x$ et $f^{k}(x)\neq x$ pour tout $k \in \{1,..,n-1\}$. 
+\begin{questions}
+\item Si $K$ est un segment inclus dans $f(I)$, montrer qu'il existe un segment $L\subset I$ tel que $K=f(L)$.
+
+\item Montrer que si $I_{0}\subset I$ est tel que $I_{0}\subset f(I_{0})$ alors $f$ admet un point fixe dans $I_{0}$. 
+
+\item Si $I_{1}$ et $I_{2}$ sont deux segments quelconques de $I$ tels que $I_{2}\subset f(I_{1})$, on notera désormais pour simplifier $I_{1}\rightarrow I_{2}$. Montrer que si deux segments $I_{0},I_{1}\subset I$ vérifient $I_{0}\rightarrow I_{1} \rightarrow I_{0}$, alors $f^{2}$ admet un point fixe $x_{0} \in I_{0}$ tel que $f(x_{0}) \in I_{1}$. En généralisant ceci, montrer que si $I_{0}\rightarrow I_{1}\rightarrow ... \rightarrow I_{n-1} \rightarrow I_{0}$, alors $f^{n}$ admet un point fixe tel que $f^{k}(x_{0}) \in I_{k}$ pour tout $k \in \{1,..,n-1\}$.
+
+\item On suppose que $f$ admet un point 3-périodique $a \in I$. On note $b=f(a)$ et $c=f^{2}(a)$. Quitte à interchanger $a$ et $b$, on peut supposer que $a=min\{a,b,c\}$. Dans le cas où $a<b<c$, on définit $I_{0}=[a,b]$ et $I_{1}=[b,c]$. Montrer que $I_{0}\rightarrow I_{1}, \  I_{1}\rightarrow I_{0}, \ I_{1}\rightarrow I_{1}$. En déduire que $f$ admet un point n-périodique pour tout $n \geq 1$. Raisonner de manière similaire pour $a<c<b$.
+
+\item Le résultat précédent se généralise-t-il à des dimensions supérieures ?
+
+\item {\bf Application.} Résoudre l'équation fonctionnelle $f^{3}=id_{[0,1]}$ pour $f \in C([0,1],[0,1])$.
+
+\end{questions}
+\end{exo}
+
+\end{document} 

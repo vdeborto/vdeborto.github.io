@@ -1,0 +1,96 @@
+\documentclass[10pt,a4paper]{article} 
+\usepackage[utf8]{inputenc} 
+\usepackage[T1]{fontenc} 
+\usepackage[english]{babel} 
+\usepackage{supertabular} %Nécessaire pour les longs tableaux
+\usepackage[top=2.5cm, bottom=2.5cm, right=1.5cm, left=1.5cm]{geometry} %Mise en page 
+\usepackage{amsmath} %Nécessaire pour les maths 
+\usepackage{amssymb} %Nécessaire pour les maths 
+\usepackage{stmaryrd} %Utilisation des double crochets 
+\usepackage{pifont} %Utilisation des chiffres entourés 
+\usepackage{graphicx} %Introduction d images 
+\usepackage{epstopdf} %Utilisation des images .eps 
+\usepackage{amsthm} %Nécessaire pour créer des théorèmes 
+\usepackage{algorithmic} %Nécessaire pour écrire des algorithmes 
+\usepackage{algorithm} %Idem 
+\usepackage{bbold} %Nécessaire pour pouvoir écrire des indicatrices 
+\usepackage{hyperref} %Nécessaire pour écrire des liens externes 
+\usepackage{array} %Nécessaire pour faire des tableaux 
+\usepackage{tabularx} %Nécessaire pour faire de longs tableaux 
+\usepackage{caption} %Nécesaire pour mettre des titres aux tableaux (tabular) 
+\usepackage{color} %nécessaire pour écrire en couleur 
+\newtheorem{thm}{Théorème} 
+\newtheorem{mydef}{Définition} 
+\newtheorem{prop}{Proposition} 
+\newtheorem{lemma}{Lemme}
+\title{Semaine 2 - Complexes et applications}
+\author{Valentin De Bortoli \\ email : \ \href{mailto:valentin.debortoli@gmail.com}{valentin.debortoli@gmail.com}}
+\date{}
+\begin{document}
+\maketitle
+
+\section{Quelques autres cosinus et sinus remarquables}
+\subparagraph{1}Donner les solutions de $z^5-1=0$ sous forme trigonométrique.
+\subparagraph{2}Soit $Q$ le polynôme tel que $z^5-1=(z-1)Q(z)$. À partir du changement de variable $\omega=z+\frac{1}{z}$ exprimer par radicaux les racines de $Q$.
+\subparagraph{3}En déduire $\cos(\frac{2\pi}{5})$ et $\sin(\frac{2\pi}{5})$.
+\subparagraph{Remarque :} en menant des calculs un peu plus compliqués on peut aussi obtenir d'autres valeurs comme $\cos(\frac{\pi}{17})= \frac{1}{16}(1-\sqrt{17}+\sqrt{34-2\sqrt{17}}+\sqrt{68+12\sqrt{17}+2\sqrt{680+152\sqrt{17}}})$.
+
+\section{Inverse de la somme, somme des inverses}
+\subparagraph{1}Résoudre dans ${\mathbb{C}^*}^2$ : $\frac{1}{a+b}=\frac{1}{a}+\frac{1}{b}$.
+
+\section{Recherche d'une factorisation}
+\subparagraph{1}Résoudre dans $\mathbb{C}$ : $z^8+z^4+1=0$.
+\subparagraph{2}En déduire une factorisation de $z^8+z^4+1=0$ en produit de polynômes de degré 2 à coefficients réels.
+
+\section{Produit de sinus}
+\subparagraph{1}Résoudre dans $\mathbb{C}$ l'équation $(z+1)^n=\exp(2i \alpha n)$ pour $n \in \mathbb{N}$.
+\subparagraph{2}Donner la valeur de $\prod_{k=0}^{n-1} \sin(\alpha+\frac{k \pi}{n})$.
+
+\section{Un peu de géométrie (1)}
+Soit $z \in \mathbb{C}$.
+\subparagraph{1}Donner des conditions sur $z$ pour que le triangle $(z,z^2,z^3)$ soit isocèle respectivement en $z$, $z^2$, $z^3$.
+\subparagraph{2}En déduire une condition sur $z$ pour que le triangle $(z,z^2,z^3)$ soit équilatéral.
+
+\section{Un peu de géométrie (2)}
+Soit $z \in \mathbb{C}$.
+\subparagraph{1}Donner des conditions sur $z$ pour que $1$, $z$ et $z^3$ soient alignés.
+
+\section{Un peu de géométrie (3)}
+Soit $z \in \mathbb{C}^{*}$.
+\subparagraph{1}Donner des conditions sur $z$ pour que $z$, $\frac{1}{z}$ et $z-1$ soient situés sur un même cercle de centre $O$ (où $O$ est le centre du repère).
+
+\section{Une équation dans les complexes}
+Soit $n \in \mathbb{N}^*$ et $a \in ]-\frac{\pi}{2},\frac{\pi}{2}[ \setminus \{ \frac{\pi}{4}\}$.
+\subparagraph{1}Résoudre en $z$ : $\left(\frac{1+iz}{1-iz}\right)^n=\frac{1+i\tan(a)}{1-i\tan(a)}$.
+
+\section{Théorème de Cantor-Bernstein}
+Soit $A$ et $B$ deux ensembles. Le but de cet exercice est de montrer que si il existe une injection ($f_1$) de $A$ dans $B$ et une injection ($f_2$) de $B$ dans $A$ alors il existe une bijection entre $A$ et $B$. L'exercice se déroule en deux parties. Premièrement on va montrer que si $C$ est une partie de $A$ et $f$ une injection de $A$ dans $C$, alors $A$ et $C$ sont en bijection. Ensuite on montrera le théorème. On pose :
+\begin{equation*}
+\left\{
+\begin{aligned}
+&D_0={}^c C \\
+&D_{n+1}=f(D_n) \ \text{pour} \ n \in \mathbb{N}^{*}
+\end{aligned}\right.
+\end{equation*}
+\begin{equation*}
+D=\cup_{n=0}^{+\infty} D_n
+\end{equation*}
+\subparagraph{1}Montrer que $f(D) \subset C \cap D$.
+\subparagraph{2}On pose $g$ de $A$ dans $C$ telle que :
+\begin{equation*}
+\left\{
+\begin{aligned}
+g(x)=f(x) \ \text{si} \ x \in D \\
+g(x)=x \ \text{si} \ x \in {}^cD
+\end{aligned}\right.
+\end{equation*}
+Montrer que $g$ est injective.
+\subparagraph{3}Montrer que $g$ est bijective et conclure pour la première partie.
+\subparagraph{4}En considérant $f_1 \circ f_2$, montrer le théorème de Cantor-Bernstein.
+
+\section{Composition, injectivité et surjectivité}
+Soit $f$ une fonction de $\mathbb{R}$ dans $\mathbb{R}$ qui vérifie $\forall x \in \mathbb{R}, \ f(f(f(x)))=f(x)$.
+\subparagraph{1} Montrer que on a $f$ injective $\Leftrightarrow$ $f$ surjective $\Leftrightarrow$ $f$ bijective.
+\subparagraph{2} Exprimer alors $f^{-1}$ en fonction de $f$.
+
+\end{document}

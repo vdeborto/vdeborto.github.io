@@ -1,0 +1,124 @@
+\documentclass[10pt,a4paper]{article} 
+\usepackage[utf8]{inputenc} 
+\usepackage[T1]{fontenc} 
+\usepackage[english]{babel} 
+\usepackage{supertabular} %Nécessaire pour les longs tableaux
+\usepackage[top=2.5cm, bottom=2.5cm, right=1.5cm, left=1.5cm]{geometry} %Mise en page 
+\usepackage{amsmath} %Nécessaire pour les maths 
+\usepackage{amssymb} %Nécessaire pour les maths 
+\usepackage{stmaryrd} %Utilisation des double crochets 
+\usepackage{pifont} %Utilisation des chiffres entourés 
+\usepackage{graphicx} %Introduction d images 
+\usepackage{epstopdf} %Utilisation des images .eps 
+\usepackage{amsthm} %Nécessaire pour créer des théorèmes 
+\usepackage{algorithmic} %Nécessaire pour écrire des algorithmes 
+\usepackage{algorithm} %Idem 
+\usepackage{bbold} %Nécessaire pour pouvoir écrire des indicatrices 
+\usepackage{hyperref} %Nécessaire pour écrire des liens externes 
+\usepackage{array} %Nécessaire pour faire des tableaux 
+\usepackage{tabularx} %Nécessaire pour faire de longs tableaux 
+\usepackage{caption} %Nécesaire pour mettre des titres aux tableaux (tabular) 
+\usepackage{color} %nécessaire pour écrire en couleur 
+\newtheorem{thm}{Théorème} 
+\newtheorem{mydef}{Définition} 
+\newtheorem{prop}{Proposition} 
+\newtheorem{lemma}{Lemme}
+\title{Semaine 1 - Complexes, sommes et nombres réels}
+\author{Valentin De Bortoli \\ email : \ \href{mailto:valentin.debortoli@gmail.com}{valentin.debortoli@gmail.com}}
+\date{}
+\begin{document}
+\maketitle
+
+\section{Quelques autres cosinus et sinus remarquables (1)}
+\subparagraph{1}Calculer $(\sqrt{2+\sqrt{2}}+i \sqrt{2-\sqrt{2}})^8$.
+\subparagraph{2}En déduire $\cos(\frac{\pi}{8})$ et $\sin(\frac{\pi}{8})$.
+\subparagraph{3}Retrouver ce résultat en utilisant des formules trigonométriques.
+
+\section{Quelques autres cosinus et sinus remarquables (2)}
+\subparagraph{1}Donner les solutions de $z^5-1=0$ sous forme trigonométrique.
+\subparagraph{2}Soit $Q$ le polynôme tel que $z^5-1=(z-1)Q(z)$. À partir du changement de variable $\omega=z+\frac{1}{z}$ exprimer par radicaux les racines de $Q$.
+\subparagraph{3}En déduire $\cos(\frac{2\pi}{5})$ et $\sin(\frac{2\pi}{5})$.
+\subparagraph{Remarque :} en menant des calculs un peu plus compliqués on peut aussi obtenir d'autres valeurs comme $\cos(\frac{\pi}{17})= \frac{1}{16}(1-\sqrt{17}+\sqrt{34-2\sqrt{17}}+\sqrt{68+12\sqrt{17}+2\sqrt{680+152\sqrt{17}}})$.
+
+\section{Inverse de la somme, somme des inverses}
+\subparagraph{1}Résoudre dans ${\mathbb{C}^*}^2$ : $\frac{1}{a+b}=\frac{1}{a}+\frac{1}{b}$.
+
+\section{Recherche d'une factorisation}
+\subparagraph{1}Résoudre dans $\mathbb{C}$ : $z^8+z^4+1=0$.
+\subparagraph{2}En déduire une factorisation de $z^8+z^4+1$ en produit de polynômes de degré 2 à coefficients réels.
+
+\section{Produit de sinus}
+\subparagraph{1}Résoudre dans $\mathbb{C}$ l'équation $(z+1)^n=\exp(2i \alpha n)$ pour $n \in \mathbb{N}$.
+\subparagraph{2}Donner la valeur de $\prod_{k=0}^{n-1} \sin(\alpha+\frac{k \pi}{n})$.
+
+\section{Somme de sinus et de cosinus (1)}
+Soit $x \in \mathbb{R}$ et $n \in \mathbb{N}$.
+\subparagraph{1}Calculer $\sum_{k=0}^n \cos(kx)$ et $\sum_{k=0}^n \sin(kx)$.
+\subparagraph{2}Calculer $\sum_{k=0}^n {n \choose k}  \sin(kx)$.
+\subparagraph{3}Calculer $\sum_{k=0}^n \cos(x)^k  \cos(kx)$
+\subparagraph{4}Calculer $\sum_{k=0}^n {n \choose k} (-1)^k \cos(x)^k  \cos(kx)$
+
+\section{Somme de sinus et de cosinus (2)}
+Soit $(\alpha,\beta,\gamma) \in \mathbb{R}^3$. On suppose que :
+\begin{equation*}
+\left\{
+\begin{aligned}
+\cos(\alpha)+\cos(\beta)+\cos(\gamma)=0\\
+\sin(\alpha)+\sin(\beta)+\sin(\gamma)=0\\
+\end{aligned}
+\right.
+\end{equation*}.
+\subparagraph{1}Montrer que :
+\begin{equation*}
+\left\{
+\begin{aligned}
+\cos(\alpha+\beta)+\cos(\beta+\gamma)+\cos(\gamma+\alpha)=0\\
+\sin(\alpha+\beta)+\sin(\beta+\gamma)+\sin(\gamma+\alpha)=0\\
+\end{aligned}
+\right.
+\end{equation*}.
+\subparagraph{2}Montrer que :
+\begin{equation*}
+\left\{
+\begin{aligned}
+\cos(2\alpha)+\cos(2\beta)+\cos(2\gamma)=0\\
+\sin(2\alpha)+\sin(2\beta)+\sin(2\gamma)=0\\
+\end{aligned}
+\right.
+\end{equation*}.
+
+\section{Une équation dans les complexes}
+Soit $n \in \mathbb{N}^*$ et $a \in ]-\frac{\pi}{2},\frac{\pi}{2}[ \setminus \{ \frac{\pi}{4}\}$.
+\subparagraph{1}Résoudre en $z$ : $\left(\frac{1+iz}{1-iz}\right)^n=\frac{1+i\tan(a)}{1-i\tan(a)}$.
+
+\section{Un peu de géométrie}
+Soit $z \in \mathbb{C}$.
+\subparagraph{1}Donner des conditions sur $z$ pour que le triangle $(z,z^2,z^3)$ soit isocèle respectivement en $z$, $z^2$, $z^3$.
+\subparagraph{2}En déduire une condition sur $z$ pour que le triangle $(z,z^2,z^3)$ soit équilatéral.
+
+\section{Plus loin dans les sommes de Newton}
+Soit $n \in \mathbb{N}$ et $m \in \mathbb{N}$. On note $S_m$ la m-ième somme de Newton.
+\subparagraph{1}Rappeler la valeur de $S_0=\sum_{k=0}^n k^0$, $S_1=\sum_{k=0}^n k$, $S_2=\sum_{k=0}^n k^2$.
+\subparagraph{2}Montrer que $\sum_{k=0}^n k^3=\left( \sum_{k=0}^n  k\right)^2$
+\subparagraph{3}En utilisant une somme télescopique et l'expression $(n+1)^{m+1}$ exprimer $S_m$ en fonction des $S_k$ pour $k \in \llbracket 0,m-1 \rrbracket$.
+
+\section{Nombre de zéros et factorielle}
+\subparagraph{1}Donner le nombre de zéros à la fin de $10!$.
+\subparagraph{2}Même question mais pour $1515!$
+\subparagraph{3}Même question mais pour $n!$ avec $n\in \mathbb{N}$. On exprimera le résultat en utilisant la fonction partie entière.
+
+\section{Inégalité(s) de Shapiro}
+\subparagraph{1}Montrer que $\forall (a,b,c) \in {\mathbb{R}^*}^3$ on  $\frac{b+c}{a}+\frac{c+a}{b}+\frac{a+b}{c} \ge 6$.
+\subparagraph{2}Soit $(x_1,x_2,x_3)\in {\mathbb{R}^*}^3$. On pose $y_1=x_2+x_3$, $y_2=x_1+x_3$ et $y_3=x_1+x_2$. Montrer que $\frac{x_1}{y_1}+\frac{x_2}{y_2}+\frac{x_2}{y_2} \ge \frac{3}{2}$.
+\subparagraph{3} Soit $(x_1,x_2,x_3,x_4)\in {\mathbb{R}^*}^3$. On pose $y_1=x_2+x_3$, $y_2=x_3+x_4$, $y_3=x_4+x_1$ et $y_4=x_1+x_2$. Montrer que $(x_1+x_2+x_3+x_4)^2 \ge 2(x_1 y_1+x_2 y_2 +x_3 y_3+x_4 y_4)$.
+\subparagraph{4}En admettant que $\left(\sum_{i=1}^4 \frac{x_i}{y_i} \right) \left(\sum_{i=1}^4 x_i y_i \right) \ge \left(\sum_{i=1}^4 x_i \right)^2$ (inégalité de Cauchy-Schwarz) déduire que $\sum_{i=1}^4 \frac{x_i}{y_i} \ge 2$.
+\subparagraph{Remarque :} ces inégalités sont appelées les inégalités de Shapiro et on a $\sum_{i=1}^n \frac{x_i}{x_{i+1}+x_{i+2}} \ge \frac{n}{2}$ (où l'addition est à prendre modulo $n$) pour $n \le 12 $ dans le cas pair et $n \le 23$ dans le cas impair. On remarquera qu'ici on a montré les cas $n=3$ et $n=4$. Un contre-exemple pour le cas $n=14$ a été trouvé en 1985 par Troesch, le voici : $(0, 42, 2, 42, 4, 41, 5, 39, 4, 38, 2, 38, 0, 40)$.
+
+\section{Un théorème de point fixe}
+Soit $f$ une application croissante de $[0,1]$ dans $[0,1]$.
+\subparagraph{1}Soit $A=\{ x \in [0,1], \ f(x) \geq x \}$. Montrer que $A$ admet une borne supérieure.
+\subparagraph{2}Montrer que $f$ admet un point fixe, c'est-à-dire, $\exists \ x_0 \in [0,1] \ | \ f(x_0)=x_0$.
+
+\section{Une équation et des parties entières}
+\subparagraph{1}Résoudre dans $\mathbb{R}_{+}$ l'équation suivante : $\lfloor{\frac{x}{2}}\rfloor=\lfloor{\sqrt{x}}\rfloor$.
+\end{document}

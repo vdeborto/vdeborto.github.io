@@ -1,0 +1,100 @@
+\documentclass[10pt,a4paper]{article} 
+\usepackage[utf8]{inputenc} 
+\usepackage[T1]{fontenc} 
+\usepackage[english]{babel} 
+\usepackage{supertabular} %Nécessaire pour les longs tableaux
+\usepackage[top=2.5cm, bottom=2.5cm, right=1.5cm, left=1.5cm]{geometry} %Mise en page 
+\usepackage{amsmath} %Nécessaire pour les maths 
+\usepackage{amssymb} %Nécessaire pour les maths 
+\usepackage{stmaryrd} %Utilisation des double crochets 
+\usepackage{pifont} %Utilisation des chiffres entourés 
+\usepackage{graphicx} %Introduction d images 
+\usepackage{epstopdf} %Utilisation des images .eps 
+\usepackage{amsthm} %Nécessaire pour créer des théorèmes 
+\usepackage{algorithmic} %Nécessaire pour écrire des algorithmes 
+\usepackage{algorithm} %Idem 
+\usepackage{bbold} %Nécessaire pour pouvoir écrire des indicatrices 
+\usepackage{hyperref} %Nécessaire pour écrire des liens externes 
+\usepackage{array} %Nécessaire pour faire des tableaux 
+\usepackage{tabularx} %Nécessaire pour faire de longs tableaux 
+\usepackage{caption} %Nécesaire pour mettre des titres aux tableaux (tabular) 
+\usepackage{color} %nécessaire pour écrire en couleur 
+\newtheorem{thm}{Théorème} 
+\newtheorem{mydef}{Définition} 
+\newtheorem{prop}{Proposition} 
+\newtheorem{lemma}{Lemme}
+
+
+\newcommand{\al}[1]{\begin{aligned} #1 \end{aligned}}
+
+\newcommand{\seq}[2]{\left( #1_{#2} \right)_{#2 \in \mathbb{N}} }
+\newcommand{\intt}[4]{\int_{#1}^{#2} #3 \mathop{}\!\mathrm{d} #4}
+\newcommand{\summ}[2]{\underset{#1}{\overset{#2}{\sum}}}
+
+\newcommand{\vertt}[1]{\vert #1 \vert}
+
+\title{Semaine 11 - Arithmétique dans $\mathbb{Z}$}
+\author{Valentin De Bortoli \\ email : \ \href{mailto:valentin.debortoli@gmail.com}{valentin.debortoli@gmail.com}}
+\date{}
+\begin{document}
+\maketitle
+\section{Carrés parfaits}
+Soit $n \in \mathbb{N}$ si il existe $m \in \mathbb{N}$ tel que $n=m^2$. On dit que $n$ est un carré parfait.
+\subparagraph{1}Montrer que $\forall n \in \mathbb{N}$, $8n+7$ n'est pas un carré parfait.
+\subparagraph{2}Montrer que la somme de cinq nombres consécutifs au carré n'est pas un carré parfait.
+\section{Implication et primalité}
+Soit $p$ un nombre premier.
+\subparagraph{1}Montrer que $8p^2+1 \ \text{premier} \ \Rightarrow 8p^2-1 \ \text{premier}.$
+\subparagraph{Remarque :} on pourra différencier les cas selon la valeur de $p$ modulo 3.
+\section{Puissance et nombres premiers entre eux}
+\subparagraph{1}Montrer que $\forall n \in \mathbb{N}, \ (1+\sqrt{2})^n=a_n+b_n\sqrt{2}$ avec $a_n$ et $b_n$ deux entiers.
+\subparagraph{2}Montrer que $a_n \wedge b_n=1$.
+\section{Équations et arithmétique}
+Résoudre dans $\mathbb{Z}^2$ les équations suivantes :
+\subparagraph{1} \begin{equation*}
+\left\lbrace
+\begin{aligned}
+&x+y=56 \\
+& x \vee y =105
+\end{aligned}
+\right.
+\end{equation*}
+\subparagraph{2}
+\begin{equation*}
+\left\lbrace
+\begin{aligned}
+&x \wedge y = x-y \\
+&x \vee y =72
+\end{aligned}
+\right.
+\end{equation*}
+\subparagraph{3} $x \vee y - x \wedge y=243$
+\section{Nombres de Fermat}
+\subparagraph{1}Soit $N=2^m+1$. Montrer que si $N$ est premier alors $m$ est une puissance de $2$.
+\subparagraph{2}On note $F_n=2^{2^n}+1$ le n-ième nombre de Fermat. Montrer que deux nombres de Fermat distincts sont premiers entre eux.
+\subparagraph{3}A votre avis, ces nombres sont-ils premiers ?
+\section{Nombres de Mersenne}
+\subparagraph{1} Soit $N=a^m-1$. Montrer que si $N$ est premier alors $a=2$ et $m$ est un nombre premier
+\subparagraph{2} On note $M_n=2^{p_n}-1$ le n-ième nombre de Mersenne (où $p_n$ est une énumération des nombres premiers). Montrer que deux nombres de Mersenne distincts sont premiers entre eux.
+\subparagraph{Remarque :} les plus grands nombres premiers trouvés à ce jour sont des nombres de Mersenne.  En cette fin de décembre 2016 le plus grand nombre premier identifié est un nombre de Mersenne. Il comporte 22 338 618 chiffres (projet GIMPS).
+\section{Triplets pythagoriciens}
+On appelle triplet pythagoricien tout triplet $(x,y,z)\in \mathbb{Z}^3$ tel que $x^2+y^2=z^2$.
+\subparagraph{1}Exhiber un tel triplet.
+\subparagraph{2}Montrer que l'on peut se restreindre au cas où $x,y$ et $z$ sont premiers entre eux dans leur ensemble.
+\subparagraph{3}Montrer qu'alors ils sont premiers entre eux deux à deux.
+\subparagraph{4}Dans ce cas, montrer que deux sont impairs et que $z$ est impair. On suppose alors que $y=2y'$ et $x$ et $z$ impairs.
+\subparagraph{5}On pose $X=\frac{x+z}{2}$ et $Z=\frac{z-x}{2}$. Montrer que $X \wedge Z=1$ et que $X$ et $Z$ sont des carrés parfaits.
+\subparagraph{6}En déduire l'ensemble des triplets pythagoriciens.
+\subparagraph{Remarque :} il n'existe pas de solutions si l'exposant est strictement supérieur à $2$. Il s'agit du grand théorème de Fermat que celui-ci pensait avoir montré. Une démonstration rigoureuse a été donnée par Wiles en 1995 après de nombreuses années de recherche.
+\section{Factorielle et arithmétique}
+\subparagraph{1}Soit $k \in \llbracket 0,n \rrbracket$, montrer que $\left( \begin{matrix}n \\k \end{matrix} \right)$ est un entier.
+\subparagraph{2}Soit $k \wedge n=1$ montrer que $n$ divise $\left( \begin{matrix}n \\k \end{matrix} \right)$.
+\subparagraph{3}Soit $p$ un nombre premier. Montrer que $\forall k \in \llbracket 0,p-1\rrbracket$, $p$ divise $\left( \begin{matrix}p \\k \end{matrix} \right)$.
+\section{Suite de Fibonacci et arithmétique}
+On considère la suite de Fibonacci définie par $u_0=0$, $u_1=1$ et $u_{n+2}=u_{n+1}+u_n$.
+\subparagraph{1}Montrer que $u_{n+1}u_{n-1}-u_n^2=(-1)^n$. En déduire que $u_{n+1}  \wedge u_n=1$ si $n\in \mathbb{N}^*$.
+\subparagraph{2}Montrer que $\forall (m,n)\in \mathbb{N}^* \times \mathbb{N}, \ u_{m+n}=u_{m-1}u_n+u_mu_{n+1}$. On pourra commencer par le cas $m=1$ et le cas $m=2$ puis raisonner par récurrence.
+\subparagraph{3}En déduire que $u_n \wedge u_m=u_{n \wedge m}$.
+
+\section{Exo Ulm }
+\end{document}

@@ -1,0 +1,242 @@
+\documentclass[10pt,a4paper]{article} 
+\usepackage[utf8]{inputenc} 
+\usepackage[T1]{fontenc} 
+\usepackage[english]{babel} 
+\usepackage{supertabular} %Nécessaire pour les longs tableaux
+\usepackage[top=2.5cm, bottom=2.5cm, right=1.5cm, left=1.5cm]{geometry} %Mise en page 
+\usepackage{amsmath} %Nécessaire pour les maths 
+\usepackage{amssymb} %Nécessaire pour les maths 
+\usepackage{stmaryrd} %Utilisation des double crochets 
+\usepackage{pifont} %Utilisation des chiffres entourés 
+\usepackage{graphicx} %Introduction d images 
+\usepackage{epstopdf} %Utilisation des images .eps 
+\usepackage{amsthm} %Nécessaire pour créer des théorèmes 
+\usepackage{algorithmic} %Nécessaire pour écrire des algorithmes 
+\usepackage{algorithm} %Idem 
+\usepackage{bbold} %Nécessaire pour pouvoir écrire des indicatrices 
+\usepackage{hyperref} %Nécessaire pour écrire des liens externes 
+\usepackage{array} %Nécessaire pour faire des tableaux 
+\usepackage{tabularx} %Nécessaire pour faire de longs tableaux 
+\usepackage{caption} %Nécesaire pour mettre des titres aux tableaux (tabular) 
+\usepackage{color} %nécessaire pour écrire en couleur 
+\newtheorem{thm}{Théorème} 
+\newtheorem{mydef}{Définition} 
+\newtheorem{prop}{Proposition} 
+\newtheorem{lemma}{Lemme}
+\title{Semaine 1 - Complexes, sommes et nombres réels}
+\author{Valentin De Bortoli \\ email : \ \href{mailto:valentin.debortoli@gmail.com}{valentin.debortoli@gmail.com}}
+\date{}
+\begin{document}
+\maketitle
+
+\section{Quelques autres cosinus et sinus remarquables (1)}
+\subparagraph{1}\begin{equation}
+\begin{aligned}(\sqrt{2+\sqrt{2}}+i \sqrt{2-\sqrt{2}})^8 &= (2 \sqrt{2} + i 2\sqrt{2})^4 \\
+&= 2^8 \left( \frac{\sqrt{2}}{2} + i\frac{\sqrt{2}}{2} \right)^4 \\
+&= -2^8
+\end{aligned}
+\end{equation}
+\subparagraph{2}On en déduit que $z_0 = \frac{\sqrt{2+\sqrt{2}} + i \sqrt{2-\sqrt{2}}}{2}$ est racine de $z^8+1$. Ce polynôme possède 8 racines complexes, $(e^{\frac{i(2k+1)\pi}{8}})$ avec $k \in \llbracket 0,7 \rrbracket$. Il s'agit d'identifier à quel $k$ correspond $z_0$. Si $k\ge 4$ alors $\operatorname{Im} \left( e^{\frac{2ik\pi}{8}}\right) \le 0$ donc $k\le 3$. Si $k=3$ ou $2$ alors $\operatorname{Re} \left( e^{\frac{2ik\pi}{8}}\right) \le 0$. Donc $k \le 1$. Mais si $k=1$ alors $\cos\left( \frac{3 \pi}{8} \right) \le \cos \left( \frac{\pi}{4} \right) \le \frac{\sqrt{2}}{2}$. Or $\frac{\sqrt{2+\sqrt{2}}}{2} < \frac{\sqrt{2}}{2}$. Donc $k=0$ et on a,
+\begin{equation}
+\left\lbrace
+\begin{aligned}
+\cos \left( \frac{\pi}{8} \right)= \frac{\sqrt{2+\sqrt{2}}}{2} \\
+\sin\left(\frac{\pi}{8} \right)= \frac{\sqrt{2-\sqrt{2}}}{2} \\
+\end{aligned}\right.
+\end{equation}
+\subparagraph{3}On sait que $\cos \left( \frac{x}{2} \right)^2 = \frac{1+\cos(x)}{2}$ et $\sin \left( \frac{x}{2} \right)^2 = \frac{1-\cos(x)}{2}$. Ainsi on trouve que,
+\begin{equation}
+\cos \left( \frac{\pi}{8} \right) = \sqrt{\frac{1+ \frac{\sqrt{2}}{2}}{2}} = \frac{\sqrt{2+\sqrt{2}}}{2},
+\end{equation}
+où on a pu passer à la racine car $\frac{\pi}{8}$ appartient au premier quadran et donc $\cos \left( \frac{\pi}{8} \right)$ est positif.
+
+\section{Quelques autres cosinus et sinus remarquables (2)}
+\subparagraph{1}Les solutions sont $ e^{\frac{2ik\pi}{5}}$ avec $k \in \llbracket 0,5$. Pour la suite on note $z_0 = 1$, $z_1 = e^{\frac{2i\pi}{5}}$ et $z_2 = e^{\frac{4i \pi}{5}}$. Il convient de remarquer que les solutions de $z^5-1$ sont $\lbrace z_0,z_1, \overline{z_1}, z_2, \overline{z_2} \rbrace$.
+\subparagraph{2}$Q(z) = \frac{z^5-1}{z-1} = 1 + z + z^2 + z^3 + z^4 = z^2(\frac{1}{z^2} + \frac{1}{z} + 1 + z + z^2) = z^2(\omega^2 + \omega -1)$. Ainsi, puisqu'on peut se restreindre à $\mathbb{C}^*$, $0$ n'étant pas solution de $Q(z)=0$, les solutions de $Q(z)=0$ vérifient $\omega^2 + \omega - 1 =0$. Donc, \begin{equation}
+\left\lbrace
+\begin{aligned}
+\omega_1 = \frac{-1 + \sqrt{5}}{2} \\
+\omega_2 = \frac{-1 - \sqrt{5}}{2}
+\end{aligned}
+\right.
+\end{equation}
+Ainsi $z^2 - \omega_1z +1 = 0$ ou  $z^2 - \omega_2z +1 = 0$. Les discriminants respectifs sont,
+\begin{equation}
+\left\lbrace
+\begin{aligned}
+&\Delta_1 = \omega_1^2 -4 = \frac{6-\sqrt{5}-16}{4} = \frac{-10 - \sqrt{5}}{4} \\
+&\Delta_2 = \frac{-10 + \sqrt{5}}{4} \\
+\end{aligned}
+\right.
+\end{equation}
+Ainsi, on obtient quatre solutions à l'équation $Q(z) = 0$,
+\begin{equation}
+\left\lbrace
+\begin{aligned}
+z_a =\frac{-1+ \sqrt{5} + i \sqrt{10 +\sqrt{5}}}{4} \\
+z_b =\frac{-1+ \sqrt{5} - i \sqrt{10 +\sqrt{5}}}{4} \\
+z_c =\frac{-1- \sqrt{5} + i \sqrt{10 -\sqrt{5}}}{4} \\
+z_d =\frac{-1- \sqrt{5} + i \sqrt{10 -\sqrt{5}}}{4}
+\end{aligned}
+\right.
+\end{equation}
+La partie réelle de $z_c$ est négative. De même pour $z_d$. La partie imaginaire de $z_b$ est négative donc on a $z_1 = z_a$ comme seule possibilité.
+\subparagraph{3}On a,
+\begin{equation}
+\left\lbrace
+\begin{aligned}
+\cos \left( \frac{2\pi}{5} \right) = \frac{-1 + \sqrt{5}}{4} \\
+\sin \left( \frac{2 \pi}{5} \right) = \frac{\sqrt{10 + \sqrt{5}}}{4}
+\end{aligned}
+\right.
+\end{equation}
+\section{Inverse de la somme, somme des inverses}
+\subparagraph{1} En multipliant par $a+b$ des deux côtés on obtient $1 = \frac{a}{b} + \frac{b}{a}$. Il s'agit maintenant de poser $z = \frac{a}{b}$. On a $1 = z + \frac{1}{z}$. Il s'agit donc de trouver les racines du polynômes de second degré $z^2 -z +1$. On trouve $z = \frac{1 \pm i \sqrt{3}}{2}$. Il convient de remarquer que $z = e^{\frac{i\pi}{3}}$ ou $z= e^{-\frac{i\pi}{3}}$. Ainsi $\frac{1}{a+b} = \frac{1}{a}+ \frac{1}{b}$ si et seulement si $(0,a,b)$ forme un triangle équilatéral.
+
+\section{Recherche d'une factorisation}
+\subparagraph{1}Il s'agit de poser $Z = z^4$. On a $Z^2+Z+1=0$. Donc $Z = j$ ou $j^2 = \overline{j}$. Ainsi on a,
+\begin{equation}
+\left\lbrace
+\begin{aligned}
+z_1 = e^{\frac{i\pi}{6}} \\ 
+z_2 = e^{\frac{2i\pi}{3}} \\
+z_3 = -e^{\frac{i\pi}{6}} \\
+z_4 = -e^{\frac{2i\pi}{3}}
+\end{aligned}
+\right.
+\end{equation}
+et leurs conjugués solutions de l'équation initiale. Cette distinction entre solution et solution conjuguée est cruciale pour la seconde question.
+\subparagraph{2}Il s'agit de remarquer que $(z-a)(z-\overline{a}) = z^2 - 2\operatorname{Re}(a) z + \vert a \vert^2$ et est donc un polynôme réel. Ainsi, 
+\begin{equation}
+z^8 +z^4 +1 = (z^2- \sqrt{3}z+1)(z^2 + \sqrt{3}z +1)(z^2-z+1)(z^2+z+1)
+\end{equation}
+
+\section{Produit de sinus}
+\subparagraph{1}Dans un premier temps, $z+1 = \exp(2i\alpha) \exp(\frac{2ik\pi}{n})$ avec $k \in \llbracket 0,n-1 \rrbracket$. Donc $z = e^{2i \alpha + \frac{2ik\pi}{n}}-1 = 2ie^{i \alpha + \frac{ik\pi}{n}} \sin \left( \alpha + \frac{k\pi}{n}\right)$.
+\subparagraph{2}On considère le polynôme $P(z) = (z+1)^n - e^{2i\alpha n}$. Le terme constant de ce polynôme vaut $1- e^{2i\alpha n} = -2 i e^{i \alpha n } \sin \left( \alpha n\right)$. Mais en écrivant $P(z) = \underset{k=0}{\overset{n-1}{\prod}} \left(z- 2ie^{i \alpha + \frac{ik\pi}{n}} \sin \left( \alpha + \frac{k\pi}{n}\right) \right)$ on peut écrire le terme constant comme étant égal à $\underset{k=0}{\overset{n-1}{\prod}}-2ie^{i\alpha+ \frac{ik\pi}{n}} \sin \left( \alpha+ \frac{k\pi}{n}\right) = 2^n (-1)^n i^n e^{i \alpha n } i^{n-1} \underset{k=0}{\overset{n-1}{\prod}} \sin \left( \alpha + \frac{k \pi}{n} \right) = -2^n i e^{i \alpha n } \underset{k=0}{\overset{n-1}{\prod}} \sin \left( \alpha + \frac{k \pi}{n} \right)$. Ainsi on obtient,
+\begin{equation}
+\underset{k=0}{\overset{n-1}{\prod}} \sin \left( \alpha + \frac{k \pi}{n} \right) = \frac{\sin(\alpha n)}{2^{n-1}}.
+\end{equation}
+\section{Somme de sinus et de cosinus (1)}
+Dans la suite on considère toujours que $x$ n'est pas un multiple de $\pi$ auquel cas les sommes sont triviales.
+\subparagraph{1}Un grand classique. On calcule d'abord $\underset{k=0}{\overset{n-1}{\sum}}e^{ikx} = \underset{k=0}{\overset{n-1}{\sum}}\left( e^{ix} \right)^k = \frac{1- e^{inx}}{1-e^{ix}} = e^{i(n-1) \frac{x}{2}} \frac{\sin(\frac{nx}{2})}{\sin(\frac{x}{2})}$. On obtient alors (en considérant partie réelle et partie imaginaire),
+\begin{equation}
+\left\lbrace
+\begin{aligned}
+\underset{k=0}{\overset{n-1}{\sum}} \cos(kx) = \frac{\cos\left( \frac{(n-1)x}{2}\right) \sin \left( \frac{nx}{2}\right)}{\sin \left( \frac{x}{2} \right)} \\
+\underset{k=0}{\overset{n-1}{\sum}} \sin(kx) = \frac{\sin\left( \frac{(n-1)x}{2}\right) \sin \left( \frac{nx}{2}\right)}{\sin \left( \frac{x}{2} \right)}
+\end{aligned}
+\right.
+\end{equation}
+\subparagraph{2}Un grand classique, deuxième édition. On calcule d'abord $\underset{k=0}{\overset{n-1}{\sum}} \binom{n}{k}(e^{ix})^k = (1+e^{ix})^n = e^{\frac{inx}{2}}2^n\cos(x)^n$. Encore une fois en considérant partie réelle et partie imaginaire, on obtient,
+\begin{equation}
+\left\lbrace
+\begin{aligned}
+\underset{k=0}{\overset{n-1}{\sum}} \binom{n}{k}\cos(kx) = 2^n\cos \left( \frac{nx}{2} \right) \cos(x)^n \\
+\underset{k=0}{\overset{n-1}{\sum}} \binom{n}{k}\sin(kx) = 2^n\sin \left(\frac{nx}{2} \right) \cos(x)^n
+\end{aligned}
+\right.
+\end{equation}
+\subparagraph{3}Moins classique mais toujours même technique.
+On calcule d'abord $\underset{k=0}{\overset{n-1}{\sum}}e^{ikx}\cos(x)^k = \underset{k=0}{\overset{n-1}{\sum}}\left( e^{ix} \cos(x) \right)^k = \frac{1- e^{inx}\cos(x)^n}{1-e^{ix}\cos(x)} = \frac{1-e^{inx}\cos(x)^n}{\sin(x)^2 - i\sin(x) \cos(x)}=\frac{1}{\sin(x)} \left(1-e^{inx}\cos(x)^n \right)(\sin(x)+i \cos(x))$. On peut alors prendre la partie réelle et on obtient,
+\begin{equation}
+\underset{k=0}{\overset{n-1}{\sum}} \cos(kx)\cos(x)^k = 1- \cos(nx)\cos(x)^n + \frac{1}{\sin(x)}\sin(nx)\cos(x)^n\cos(x) = 1- \cos(nx)\cos(x)^n + \sin(nx)\cot(x)\cos(x)^n
+\end{equation}
+\subparagraph{4}Une dernière fois... On considère $\underset{k=0}{\overset{n-1}{\sum}} \binom{n}{k}\left(-\cos(x)e^{ix} \right)^k = (1- \cos(x)e^{ix})^n = \sin(x)^n \left( \sin(x) -i \cos(x) \right)^n= \sin(x)^n e^{\frac{in\pi}{2}}$. On considère la partie réelle et on a,
+\begin{equation}
+\underset{k=0}{\overset{n-1}{\sum}} \binom{n}{k}(-1)^k\cos(x)^k\cos(kx) = \sin(x)^n \cos\left( \frac{nx}{2} \right)
+\end{equation}
+
+\section{Somme de sinus et de cosinus (2)}
+
+On pose $a = e^{i \alpha}$, $b = e^{i \beta}$ et $c = e^{i \gamma}$. Les relations données assurent que $a+b+c = 0$. Mais on a également $\frac{1}{a}+ \frac{1}{b}+ \frac{1}{c} = \overline{a}+\overline{b}+\overline{c}=0$. 
+
+\subparagraph{1}On a donc $abc \left(\frac{1}{a}+ \frac{1}{b}+ \frac{1}{c}\right)=0$. D'où $ab +bc +ca=0$. En considérant la partie réelle et la partie imaginaire on obtient le résultat voulu. 
+
+\subparagraph{2}Il suffit de considérer $(a+b+c)^2 - 2(ab+bc+ca) = 0$ par les questions précédentes. Mais $(a+b+c)^2 - 2(ab+bc+ca) = a^2+b^2+c^2$. On peut donc conclure en considérant partie réelle et partie imaginaire.
+
+\section{Une équation dans les complexes}
+On commence par simplifier $\frac{1+i\tan(a)}{1-i\tan(a)} = e^{2ia}$. Il s'agit ensuite de trouver $z$. En effet, $\exists k \in \llbracket 0,n-1 \rrbracket, \ \frac{1+iz}{1-iz} = e^{2i (a+\frac{k\pi}{n})}$. Cette équation possède une unique solution en $z$ (il s'agit de trouver les racines d'un polynôme de degré 1). On a donc l'ensemble des solutions $\mathcal{S} = \lbrace \tan\left( a + \frac{k\pi}{n}\right), \ k \in \llbracket 0,n-1 \rrbracket\rbrace$.
+
+\section{Un peu de géométrie}
+\subparagraph{Isocèle en $z^2$}On a $\vert z- z^2 \vert = \vert z^2 - z^3 \vert = \vert z \vert \vert z -z^2 \vert$. $z=0$ est une solution triviale on supposera désormais que $z \neq 0$. On a alors $\vert z \vert \vert 1-z \vert = \vert 1- z \vert$. Une autre solution triviale est $z=1$. On supposera donc $z \neq 1$ pour la suite. La relation précédente donne $\vert z \vert =1$. Donc le triangle est isocèle en $z^2$ si et seulement si $z$ appartient au cercle unité ou $z=0$
+\subparagraph{Isocèle en $z$} On a $\vert z -z^2 \vert = \vert z -z^3 \vert$. Comme précédemment on suppose que $z \neq 0$ (solution triviale). On obtient $\vert 1 -z \vert = \vert 1 -z^2 \vert = \vert 1-z \vert \vert 1+z \vert$. On suppose que $z \neq 1$ (solution triviale) et on obtient $\vert 1+z \vert = 1$. Donc le triangle est isocèle en $z$ si et seulement si $z=0$ ou $z=1$ ou $z$ appartient au cercle de rayon $1$ centré en $-1$.
+\subparagraph{Isocèle en $z^3$}Comme précédemment on élimine directement les cas $z=0$ et $z=1$. On obtient $\vert z^2 -z \vert = \vert z^2-1 \vert$. On a, $\vert z \vert \vert z-1 \vert = \vert z-1 \vert \vert z +1\vert$. On obtient alors $\vert z \vert = \vert z+1\vert $. Cela est équivalent à $\operatorname{Re}(z) = -\frac{1}{2}$. Géométriquement le triangle est isocèle en $z^3$ si et seulement si $z=0$, $z=1$ ou $z$ appartient à la droite parallèle à l'axe des ordonnées et d'abcisse $-\frac{1}{2}$.
+\subparagraph{Triangle équilatéral} Pour obtenir un triangle équilatéral il s'agit de trouver $\theta$ tel que $\vert 1 +e^{i \theta} \vert = 1$, c'est-à-dire $1+2\cos(\theta) =0$. Donc $\theta = \frac{2\pi}{3}$ ou $\frac{4\pi}{3}$. Ainsi les seuls points possibles sont $(1,j,j^2)$.
+\section{Plus loin dans les sommes de Newton}
+Soit $n \in \mathbb{N}$ et $m \in \mathbb{N}$. On note $S_m$ la m-ième somme de Newton.
+\subparagraph{1}$S_0 = n$, $S_1 = \frac{n(n+1)}{2}$, $S_2 = \frac{n(n+1)(2n+1)}{6}$.
+\subparagraph{2}On raisonne par récurrence. Au rang $0$ c'est évident. On suppose la relation vraie au rang $n$, montrons là au rang $n+1$. On a,
+\begin{equation}
+\begin{aligned}
+\left(\underset{k=0}{\overset{n+1}{\sum}} k\right)^2 &= \underset{k=0}{\overset{n}{\sum}}k^3 + (n+1)^2 + 2(n+1) \underset{k=0}{\overset{n}{\sum}} k \\
+&= \underset{k=0}{\overset{n}{\sum}}k^3  + (n+1)^2 + (n+1)^2n \\
+&= \underset{k=0}{\overset{n+1}{\sum}}k^3
+\end{aligned}
+\end{equation}
+\subparagraph{3}On a,
+\begin{equation}
+\begin{aligned}
+&(n+1)^{m+1} = \underset{k=0}{\overset{m+1}{\sum}}\binom{m+1}{k}n^k \\
+&(n+1)^{m+1} - n^{m+1} = \underset{k=0}{\overset{m}{\sum}}\binom{m+1}{k}n^k \\
+&(n+1)^{m+1} = \underset{k=0}{\overset{m}{\sum}} \binom{m+1}{k} S_k \\
+& S_{m} = \frac{(n+1)^{m+1}}{m+1} - \underset{k=0}{\overset{m-1}{\sum}} \binom{m+1}{k} S_k
+\end{aligned}
+\end{equation}
+
+\section{Nombre de zéros et factorielle}
+\subparagraph{1}On a deux zéros. $1 \times 2 \times 3 \times 4 \times 5 \times 6 \times 7 \times 8 \times 9 \times 10$. $10$ compte pour un zéro, $5$ (associé avec $2$ ou n'importe quel nombre pair) compte pour un zéro.
+\subparagraph{2} On va traiter la question 3 et on l'appliquera à la question 2. Il s'agit de trouver la puissance associée à $5$ dans la décomposition en produit de facteurs premiers du nombre $n!$. En effet on cherche la plus grande puissance $10^k$ telle que $10^k$ divise $n!$. Ainsi, il s'agit de trouver la puissance de $5$ dans la décomposition en produit de nombre premiers de $n!$ ainsi que la puissance de $2$ dans la décomposition en produit de nombres premiers de $n!$. On montre par récurrence que pour tout nombre premier $p$ si on note $k_p$ sa puissance dans la décomposition en produit de nombres premiers de $n!$ on a,
+\begin{equation}
+k_p = \underset{k=1}{\overset{\lfloor \log_p(n) \rfloor}{\sum}} \left\lfloor \frac{n}{p^k}\right\rfloor
+\end{equation}
+On en déduit facilement que $k_2 \ge k_5$ et donc le nombre de zéros à la fin de $n!$ est égal à $k_5$. 
+\subparagraph{3}On trouve que $\left\lfloor \frac{1515}{5} \right\rfloor = 303$. On trouve également $\left\lfloor \frac{1515}{25} \right\rfloor = 60$. On a aussi $\left\lfloor \frac{1515}{125} \right\rfloor = 12$ et $\left\lfloor \frac{1515}{625} \right\rfloor = 2$. Donc on a $377$ zéros à la fin de $1515!$. Ce calcul permet de rendre compte de la démesure de la factorielle !
+\section{Inégalité(s) de Shapiro}
+
+\subparagraph{1}Une rapide étude de fonction permet de constater que pour tout réel positif non nul $x$ on a $x+\frac{1}{x} \ge 2$. Ainsi$\forall (a,b,c) \in {\mathbb{R}^*}^3$ on  $\frac{b+c}{a}+\frac{c+a}{b}+\frac{a+b}{c} = \frac{a}{b} + \frac{b}{a} + \frac{a}{c} + \frac{c}{a} + \frac{b}{c} + \frac{c}{b} \ge 6$.
+
+\subparagraph{2} En appliquant le résultat obtenu à la question précédente on a,
+\begin{equation}
+\begin{aligned}
+\frac{y_1+y_2}{y_3} + \frac{y_2+y_3}{y_1} + \frac{y_1+y_3}{y_2} &\ge 6 \\
+3 + 2 \left( \frac{x_1}{y_1} + \frac{x_2}{y_2} + \frac{x_3}{y_3} \right) &\ge 3 \\
+\frac{x_1}{y_1} + \frac{x_2}{y_2} + \frac{x_3}{y_3} \ge \frac{3}{2}
+\end{aligned}
+\end{equation}
+
+\subparagraph{3} Il suffit de développer,
+\begin{equation}
+\begin{aligned}
+(x_1+x_2+x_3+x_4)^2 - 2(x_1 y_1+x_2 y_2 +x_3 y_3+x_4 y_4) &= (x_1+x_2+x_3+x_4)^2 - 2x_1x_2 - 2x_1x_3 -2x_2x_3 - 2x_2x_4 -2x_3x_4 - 2x_3x_1 -2x_4x_1 - 2x_4x_2  \\
+&= x_1^2 - 2x_1x_3 + x_3^2 +x_2^2 -2x_2x_4 +x_4^2 \\
+&= (x_1-x_3)^2 + (x_2 - x_4)^2 \\
+&\ge 0
+\end{aligned}
+\end{equation}
+
+\subparagraph{4}Immédiat en minorant $\left( \sum_{i=1}^4 x_i \right)^2$ par $2\sum_{i=1}^4 x_i y_i$.
+
+\section{Un théorème de point fixe}
+Soit $f$ une application croissante de $[0,1]$ dans $[0,1]$.
+\subparagraph{1}Sous ensemble non-vide de $\mathbb{R}$ (contient $0$) et borné par $1$ donc admet une borne supérieure.
+
+\subparagraph{2}Soit $x_0$ cette borne supérieure. Si $x=1$ alors $f(1)=1$ et $f$ admet un point fixe. Supposons que $x_0 <1$. Soit $x>x_0$ alors $f(x) > f(x_0)$ par croissance. Mais $x>f(x)$ sinon $x \in A$. Donc $\forall x\ge x_0 x \ge f(x_0)$. En considérant une suite qui tend vers $x_0$ on obtient que $f(x_0) \le x_0$. Si $x_0=0$ alors $f(x_0)=0$ et $f$ admet un point fixe. Supposons désormais que $x_0>0$. Alors par la propriété de la borne supérieure $\forall \epsilon>0, \ \exists x<x_0, \ x\in A \ \text{et} \ x_0 - \epsilon \le x \le x_0$. D'où par croissance $f(x) \le f(x_0)$ et par appartenance à $A$ $x\le f(x_0)$. On peut donc choisir une suite $(x_n)_{n \in \mathbb{N}} \in A^{\mathbb{N}} $ qui tend vers $x_0$ d'où $f(x_0) \ge x_0$ par passage à la limite. On peut conclure $f(x_0) = x_0$ et $f$ admet un point fixe.
+
+\subparagraph{Remarque :} la démonstration est quasiment identique si $f$ est supposée continue et non croissante !
+
+\section{Une équation et des parties entières}
+\subparagraph{1}Résoudre dans $\mathbb{R}_{+}$ l'équation suivante : $\lfloor{\frac{x}{2}}\rfloor=\lfloor{\sqrt{x}}\rfloor$.
+
+\subparagraph{1}On peut commencer par chercher un intervalle acceptable dans lequel chercher des solutions. On constate que si $\frac{x^2}{4}-x -1\ge 0$ alors $x$ ne peut pas être solution de l'équation. On résout donc $x^2-4x-4 = 0$. Les racines sont, $x_1 = 2 + 2\sqrt{2}$ et $x_2 = 2-2\sqrt{2}$. Donc on peut restreindre l'ensemble de recherche à $[0,6]$. On va découper cet intervalle en plusieurs morceaux:
+\begin{itemize}
+\item sur $[0,1[$ tout $x$ est solution.
+\item sur $[1,2[$, $\lfloor \sqrt{x} \rfloor = 1$et $\lfloor \frac{x}{2} \rfloor = 0$ donc on n'a pas de solutions.
+\item sur $[2,4[$ tout $x$ est solution.
+\item $x=4$ est également solution. Sur $[4,6[$, $\lfloor \frac{x}{2} \rfloor = 2 = \lfloor \sqrt{x} \rfloor$. 
+\end{itemize}
+Donc l'ensemble des solutions $\mathcal{S}$ est le suivant,
+\begin{equation}
+\mathcal{S} = [0,1[ \cup [2,6]
+\end{equation}
+\end{document}

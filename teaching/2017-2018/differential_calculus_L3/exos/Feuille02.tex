@@ -1,0 +1,370 @@
+\documentclass[12pt]{article}
+\usepackage[frenchb]{babel}
+\usepackage[T1]{fontenc}                % Accents codés dans la fonte.
+\usepackage[utf8x]{inputenc}           % Accents 8 bits dans le fichier.
+\usepackage{ifthen}                     % Faire des tests if/then/else.
+\usepackage{amsmath}    % Les symboles les plus fréquents.
+\usepackage{amsfonts}   % Des fontes, eg pour \mathbb.
+\usepackage{vmargin}                    % Régler la taille de la feuille.
+\usepackage{amssymb}
+\usepackage{lastpage}
+\usepackage{accents}
+
+
+% La taille de la page
+\setpapersize{A4}
+\setmarginsrb{20mm}{10mm}{14mm}{15mm}{10mm}{6mm}{0mm}{10mm}
+
+% La mise en page
+\newcounter{vcenterstest}
+\newlength{\leftlength}
+\newlength{\rightlength}
+\newlength{\vcentersskip}
+\newcommand{\leftcentersright}[4][2]{%
+        \settowidth{\leftlength}{#2}%
+        \settowidth{\rightlength}{#4}%
+        \setcounter{vcenterstest}{#1}%
+        \ifthenelse{\value{vcenterstest} = 0}
+                {\setlength{\vcentersskip}{0pt}}{}%
+        \ifthenelse{\value{vcenterstest} = 1}
+                {\setlength{\vcentersskip}{\smallskipamount}}{}%
+        \ifthenelse{\value{vcenterstest} = 2}
+                {\setlength{\vcentersskip}{\medskipamount}}{}%
+        \ifthenelse{\value{vcenterstest} = 3}
+                {\setlength{\vcentersskip}{\bigskipamount}}{}%
+        \ifthenelse{\value{vcenterstest} = 4}
+                {\setlength{\vcentersskip}{1cm}}{}%
+                % On laisse un espace vertical défini par l'argument
+                % optionnel #1
+        \vskip\vcentersskip
+                % On place #2 et on recule de sa longueur
+        \noindent#2\hskip-\leftlength%
+                % On centre #3
+        \hfill#3\hfill%
+                % On va au bout de la ligne, on recule de la longueur de #4 et
+                % on place #4
+        \mbox{}\hskip-\rightlength#4%
+                % On laisse un espace vertical défini par l'argument
+                % optionnel #1
+        \vskip\vcentersskip%
+    }
+\newcommand{\centers}[2][2]{\leftcentersright[#1]{}{#2}{}}
+\newcommand{\leftcenters}[3][2]{\leftcentersright[#1]{#2}{#3}{}}
+\newcommand{\centersright}[3][2]{\leftcentersright[#1]{}{#2}{#3}}
+\newcommand{\leftencadreright}[4][2]{\leftcentersright[#1]{#2}{\fbox{#3}}{#4}}
+
+\newcommand{\poubelle}[1]{}
+\newcommand{\numtoi}[1]{
+  \ifthenelse{ \equal{#1}{1} }{i}{
+  \ifthenelse{ \equal{#1}{2} }{ii}{
+  \ifthenelse{ \equal{#1}{3} }{iii}{
+  \ifthenelse{ \equal{#1}{4} }{iv}{
+  \ifthenelse{ \equal{#1}{5} }{v}{
+  \ifthenelse{ \equal{#1}{6} }{vi}{
+  \ifthenelse{ \equal{#1}{7} }{vii}{
+  \ifthenelse{ \equal{#1}{8} }{viii}{
+  \ifthenelse{ \equal{#1}{9} }{ix}{
+  \ifthenelse{ \equal{#1}{10} }{x}{
+  \ifthenelse{ \equal{#1}{11} }{xi}{
+  \ifthenelse{ \equal{#1}{12} }{xii}{
+  \ifthenelse{ \equal{#1}{13} }{xiii}{
+  \ifthenelse{ \equal{#1}{14} }{xiv}{
+  \ifthenelse{ \equal{#1}{15} }{xv}{
+  \ifthenelse{ \equal{#1}{16} }{xvi}{
+  \ifthenelse{ \equal{#1}{17} }{xvii}{
+  \ifthenelse{ \equal{#1}{18} }{xviii}{
+    ERREUR,~MODIFIER~LA~MACRO~numtoi
+  } } } } } } } } } } } } } } } } } }
+}
+
+\newcounter{cretraiti}
+\newenvironment{ri}[1]{
+
+\begin{list}{($\numtoi{\thecretraiti}$)}{
+  \usecounter{cretraiti}
+  \topsep=0.5ex
+  \itemsep=0.3ex
+  \labelsep=0.3em
+  \parsep=0ex
+  \listparindent=1em
+  \settowidth{\labelwidth}{(#1)}
+  \leftmargin=\labelwidth
+  %\addtolength{\leftmargin}{\labelsep}
+}}{\end{list}
+}
+
+
+% Quelques raccourcis pour taper des maths
+\newcommand{\Sfr}{\mathfrak{S}}
+\newcommand{\Afr}{\mathfrak{A}}
+\newcommand{\QQ}{\mathbb{Q}}
+\newcommand{\ZZ}{\mathbb{Z}}
+\newcommand{\si}{\sigma}
+\newcommand{\ins}[1]{{\ensuremath{\textrm{#1}}}}
+\newcommand{\tiret}{\rule[0.6ex]{1.3ex}{0.26ex}}
+\newcommand{\accolades}[1]{\ensuremath{\left\{#1\right\}}}
+\newcommand{\paa}[1]{\ensuremath{\accolades{#1}}}       % Synonyme
+\newcommand{\ds}{\displaystyle}
+
+
+% Numerotation des pages / la derniere
+\makeatletter
+\renewcommand{\@evenfoot}%
+        {\thepage \slash \pageref{LastPage}}
+\renewcommand{\@oddfoot}{\@evenfoot}
+\makeatother
+
+
+%%%%% Pour faire les exos
+\newcommand{\envfont}{\sf\bfseries}
+\newcounter{cexo}
+\renewcommand{\thecexo}{\arabic{cexo}}
+
+\newenvironment{exo}[1][toto]
+{
+  \refstepcounter{cexo}
+  \ifthenelse{ \equal{#1}{toto} }{
+   \noindent {\envfont Exercice \thecexo}
+  }{
+   \noindent {\envfont Exercice \thecexo{} \tiret\, #1.}
+  }
+%\newline
+%\indent
+}
+{}
+
+\newcounter{cquestions}
+\newenvironment{questions}{
+\begin{list}{{\envfont\alph{cquestions})}}{
+  \usecounter{cquestions}
+  \topsep=0.5ex
+  \partopsep=1em
+  \labelsep=0.3em
+  \itemsep=0.3ex
+  \settowidth{\labelwidth}{{\envfont b)}}\listparindent=1em
+  \leftmargin=\labelwidth \addtolength{\leftmargin}{\labelsep}
+}}{\end{list} }
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newcommand{\spacebeforeenv}{\vspace{1ex}}
+\newcommand{\spaceafterenv}{\vspace{1ex}}
+\newcommand{\myqedenv}{}
+
+
+\newcommand{\metaenvironnement}[2]  % 1er argument : nom de l'env, 2e argument : titre
+{
+  \ifthenelse{ \equal{#2}{toto} }{
+    \spacebeforeenv \noindent {\envfont #1 }
+  }{
+    \spacebeforeenv \noindent {\envfont #1  \tiret\, #2.}
+  }
+}
+
+%----------------------------------
+% Rappel
+%----------------------------------
+\newenvironment{rappel}[1][toto]
+{ \metaenvironnement{Rappel}{#1} }
+{\myqedenv\spaceafterenv}
+
+
+\newcommand{\fonction}[5]{%
+        \ensuremath{#1\colon
+        \left\{\hskip -1.5 mm
+        \begin{array}{c@{\ }c@{\ }l}
+        \medskip #2 & \longrightarrow & #3 \\
+        #4 & \longmapsto & #5 \\
+        \end{array}
+        \right .
+        }}
+\newcommand{\ph}{\varphi}
+\newcommand{\funu}[1]{\mathcal{C}^{#1}}
+\newcommand{\RR}{\mathbb{R}}
+\newcommand{\NN}{\mathbb{N}}
+\newcommand{\CC}{\mathbb{C}}
+
+\newenvironment{syst}[1][c]%
+    {\ensuremath{\left \{ \hskip -1.5 mm \begin{array}{#1@{\ =\ }l}}}%
+    {\end{array}\right.}
+
+\newcommand{\f}[2]{{\ensuremath{\mathchoice%
+    {\dfrac{#1}{#2}}
+        {\dfrac{#1}{#2}}
+    {\frac{#1}{#2}}
+    {\frac{#1}{#2}}
+    }}}
+\renewcommand{\ni}{\noindent}
+\newcommand{\ra}{\rightarrow}
+\newcommand{\question}[1]{{\sf\bfseries #1}}
+\newcommand{\norm}[1]{\ensuremath{\Arrowvert #1 \Arrowvert}}
+\newcommand{\Ende}[3]{\ensuremath{\mathrm{End}_{#1}^{#2}(#3)}}
+\newcommand{\End}[2]{\Ende{#1}{}{#2}}
+\newcommand{\id}{\ensuremath{\mathrm{id}}}
+\renewcommand{\d}{\ensuremath{\mathrm{d}}}
+\renewcommand{\leq}{\leqslant}
+\renewcommand{\geq}{\geqslant}
+
+
+\usepackage{datetime}
+\newdateformat{annscol}{\ifthenelse{\THEMONTH > 7}{\THEYEAR--\refstepcounter{YEAR}\THEYEAR}{\addtocounter{YEAR}{-1}\THEYEAR--\refstepcounter{YEAR}\THEYEAR}}
+
+\begin{document}
+ 
+
+% ------------------------------------------------------------------------------------
+\leftcentersright[0]{{\bf\sf\large Formation en Mathématiques Commune Cachan}}{}
+{{\bf\sf\large Année~\annscol\today}} \leftcentersright[0]{{\bf\sf\large Calcul
+    différentiel}}{}{{\bf\sf Valentin De Bortoli, Frédéric Pascal}}
+\vskip3ex\centers{{\bf\sf \Large Feuille 0.2 - Espaces de Banach}}
+% ------------------------------------------------------------------------------------------
+
+
+
+
+% ------------------------------------------------------------------------------------------
+% ------------------------------------------------------------------------------------------
+
+
+\vskip2ex
+\begin{exo}[Espace vectoriel normé]
+  Soit $(E,\|.\|)$ un espace vectoriel normé (e.v.n) défini sur $\RR$ ou
+  $\CC$. $E$ est un espace métrique pour la distance associée à la norme.
+  \begin{questions}
+  \item Montrer que l'application qui à $x \in E$ associe $\|x\|$ est continue
+    sur $E$.
+  \item Soit $ A \subset \RR^n$ fermé et non borné. Montrer que si
+    $f : A \to \RR$ est continue et coercive i.e.
+    $\lim_{\|x\|\to + \infty} f(x) = + \infty$ alors $f$ est minorée et atteint
+    sa borne inférieure sur $A$.
+  \item Montrer que si $E$ est de dimension finie alors sa boule unité est
+    compacte.  \textit{Remarque :} Pourquoi ne précise-t-on pas la norme
+    utilisée ?
+  \item Soit $F$ un sous-espace vectoriel fermé strictement inclus dans
+    $E$. Soit $1>r>0$. Montrer qu'il existe $u \in E$, tel que $\| u \| = 1$ et
+    $d(u,F) > r$ (lemme de Riesz).
+  \item Montrer que $E$ est de dimension finie $ssi$ sa boule unité est compacte
+    (théorème de Riesz).
+    % \\ \textit{Remarque :} Ce résultat s'étend aux espaces topologiques
+    % séparés. Un espace vectoriel topologique réel séparé est de dimension
+    % finie $ssi$ il est localement compact.
+    % \item Montrer que $\RR$ muni de la norme usuelle, vu comme $\QQ$
+    %   espace vectoriel, est de dimension infinie et que sa boule unité
+    %   est compacte. Ce résultat est-il en contradiction avec le théorème
+    %   de Riesz ?
+  \end{questions}
+\end{exo}
+
+
+\vskip2ex
+\begin{exo}[Espace de Banach]
+  Un e.v.n complet est appelé espace de Banach.
+  \begin{questions}
+  \item Soit $(a_n)_n$ une suite de $E$ espace de Banach, dont la série est
+    absolument convergente.  Montrer que cette série converge dans $E$ et que
+    l'on $\|\sum_{n=0}^{+ \infty} a_n \| \leq \sum_{n=0}^{+ \infty} \|a_n\|$.
+  \item Soient $E$ un espace de Banach et $A$ un ensemble quelconque. Montrer
+    que ${\cal B}=\{ f : A \to E \, / \, f \, \mbox{bornée} \}$ muni de la norme
+    sup (norme de la convergence uniforme) est un espace de Banach.
+  \item Soient $E$ un espace de Banach et $A$ un espace topologique quelconque
+    non vide. Montre que
+    ${\cal C}_b=\{ f : A \to E \, / \, f \, \mbox{bornée et continue} \}$ est un
+    sous espace de Banach dans ${\cal B}$. On notera que si $A$ est compact, il
+    coincide avec
+    ${\cal C}(A,E)= \{ f : A \to E \, / \, f \, \mbox{continue} \}$.
+  \item Montrer que ${\cal C}([0,1],\RR)$ ensemble des fonctions continues de
+    $[0,1]$ vers $\RR$, muni de la norme $\int_0^1 [f(t)|dt$ n'est pas un espace
+    de Banach en prenant par exemple $f_n(x)= 0$ sur $[0,\frac{1}{2}]$,
+    $f_n(x)=1$ sur $[\frac{1}{2}+\frac{1}{n},1]$ et linéaire sur
+    $[\frac{1}{2}, \frac{1}{2}+\frac{1}{n}]$.
+  \end{questions}
+\end{exo}
+
+
+\vskip2ex
+% \begin{exo}[Espace de Fréchet]
+%   Soit $E$ un espace vectoriel défini sur $\mathbb{R}$ ou $\mathbb{C}$ (on
+%   note $k$ ce corps), muni d'une famille de semi-normes $(p_n)_{n \in \NN}$,
+%   i.e
+%   $\forall (x,\lambda) \in E \times k, \ \forall n \in \mathbb{N}, \
+%   p_n(\lambda x) = \vert \lambda \vert p_n(x)$,
+%   $\forall (x,y) \in E^2, \ \forall n \in \mathbb{N}, \ p_n(x+y) \le p_n(x) +
+%   p_n(y)$. On suppose de plus que cette famille est séparante, i.e soit
+%   $(x,y) \in E^2$,
+%   $x \neq y \Rightarrow \exists n \in \mathbb{N}, \ p_n(x-y) >0$.
+%   \begin{questions}
+%   \item Montrer que
+%     $d(x,y) = \underset{n \in \mathbb{N}}{\sum} 2^{-n}
+%     \frac{p_n(x-y)}{1+p_n(x-y)}$ est une distance.  \\ \textit{Remarque :} Un
+%     tel espace est dit de Fréchet lorsqu'il est complet pour cette métrique.
+%   \item Soit $(x_k)_k$ une suite de $(E,d)$. Montrer que $(x_k)_k$ converge
+%     vers $x$ $ssi$ $\forall n \in \mathbb{N}, \ p_n(x_k-x) \rightarrow 0$.
+%   \item Montrer que $\mathcal{C}(\RR)$ est un espace de Fréchet.
+%   \end{questions}
+% \end{exo}
+
+\vskip2ex
+\begin{exo}[Fonctions linéaires continues dans les e.v.n]
+  Soient $(E,\|.\|_E)$ et $(F,\|.\|_F)$ deux e.v.n.
+  \begin{questions}
+  \item Soit $f : E \to F$ linéaire. Montrer les assertions suivantes sont
+    équivalentes : i) $f$ est continue en un point de $E$, ii) $f$ est continue
+    sur $E$, iii) $f$ est bornée sur toute partie bornée de $E$, iv) il existe
+    une constante $M>0$ telle que $\|f(x)\|_F \leq M \|x\|_E$ pour tout $x$ dans
+    $E$.
+  \item Montrer que si $f$ est une forme linéaire non nulle alors $f$ est
+    continue si et seulement si $f^{-1}(0)$ est fermé.
+  \item Montrer que si $F$ est un espace de Banach, l'ensemble ${\cal L}(E,F)$
+    des applications linéaires continues de $E$ dans $F$ est
+    un espace de Banach pour la norme subordonnée.  \\
+    \textit{Rappel} : Si $f \in {\cal L}(E,F)$, sa norme subordonnée est
+    $$|f| = \sup \{ |f(x)|_F \quad | \quad x\in S_E (0,1) \} = \sup \{
+    \frac{|f(x)|_F}{|x|_E} \quad | \quad x\in E-\{0\} \}$$
+  \item Soit $p: E \to \RR^+$ une semi-norme. Montrer que $p$ est continue sur
+    $(E,\|.\|)$ si et seulement si il existe $M>0$ telle que pour tout $x$ de
+    $E$, $$p(x) \leq M \|x\|.$$ En déduire que toute semi-norme $p$ sur $\RR^n$
+    muni de la norme euclidienne est continue et par suite que toutes les normes
+    sur $\RR^n$ sont équivalentes et que toutes les applications linéaires
+    définies sur $\RR^n$ et à valeur dans $F$ sont continues.
+  \item Soit $E$ un espace vectoriel de dimension finie muni de 2 normes
+    $\|.\|_1$ et $\|.\|_2$. Montrer que les boules unités pour ces 2 normes sont
+    homéomorphes (on pourra utiliser une fonction qui à $x$ associe
+    $\lambda(x) x$ avec $ \lambda(x) \geq 0$).
+  \item En déduire en particulier que dans $\RR^2$ le disque unité est le carré
+    unité sont homéomorphes et définir l'application homéomorphe.
+  \end{questions}
+\end{exo}
+
+
+
+
+\vskip2ex
+\begin{exo}[Caractérisation des espaces de Banach]
+  Soient $(E,\|.\|)$ un espace de Banach et $0 < k < 1$
+  \begin{questions}
+  \item Montrer que les propriétés suivantes sont équivalentes : i) $E$ est un
+    espace de Banach, ii) toute série absolument convergente est convergente,
+    iii) pour toute suite $(a_n)_n$ de $E$ vérifiant $\|a_n\| \leq k^n$, la
+    série $a_n$ converge.
+  \end{questions}
+\end{exo}
+
+
+
+\vskip2ex
+\begin{exo}[Isomorphisme]
+  Soient $(E,\|.\|)$ et $(F,\|.\|)$ deux espaces de Banach.
+  \begin{questions}
+  \item Soit $u \in {\cal L}(E,E)$ telle que $\|u\|< 1$. Montrer que $Id-u$ est
+    inversible.
+  \item On dit que $f$ est un isomorphisme, si $f$ est linéaire, continue,
+    bijective et si la bijection réciproque est continue.  Montrer que
+    l'ensemble $ Isom(E,F)$ formé des isomorphisme de $E$ sur $F$ est un ouvert
+    dans ${\cal L}(E,F)$.
+  \item Montrer que l'application $u \to u^{-1}$ de $ Isom(E,F)$ dans
+    $ Isom(F,E)$ est continue.
+  \end{questions}
+\end{exo}
+
+
+\end{document}

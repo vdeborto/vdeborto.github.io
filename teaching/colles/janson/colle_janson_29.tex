@@ -1,0 +1,118 @@
+\documentclass[10pt,a4paper]{article} 
+\usepackage[utf8]{inputenc} 
+\usepackage[T1]{fontenc} 
+\usepackage[english]{babel} 
+\usepackage{supertabular} %Nécessaire pour les longs tableaux
+\usepackage[top=2.5cm, bottom=2.5cm, right=1.5cm, left=1.5cm]{geometry} %Mise en page 
+\usepackage{amsmath} %Nécessaire pour les maths 
+\usepackage{amssymb} %Nécessaire pour les maths 
+\usepackage{stmaryrd} %Utilisation des double crochets 
+\usepackage{pifont} %Utilisation des chiffres entourés 
+\usepackage{graphicx} %Introduction d images 
+\usepackage{epstopdf} %Utilisation des images .eps 
+\usepackage{amsthm} %Nécessaire pour créer des théorèmes 
+\usepackage{algorithmic} %Nécessaire pour écrire des algorithmes 
+\usepackage{algorithm} %Idem 
+\usepackage{bbold} %Nécessaire pour pouvoir écrire des indicatrices 
+\usepackage{hyperref} %Nécessaire pour écrire des liens externes 
+\usepackage{array} %Nécessaire pour faire des tableaux 
+\usepackage{tabularx} %Nécessaire pour faire de longs tableaux 
+\usepackage{caption} %Nécesaire pour mettre des titres aux tableaux (tabular) 
+\usepackage{color} %nécessaire pour écrire en couleur 
+\newtheorem{thm}{Théorème} 
+\newtheorem{mydef}{Définition} 
+\newtheorem{prop}{Proposition} 
+\newtheorem{lemma}{Lemme}
+\title{Semaine 29 - Espaces euclidiens}
+\author{Valentin De Bortoli \\ email : \ \href{mailto:valentin.debortoli@gmail.com}{valentin.debortoli@gmail.com}}
+\date{}
+\begin{document}
+\maketitle
+\section{Inégalité(s) de Shapiro}
+\subparagraph{1}Montrer que $\forall (a,b,c) \in {\mathbb{R}^*}^3$ on  $\frac{b+c}{a}+\frac{c+a}{b}+\frac{a+b}{c} \ge 6$.
+\subparagraph{2}Soit $(x_1,x_2,x_3)\in {\mathbb{R}^*}^3$. On pose $y_1=x_2+x_3$, $y_2=x_1+x_3$ et $y_3=x_1+x_2$. Montrer que $\frac{x_1}{y_1}+\frac{x_2}{y_2}+\frac{x_2}{y_2} \ge \frac{3}{2}$.
+\subparagraph{3} Soit $(x_1,x_2,x_3,x_4)\in {\mathbb{R}^*}^3$. On pose $y_1=x_2+x_3$, $y_2=x_3+x_4$, $y_3=x_4+x_1$ et $y_4=x_1+x_2$. Montrer que $(x_1+x_2+x_3+x_4)^2 \ge 2(x_1 y_1+x_2 y_2 +x_3 y_3+x_4 y_4)$.
+\subparagraph{4}En déduire que $\sum_{i=1}^4 \frac{x_i}{y_i} \ge 2$.
+\subparagraph{Remarque :} ces inégalités sont appelées les inégalités de Shapiro et on a $\sum_{i=1}^n \frac{x_i}{x_{i+1}+x_{i+2}} \ge \frac{n}{2}$ (où l'addition est à prendre modulo $n$) pour $n \le 12 $ dans le cas pair et $n \le 23$ dans le cas impair. On remarquera qu'ici on a montré les cas $n=3$ et $n=4$. Un contre-exemple pour le cas $n=14$ a été trouvé en 1985 par Troesch, le voici : $(0, 42, 2, 42, 4, 41, 5, 39, 4, 38, 2, 38, 0, 40)$.
+
+\section{Une autre inégalité}
+Soit $n \in \mathbb{N}$ et $(x_1, \dots, x_n) \in \left( \mathbb{R}_+^* \right)^n$ tels que $x_1 + \dots + x_n = 1$.
+\subparagraph{1}Montrer que $\underset{i=1}{\overset{n}{\sum}} \frac{1}{x_i} \ge n^2$.
+\subparagraph{2}Quels sont les cas d'égalité ?
+\section{Une matrice inversible}
+Soit $n \in \mathbb{N}$. Soit $A \in \mathcal{M}_n\left( \mathbb{R} \right)$. On suppose que :
+\begin{itemize}
+\item $\forall i \in \llbracket 1,n \rrbracket, \ a_{i,i} \ge 1$
+\item $\underset{i=1}{\overset{n}{\sum}} \underset{j \neq i}{\sum} a_{i,j}^2 <1$
+\end{itemize}
+\subparagraph{1}Montrer que $\forall X \in \mathbb{R}^n \backslash \lbrace 0 \rbrace, \ X^T A X > 0$.
+\subparagraph{2}En déduire que $A$ est inversible.
+\section{Intégrale et inégalité (1)}
+Soit $[a,b]$ un intervalle réel et $f$ une fonction strictement positive sur $[a,b]$. On définit $l(f) = \int_a^b f(t) \text{d}t \int_a^b \frac{1}{f(t)} \text{d}t$.
+\subparagraph{1}Montrer que $l(f) \ge (b-a)^2$.
+\subparagraph{2}Quel est le cas d'égalité ? 
+\subparagraph{3}On a déterminé une borne inférieure de $l(f)$ sur les fonctions continues. Que peut-on dire de la borne supérieure ?
+\section{Intégrale et inégalité (2)}
+Soit $[a,b]$ un intervalle et $f \in \mathcal{C}^1 ([a,b], \mathbb{C})$.
+\subparagraph{1} Montrer que $\int_a^b \vert f(x) \vert^2 \le \frac{(b-a)^2}{2} \int_a^b \vert f'(x) \vert^2 \text{d}x$
+\subparagraph{2}Quel est le cas d'égalité ?
+\section{Trace, matrice et  produit scalaire}
+\subparagraph{1}Montrer que $(A,B) \ \mapsto \ \text{Tr}(AB^T)$ est un produit scalaire sur $\mathcal{M}_n \left( \mathbb{R} \right)$.
+\subparagraph{2}En déduire que les matrices symétriques et antisymétriques sont supplémentaires et orthogonales.
+\subparagraph{3}Calculer la distance aux matrices symétriques de $M = \left( \begin{matrix} 1 & 2 & 3  \\ 0 & 1 & 2 \\ 1 & 2 & 3 \end{matrix} \right)$.
+\subparagraph{4}Donner la distance de la matrice dont tous les coefficients sont égaux à $1$ aux matrices de trace nulle.
+\subparagraph{Remarque :} la norme associée à ce produit scalaire est appelée la norme de Frobénius. Elle possède de nombreuses propriétés utiles pour l'analyse matricielle. Une question intéressante est la suivante : on peut définir une norme sur les matrices $\mathcal{M}_n\left( \mathbb{R} \right)$ simplement à partir d'une norme sur l'espace $\mathbb{R}^n$ (comment ?), on dit alors que la norme est subordonnée, la norme de Frobénius n'est pas une norme subordonnée, pourquoi ?
+\section{Pseudo-inverse et projection}
+Soit $(n,m) \in \mathbb{N}^2$. Soit $A \in \mathcal{M}_{n,m} \left( \mathbb{R} \right)$. On admet l'existence d'une matrice $A^{\dag} \in \mathcal{M}_{m,n} \left( \mathbb{R} \right)$ telle que :
+\begin{itemize}
+\item $AA^{\dag} \in S_n\left( \mathbb{R} \right)$
+\item $A^{\dag}A \in S_m \left( \mathbb{R} \right)$
+\item $AA^{\dag}A=A$
+\item $A^{\dag}AA^{\dag} =A^{\dag}$
+\end{itemize}
+La matrice $A^{\dag}$ est appelée pseudo-inverse de $A$.
+\subparagraph{1}Montrer que $\text{ker}A$ et $\text{Im}A^T$ sont orthogonaux.
+\subparagraph{2}Montrer que la pseudo-inverse est unique.
+\subparagraph{3}Montrer que $AA^{\dag}$ est la projection sur $\text{Im}A$.
+
+\subparagraph{Remarque :} avec des outils de deuxième année (diagonalisation des matrices symétriques) on peut démontrer l'existence de cette matrice. Celle-ci est très utile pour donner un sens à l'inverse d'une matrice même lorsque celle-ci n'est pas inversible, voire même pas carrée ! Elle joue un rôle dans la résolution de problèmes de type régression linéaire.
+\section{Famille obtusangle	}
+Soit $(p,n) \in \mathbb{N}^2$. Soit $(x_1, \dots, x_p) \in \left( \mathbb{R}^n \right)^p$. On dit que la famille est obtusangle si $\forall (i,j) \in \llbracket 1,p \rrbracket^2, \ \langle x_i,x_j \rangle <0$.
+\subparagraph{1}Montrer que $p \le n+1$.
+\section{Inégalité d'Hadamard}
+Soit $(x_1, \dots, x_n) \in \left(\mathbb{R}^n \right)^n$ $n$ vecteurs de $\mathbb{R}^n$. On considère $X$ la matrice dont les colonnes sont les $x_i$. 
+\subparagraph{1} Montrer que $\vert \text{det}(X) \vert  \le \|x_1\| \dots \| x_n \|$.
+\subparagraph{2}Quel est le cas d'égalité ?
+\subparagraph{Remarque :} on peut donner une interprétation géométrique de cette quantité en se rappelant que le déterminant correspond au volume du parallépipède défini par les $x_i$. L'inégalité d'Hadamard donne alors une majoration de l'aire du parallépipède en fonction des longueurs des côtés et nous indique que le volume maximal d'un parallépipède aux côtés de longueurs fixées est atteint lorsque celui-ci est un rectangle.
+\section{Une condition d'orthogonalité}
+Soit $(x,y) \in E$ avec $E$ un espace préhilbertien réel.
+\subparagraph{1}Montrer que $x \perp y$ si et seulement si $\forall \lambda \in \mathbb{R},  \| x + \lambda y \| \ge \| x \|$.
+
+
+\section{Une équation et deux matrices orthogonales}
+Soient $(A,B) \in \mathcal{O}_n \left( \mathbb{R} \right)$. On suppose que $\frac{1}{3}(A+2B) \in \mathcal{O}_n\left(\mathbb{R} \right)$.
+\subparagraph{1}Que dire de $A$ et $B$ ?
+
+\section{Coefficients et matrices orthogonales (1)}
+Soit $A \in \mathcal{O}_n\left( \mathbb{R} \right).$
+\subparagraph{1}Montrer que $\left\vert \underset{(i,j) \in \llbracket 1,n\rrbracket^2}{\sum} a_{i,j} \right\vert \le n $
+\section{Coefficients et matrices orthogonales (2)}
+Soient $(a,b,c) \in \mathbb{R}^3$. On considère $\sigma = ab+ bc + ca$ et $S = a+b+c$. On considère également la matrice suivante : $M=\left( \begin{matrix}
+a & b & c \\ c & a & b \\ b & c & a
+\end{matrix} \right)$.
+\subparagraph{1}Donner une condition nécessaire et suffisante pour que $M$ soit orthogonale.
+\subparagraph{2}Donner une condition nécessaire et suffisante pour que $M$ soit spéciale orthogonale.
+\subparagraph{3}Montrer que $M$ est spéciale orthogonale si et seulement si $M$ est racine du polynôme $X^3-X^2+k$ avec $k \in (0, \frac{4}{27}]$.
+
+\section{Isométrie vectorielle et vecteurs}
+Soit $(u,v)$ deux vecteurs unitaires d'un espace euclidien orienté.
+\subparagraph{1}Quelles sont les isométries vectorielles qui envoient $u$ sur $v$
+
+\section{Commutativité chez les isométries}
+\subparagraph{1}Donner une condition nécessaire et suffisante pour qu'un rotation du plan et une réflexion du plan commutent ?
+
+\section{Des mesures angulaires}
+Soient $(u,v,w)$ trois vecteurs unitaires. On note $\alpha$ l'angle entre $u$ et $v$, $\beta$ celui entre $u$ et $w$ et $\gamma$ celui entre $v$ et $w$.
+\subparagraph{1}Montrer que $\beta \le \alpha + \gamma$
+
+\end{document}
