@@ -1,0 +1,277 @@
+ \documentclass[a4paper,french,12pt]{article}
+
+
+\usepackage{../tp}               % package for TP documents
+\usepackage{../defs}           % package for shortcuts 
+\DeclareMathOperator{\BETA}{BETA}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%    Headers   			             %%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\lhead{
+  \textsc{Valentin De Bortoli} \hfill \url{debortoli@cmla.ens-cachan.fr} \\
+    \textsc{Alain Durmus} \hfill \url{alain.durmus@cmla.ens-cachan.fr}
+    \\
+    TP 1 : optimisation numérique\hfill
+    Première année Master Hadamard\\
+    \, \vspace{5cm} \,
+}  
+
+
+
+\input{def}
+
+\begin{document}
+
+% \sloppy
+  %\phantom{am} 
+%http://scipy-cookbook.readthedocs.io/items/robust_regression.html 
+\titlefront{Méthode de descentes de gradient et algorithmes de Newton}
+En préambule on suppose que les paquets suivants ont été chargés
+\begin{lstlisting}
+  import numpy as np
+  import numpy.random as rnd
+  import matplotlib.pyplot as plt
+  import scipy
+\end{lstlisting}
+
+\subparagraph{Remarque :} la plupart du temps on n'implémente pas les méthodes classiques présentées dans ce TP et on utilise des paquets du type \texttt{scipy}. Néanmoins, il convient de savoir ce que contienne ces \textit{boîtes noires} et de se forger une intuition sur les différentes méthodes d'optimisation.
+
+\section{Méthode de gradient à pas fixe}
+%-----------------------------------------------------
+%
+\subparagraph{But :} Le but de cet exercice est d'implémenter la descente de gradient à pas fixe et d'identifier ses
+atouts et limites. 
+\subparagraph{Banane de Rosenbrock}Dans notre première exemple, on étudie la fonction $J: \mathbb{R}^2 \ \rightarrow \ \mathbb{R}$ suivante
+\[
+J(x_1,x_2) = (x_1-1)^2 + 100\, (x_1^2-x_2)^2.
+\]
+$J$ est de classe $\mathcal{C}^1(\mathbb{R}^2, \mathbb{R})$, positive, atteint son unique minimum en $x^* = (1,1)$ et $J(x^*) = 0$.
+
+\textbf{1.} Tracer les lignes de niveau de $J$ dans le rectangle 
+$(x_1,x_2)\in [-1.5,\,1.5]\times[-0.5,\, 1.5]$.
+
+\textbf{2.} Implémenter la méthode de gradient à pas fixe 
+\[
+\forall k \in \mathbb{N}, \ x^{k+1} = x^k - \alpha \, \nabla J(x^k).
+\] 
+On pourra considérer $x^0=(-1,1)$ et $\alpha=2\times 10^{-3}$.
+Tracer graphiquement les itérées de la méthode de gradient à pas fixe.
+Afficher le nombre d'itérations nécessaire pour atteindre le critère
+d'arrêt suivant $J(x^{k+1})-J(x^*) < 10^{-4}$.
+
+\textbf{3.} Recommencer avec $\alpha=4.5 \times 10^{-3}$ puis avec $\alpha=10^{-2}$. Interpréter les résultats.
+
+\textbf{4.} Recommencer avec le gradient normalisé
+\[
+x^{k+1} = x^k - \alpha \, \frac{\nabla J(x^k)}{\|\nabla J(x^k)\|}
+\]
+avec $\alpha = 5 \times 10^{-2}$ et en affichant les 200 premières itérations. 
+Interpréter.
+
+\subparagraph{Problème quadratique}
+On introduit la fonction $f$ définie sur $\mathbb{R}^n$ ($n \in \mathbb{N}$ avec $n \geq 2$) par $f(x) = x^T A x$ avec $A$ diagonale telle que $A(1,1) = M$, $A(2,2) = m$ avec $(M,m) \in {\mathbb{R}_+^*}^2$ et tous les autres coefficients diagonaux fixés à $1$. $f$ est une fonction strictement convexe coercive qui possède donc un unique minimum en $0$.
+
+\textbf{1.} Représenter les lignes de niveaux de la fonction $f$ pour différentes valeurs de $M$ et de $m$. À votre avis, quand est-ce que le problème d'optimisation est le plus facile à résoudre ?
+
+\textbf{2.} Tester l'algorithme du gradient à pas fixe pour ce problème. Le critère d'arrêt est le même que pour la partie précédente.
+
+\textbf{3.} Vérifier expérimentalement que la vitesse de l'algorithme ne dépend pas de la taille de la matrice $A$.
+%
+%
+\section{Choix du pas de descente : règle d'Armijo et règle de Wolfe}
+%ssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
+%
+\subparagraph{But :} Pour une direction de descente $d^k$, i.e $\langle d^k,\nabla J(x^k)\rangle<0$, la \textit{recherche linéaire exacte}
+consiste à estimer un pas de descente optimal $\alpha^*$ qui vérifie
+\[
+\alphaç* = \text{argmin}_{\alpha\geq 0} J(x^k + \alpha d^k),
+\]
+introduisant donc un nouveau problème d'optimisation qui peut être aussi difficile que le problème de minimisation original. On introduit ici deux règles de \textit{recherche linéaire inexacte}, la règle d'Armijo (1966) et la règle de Wolfe (1969).
+\subparagraph{Règle d'Armijo}
+Soit $\beta \in ]0,1[$, $c \in ]0, \frac{1}{2}[$ et $L \in \mathbb{R}_+$ la constante de Lipschitz de $J$ restreinte à $K$ un compact.
+\begin{enumerate}
+%
+\item \textit{Proposition} 
+$\alpha_t = -\frac{\langle \nabla J(x^k),d^k \rangle}{L \|d^k\|^2}$,
+\item \textit{Test d'acceptation}
+  Si $J(x^k + \alpha_t d^k) \leq J(x^k) 
++ c\, \alpha_t\, \langle \nabla J(x^k),d^k \rangle,
+$ alors $\alpha^k = \alpha_t$ sinon on reprend le test avec $\beta \alpha_t$.
+\end{enumerate}
+La règle d'Armijo converge en un nombre fini d'étapes.
+
+\subparagraph{Règle de Wolfe}
+Soit $c_1 \in ]0, \frac{1}{2}[$, $c_2 \in ]0,\frac{1}{2}[$, et $L \in \mathbb{R}_+$ la constante de Lipschitz de $J$ restreinte à $K$ un compact. Soit $(m_0,M_0) \in \mathbb{R}_+^2$. On fixe également un nombre maximal d'itérations dans la règle de Wolfe ($10^3$ dans notre cas).
+\begin{enumerate}
+%
+\item \textit{Proposition} 
+$\alpha_t = -\frac{\langle \nabla J(x^k),d^k \rangle}{L \|d^k\|^2}$,
+\item \textit{Test d'acceptation (1)}
+  Si $J(x^k + \alpha_t d^k) \leq J(x^k) 
++ m\, \alpha_t\, \langle \nabla J(x^k),d^k \rangle,
+$ \textbf{et} également \\ ${d^k}^T \nabla J(x^k + \alpha_t d^k) \le -c_2 {d^k}^T \nabla J(x^k)$ alors $\alpha^k = \alpha_t$.
+\item \textit{Test d'acceptation (2)}
+  Si $J(x^k + \alpha_t d^k) > J(x^k) 
++ m\, \alpha_t\, \langle \nabla J(x^k),d^k \rangle,$ alors on pose $\alpha_t = \frac{m_0+M_0}{2}
+$ ainsi que $M_0 = \alpha_t$ et on reprend le premier test d'acceptation.
+\item \textit{Test d'acceptation (3)} Si aucune de ces conditions n'est remplie alors on peut poser $\alpha_t = \frac{m_0+M_0}{2}$ et $m_0 = \alpha_t$ et on reprend le premier test d'acceptation.
+\end{enumerate}
+
+
+\subparagraph{Banane de Rosenbrock et problème quadratique}On considère les deux problèmes d'optimisation introduits dans l'exercice précédent.
+
+\textbf{1.} Implémenter la méthode de gradient avec la règle d'Armijo et règle de Wolfe.
+
+\textbf{2.} Tester l'algorithme pour la fonction de Rosenbrock avec les valeurs suivantes $\beta = \frac{1}{2}$, $m = 4 \times 10^{-1}$ et $L = 10^2$ et $x^0 = (-1,1)$. Comme pour le premier exercice, afficher le nombre d'itérations nécessaire pour atteindre le critère
+d'arrêt suivant $J(x^{k+1})-J(x^*) < 10^{-4}$. Conclure.
+
+\textbf{3.} Tester l'algorithme sur le problème quadratique. Afficher le nombre d'itérations nécessaires en fonction du quotient $\frac{M}{m}$. Comparer avec le gradient à pas fixe.
+
+\subparagraph{Remarque :} il existe encore d'autres règles de \textit{recherche linéaire inexacte} pour le choix d'un pas de descente comme la règle de Goldstein. Ces règles permettent d'éviter le problème de \textit{recherche linéaire exacte} tout en accélérant les méthodes de gradient.
+%
+\section{Gradient conjugué}
+%sssssssssssssssssssssssss
+%
+\subparagraph{But :} Le gradient conjugué est une méthode de type quasi-Newton qui a la propriété de converger en temps fini pour des fonctionnelles quadratiques. On présente ici une extension de cet algorithme.
+\subparagraph{Gradient conjugué}
+On itère de la manière suivante :
+\begin{enumerate}
+\item \textit{Direction de descente :} $\beta^{k} = \frac{\langle \nabla J(x^k) - \nabla J(x^{k-1}), \nabla J(x^k) \rangle}{\| \nabla J(x^{k-1}) \|^2}$,
+\item \textit{Pas de descente :} on applique une règle de \textit{recherche linéaire inexacte} (ici la règle d'Armijo ou la règle de Wolfe) pour trouver le meilleur pas de descente pour la direction de descente $d^k = -\nabla J(x^k) + \beta^k d^{k-1}$,
+  \item \textit{Itération :} $x^{k+1} = x^k + \alpha^k d^k$.
+  \end{enumerate}
+  \subparagraph{Remarque :} on a ici présenté l'algorithme de \textit{Polak-Ribière} mais il existe d'autres variantes comme \textit{Fletcher-Reeves}. 
+
+  \subparagraph{Banane de Rosenbrock et problème quadratique} On considère de nouveau les fonctions du premier exercice.
+
+  \textbf{1.} Implémenter la méthode du gradient conjugué version \textit{Polak-Ribière}.
+  
+  \textbf{2.} Tester l'algorithme avec pour initialisation $x^0 = (-1,1)$. Comme pour le premier exercice, afficher le nombre d'itérations nécessaire pour atteindre le critère
+  d'arrêt suivant $J(x^{k+1})-J(x^*) < 10^{-4}$. Conclure.
+
+  \textbf{3.} Pour un problème quadratique, le gradient conjugué converge en au plus $n$ itérations où $n$ est la taille du problème. Vérifier cette affirmation pour différentes tailles de matrices dans le cadre du problème quadratique introduit précédemment.
+  
+\section{Le problème de Lennard-Jones} 
+%%ssssssssssssssssssssssssssssssssssssssssssssssssss
+%%
+\subparagraph{But :} Les problèmes de conformation atomique consistent à trouver les coordonnées spatiales de $N$ noyaux atomiques formant une molécule d'énergie minimale. Dans le cas du problème de 
+Lennard-Jones de taille $N$, la force d'interaction entre
+deux atomes identiques distants d'une longueur $r$ est supposée issue d'un potentiel radial de van der Walls, s'écrivant sous forme adimensionnée 
+\[
+V(r) = \frac{1}{r^{12}} - \frac{2}{r^6}.
+\]
+%Tracer la fonction $V$ sur $]0,+\infty[$ pour se faire une idée.
+Soit une molécule $u$ composée de $N$ atomes $u := (X_i)_{i \in \llbracket 1,N \rrbracket} = \left((x_i,y_i,z_i)\right)_{i \in \llbracket 1,N \rrbracket} \in \left(\mathbb{R}^3 \right)^N$, l'énergie potentielle totale du système est donnée par
+\[
+J(u) = \sum_{(i,j) \in \llbracket 1,N \rrbracket, \\ i<j} V\left(\|X_i-X_j\|\right).
+\]
+La configuration la plus stable de la molécule $u^\star$ correspond à un minimum global d'énergie
+potentielle. %
+Lorsque $N>4$, le problème de la recherche du minimum global de $J$ devient
+complexe. Il est d'ailleurs conjecturé que le nombre de minimums locaux de $J$ croît exponentiellement avec $N$.
+
+\subparagraph{Recherche du minimum global} on va tenter d'appliquer les méthodes précédemment introduites pour l'étude de ce problème physique.
+
+\textbf{1.} Tracer la fonction $V$ sur $]0,10[$.
+
+\textbf{2.} Appliquer la méthode du gradient conjugué avec règle d'Armijo pour ce problème. Tester l'algorithme pour $N = 4$. on initialisera l'algorithme de la manière suivante : $X_1 = 0$ et $(X_1,X_2,X_3)$ choisis aléatoirement de manière indépendante dans $B(0, \sqrt[3]{N})$. 
+
+\textbf{3.} Pour $N = 4$ le minimum de la fonction $J$ est atteint pour tout \textbf{tétraèdre} $(X_1,X_2,X_3,X_4)$ et vaut $-6$, afficher $(X_1,X_2,X_3,X_4)$. Interpréter.
+
+\textbf{4.} Reprendre la question précédente pour $N = 13$. Dans ce cas le minimum de la fonction $J$ est atteint pour tout \textbf{icosaèdre régulier} $(X_1, \dots, X_{13})$. Interpréter.
+\section{Méthode de Levenberg-Marquardt, Gauss-Newton et application à la régression non linéaire}
+%ssssssssssssssssssssss
+%
+
+\subparagraph{But :} Étant donné $(x_i,y_i)_{i \in \llbracket 1,N \rrbracket} \in \left(\mathbb{R}^2\right)^N$ on introduit le problème statistique classique de la régression non linéaire, i.e on cherche à minimiser la fonction suivante
+\[ F(\theta) = \frac{1}{2} \sum_{i=1}^N (f(x_i, \theta) - y_i)^2, \]
+avec $f \in \mathcal{C}^1(\mathbb{R} \times \mathbb{R}^k, \mathbb{R})$. Cela correspond à rechercher l'\textit{estimateur du maximum a posteriori} dans le cadre où l'erreur sur les données est gaussienne. Dans le cadre où certaines données sont aberrantes (\textit{outliers} en anglais) l'utilisation de la norme $\ell^2(\mathbb{R}^N)$ est peu judicieuse et on la remplace par la norme $\ell^1(\mathbb{R}^N)$ malheureusement plus dure à minimiser. On introduit donc
+\[ G(\theta) = \frac{1}{2} \sum_{i=1}^N \eta\left(f(x_i, \theta) - y_i\right), \]
+avec $\eta$ une fonction \textit{de coût} sous-quadratique définie sur $\mathbb{R}$. On note :
+\begin{itemize}
+\item $\eta_1 : x \ \mapsto x^2$,
+\item $\eta_2 : x \ \mapsto x^2$, si $x\in [0,1]$ et $2x - 1$ sinon (\textit{fonction de perte de Huber}),
+\item $\eta_3 : x \ \mapsto 2(\sqrt{1+x^2} -1)$,
+\item $\eta_4 : x \ \mapsto \ln(1+x^2)$,
+\item $\eta_5 : x \ \mapsto \arctan{(x^2)}$.
+\end{itemize}
+Dans notre cas on pose $f : \mathbb{R} \ \times \mathbb{R}^k \ \mapsto \ A \exp(-\sigma x) \sin(\omega x)$. On va maintenant introduire la méthode de Newton et la méthode de Levenberg-Marquardt qui est une méthode de quasi-Newton.
+
+\subparagraph{Méthode de Newton} Supposons que $f \in \mathcal{C}^2(\mathbb{R} \times \mathbb{R}^k, \mathbb{R})$ on note $H(x)$ sa hessienne. On introduit la suite $\theta^k := (A^k, \sigma^k, \omega^k)$ (avec initialisation aléatoire). Les itérations sont données par
+\[
+  \theta^{k+1} = \theta^k - \alpha M_N(\theta^k)^{-1} \sum_{i=1}^N \nabla_{\theta} f(x_i,\theta^k) \eta'(f(x_i,\theta^k) - y_i),
+\]
+où on a
+\[
+  \begin{aligned}
+    & \nabla_{\theta} f(x,\theta) = \left( \begin{matrix} \exp(-\sigma x) \sin(\omega x) \\ -Ax \exp(-\sigma x) \sin(\omega x) \\ Ax \exp(-\sigma x) \cos(\omega x) \end{matrix} \right),\\
+    & H_{\theta}(x,\theta) = \exp(-\sigma x) \left( \begin{matrix}0 & -x\sin(\omega x) & x\cos(\omega x) \\ -x\sin(\omega x) & Ax^2 \sin(\omega x) & -Ax^2\cos(\omega x) \\ x \cos(\omega x) & -Ax^2 \cos(\omega x) & Ax^2 \sin(\omega x) \end{matrix} \right),\\
+    & M_N(\theta) = \sum_{i = 1}^{N} \nabla_{\theta}f(x_i,\theta) \nabla_{\theta}f(x_i,\theta)^T \eta^{''}(f(x_i,\theta) - y_i) + H_{\theta}(x_i,\theta) \eta'(f(x_i,\theta) - y_i).
+  \end{aligned}
+\]
+On rappelle que la méthode de Newton est une méthode d'ordre deux.
+\subparagraph{Méthode de Levenberg-Marquardt} Dans certains cas, par exemple lorsque la hessienne est mal conditionnée, lorsqu'elle ne peut pas être stockée en mémoire ou lorsqu'elle n'est tout simplement pas calculable, on peut utiliser la méthode de Levenberg-Marquardt dont les itérées sont données par
+\[
+  \theta^{k+1} = \theta^k - \alpha M_{LM}(\theta^k)^{-1} \sum_{i=1}^N \nabla_{\theta} f(x_i,\theta^k) \eta'(f(x_i,\theta^k) - y_i),
+\]
+avec $M_{LM} = \mu I_3 + \sum_{i = 1}^{N} \nabla_{\theta}f(x_i,\theta) \nabla_{\theta}f(x_i,\theta)^T \eta^{''}(f(x_i,\theta) - y_i)$ où $\mu$ est un paramètre. La méthode de Levenberg-Marquardt est une méthode de quasi-Newton. Elle requiert par contre l'introduction d'un paramètre de régularisation $\mu$.
+
+\textbf{1.} Visualiser sur $[0,10]$ les différentes fonctions \textit{de coût} introduites dans l'énoncé.
+
+\textbf{2.} Générer des données à l'aide de la fonction suivante.
+\begin{lstlisting}
+def generate_data(t, A, sigma, omega, noise=0, n_outliers=0):
+    y = A * np.exp(-sigma * t) * np.sin(omega * t)
+    error = noise * rnd.randn(t.size)
+    outliers = rnd.randint(0, t.size, n_outliers)
+    error[outliers] *= 35
+    return y + error
+    
+A = 2
+sigma = 0.1
+omega = 0.1 * 2 * np.pi
+x_true = np.array([A, sigma, omega])
+
+noise = 0.1
+n_outliers = 4
+
+t_min = 0
+t_max = 30
+
+t_train = np.linspace(t_min, t_max, 30)
+y_train = generate_data(t_train, A, sigma, omega, noise, n_outliers)
+  \end{lstlisting}
+Visualiser les données générées.
+
+\textbf{3.} Implémenter la méthode de Newton et la méthode de Levenberg-Marquardt pour la fonction \textit{de coût} quadratique.
+
+\textbf{4.} Tester les deux méthodes sur les données générées. On initialisera les paramètres à $\theta^0 = (1,1,1)$. Interpréter. Faire varier le nombre de données aberrantes et conclure sur la nécessité d'utiliser d'autres fonctions \textit{de coût}.
+% \section{Introduction}
+% \label{sec:intro}
+% \begin{lstlisting}
+%   function x = chebyshevNodes (n,a,b)
+%          ## usage: x = chebyshevNodes (n,a,b)
+% 	 ##
+% 	 ## ARGUMENTS:
+% 	 ## n: the degree of the interpolation polynomial, which is
+% 	 ## a, b : (a<b) : the endpoints of the interval
+% 	 ##
+% 	 ## RETURNS: 
+% 	 ## x : a vector of size n+1: the Chebyshev interpolation
+% ## nodes, which are the roots of the Chebyshev polynomial of degree n+1
+
+%   inds = (n):-1:0;
+%   x =  %% completer
+% endfunction
+% \end{lstlisting}
+%  En utilisant la fonction précédente ainsi que la fonction
+%   \lstinline+interpolDividif+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

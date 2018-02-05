@@ -1,0 +1,104 @@
+\documentclass[10pt,a4paper]{article} \input{header}
+\begin{document}
+\section{Maximum d'entropie}
+\subsection{Exercice}
+% Soit $n \in N$.
+% Soit $U$ un ouvert non vide de $\R^n$, $f_1,\dots,f_r \in \C^1(U,\R)$ et $g_1,\dots,g_s \in\C^1(U,\R)$ $(r,s)\in \N^2$. Soit $h \in \C^1(U,\R)$. On définit,
+% \[ M = \left\lbrace x \in \R^n, \forall i \in \llbracket 1,s \rrbracket, f_i(x) = 0, \forall j \in \llbracket 1,r \rrbracket, g_j(x) \ge 0\right\rbrace.\]
+% \subparagraph{1} Soit $x^*$ un extremum de $h$ sur $M$ montrer que $\nabla h(x^*)$ est combinaison linéaire des gradients $\nabla f_i(x^*)$ et $\nabla g_j(x^*)$.
+Soit $n \in \N$. On pose $U = \left(\R_+^* \right)^n$.
+On munit $\Omega = \llbracket 1,n \rrbracket$ de sa tribu discrète.
+On identifie une probabilité $P$ sur $\Omega$ à $\veclet{p} = \left( \begin{matrix} P(1) \\ \vdots \\ P(n) \end{matrix} \right)$. On note $\mathcal{P}$ l'ensemble $\left\lbrace \veclet{p}, \veclet{p} \in U \right\rbrace$.
+Soit $\varphi : \ \llbracket 1,n \rrbracket \rightarrow \R$ non constante et $a \in ]\min(\varphi), \max(\varphi)[$. Enfin on définit l'entropie :
+\[\al{
+   & H : \mathcal{P} \ \rightarrow \ \R \\
+   & H(\veclet{p}) = -\summ{k=1}{n}{\veclet{p}(k) \log(\veclet{p}(k))}}\]
+\subparagraph{1} Montrer que la fonction $f$ définie sur $\R$ par
+$f(x) = \summ{k = 1}{n}(\varphi(k) - a)\exp(x(\varphi(k) - a))$ est bijective.
+\subparagraph{2} Montrer que $H$ atteint son maximum sur
+$M = \left\lbrace \veclet{p} \in \mathcal{P}, \summ{k=1}{n}\varphi(k) \veclet{p}(k) = a
+\right\rbrace$ en un unique point $\veclet{p_0}$. \\
+\textbf{Indication :} on pourra considérer $\mathcal{X} = \left\lbrace \veclet{x} \in \R_+^n, \summ{k=1}{n}\veclet{x}(k) = 1, \summ{k=1}{n} \varphi(k) \veclet{x}(k) = a \right\rbrace$.
+\subparagraph{3} Donner
+l'expression de $\veclet{p_0}$ en fonction de $\phi$, $f^{-1}(0)$.
+\subsection{Correction}
+\subparagraph{1} On calcule la dérivée $f$ et on obtient $\summ{k=1}{n}{(\varphi(k) - a)^2\exp(x(\varphi(k) -a))}.$ Puisque la fonction $\varphi$ n'est pas constante on obtient que la dérivée est strictement positive et donc la fonction est strictement croissante. Soit $k_1$ tel que $\varphi(k_1) = \min(\varphi)$ et $k_2$ tel que $\varphi(k_2) = \max(\varphi)$. On a $f_1(x) = (\varphi(k_1) - a) \exp(x(\varphi(k_1) - a))$ qui tend vers $-\infty$ en $-\infty$. De même $f_2$ tend vers $+\infty$ en $+\infty$ donc la fonction est bijective.
+\subparagraph{2} $\mathcal{X}$ est compacte. Donc en prolongeant $x\mapsto -x\log(x)$ par $0$ en $0$ on obtient un prolongement continu. On peut donc définir un prolongement continu de $H$ sur $\mathcal{X}$. Ce prolongement de $H$ admet un maximum. Montrons que ce maximum est un élément de $M$.\\
+Supposons que $\phi(1) \ge a$ et $\phi(2) \le a$. Soit $\veclet{p_1} \in \mathcal{X}$ telle que $\veclet{p_1}_1(1) = 0$. Il existe $t \in ]0,1]$ tel que $t \phi(1) + (1-t) \phi(2) = 0$. On pose $\veclet{p_2} \in \mathcal{X}$ telle que $\veclet{p_2}(1) = t$, $\veclet{p_2}(2) = 1-t$ et zéro ailleurs. Toute combinaison convexe de $\veclet{p_1}$ et $\veclet{p_2}$ est dans $\mathcal{X}$. On note
+\[ \veclet{p_u} = (1-u) \veclet{p_1} + u \veclet{p_2}\]
+En calculant la dérivée de $H(\veclet{p_u})$ par rapport à $u$ on obtient que $H$ est croissante sur $[0,\epsilon]$ avec $\epsilon$ assez petit. Ainsi la distribution de probabilité d'entropie maximale n'est pas atteinte en $\veclet{p}$ tel que $\veclet{p}(1) = 0$. En reprenant ce raisonnement pour chacune des composantes on obtient que le maximum est atteint pour un élément de $M$. Montrons maintenant son unicité.\\
+Soit deux probabilités maximales $\veclet{p_1}$ et $\veclet{p_2}$. La stricte concavité de $x\mapsto -x\log(x)$ implique que $\frac{\veclet{p_1}(k)+\veclet{p_2}(k)}{2}\log \left( \frac{\veclet{p_1}(k)+\veclet{p_2}(k)}{2}\right) > \veclet{p_1}(k)\log(\veclet{p_1}(k)) +\veclet{p_2}(k)\log(\veclet{p_2}(k))$ et donc $H(\frac{\veclet{p_1}+\veclet{p_2}}{2}) >\frac{1}{2} \left( H(\veclet{p_1}) + H(\veclet{p_2}) \right)$.
+\subparagraph{3} Le théorème des extrema liés assure
+\[\forall k \in \Omega, \ \log(\veclet{p_0}(k)) + 1 = \alpha + \beta (\varphi(k) -a).\]
+Donc $\forall k \in \Omega, \veclet{p_0}(k) = \frac{\exp(\beta(\varphi(k)-a))}{\summ{k=1}{n}\exp(\beta(\varphi(k) -a))}$. On a de plus,
+\[ \summ{k=1}{n} (\phi(k) -a)\exp(\beta(\phi(k)-a)) = 0 .\]
+Donc $\beta = f^{-1}(0)$ et on obtient l'expression de $\veclet{p_0}$.
+\section{Inégalité d'Hadamard}
+\subsection{Exercice}
+Soit $n \in \N$.
+\subparagraph{1} Montrer que $\det : (\R^n)^n \rightarrow \R$ définie par $\det((u_1,\dots,u_n))$ atteint son maximum sur $\mathcal{M} = \left\lbrace (u_1,\dots,u_n), \forall k \in \llbracket 1,n \rrbracket, \|u_k\|_2 = 1 \right\rbrace$.
+\subparagraph{2} Soit $(u_1,\dots,u_n) \in \mathcal{M}$ tel que $\det((u_1, \dots,u_n))$ est maximal. Montrer que $\forall (i,j) \in \llbracket 1,n \rrbracket, i \neq j \ \Rightarrow \ \langle u_i,u_j \rangle = 0$.
+\subparagraph{3} En déduire l'inégalité d'Hadamard,
+\[\forall M \in \M_n\left(\R\right), \ \vertt{\det(M)} \le \|u_1\| \dots \|u_n\|.\]
+Donner le cas d'égalité.
+\subsection{Correction}
+\subparagraph{1} $M$ est compacte et le déterminant est continu donc il atteint son maximum sur $M$.
+\subparagraph{2} Le maximum du déterminant est positif (en effet $\operatorname{Id} \in M$. Donc on peut supposer que $\det(u_1,\dots,u_n)) >0$. On utilise le théorème des extrema liés avec $g_k(u) = \|u_k\|^2$ (gradients indépendants) et on obtient que
+\[ \forall k \in \llbracket 1,n \rrbracket, \ \frac{\partial \det}{\partial u_k}((u_1,\dots,u_n))(h) = \det(u_1,\dots,u_{k-1},h,u_{k+1},\dots,u_n) = \alpha \langle u_k,h\rangle.\]
+En posant $h = u_k$ on obtient que $\alpha >0$ puis en posant $h = u_l$ avec $l \neq k$ on a obtient les conditions d'orthogonalité. Dans ce cas $\det((u_1,\dots,u_n)) = 1$.
+\subparagraph{3} Soit $M$ une matrice. Si une de ses colonnes est nulle le théorème est triviale. Sinon on divise chacune des colonnes de $M$ par la norme de cette colonne. On obtient une matrice $M' \in \mathcal{M}$ qui vérifie $\det(M') \le 1$ avec égalité si et seulement si les colonnes de $M'$ et donc les colonnes de $M$ sont orthogonales, c'est-à-dire, $M \in \mathcal{O}_n(\R)$. Pour pouvoir passer à la valeur absolue, il faut reprendre l'étude précédente pour le minimum du déterminant. On obtient les mêmes conditions et donc $\det(M') \ge -1$.
+\section{Semi-continuité inférieure et topologie de Sorgenfrey}
+\subsection{Exercice}
+\textbf{Attention !} A part les deux premières questions, les questions de cet exercice sont indépendantes.
+Soit $(X,\tau)$ un espace topologique. On dit qu'une fonction $f$ sur $X$ à valeurs réelles est semi-continue inférieurement en $x_0 \in X$ si pour tout $\epsilon \in \R_+^*$ il existe $V \in \mathcal{V}(x_0)$ tel que $\forall x \in V, \ f(x) \ge f(x_0) - \epsilon$.
+\subparagraph{1} On définit l'épigraphe d'une fonction $f$, $\operatorname{Epi}(f) = \lbrace (x,\lambda) \in X \times \R, \ f(x) \le \lambda \rbrace$. Montrer que $f$ est semi-continue inférieurement si et seulement si son épigraphe est fermé.
+\subparagraph{2} En déduire que si $(f_i)_{i \in I}$ est une famille de fonctions semi-continue inférieurement alors si $\underset{i \in I}{\sup}f_i$ est bien définie c'est une fonction semi-continue inférieurement.
+\subparagraph{}Sur $\R$ on définit la topologie de Sorgenfrey comme étant la topologie engendrée par les ensembles $]a,b]$ avec $a<b$, On note $\tau_S$ cette topologie. On définit la topologie stricte à droite comme étant la topologie engendrée par les ensembles $]a,+\infty[$, on note $\tau_{sd}$ cette topologie.
+\subparagraph{3} Montrer qu'une fonction $f$ sur $X$ à valeurs réelles est semi-continue inférieurement si et seulement si elle est continue pour la topologie $\tau_{sd}$.
+\subparagraph{4} Soit $(O_n)_{n \in \N}$ une suite d'ouverts denses pour la topologie $\tau_S$. Montrer que $\underset{n \in \N}{\bigcap} O_n$ est également dense pour la topologie $\tau_S$.
+\subsection{Correction}
+\subparagraph{1} On suppose que $f$ est semi-continue inférieurement. On va montrer que $O = \lbrace (x,\lambda) \in X \times \R, \ f(x) > \lambda \rbrace$ est ouvert. Soit $(x_0, \lambda_0) \in O$. On a $f(x_0) = \lambda_0 + 2 \epsilon$ avec $\epsilon \in \R_+^*$. Il existe un ouvert $V \in \mathcal{V}(x_0)$ et tel que $\forall x \in V, f(x) \ge f(x_0) - \epsilon > \lambda_0 + \epsilon$. Donc $V \times B(\lambda, \epsilon)$ est un voisinage de $(x_0, \lambda_0)$. Ainsi $O$ est voisinage de chacun de ses points donc ouvert.\\
+Réciproquement, on suppose que $O$ est ouvert. Soit $x_0 \in X$ et $\epsilon \in \R_+^*$ alors $(x_0, f(x_0) - \frac{\epsilon}{2}) \in O$. Donc il existe un voisinage de $(x_0,f(x_0)-\epsilon)$ inclus dans $O$. Par définition de la topologie produit on peut choisir ce voisinage de la forme $V \times B(f(x_0)-\frac{\epsilon}{2}, \eta)$ avec $\eta \le \frac{\epsilon}{2}$. Donc pour tout $x \in V$ on a $f(x) > f(x_0) - \frac{\epsilon}{2} - \eta \ge f(x) - \epsilon$ et donc la fonction est semi-continue inférieurement.
+\subparagraph{2} Il suffit de remarquer que l'épigraphe du $\sup$ est l'intersection des épigraphes.
+\subparagraph{3} Supposons que $f$ est continue pour $\tau_S$ alors $]f(x_0) - \epsilon, +\infty]$ est un ouvert de $\tau_S$ et il existe un voisinage $V \in \mathcal{V}(x_0)$ tel que $f(V) \subset ]f(x_0) - \epsilon, +\infty[$. Maintenant supposons que $f$ est semi-continue inférieurement en $x_0$. Tout voisinage de $f(x_0)$ contient un ensemble de la forme $]f(x_0) - \epsilon, +\infty[$. La semi-continuité inférieure assure l'existence d'un voisinage de $x_0$ tel que $f(X)$ est inclus dans le voisinage de $f(x_0)$.
+\subparagraph{4} Soit $x \in \R$. Il existe $\epsilon \in \R_+^*$ tel que $]x-\epsilon,x+\epsilon] \cap O_1 \neq \emptyset$. Soit $]x_1-2\epsilon_1,x_1+2\epsilon_1] \subset ]x-\epsilon,x+\epsilon] \cap O_1$ avec $\epsilon_1 < 2^{-1}$. On recommence en remplaçant $O_1$ par $O_2$, $x$ par $x_1$ et $2^{-1}$ par $2^{-2}$. Bref, par récurrence on construit une suite de Cauchy $\seq{x}{i}$. Elle converge et on a que la limite $\overline{x} \in O_i$ pour tous les $O_i$. De plus $\overline{x}$ est à distance $\epsilon$ ou moins de $\overline{x}$. 
+\section{Opérateur proximal}
+\subsection{Exercice}
+Soit $f$ une fonction convexe définie sur $\R^n$.
+On suppose que la quantité
+\[ \underset{x \in \R^n}{\inf}\left(f(x) +  \frac{1}{2\alpha} \| x - z \|^2 \right) ,\]
+est bien définie pour tout $z \in \R^n$ et $\alpha \in \R_+^*$.
+\subparagraph{1} Montrer que si
+\[\underset{x \in \R^n}{\operatorname{argmin}}\left(f(x) +  \frac{1}{2\alpha} \| x - z \|^2 \right),\] existe alors il est unique. On note $\operatorname{prox}_{\alpha,f}(z)$ cet élément.
+
+La fonction $\operatorname{prox}_{\alpha,f}$ est appelée opérateur proximal de $f$.
+\subparagraph{2} Expliciter l'opérateur proximal si $f$ est différentiable.
+\subparagraph{3} Soit $\alpha \in \R_+^*$. Montrer que $z$ est point fixe de $\operatorname{prox}_{\alpha,f}$ est équivalent à $f(z) = \underset{x \in \R^n}{\inf}f(x)$.
+\subparagraph{4} Montrer que l'opérateur proximal est lipschitzien.
+\subsection{Correction}
+\subparagraph{1} L'unicité est directe car la fonction norme au carrée est strictement convexe et que la somme d'une fonction convexe et d'une strictement convexe est strictement convexe.
+\subparagraph{2} $\operatorname{prox}_{\alpha,f}(z) = z + \nabla f (z)$.
+\subparagraph{3} Si $z$ est tel que pour tout $x \in \R^n, f(z) \le f(x)$ alors $f(z) + \frac{1}{2\alpha}\|z-z\|^2 + f(z) \le f(x) + \frac{1}{2\alpha} \| x- z\|^2$. Donc $\operatorname{prox}_{\alpha,f}(z) =z$.\\
+Réciproquement, si on suppose que $z$ est point fixe
+\[\al{&\forall x \in \R^n, f(z) \le \frac{1}{2\alpha}\|z-x \|^2 + f(x) \\
+    & \forall (u,t) \in \R^n \times [0,1], f(z) \le \frac{t^2}{2\alpha}\|u\|^2 + f(z + tu) \\
+    &\forall (u,t) \in \R^n \times [0,1], f(z) \le \frac{t^2}{2\alpha}\|u\|^2 + tf(u) +(1-t)f(z) \\
+    &\forall (u,t) \in \R^n \times [0,1], t(f(z) - f(u)) \le \frac{t^2}{2\alpha} }\]
+On divise par $t$ et on fait tendre $t$ vers $0$ pour obtenir l'inégalité voulue.
+\subparagraph{4} On note $Pu = \operatorname{prox}_{\alpha,f}(u)$ et $Pv = \operatorname{prox}_{\alpha,f}(v)$. On a
+\[ \al{& \forall (x,y) \in \R^n, \ \left\lbrace \begin{matrix} f(Pu) + \frac{1}{2\alpha}\|u-Pu\|^2 \le \frac{1}{2\alpha}\| u - x \|^2 + f(x) \\ f(Pv)+\frac{1}{2\alpha}\|v-Pv\|^2 \le \frac{1}{2\alpha}\| v - y \|^2 + f(y) \end{matrix} \right. \\
+    &\left\lbrace \begin{matrix} f(Pu) +\frac{1}{2\alpha}\|u-Pu\|^2 \le \frac{1}{2\alpha}\| u - tPu - (1-t)Pv\|^2 + f(tPu +(1-t)Pv) \\ f(Pv) +\frac{1}{2\alpha}\|v-Pv\|^2 \le \frac{1}{2\alpha}\| v - tPu -(1-t)Pv \|^2 + f(tPu+(1-t)Pv) \end{matrix} \right.\\
+    &\left\lbrace \begin{matrix} t\left(f(Pu) +\frac{1}{2\alpha}\|u-Pu\|^2\right) \le \frac{t}{2\alpha}\| u - tPu - (1-t)Pv\|^2 + tf(tPu +(1-t)Pv) \\ (1-t)\left(f(Pv) + +\frac{1}{2\alpha}\|v-Pv\|^2\right) \le \frac{1-t}{2\alpha}\| v - tPu -(1-t)Pv \|^2 + (1-t)f(tPu+(1-t)Pv) \end{matrix} \right.\\
+    & 0 \le t \| u -tPu -(1-t)Pv \|^2 + (1-t) \| v - tPu -(1-t)Pv \|^2 - t\|u-Pu\|^2 - (1-t)\|v-Pv\|^2\\
+    & 0 \le t \left(\|u-Pu + (1-t)(Pu - Pv) \|^2 - \|u-Pu\|^2\right) + (1-t) \left(\| v - Pv + t(Pv-Pu) \|^2 -\|v- Pv\|^2\right) \\
+    &0 \le 2\langle u-Pu, Pu - Pv \rangle + (1-t) \|Pu-Pv\|^2 + 2\langle Pv - v, Pu-Pv \rangle + t 
+    \|Pu-Pv\|^2 \\
+    &0 \le \|Pu - Pv\|^2 - 2 \|Pu-Pv\|^2 + 2\langle u-v,Pu-Pv \rangle \\
+    &   \|Pu-Pv\|^2 \le 2\langle u-v,Pu-Pv\rangle}.\]
+En utilisant l'inégalité de Cauchy-Schwarz on peut conclure. On peut donner une constante de Lipschitz égale à $1$ en poussant l'analyse avec les sous-gradients et la règle de Fermat on peut montrer que la constante de Lipschitz est au plus égale à $1$.
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

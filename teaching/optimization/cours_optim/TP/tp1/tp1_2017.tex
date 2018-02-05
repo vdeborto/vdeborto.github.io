@@ -1,0 +1,537 @@
+\documentclass[a4paper,french,12pt]{article}
+
+
+\usepackage{../tp}               % package for TP documents
+\usepackage{../defs}           % package for shortcuts 
+\DeclareMathOperator{\BETA}{BETA}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%    Headers   			             %%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% \lhead{
+
+% }  
+
+
+
+\input{def}
+
+\begin{document}
+
+\noindent
+ \textsc{Valentin De Bortoli} \hfill \url{debortoli@cmla.ens-cachan.fr} \\
+    \textsc{Alain Durmus} \hfill \url{alain.durmus@cmla.ens-cachan.fr}
+    \\
+    TP 1 : optimisation numérique\hfill
+    Première année Master Hadamard\\
+\hrulefill\ \\
+    
+ \vspace{-5cm} 
+
+
+% \sloppy
+  %\phantom{am} 
+%http://scipy-cookbook.readthedocs.io/items/robust_regression.html 
+\titlefront{Méthodes de descente de gradient et algorithmes de Newton}
+En préambule on suppose que les paquets suivants ont été chargés
+\begin{lstlisting}
+  import numpy as np
+  import numpy.random as rnd
+  import matplotlib.pyplot as plt
+\end{lstlisting}
+
+\subparagraph{Remarque :} la plupart du temps on n'implémente pas les méthodes classiques présentées dans ce TP et on utilise des paquets du type \texttt{scipy}. Néanmoins, il convient de savoir ce que contienne ces \textit{boîtes noires} et de se forger une intuition sur les différentes méthodes d'optimisation.
+
+\section{Méthode de gradient à pas fixe}
+%-----------------------------------------------------
+%
+Le but de cet exercice est d'implémenter la descente de gradient à pas fixe et d'identifier ses
+atouts et limites. 
+\subparagraph{Banane de Rosenbrock}
+Dans notre première exemple, on étudie la fonction $f: \mathbb{R}^2 \ \rightarrow \ \mathbb{R}$ suivante
+\[
+f(x_1,x_2) = (x_1-1)^2 + 100\, (x_1^2-x_2)^2.
+\]
+$f$ est de classe $\mathcal{C}^1(\mathbb{R}^2, \mathbb{R})$, positive, atteint son unique minimum en $x^* = (1,1)$ et $f(x^*) = 0$.
+Voici le code python qui calcule cette fonction, son gradient et sa hessienne.
+\begin{lstlisting}
+## Rosenbrock function and its gradient
+
+def rosenbrock(x):
+    y = np.asarray(x)
+    return np.sum((y[0] - 1)**2 + 100 * (y[1] - y[0]**2)**2)
+
+
+def rosenbrock_grad(x):
+    y = np.asarray(x)
+    grad = np.zeros_like(y)
+    grad[0] = 400 * y[0] * (y[0]**2 - y[1]) + 2 * (y[0] - 1)
+    grad[1] = 200 * (y[1] - y[0]**2)
+    return grad
+  \end{lstlisting}
+  % def rosenbrock_hessian_(x):
+%     y = np.asarray(x)
+%     return np.array((
+%                     (1 - 4 * 100 * y[1] + 12 * 100 * y[0]**2,
+%                     -4 * y[0] * 100),
+%                     (-4 * 100 * y[0],    2 * 100),
+%                     ))
+
+\begin{enumerate}
+\item Tracer les lignes de niveau de $f$ dans le rectangle 
+  $(x_1,x_2)\in [-1.5,\,1.5]\times[-0.5,\, 1.5]$.
+  On utilisera la fonction plt.contour.
+\item Implémenter la méthode de gradient à pas fixe qui définit la suite $(x_k)_{k \in \nset}$ par récurrence :
+\[
+ x_{k+1} = x_{k} - \step \, \nabla f(x_{k}).
+\] 
+Proposer au moins deux critères d'arrêt pour l'algorithme et  discuter de
+leur pertinence.
+\item Tracer graphiquement les itérées de la méthode de gradient à pas
+  fixe avec comme point initial $x_{0}=(-1,1)$ et différentes valeurs
+  de $h$. Interpréter les résultats.
+\item  Recommencer avec le gradient normalisé
+\[
+x_{k+1} = 
+\begin{cases}
+x_{k} - \step \, \frac{\nabla f(x_{k}) }{ \Vert \nabla f(x_{k}) \Vert} & \text{ if  $ \nabla f(x_{k}) \not = 0$ } \\
+x_k & \text{ otherwise} \eqsp.
+\end{cases}
+\]
+avec $\step = 5 \times 10^{-2}$ et en affichant les 200 premières itérations. 
+Interpréter. Cette méthode a-t-elle une chance de converger ? 
+\end{enumerate}
+
+\subparagraph{Problème quadratique}
+On introduit la fonction $f$ définie sur $\mathbb{R}^n$ ($n \in \mathbb{N}$ avec $n \geq 2$) par $f(x) = x^{\transpose} A x$ avec $A$ diagonale telle que $A_{1,1} = M$, $A_{2,2} = m$ avec $(M,m) \in {\mathbb{R}_+^*}^2$ et tous les autres coefficients diagonaux fixés à $1$. $f$ est une fonction strictement convexe coercive qui possède donc un unique minimum en $0$. Voici le code python qui calcule cette fonction, son gradient.
+\begin{lstlisting}
+def mk_quad(m, M, ndim=2):
+  ## Quadratic function and its gradient
+    def quad(x):
+        y = np.copy(np.asarray(x))
+        scal = np.ones(ndim)
+        scal[0] = m
+        scal[1] = M
+        y *= scal
+        return np.sum(y**2)
+
+    def quad_grad(x):
+        y = np.asarray(x)
+        scal = np.ones(ndim)
+        scal[0] = m
+        scal[1] = M
+        return 2 * scal * y
+
+    return quad, quad_grad
+  \end{lstlisting}
+      % def quad_hessian(x):
+    %     scaling = np.ones(ndim)
+    %     scaling[0] = m
+    %     scaling[1] = M
+    %     return 2 * np.diag(scaling)
+
+    %     return quad, quad_grad, quad_hessian
+        
+
+\begin{enumerate}
+\item Représenter les lignes de niveaux de la fonction $f$ pour différentes valeurs de $M$ et de $m$ pour $n=2$. À votre avis, quand est-ce que le problème d'optimisation est le plus facile à résoudre ?
+\item Utiliser l'algorithme du gradient à pas fixe pour minimiser $f$
+  pour différentes valeurs de $m$, $M$ et points initiaux $x_0$ pour
+  la valeur du pas $\step$ optimal théoriquement. Illustrer par des
+  graphiques la minimisation de $f$ et commenter les.
+\item Estimer numériquement l'ordre de convergence de l'algorithme en fonction du pas $h$ et du nombre d'itération. 
+\item Vérifier expérimentalement que la vitesse de l'algorithme ne dépend pas de la taille de la matrice $A$.
+\end{enumerate}
+
+%
+\section{Choix du pas de descente : règle d'Armijo et règle de Wolfe}
+%ssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
+%
+A l'itération $k \in \nset^*$ et pour une direction de descente $d_{k}$ donnée, i.e $\langle d_{k},\nabla f(x_{k})\rangle<0$, la \textit{recherche linéaire exacte}
+consiste à estimer un pas de descente optimal $\step^*$ qui vérifie
+\[
+\step^* = \text{argmin}_{\step\geq 0} f(x_{k} + \step d_{k}),
+\]
+introduisant donc un nouveau problème d'optimisation qui peut être aussi difficile que le problème de minimisation original. On introduit ici deux règles de \textit{recherche linéaire inexacte}, la règle d'Armijo (1966) et la règle de Wolfe (1969).
+% \subparagraph{Règle d'Armijo}
+% Soit $\beta \in ]0,1[$, $c \in ]0, 1/2[$ et $L \in \mathbb{R}_+$ la constante de Lipschitz de $f$ restreinte à $K$ un compact.
+% \begin{enumerate}
+% %
+% \item \textit{Proposition} 
+% $\step_t = -\frac{\langle \nabla f(x_{k}),d_{k} \rangle}{L \|d_{k}\|^2}$,
+% \item \textit{Test d'acceptation}
+%   Si $f(x_{k} + \step_t d_{k}) \leq f(x_{k}) 
+% + c\, \step_t\, \langle \nabla f(x_{k}),d_{k} \rangle,
+% $ alors $\step_{k} = \step_t$ sinon on reprend le test avec $\beta \step_t$.
+% \end{enumerate}
+% La règle d'Armijo converge en un nombre fini d'étapes.
+
+% \subparagraph{Règle de Wolfe}
+% Soit $c_1 \in ]0, 1/2[$, $c_2 \in ]0,1/2[$, et $L \in \mathbb{R}_+$ la constante de Lipschitz de $f$ restreinte à $K$ un compact. Soit $(m_0,M_0) \in \mathbb{R}_+^2$. On fixe également un nombre maximal d'itérations dans la règle de Wolfe ($10^3$ dans notre cas).
+% \begin{enumerate}
+% %
+% \item \textit{Proposition} 
+% $\step_t = -\frac{\langle \nabla f(x_{k}),d_{k} \rangle}{L \|d_{k}\|^2}$,
+% \item \textit{Test d'acceptation (1)}
+%   Si $f(x_{k} + \step_t d_{k}) \leq f(x_{k}) 
+% + m\, \step_t\, \langle \nabla f(x_{k}),d_{k} \rangle,
+% $ \textbf{et} également \\ ${d_{k}}^{\transpose} \nabla f(x_{k} + \step_t d_{k}) \le -c_2 {d_{k}}^{\transpose} \nabla f(x_{k})$ alors $\step_{k} = \step_t$.
+% \item \textit{Test d'acceptation (2)}
+%   Si $f(x_{k} + \step_t d_{k}) > f(x_{k}) 
+% + m\, \step_t\, \langle \nabla f(x_{k}),d_{k} \rangle,$ alors on pose $\step_t = \frac{m_0+M_0}{2}
+% $ ainsi que $M_0 = \step_t$ et on reprend le premier test d'acceptation.
+% \item \textit{Test d'acceptation (3)} Si aucune de ces conditions n'est remplie alors on peut poser $\step_t = \frac{m_0+M_0}{2}$ et $m_0 = \step_t$ et on reprend le premier test d'acceptation.
+% \end{enumerate}
+
+\subparagraph{Règle d'Armijo} La règle d'Armijo consiste étant donné
+un point courant $x_k$, une direction de descente $d_k$ à l'itération
+$k \in \nset^*$ à trouver un pas $\step_{k+1} >0$ satisfaisant
+\begin{equation*}
+  f(x_{k} + \step_{k+1} d_{k}) \leq f(x_{k}) 
++ c\, \step_{k+1}\, \langle \nabla f(x_{k}),d_{k} \rangle \, , 
+\end{equation*}
+où $c \in ]0,1/2[$ est un paramètre fixé par l'utilisateur.  Proposer
+une méthode permettant de trouver un tel pas $\step_{k+1}$ et
+l'implémenter. Pour cela, on pourra considérer une suite décroissante
+tendant vers $0$ et initialisée à la valeur
+$-\fracaaa{\langle \nabla f(x_{k}),d_{k} \rangle}{L \|d_{k}\|^2}$, où $L$
+est un paramètre fixé par l'utilisateur. 
+
+\subparagraph{Règle de Wolfe} 
+La règle de Wolfe consiste étant donné
+un point courant $x_k$, une direction de descente $d_k$ à l'itération
+$k \in \nset^*$ à trouver un pas $\step_k >0$ satisfaisant
+\begin{equation*}
+  f(x_{k} + \step_{k+1} d_{k}) \leq f(x_{k}) 
++ c_1\, \step_{k+1}\, \langle \nabla f(x_{k}),d_{k} \rangle \, , 
+\end{equation*}
+et 
+\begin{equation*}
+  \ps{d_k}{\nabla f(x_k+h_{k+1} d_k)} \geq  c_2    \ps{d_k}{\nabla f(x_k)}
+\end{equation*}
+où $c_1 \in ]0,1/2[$, $c_2 \in ]1/2,1[$ sont des paramètres fixés par
+l'utiisateur.  Proposer une méthode permettant de trouver un tel pas
+$\step_{k+1}$ et l'implémenter. Pour cela, on pourra par exemple
+rechercher ce pas dans un intervalle
+$[a,b]$ que l'on affinera au fur et à mesure et en prenant comme valeur initial $-\fracaaa{\langle \nabla f(x_{k}),d_{k} \rangle}{L \|d_{k}\|^2}$, où
+$L$ est un paramètre fixé par l'utilisateur. On pourra aussi se fixer un nombre maximal d'itérations.
+
+
+\subparagraph{Banane de Rosenbrock et problème quadratique}On considère les deux problèmes d'optimisation introduits dans l'exercice précédent.
+
+\begin{enumerate}
+\item Implémenter la méthode de gradient avec la règle d'Armijo et règle de Wolfe.
+  
+\item Tester ces règles pour la fonction de Rosenbrock avec les valeurs suivantes pour $x_{0} = (-1,1)$, $L=100$ et différentes valeurs des paramètres $c,c_1,c_2$. Comparer les entre elle et avec la méthode de descente de gradient à pas fixe. On pourra par exemple afficher l'évolution au cours des algorithmes de la distance entre les itérés et le minimiseur de $f$ ainsi que la suite $(f(x_k)-f(x^{\star}))_{k \in \nset}$
+  
+\item  Tester l'algorithme sur le problème quadratique et effectuer la même étude que pour la fonction de Rosenbrock.
+\end{enumerate}
+
+\begin{remarque}
+Il existe encore d'autres règles de \textit{recherche linéaire inexacte} pour le choix d'un pas de descente comme la règle de Goldstein. Ces règles permettent d'éviter le problème de \textit{recherche linéaire exacte} tout en accélérant les méthodes de gradient.
+\end{remarque}
+%
+\section{Gradient conjugué}
+%sssssssssssssssssssssssss
+%
+Le gradient conjugué est une méthode de type quasi-Newton qui a la
+propriété de converger en temps fini pour des fonctionnelles
+quadratiques. On présente ici une extension de cet algorithme.
+\subparagraph{Gradient conjugué}
+On se donne une fonction $f : \rset^n \to \rset$ à minimiser et un point initial $x_0 \in \rset^n$. On initialise $d_0 = 0$.
+
+Partant d'un point courant $x_k$ et d'une direction $d_k$ (ayant servi à  calculer $x_k$ sauf pour $k=0$) à
+l'itération $k \in \nset$, on itère de la manière suivante :
+\begin{enumerate}
+\item \textit{Mise à jour de la direction de descente.}  On met à jour la direction de descente par
+  \begin{equation*}
+    d_{k+1} = -\nabla f(x_k) + \beta_{k+1} d_k \eqsp,
+  \end{equation*}
+  où
+  \begin{equation*}
+   \beta_{k+1} = \frac{\langle \nabla f(x_{k}) - \nabla f(x_{k-1}), \nabla f(x_{k}) \rangle}{\| \nabla f(x_{k-1}) \|^2}  \eqsp.
+  \end{equation*}
+\item \textit{Recherche du pas.} On applique une règle de \textit{recherche linéaire inexacte} (ici la règle de Armijo/Wolfe) pour trouver le meilleur pas de descente $\step_{k+1}$ pour la direction de descente $d_{k+1}$.
+  \item \textit{Mise à jour des itérés.} On pose  $x_{k+1} = x_{k} + \step_{k+1} d_{k+1}$.
+  \end{enumerate}
+  \begin{remarque}
+    On a ici présenté l'algorithme de \textit{Polak-Ribière} mais il existe d'autres variantes comme \textit{Fletcher-Reeves}. 
+  \end{remarque}
+
+  \subparagraph{Banane de Rosenbrock et problème quadratique} On considère de nouveau les fonctions du premier exercice.
+
+  \begin{enumerate}
+  \item Implémenter la méthode du gradient conjugué version \textit{Polak-Ribière}.
+    
+  \item  Tester l'algorithme pour la fonction de Rosenbrock avec $x_0 = (-1,1)$. Comparer l'algorithme avec les méthodes précédentes.
+    
+  \item  Pour un problème quadratique, le gradient conjugué converge en au plus $n$ itérations où $n$ est la taille du problème. Vérifier cette affirmation pour différentes tailles de matrices dans le cadre du problème quadratique introduit précédemment.
+  
+  \end{enumerate}
+  
+\section{Le problème de Lennard-Jones} 
+%%ssssssssssssssssssssssssssssssssssssssssssssssssss
+%%
+ Les problèmes de conformation atomique consistent à trouver les coordonnées spatiales de $N$ noyaux atomiques formant une molécule d'énergie minimale. Dans le cas du problème de 
+Lennard-Jones de taille $N$, la force d'interaction entre
+deux atomes identiques distants d'une longueur $r$ est supposée issue d'un potentiel radial de van der Walls, s'écrivant sous forme adimensionnée 
+\[
+V(r) = \frac{1}{r^{12}} - \frac{2}{r^6}.
+\]
+%Tracer la fonction $V$ sur $]0,+\infty[$ pour se faire une idée.
+Soit une molécule $u$ composée de $N$ atomes $u := (X_i)_{i \in \llbracket 1,N \rrbracket} = \left((x_i,y_i,z_i)\right)_{i \in \llbracket 1,N \rrbracket} \in \left(\mathbb{R}^3 \right)^N$, l'énergie potentielle totale du système est donnée par
+\[
+W(u) = \sum_{\substack{(i,j) \in \{ 1, \ldots,N \} \\ i<j}} V\left(\|X_i-X_j\|\right).
+\]
+La configuration la plus stable de la molécule $u^\star$ correspond à un minimum global d'énergie
+potentielle. %
+Lorsque $N>4$, le problème de la recherche du minimum global de $W$ devient
+complexe. Il est d'ailleurs conjecturé que le nombre de minimums locaux de $W$ croît exponentiellement avec $N$.
+Voici le code python qui calcule la fonction à minimiser, son gradient et sa hessienne.
+\begin{lstlisting}
+## Potential V and its gradient  
+  
+def V(x):
+    return x ** -12 - 2 * x ** - 6
+
+def V2(x):
+    return x ** -6 - 2 * x ** - 3
+
+def V2der(x):
+    return -6 * x ** -7 + 6 * x ** -4
+
+## Total Lennard-Jones potential of the system    
+def W(u):
+    N = len(u) / 3
+    u_v = np.reshape(u, (N, 3))
+
+    M = np.zeros([N, N, 3])
+    M -= u_v
+    M = M - np.transpose(M, (1, 0, 2))
+
+    M = np.sum(M ** 2, 2)
+    np.fill_diagonal(M, 1)
+    M = V2(M)
+    np.fill_diagonal(M, 0)
+
+    return .5 * np.sum(M)
+
+def grad_W(u):
+    N = len(u) / 3
+    u_v = np.reshape(u, (N, 3))
+
+    M = np.zeros([N, N, 3])
+    M -= u_v
+    M = M - np.transpose(M, (1, 0, 2))
+
+    Mnorm = np.sum(M ** 2, 2)
+    np.fill_diagonal(Mnorm, 1)
+    Mnorm = V2der(Mnorm)
+    np.fill_diagonal(Mnorm, 0)
+
+    grad = np.reshape(Mnorm, (N**2, 1)) * np.reshape(M, (N ** 2, 3))
+    grad = np.reshape(grad, (N, N, 3))
+    grad = np.sum(grad, 1)
+    return 2 * np.ravel(grad)
+\end{lstlisting}
+
+\subparagraph{Recherche du minimum global} on va tenter d'appliquer les méthodes précédemment introduites pour l'étude de ce problème physique.
+
+\begin{enumerate}
+\item Appliquer l'algorithme de descente du gradient avec règle d'Armijo/Wolfe pour ce problème. Tester l'algorithme pour $N = 4$. on initialisera l'algorithme de la manière suivante : $X_1 = 0$ et $(X_1,X_2,X_3)$ choisis aléatoirement de manière indépendante dans $B(0, \sqrt[3]{N})$. 
+\item Pour $N = 4$ le minimum de la fonction $W$ est atteint pour tout \textbf{tétraèdre} $(X_1,X_2,X_3,X_4)$ et vaut $-6$, afficher votre configuration initiale et la configuration $(X_1,X_2,X_3,X_4)$ que vous obtenez après minimisation. Interpréter.
+  On pourra d'aider du code suivant pour l'affichage des configurations.
+  \begin{lstlisting}
+fig = plt.figure()
+ax = fig.add_subplot(111, projection='3d')
+ax.scatter(init_pos[:,0], init_pos[:,1], init_pos[:,2], '^')
+ax.scatter(final_pos[:,0], final_pos[:,1], final_pos[:,2], '^')
+for i in range(4):
+    ax.plot([init_pos[i,0], final_pos[i,0]],
+            [init_pos[i,1], final_pos[i,1]],
+            [init_pos[i,2], final_pos[i,2]], 'g')
+    for j in range(4):
+        ax.plot([final_pos[i,0], final_pos[j,0]], 
+                [final_pos[i,1], final_pos[j,1]],
+                [final_pos[i,2], final_pos[j,2]], 'r')
+
+ax.set_xlabel('X')
+ax.set_ylabel('Y')
+ax.set_zlabel('Z')
+plt.show()
+
+print(W(np.ravel(init_pos)))
+print(W(np.ravel(final_pos)))
+\end{lstlisting}
+\item Reprendre les questions précédentes pour $N = 13$. Dans ce cas le minimum de la fonction $W$ est atteint pour tout \textbf{icosaèdre régulier} $(X_1, \dots, X_{13})$. Interpréter.
+\end{enumerate}
+\section{Méthode de Levenberg-Marquardt, Gauss-Newton et application à la régression non linéaire}
+%ssssssssssssssssssssss
+%
+
+Étant donné $(x_i,y_i)_{i \in \llbracket 1,N \rrbracket} \in \left(\mathbb{R}^2\right)^N$ on introduit le problème statistique classique de la régression non linéaire, i.e on cherche à minimiser la fonction suivante
+\[ F(\theta) = \frac{1}{2} \sum_{i=1}^N (f(x_i, \theta) - y_i)^2, \]
+avec $f \in \mathcal{C}^1(\mathbb{R} \times \mathbb{R}^d, \mathbb{R})$. Cela correspond à rechercher l'\textit{estimateur du maximum a posteriori} dans le cadre où l'erreur sur les données est gaussienne. 
+% Dans le cadre où certaines données sont aberrantes (\textit{outliers} en anglais) l'utilisation de la norme $\ell^2(\mathbb{R}^N)$ est peu judicieuse et on la remplace par la norme $\ell^1(\mathbb{R}^N)$ malheureusement plus dure à minimiser. On introduit donc
+% \[ G(\theta) = (1/2) \sum_{i=1}^N \eta\left(f(x_i, \theta) - y_i\right), \]
+% avec $\eta$ une fonction \textit{de coût} sous-quadratique définie sur $\mathbb{R}$. On note :
+% \begin{itemize}
+% \item $\eta_1 : x \ \mapsto x^2$,
+% \item $\eta_2 : x \ \mapsto x^2$, si $x\in [0,1]$ et $2x - 1$ sinon (\textit{fonction de perte de Huber}),
+% \item $\eta_3 : x \ \mapsto 2(\sqrt{1+x^2} -1)$,
+% \item $\eta_4 : x \ \mapsto \ln(1+x^2)$,
+% \item $\eta_5 : x \ \mapsto \arctan{(x^2)}$.
+% \end{itemize}
+Dans notre cas on pose $f : (x,(A,\sigma,\omega)) \ \mapsto \ A \exp(-\sigma x) \sin(\omega x)$, $\theta =(A,\sigma,\omega)$. On va maintenant introduire  la méthode de Levenberg-Marquardt qui est une méthode de quasi-Newton.
+
+% \subparagraph{Méthode de Newton} Supposons que $f \in \mathcal{C}^2(\mathbb{R} \times \mathbb{R}^d, \mathbb{R})$ on note $H(x)$ sa hessienne. On introduit la suite $\theta_{k} := (A_{k}, \sigma_{k}, \omega_{k})$ (avec initialisation aléatoire). Les itérations sont données par
+% \[
+%   \theta_{k+1} = \theta_{k} - \step M_N(\theta_{k})^{-1} \sum_{i=1}^N \nabla_{\theta} f(x_i,\theta_{k}) \eta'(f(x_i,\theta_{k}) - y_i),
+% \]
+% où on a
+% \[
+%   \begin{aligned}
+%     & \nabla_{\theta} f(x,\theta) = \left( \begin{matrix} \exp(-\sigma x) \sin(\omega x) \\ -Ax \exp(-\sigma x) \sin(\omega x) \\ Ax \exp(-\sigma x) \cos(\omega x) \end{matrix} \right),\\
+%     & H_{\theta}(x,\theta) = \exp(-\sigma x) \left( \begin{matrix}0 & -x\sin(\omega x) & x\cos(\omega x) \\ -x\sin(\omega x) & Ax^2 \sin(\omega x) & -Ax^2\cos(\omega x) \\ x \cos(\omega x) & -Ax^2 \cos(\omega x) & Ax^2 \sin(\omega x) \end{matrix} \right),\\
+%     & M_N(\theta) = \sum_{i = 1}^{N} \nabla_{\theta}f(x_i,\theta) \nabla_{\theta}f(x_i,\theta)^{\transpose} \eta^{''}(f(x_i,\theta) - y_i) + H_{\theta}(x_i,\theta) \eta'(f(x_i,\theta) - y_i).
+%   \end{aligned}
+% \]
+% On rappelle que la méthode de Newton est une méthode d'ordre deux.
+\subparagraph{Méthode de Levenberg-Marquardt}
+Dans le problème considéré, la hessienne est typiquement mal conditionnée. De plus, lorsque le nombre de donnée et la dimension du problème sont très grands, il est en général trop coûteux de calculer la hessienne de $F$. La méthode de Levenberg-Marquardt définie la suite $(\theta_k)_{k \in \nset}$ partant de $\theta_0 \in \rset^d$ par la récursion suivante :
+\[
+  \theta_{k+1} = \theta_{k} - \step M_{LM}(\theta_{k})^{-1} \sum_{i=1}^N \nabla_{\theta} f(x_i,\theta_{k}) (f(x_i,\theta_{k}) - y_i),
+\]
+pour un pas $\step >0$ et
+\begin{equation*}
+  M_{LM}(\theta) = \mu \mrI_3 + \sum_{i = 1}^{N} \nabla_{\theta}f(x_i,\theta) \nabla_{\theta}f(x_i,\theta)^{\transpose}  \eqsp,
+\end{equation*}
+est une approximation de la hessienne de $F$ et $\mu$ est un paramètre fixé par l'utilisateur. % La méthode de Levenberg-Marquardt est une méthode de quasi-Newton. Elle requiert par contre l'introduction d'un paramètre de régularisation $\mu$.
+
+\begin{enumerate}
+  
+% \item Comparer la complexité d'une itération de la méthode de Levenberg-Marquardt (attention on ne cherchera pas à calculer $  M_{LM}(\theta)$) à celle d'une itération d'une méthode de Newton. 
+\item Implémenter la méthode de Levenberg-Marquardt pour le problème considéré. Voici les codes python nécessaires.
+  \begin{lstlisting}
+## Wave function, its gradient and its hessian
+    
+def mk_wave(A, sigma, omega):
+
+def wave_fun(x):
+        return A * np.exp(-sigma * x) * np.sin(omega * x)
+
+def wave_grad(x):
+        dim = np.max(np.shape(x))
+        grad = np.zeros([3, dim])
+        grad[0, :] = np.sin(omega * x)
+        grad[1, :] = -A * x * np.sin(omega * x)
+        grad[2, :] = A * x * np.cos(omega * x)
+        grad = np.exp(-sigma * x) * grad
+        return grad
+
+def wave_hessian(x):
+        dim = np.max(np.shape(x))
+        s = np.sin(omega * x) * x * np.exp(-sigma * x)
+        c = np.cos(omega * x) * x * np.exp(-sigma * x)
+        scal = A * x ** 2 * np.exp(-sigma * x)
+        hessian = np.zeros([3, 3, dim])
+        hessian[0, 1, :] = -x * s
+        hessian[1, 0, :] = -x * s
+        hessian[0, 2, :] = hessian[2, 0, :] = x * c
+        hessian[1, 1, :] = scal * s
+        hessian[2, 2, :] = -scal * s
+        hessian[1, 2, :] = hessian[2, 1, :] = -scal * c
+        return hessian
+    return wave_fun, wave_grad, wave_hessian
+
+
+## Non-linear regression function, its gradient and its hessian
+
+def mk_nonlinreg(x_train, y_train):
+    def nonlinreg_fun(param):
+        wave_fun = mk_wave(param[0], param[1], param[2])[0]
+        return np.sum((wave_fun(x_train) - y_train) ** 2)
+
+    def nonlinreg_grad(param):
+        wave_fun, wave_grad = mk_wave(param[0], param[1], param[2])[:2]
+        grad = 2 * wave_grad(x_train) * (wave_fun(x_train) - y_train)
+        return np.sum(grad, 1)
+
+    def nonlinreg_hessian(param, method='newton', mu=0.1):
+        wave_fun, wave_grad, wave_hessian = mk_wave(
+            param[0], param[1], param[2])
+        grad = wave_grad(x_train)
+        if method == 'newton':
+            hess1 = 2 * wave_hessian(x_train)*\
+            (wave_fun(x_train) - y_train)
+            hess1 = np.sum(hess1, 2)
+        elif method == 'lm':
+            hess1 = mu * np.identity(3)
+        hess2 = 2 * np.dot(grad, grad.T)
+        return hess1 + hess2
+
+    return nonlinreg_fun, nonlinreg_grad, nonlinreg_hessian  
+  \end{lstlisting}
+\item Générer des données à l'aide de la fonction suivante.
+\begin{lstlisting}
+## Function to generate some data    
+# noise quantify the amount of noise in the model
+# n_outliers is the number of observations which 
+#                        do not come from the true model
+
+def generate_data(x, A, sigma, omega, noise=0, n_outliers=0):
+    y = A * np.exp(-sigma * x) * np.sin(omega * x)
+    error = noise * rnd.randn(x.size)
+    outliers = rnd.randint(0, x.size, n_outliers)
+    error[outliers] *= 35
+    return y + error
+    
+A = 5
+sigma = 0.1
+omega = 0.1 * 2 * np.pi
+x_true = np.array([A, sigma, omega])
+
+noise = 0.1
+n_outliers = 4
+
+x_min = 0
+x_max = 20
+
+x_train = np.linspace(x_min, x_max, 30)
+y_train = generate_data(t_train, A, sigma, omega, noise, n_outliers)
+  \end{lstlisting}
+Visualiser les données générées.
+\item Tester la méthode de Levenberg-Marquardt sur les données générées et la comparer à une méthode de descente de gradient à pas fixe. On initialisera les paramètres à $\theta_{0} = (1,1,1)$. %Faire varier le nombre de données aberrantes et conclure sur la nécessité d'utiliser d'autres fonctions \textit{de coût}.
+\end{enumerate}
+
+%\textbf{1.} Visualiser sur $[0,10]$ les différentes fonctions \textit{de coût} introduites dans l'énoncé.
+
+% \section{Introduction}
+% \label{sec:intro}
+% \begin{lstlisting}
+%   function x = chebyshevNodes (n,a,b)
+%          ## usage: x = chebyshevNodes (n,a,b)
+% 	 ##
+% 	 ## ARGUMENTS:
+% 	 ## n: the degree of the interpolation polynomial, which is
+% 	 ## a, b : (a<b) : the endpoints of the interval
+% 	 ##
+% 	 ## RETURNS: 
+% 	 ## x : a vector of size n+1: the Chebyshev interpolation
+% ## nodes, which are the roots of the Chebyshev polynomial of degree n+1
+
+%   inds = (n):-1:0;
+%   x =  %% completer
+% endfunction
+% \end{lstlisting}
+%  En utilisant la fonction précédente ainsi que la fonction
+%   \lstinline+interpolDividif+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% ispell-local-dictionary: "francais"
+%%% TeX-master: t
+%%% End:

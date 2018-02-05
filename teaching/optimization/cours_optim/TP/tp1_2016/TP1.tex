@@ -1,0 +1,546 @@
+\documentclass[11pt, a4paper]{amsart}
+\usepackage{amssymb, amsmath, bm, mathrsfs, amsthm}
+\usepackage[french]{babel}
+\usepackage[T1]{fontenc}
+\usepackage[utf8x]{inputenc}
+\usepackage{graphicx}
+\usepackage[margin=2cm]{geometry}
+%
+\title{ENS Cachan, Département de Maths \\ [1cm]
+Optimisation numérique M1, année 2014-2015\\
+\scriptsize{~3 octobre 2014}}
+\author{TP 1 -- Méthodes de gradient, gradient conjugué et quasi-Newton}
+%
+\date{}
+%
+\newcommand{\mq}{Montrer que}
+\newcommand{\bu}{\bm{u}}
+\newcommand{\ba}{\bm{a}}
+\newcommand{\bn}{\bm{n}}
+\newcommand{\bA}{\bm{A}}
+\newcommand{\be}{\begin{equation}}
+\newcommand{\ee}{\end{equation}}
+\newcommand{\bg}{\bm{g}}
+\newcommand{\supp}[1]{\mathop{supp}(#1)}
+\newtheorem{remark}{Remark}
+\newtheorem{theorem}{Théoréme}
+%
+\begin{document}
+%
+\maketitle
+%
+\paragraph{NB} Il est conseillé d'utiliser la fonction \texttt{inline} ou une déclaration de fonction ``anonyme'' (anonymous) pour les petites 
+fonctions, par exemple :
+
+\begin{verbatim}
+[...]
+J = @(u1, u2) (u1-1)^2 + 100.0 * (u1^2 - u2)^2;
+[...]
+\end{verbatim}
+%
+\section{Fonction de Rosenbrock et gradient à pas fixe}
+%-----------------------------------------------------
+%
+La fonction de Rosenbrock fait partie des cas tests modèles de validation
+des méthodes d'optimisation numérique continue (programmation
+non linéaire). Elle est définie par
+\[
+J(u_1,u_2) = (u_1-1)^2 + 100\, (u_1^2-u_2)^2.
+\]
+La recherche du minimum est rendue relativement difficile en raison
+d'une ``vallée'' trés aplatie. Le minimum est clairement atteint en $u^\star=(1,1)$, de valeur $J^\star=0$. \\
+
+\textbf{1.} Tracer les lignes de niveau de $J$ dans le rectangle 
+$(u_1,u_2)\in [-1.5,\,1.5]\times[-0.5,\, 1.5]$ (utiliser \texttt{contourf} par
+exemple).
+
+\textbf{2.} Appliquer la méthode de gradient à pas fixe 
+\[
+u^{k+1} = u^k - \rho \, \nabla J(u^k).
+\] 
+On considérera les valeurs numériques $u^0=(-1,1)$ et $\rho=2\times 10^{-3}$.
+Tracer graphiquement les itérés de la méthode de gradient à pas fixe.
+Afficher le nombre d'itérations qu'il faut pour atteindre le critère
+d'arrêt suivant $J(u^{k+1})-J^\star < 10^{-4}$.
+
+\textbf{3.} Recommencer avec $\rho=0.0045$ puis avec $\rho=0.01$. Que se passe-t-il ?
+
+\textbf{4.} Recommencer avec le gradient normalisé
+\[
+u^{k+1} = u^k - \rho \, \frac{\nabla J(u^k)}{\|\nabla J(u^k)\|}
+\]
+avec $\rho = 0.05$ et en affichant les 200 premières itérations. 
+Cet algorithme a-t-il des chances de converger ?
+%
+%
+\section{Recherche linéaire (linear search), règle d'Armijo}
+%ssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
+%
+Pour une direction de descente $d^k$ 
+($\langle d^k,\nabla J(u^k)\rangle<0$),
+la recherche linéaire exacte consiste à trouver le $\alpha^\star>0$
+qui réalise le minimum de 
+\[
+\min_{\alpha\geq 0} J(u^k + \alpha d^k).
+\] 
+En pratique, cela est inatteignable et d'ailleurs inutile : il s'agit 
+avant tout pour l'algorithme de ``descendre'' correctement à chaque
+itération. Il existe plusieurs algorithme de recherche inexacte : 
+règle de Wolfe, d'Armijo,  d'Armijo modifiée, etc. On présente ici
+la règle d'Armijo (1966). 
+%
+\begin{itemize}
+%
+\item On déclare 3 paramètres~: $\beta\in (0,1)$, 
+$m\in (0,\frac{1}{2})$ et $L>0$. La valeur de $L$ est 
+représentative de la constante de Lipschitz de la fonction $J$
+dans un compact $K$ de recherche.
+%
+\item On calcule un $\alpha_t$ ``test'' comme suit~:
+\[
+\alpha_t = -\frac{\langle \nabla J(u^k),d^k \rangle}{L \|d^k\|^2}
+\]
+\item On effectue le test de ``descente raisonnable''
+\[
+J(u^k + \alpha_t d^k) \leq J(u^k) 
++ m\, \alpha_t\, \langle \nabla J(u^k),d^k \rangle.
+\]
+\item Si le test est positif, alors  on affecte
+$\alpha^k \leftarrow \alpha_t$ et la recherche est terminée.
+%
+\item Sinon on affecte $\alpha_t \leftarrow \beta \alpha_t$ et on recommence le test ci-dessus.
+%
+\end{itemize}
+%
+On montre que la recherche d'Armijo nécessite un nombre fini de tests. \\
+
+Pour les travaux pratiques, on considère à nouveau la fonction de Rosenbrock du premier exercice avec $u^0=(-1,1)$.
+Utiliser la recherche linéaire inexacte avec règle d'Armijo pour le calcul
+du pas variable $\alpha^k$ dans la méthode de gradient
+\[
+u^{k+1} = u^k - \alpha^k \, \nabla J(u^k).
+\] 
+On utilisera les paramètres $L=100$ pour la fonction de Rosenbrock, 
+ainsi que $m=0.4$ et $\beta=0.5$.
+%
+\section{Gradient conjugué}
+%sssssssssssssssssssssssss
+%
+On rappelle que le gradient conjugué (GC) est une méthode de type quasi-Newton qui calcule des directions conjuguées au cours des itérations.
+On met à jour les états selon
+\[
+u^{k+1} = u^k + \alpha^k \, d^k,
+\]
+où $d^k$ est la direction de recherche et $\alpha^k$ est le pas.
+Dans cet exercice, on pourra utiliser la règle d'Armijo pour la recherche
+linéaire, comme indiqué dans l'exercice précédent. Le calcul de la 
+nouvelle direction de recherche est une combinaison linéaire entre 
+$-\nabla J(u^{k+1})$ et $d^k$, et calibré de façon que
+\[
+(d^{k+1})^T\, \nabla^2 J(u^k)\, d^k \approx 0.
+\]
+Dans le cours, on a dérivé la formulation dite de Polak-Ribière
+\[
+d^{k+1} = -\nabla J(u^{k+1}) + \beta^k \, d^k
+\]
+avec
+\[
+\beta^k = 
+ \frac{\langle \nabla J(u^{k+1})-\nabla J(u^k), \nabla J(u^{k+1})\rangle}
+{\|\nabla J(u^k)\|^2}.
+\]
+Appliquer le gradient conjugué avec recherche linéaire utilisant la règle
+d'Armijo à la fonction de Rosenbrock du premier exercice. On partira
+de $u^0=(-1,1)$ et on tracera la trajectoire empruntée par les
+itérés de la méthode avec le même critère d'arrêt. On observera
+l'accélération de la convergence par rapport au gradient classique.
+%
+\section{Le problème de Lennard-Jones de taille $N$.} 
+%%ssssssssssssssssssssssssssssssssssssssssssssssssss
+%%
+\textbf{Ce problème a été donné à l'oral de modélisation de l'Agrégation de Maths.}\\
+
+Les problèmes de conformation atomique consistent à trouver les coordonnées spatiales de $N$ noyaux atomiques formant une molécule d'énergie minimale. Dans le cas du problème de 
+Lennard-Jones de taille $N$ (en abrégé, problème $\mathrm{LJ}_N$), la force d'interaction entre
+deux atomes identiques distants d'une longueur $r$ est supposée issue d'un potentiel radial de van der Walls, s'écrivant sous forme adimensionnée~:
+\[
+V(r) = \frac{1}{r^{12}} - \frac{2}{r^6}.
+\]
+Tracer la fonction $V$ sur $]0,+\infty[$ pour se faire une idée.
+Lorsqu'une molécule est constituée de $N$ atomes situés respectivement aux positions $X_1$, ..., $X_N\in\mathbb{R}^{3}$, 
+$X_i = (x_i,y_i,z_i)$, l'énergie potentielle totale du système est égale à
+\[
+\mathrm{LJ}_N(X_1,...,X_N) = \sum_{i=1}^N
+\sum_{j\in\{1,...,N\},\ i<j}\, V\left(\|X_i-X_j\|\right).
+\]
+On a ainsi une fonctionnelle de la variable
+$u=(X_1,...,X_N)\in \mathbb{R}^{3N}$.
+La configuration la plus stable de la molécule $u^\star$ correspond à un minimum global d'énergie
+potentielle. %
+Lorsque $N>4$, le problème de la recherche du minimum global de $LJ_N$ devient
+complexe. Il est d'ailleurs conjecturé que le nombre de minima locaux de $LJ_N$ croît exponentiellement avec $N$.
+\medskip
+
+%
+\begin{enumerate}
+%
+\item  Appliquer à la fonctionnelle de Lennard-Jones l'algorithme du gradient conjugé en utilisant la règle d'Armijo pour la recherche linéaire. 
+
+On commencera avec $N=4$ pour
+vérifier que la méthode est capable de trouver le minimum global dans ce cas (conformation en tétraédre, $LJ_4=-6$). Pour l'initialisation, on choisira $X_1=0$ et $X_i$, $i\geq 1$ choisis aléatoirement dans la boule $B(0,N^{1/3})$.
+%
+\item Visualiser en 3D la configuration minimale obtenue. On tracera les noyau (\texttt{plot3}) ainsi que les segments joignant tous les $(X_i,X_j)$, $i<j$  (\texttt{line}).
+%
+\item Appliquer à nouveau l'algorithme pour $N=13$. On sait dans ce cas que le minimum est atteint pour l'\textbf{icosaédre régulier} de côté de longueur $1$. Répéter plusieurs fois l'algorithme avec différentes initialisations pour évaluer leur influence. Etes-vous satisfait~?
+%
+\end{enumerate}
+%
+\section{méthode de Levenberg-Marquardt et Gauss-Newton. Application à la régression non linéaire}
+%ssssssssssssssssssssss
+%
+(\textbf{A effectuer s'il vous reste du temps}). \\
+
+L'algorithme de Levenberg-Marquardt est une méthode robuste et efficace de résolution des problèmes de moindres carrés et de régression non-linéaires. Il est spécifique à la minimisation d'une somme de fonctions au carré et présente le grand avantage de ne pas nécessiter de calcul des dérivées secondes.
+
+Dans le problème classique d'ajustement des données, 
+où le but est de trouver les paramètres $\beta$ d'un certain modèle $y=f(x,\beta)$
+permettant le meilleur ajustement aux observations $(x_i,y_i)$,
+on cherche à minimiser le problème aux moindres carrés régularisé
+\[
+J(\beta) = \frac{1}{2}\sum_{i=1}^m \left[ y_i -f(x_i,\beta) \right]^2
++ \frac{1}{2}\mu \|\beta\|^2
+\]
+avec $\mu>0$ ``assez petit''.  Dans cet exercice, on considère une approximation définie comme superposition
+de $K$ gaussiennes
+\[
+f(x,\beta) = \sum_{j=1}^K \alpha_i\, e^{-\frac{1}{2}\frac{(x-x_i^0)^2}{\sigma_i^2}}.
+\]
+Les paramètres à ajuster ici sont les $\alpha_i$, les $\sigma_i$ et
+les $x_i^0$, et on a 
+\[
+\beta = (\alpha_1,...,\alpha_K,\,\sigma_1,...,\sigma_K,\,x_1^0,...x_K^0)^T
+\in \mathbb{R}^{3K}.
+\]
+En introduisant les fonctions de résidu $r_i=y_i - f(x_i,\beta)$,
+$J(\beta) = \frac{1}{2}\sum_{i=1}^m r_i^2$,  on a
+\[
+\nabla J(\beta) = \sum_{i=1}^m\nabla r_i(\beta) \, r_i(\beta)
++\mu \beta
+\]
+et
+\[
+\nabla^2 J(\beta) = 
+\sum_{i=1}^m \nabla^2 r_i(\beta)\, r_i(\beta)
++\sum_{i=1}^m \nabla r_i(\beta) \nabla r_i(\beta)^T  + \mu I.
+\]
+La méthode de Gauss-Newton est une méthode de Quasi-Newton où
+la matrice Hessienne de $J$ est approchée simplement par
+\[
+\sum_i \nabla r_i(\beta) \nabla r_i(\beta)^T + \mu I.
+\]
+Cette approximation est assez raisonnable puisque les écarts $r_i(\beta)$
+sont espérés petits pour un bon modèle de régression. Le procédé itératif 
+est donc
+\[
+\beta^{k+1} = \beta^k - \left(\sum_{i=1}^m \nabla r_i(\beta^k) \nabla r_i(\beta^k)^T + \mu I\right)^{-1} \nabla J(\beta^k).
+\]
+%
+La méthode de Levenberg-Marquardt est une variante améliorée où la constante de 
+régularisation $\mu$ devient une suite adaptative de nombres $\mu^k>0$ et
+où l'adaptation accélère la convergence et la robustesse de la méthode.
+
+Dans ces travaux pratiques, on considérera simplement
+\[
+\mu = \varepsilon\, \mathop{tr}\left(\sum_{i=1}^m \nabla r_i(\beta^k) \nabla r_i(\beta^k)^T \right)
+\]
+avec $\varepsilon=10^{-5}$.
+
+\textbf{1.} Mettre en oeuvre la méthode de Gauss-Newton. On considérera les
+valeurs numériques suivantes pour les $x_i$ et $y_i$ :
+\[
+\begin{array}{lrrrrrrrr}
+x_i & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 \\ [1.1ex]
+y_i & 0.127 & 0.2 & 0.3 & 0.25 & 0.32 & 0.5 & 0.7 & 0.9
+\end{array} 
+\]
+On choisira $K=2$. On initialisera par $\alpha_1=\alpha_2=1$,
+$\sigma_1=\sigma_2=1$, $x_1^0=3$ et $x_2^0=6$. Tracer le nuage de points
+et l'approximation au cours des itérations de la boucle d'optimisation.
+
+\textbf{2.} Appliquer la méthode de Gauss-Newton à la fonction de Rosenbrock
+$f(x,y)=10(y-x^2)^2+(1-x)^2$. Tracer les points des itérés de la méthode
+de Gauss-Newton.
+%
+%sssssssssssssssssssssssssssssssss
+%
+%\section{Le probl�me de Lennard Jones de taille $N$} 
+%%ssssssssssssssssssssssssssssssssssssssssssssssssss
+%%
+%Les probl�mes de conformation atomiques consistent � trouver les coordonn�es spatiales
+%de $N$ atomes formant une mol�cule d'�nergie minimale. Dans le cas du probl�me de 
+%Lennard Jones de taille $N$ (en abr�g�, probl�me $LJ_N$), la force d'interaction entre
+%deux atomes identiques distants d'une longueur $r$ est suppos�e issue d'un potentiel radial de van der Walls, s'�crivant sous forme adimensionn�e~:
+%\[
+%V(r) = \frac{1}{r^{12}} - \frac{2}{r^6}.
+%\]
+%Lorsqu'une m�locule est constitu�e de $N$ atomes situ�s aux positions 
+%$(X_1,...,X_N)\in \mathbb{R}^{3N}$, son �nergie potentielle totale est
+%�gale � 
+%\[
+%LJ_N(X_1,...,X_N) = \sum_{i=1,N}\sum_{j,\ i<j}\, V\left(\|X_i-X_j\|\right).
+%\]
+%La configuration la plus stable de la mol�cule correspond � un minimum global d'�nergie
+%potentielle. %
+%Lorsque $N>4$, le probl�me de la recherche du minimum global de $LJ_N$ devient
+%complexe. En effet il est conjectur� que le nombre de minima locaux de $LJ_N$
+%cro�t exponentiellement avec $N$.
+%
+%\medskip
+%Il est int�ressant d'observer comment se comporte une méthode de descente
+%en partant d'une configuration totalement al�atoire, en particulier afin
+%de d�terminer si la fonction $LJ_N$ poss�de des minima locaux.
+%%
+%\begin{enumerate}
+%%
+%\item  Programmer la méthode de descente de la plus forte pente (méthode de gradient)
+%et l'appliquer � la r�solution num�rique du probl�me $LJ_3$ et $LJ_4$. 
+%On rappelle les formules de la méthode de plus forte descente~:
+%%
+%%
+%\begin{eqnarray*}
+%&& \mbox{Choisir } x_0 \\ [1.1ex]
+%&& d_n = -\nabla_x J(x_n), \\ [1.1ex]
+%&& \alpha \leftarrow \alpha_{init}\\ [1.1ex]
+%&& \mbox{Test : } J(x_{n+1}) < J(x_n) + \beta\, \langle \alpha_n d_n,\nabla_x J(x_n) \rangle
+%\\ [1.1ex]
+%&& \mbox{Non : } \alpha_n \leftarrow \tau\, \alpha_n.\\ [1.1ex]
+%&& \mbox{Oui : } x_{n+1} = x_n + \alpha_n\, d_n.
+%\end{eqnarray*}
+%%
+%La méthode
+%sera initialis�e par une configuration al�atoire $x_0$ constitu�e de $N$ atomes
+%($N=3$ ou $4$) plac�s dans l'hypercube $[0,1]^{3N}$ et est appliqu�e avec les valeurs de param�tres $\tau=0.3$, $\beta=10^{-4}$ et
+%$\alpha_{init}=\dfrac{1}{\|\nabla_x J(x_n)\|}$. On limitera le nombre d'itérations
+%maximales � $n_{max}=300$. 
+%%
+%\item R�p�ter l'exp�rience num�rique plusieurs fois pour v�rifier que l'on atteint (ou non)
+%le minimum global.
+%%
+%\item Visualiser en 3D la configuration minimale obtenue.
+%%
+%\end{enumerate}
+%%
+%%
+
+% \section{Moindres carr�s}
+% %sssssssssssssssssssssss
+% %
+% G�n�rer un jeu de donn�es en \texttt{Matlab} � partir des instructions
+% \begin{verbatim}
+% L=10; x = -L:L;
+% y = (x-5).*sin(x) + x + 0.05*x.^2 + randn(1,length(x));
+% \end{verbatim}
+% %
+% On va appliquer une méthode de moindres carr�s pour construire une r�gression lin�aire sur ces donn�es $\{(x_i,y_i)\}_{i=1,...,I}$. Consid�rons le mod�le suivant
+% \[
+% f_N(x) = \sum_{n=1}^{N} a_n\, T_{n-1}(x)
+% \]
+% o� les $T_n(x)$ sont les polyn�mes de Thebychev d'ordre $n$. Sur $[0,L]$, 
+% ils sont d�finis de mani�re explicite par
+% \[
+% T_n(x) = \cos(n \arccos(x/L)).
+% \]
+% On note $\bm{a}\in\mathbb{R}^N$ le vecteur constitu� des coefficients
+% $a_i$, $i=1,...,N$.
+% %
+% \begin{enumerate}
+% \item On cherche � r�soudre le probl�me d'optimisation
+% \[
+% \min_{\bm{a}\in\mathbb{R}^N} J_N(\bm{a}):=\frac{1}{2}\sum_{i=1}^I
+% \left[ y_i-f_N(x_i) \right]^2.
+% \]
+% %
+% On r��crira le probl�me ci-dessous sous la forme
+% \[
+% \min_{\bm{a}\in\mathbb{R}^N} 
+% \frac{1}{2} \left\|\bm{y}- A \bm{a}\right\|^2.
+% \]
+% o� l'on explicitera le vecteur $\bm{y}$ et la matrice $A$. Les �quations
+% normales s'�crivent
+% \[
+% A^T A \bm{a} = A^T \bm{y}.
+% \] 
+% Pour les valeurs successives suivantes de $N$, calculer $\mathop{cond}_2(A^TA)$, r�soudre le syst�me des �quations normales, tracer la fonction $f_N(x)$ (avec une grille de discr�tisation de 400 points) et comparer au nuage de  points $(x_i,y_i)$~:
+% %
+% \[
+% N = 1,\ 2,\ 4,\ 10,\ 15,\ 20,\ 21.
+% \]
+% Avec les valeurs ci-dessus, tracer le graphe qui � $N$ associe la quantit�
+% \[
+% \max_{i\in\{1,...,I\}}\log_{10}|y_i - f_N(x_i)|
+% \]
+% Que constatez-vous~? Est-ce satisfaisant~?
+% %
+% %
+% \item Sensibilit� par rapport � une perturbation: on consid�re
+% le vecteur de perturbation sur les donn�es $\delta \bm{y}$~:
+% %
+% \begin{verbatim}
+% deltay = y .* 1e-3 * randn(1, length(x));
+% \end{verbatim}
+% %
+% Comme pour la question pr�c�dente, r�soudre les �quations normales
+% perturb�es
+% \[
+% (A^T A)\,  (\bm{a}+\delta \bm{a}) = A^T(\bm{y}+\delta \bm{y})
+% \]
+% pour les diff�rentes valeurs de $N$~: 
+% \[
+% N = 1,\ 2,\ 4,\ 10,\ 15,\ 20,\ 21,
+% \]
+% tracer les fonctions d'approximation $f_N(x)$ associ�es et 
+% comparer aux r�sultats de la question pr�c�dente.
+% %
+% \item On r�gularise le probl�me d'optimisation via un terme de 
+% r�gularisation de Tykhonov quadratique comme suit~:
+% %
+% \[
+% \min_{\bm{a}\in\mathbb{R}^N} \widetilde J_N^\mu(\bm{a}):=
+% \frac{1}{2} \left\|\bm{y}- A \bm{a}\right\|^2
+% +\frac{1}{2}\mu \mathop{tr}(A^TA)\, \|\bm{a}\|^2.
+% \]
+% pour $\mu>0$ ``assez petit'' par rapport � 1. Le terme $\mathop{tr}(A^TA)$ sert simplement � rendre les termes homog�nes en dimension
+% avec un coefficient $\mu$ sans dimension. Ecrire les �quations normales dans ce cas. 
+
+% Pour $\mu=10^{-3}$, reproduire la proc�dure de la premi�re question, et calculer notamment le conditionnement en norme $2$ du syst�me r�sultant.
+% Que gagne-t-on, que perd-on~?
+% %
+% \end{enumerate}
+\end{document}
+%
+%=================================================================
+%=================================================================
+%
+%
+\section{Gradient sur une fonction non partout différentiable}
+%------------------------------------------------------------
+%
+Considérons la fonction de $\mathbb{R}^2$ dans $\mathbb{R}$ 
+$J(u) = \|u\|_1$. Cette fonctionnelle n'est pas diff�rentiable 
+notamment en son minimum global (unique). Programmer la méthode it�rative suivante
+\[
+u^{k+1} = u^k - \rho \nabla_d J(u^k),
+\]
+o�
+\[
+[\nabla_d J(u)]_i = \lim_{t\rightarrow 0,\ t>0}
+\dfrac{J(u^k + t e_i)-J(u)}{t}.
+\]
+pour $i\in\{1,2\}$ et $(e_1,e_2)$ la base canonique de $\mathbb{R}^2$.
+Pour les exp�riences, on prendra $u^0=(5,4)$ et $\rho = 0.5$. Tracer
+dans $[-5,5]^2$ la trajectoire des it�r�es de la suite. Cet algorithme
+a-t-il une chance de converger~? Pourquoi ?
+
+On consid�re maintenant une suite de pas variables $\{\rho_k\}_{k\geq 0}$ d�finis par
+\[
+\rho_k = \frac{1}{k+1}.
+\] 
+On remarquera notamment que $\rho_k>0$ pour tout $k$ et
+\[
+\sum_{k=0}^{+\infty} \rho_k = +\infty, \
+\sum_{k=0}^{+\infty} (\rho_k)^2 < +\infty.
+\]
+On consid�re alors la méthode it�rative � pas variables
+\[
+u^{k+1} = u^k - \rho_k\, \nabla_d J(u^k).
+\]
+Que constatez-vous exp�rimentalement~?
+%
+\section{Moindres carr�s}
+%sssssssssssssssssssssss
+%
+G�n�rer un jeu de donn�es en \texttt{Matlab} � partir des instructions
+\begin{verbatim}
+L=10; x = -L:L;
+y = (x-5).*sin(x) + x + 0.05*x.^2 + randn(1,length(x));
+\end{verbatim}
+%
+On va appliquer une méthode de moindres carr�s pour construire une r�gression lin�aire sur ces donn�es $\{(x_i,y_i)\}_{i=1,...,I}$. Consid�rons le mod�le suivant
+\[
+f_N(x) = \sum_{n=1}^{N} a_n\, T_{n-1}(x)
+\]
+o� les $T_n(x)$ sont les polyn�mes de Thebychev d'ordre $n$. Sur $[0,L]$, 
+ils sont d�finis de mani�re explicite par
+\[
+T_n(x) = \cos(n \arccos(x/L)).
+\]
+On note $\bm{a}\in\mathbb{R}^N$ le vecteur constitu� des coefficients
+$a_i$, $i=1,...,N$.
+%
+\begin{enumerate}
+\item On cherche � r�soudre le probl�me d'optimisation
+\[
+\min_{\bm{a}\in\mathbb{R}^N} J_N(\bm{a}):=\frac{1}{2}\sum_{i=1}^I
+\left[ y_i-f_N(x_i) \right]^2.
+\]
+%
+On r��crira le probl�me ci-dessous sous la forme
+\[
+\min_{\bm{a}\in\mathbb{R}^N} 
+\frac{1}{2} \left\|\bm{y}- A \bm{a}\right\|^2.
+\]
+o� l'on explicitera le vecteur $\bm{y}$ et la matrice $A$. Les �quations
+normales s'�crivent
+\[
+A^T A \bm{a} = A^T \bm{y}.
+\] 
+Pour les valeurs successives suivantes de $N$, calculer $\mathop{cond}_2(A^TA)$, r�soudre le syst�me des �quations normales, tracer la fonction $f_N(x)$ (avec une grille de discr�tisation de 400 points) et comparer au nuage de  points $(x_i,y_i)$~:
+%
+\[
+N = 1,\ 2,\ 4,\ 10,\ 15,\ 20,\ 21.
+\]
+Avec les valeurs ci-dessus, tracer le graphe qui � $N$ associe la quantit�
+\[
+\max_{i\in\{1,...,I\}}\log_{10}|y_i - f_N(x_i)|
+\]
+Que constatez-vous~? Est-ce satisfaisant~?
+%
+%
+\item Sensibilit� par rapport � une perturbation: on consid�re
+le vecteur de perturbation sur les donn�es $\delta \bm{y}$~:
+%
+\begin{verbatim}
+deltay = y .* 1e-3 * randn(1, length(x));
+\end{verbatim}
+%
+Comme pour la question pr�c�dente, r�soudre les �quations normales
+perturb�es
+\[
+(A^T A)\,  (\bm{a}+\delta \bm{a}) = A^T(\bm{y}+\delta \bm{y})
+\]
+pour les diff�rentes valeurs de $N$~: 
+\[
+N = 1,\ 2,\ 4,\ 10,\ 15,\ 20,\ 21,
+\]
+tracer les fonctions d'approximation $f_N(x)$ associ�es et 
+comparer aux r�sultats de la question pr�c�dente.
+%
+\item On r�gularise le probl�me d'optimisation via un terme de 
+r�gularisation de Tykhonov quadratique comme suit~:
+%
+\[
+\min_{\bm{a}\in\mathbb{R}^N} \widetilde J_N^\mu(\bm{a}):=
+\frac{1}{2} \left\|\bm{y}- A \bm{a}\right\|^2
++\frac{1}{2}\mu \mathop{tr}(A^TA)\, \|\bm{a}\|^2.
+\]
+pour $\mu>0$ ``assez petit'' par rapport � 1. Le terme $\mathop{tr}(A^TA)$ sert simplement � rendre les termes homog�nes en dimension
+avec un coefficient $\mu$ sans dimension. Ecrire les �quations normales dans ce cas. 
+
+Pour $\mu=10^{-3}$, reproduire la proc�dure de la premi�re question, et calculer notamment le conditionnement en norme $2$ du syst�me r�sultant.
+Que gagne-t-on, que perd-on~?
+%
+\end{enumerate}
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:
