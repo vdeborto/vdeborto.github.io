@@ -34,7 +34,7 @@
 % \sloppy
   %\phantom{am} 
 %http://scipy-cookbook.readthedocs.io/items/robust_regression.html 
-\titlefront{Méthode de descentes de gradient et algorithmes de Newton}
+\titlefront{Méthodes de descente de gradient et algorithmes de Newton}
 En préambule on suppose que les paquets suivants ont été chargés
 \begin{lstlisting}
   import numpy as np
@@ -55,7 +55,7 @@ Dans notre première exemple, on étudie la fonction $f: \mathbb{R}^2 \ \rightar
 f(x_1,x_2) = (x_1-1)^2 + 100\, (x_1^2-x_2)^2.
 \]
 $f$ est de classe $\mathcal{C}^1(\mathbb{R}^2, \mathbb{R})$, positive, atteint son unique minimum en $x^* = (1,1)$ et $f(x^*) = 0$.
-Voici le code python qui calcule cette fonction, son gradient et sa hessienne.
+Voici le code python qui calcule cette fonction et son gradient.
 \begin{lstlisting}
 ## Rosenbrock function and its gradient
 
@@ -196,7 +196,7 @@ où $c \in ]0,1/2[$ est un paramètre fixé par l'utilisateur.  Proposer
 une méthode permettant de trouver un tel pas $\step_{k+1}$ et
 l'implémenter. Pour cela, on pourra considérer une suite décroissante
 tendant vers $0$ et initialisée à la valeur
-$-\fracaaa{\langle \nabla f(x_{k}),d_{k} \rangle}{L \|d_{k}\|^2}$, où $L$
+$-\frac{\langle \nabla f(x_{k}),d_{k} \rangle}{L \|d_{k}\|^2}$, où $L$
 est un paramètre fixé par l'utilisateur. 
 
 \subparagraph{Règle de Wolfe} 
@@ -215,8 +215,8 @@ où $c_1 \in ]0,1/2[$, $c_2 \in ]1/2,1[$ sont des paramètres fixés par
 l'utiisateur.  Proposer une méthode permettant de trouver un tel pas
 $\step_{k+1}$ et l'implémenter. Pour cela, on pourra par exemple
 rechercher ce pas dans un intervalle
-$[a,b]$ que l'on affinera au fur et à mesure et en prenant comme valeur initial $-\fracaaa{\langle \nabla f(x_{k}),d_{k} \rangle}{L \|d_{k}\|^2}$, où
-$L$ est un paramètre fixé par l'utilisateur. On pourra aussi se fixer un nombre maximal d'itérations.
+$[a,b]$ que l'on affinera au fur et à mesure et en prenant comme valeur initial $-\frac{\langle \nabla f(x_{k}),d_{k} \rangle}{L \|d_{k}\|^2}$, où
+$L$ est un paramètre fixé par l'utilisateur. On pourra aussi se fixer un nombre maximal d'itérations. Afin d'assurer la convergence de la règle de Wolfe, on utilise une étape d'extrapolation.
 
 
 \subparagraph{Banane de Rosenbrock et problème quadratique}On considère les deux problèmes d'optimisation introduits dans l'exercice précédent.
@@ -224,7 +224,7 @@ $L$ est un paramètre fixé par l'utilisateur. On pourra aussi se fixer un nombr
 \begin{enumerate}
 \item Implémenter la méthode de gradient avec la règle d'Armijo et règle de Wolfe.
   
-\item Tester ces règles pour la fonction de Rosenbrock avec les valeurs suivantes pour $x_{0} = (-1,1)$, $L=100$ et différentes valeurs des paramètres $c,c_1,c_2$. Comparer les entre elle et avec la méthode de descente de gradient à pas fixe. On pourra par exemple afficher l'évolution au cours des algorithmes de la distance entre les itérés et le minimiseur de $f$ ainsi que la suite $(f(x_k)-f(x^{\star}))_{k \in \nset}$
+\item Tester ces règles pour la fonction de Rosenbrock avec les valeurs suivantes pour $x_{0} = (-1,1)$, $L=100$ et différentes valeurs des paramètres $c,c_1,c_2$. Comparer les entre elles et avec la méthode de descente de gradient à pas fixe. On pourra par exemple afficher l'évolution au cours des algorithmes de la distance entre les itérés et le minimiseur de $f$ ainsi que la suite $(f(x_k)-f(x^{\star}))_{k \in \nset}$
   
 \item  Tester l'algorithme sur le problème quadratique et effectuer la même étude que pour la fonction de Rosenbrock.
 \end{enumerate}
