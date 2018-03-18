@@ -122,7 +122,7 @@ Avant de commencer le TP, installer les librairies suivantes de python. Taper da
   pip install -U scikit-learn scikit-image
 \end{lstlisting}
 
-Vous aurez aussi besoin du fichier \lstinline+tp2_tools.py+ à télécharger sur la page suivante : \url{www.dfsqd.}
+Vous aurez aussi besoin du fichier \lstinline+tp2_tools.py+ à télécharger sur la page suivante : \url{https://vdeborto.github.io/project/optimization/}
 
 \begin{enumerate}
 \item Créer un nouveau module python pour ce problème qui commencera par
@@ -207,7 +207,7 @@ y, A = noisy_observations_inf()
     \begin{equation}
       \label{eq:lagrangian_max_prox}
       \begin{aligned}
-      \text{min}_{t \in \rset, x \in \rset^d} &\qquad t + (1/(2\gamma)) \norm[2]{y-x} \\
+      \text{min}_{t \in \rset, x \in \rset^d} &\qquad t + (2\gamma)^{-1} \norm[2]{y-x} \\
       \text{ sous contraintes} &\qquad x_i \leq t \text{ pour tout $i \in \{1,\ldots,d\}$} \eqsp.
       \end{aligned}
     \end{equation}
@@ -216,7 +216,7 @@ y, A = noisy_observations_inf()
     implicite pour la solution $(\tstar,\ystar)$ du problème \eqref{eq:lagrangian_max_prox}.     
   \end{enumerate}
   
-\item Télécharger le module  \lstinline+prox_max.py+ à partir de \url{blabla} et utiliser la fonction ista que vous avez implémenté pour minimiser $F$.
+\item Télécharger le module  \lstinline+prox_max.py+ à partir de \url{https://vdeborto.github.io/project/optimization/} et utiliser la fonction ista que vous avez implémenté pour minimiser $F$.
   
 \item Illustrer graphiquement la convergence de l'algorithme. 
 \end{enumerate}
@@ -277,12 +277,12 @@ Y, A = noisy_observations_nuclear()
     rotation, montrer que pour tout $X \in \rset^{d \times d}$  le problème de minimisation
     \begin{equation}
       \label{eq:prox_nuclea_proof_1}
-      \min_{Y \in \rset^{d\times d} } \norm{Y}_{\star} +(1/(2\gamma)) \norm[2]{Y-X}_2 \eqsp,
+      \min_{Y \in \rset^{d\times d} } \norm{Y}_{\star} +(2\gamma)^{-1} \norm[2]{Y-X}_2 \eqsp,
     \end{equation}
     est équivalent à  
           \begin{equation}
       \label{eq:prox_nuclea_proof_2}
-      \min_{D \in \mathsf{E}} \norm{D}_{\star} +(1/(2\gamma)) \norm[2]{D-\Sigma_X}_2 \eqsp,
+      \min_{D \in \mathsf{E}} \norm{D}_{\star} +(2\gamma)^{-1} \norm[2]{D-\Sigma_X}_2 \eqsp,
     \end{equation}
     où $\mathsf{E}$ est l'ensemble des matrices diagonales de $\rset^{d \times d}$ et $\Sigma_X$ est la matrice diagonale donnée par la décomposition en valeurs singulières de $X$.
     Pour cela on utilisera le résultat suivant \cite{vonNeumann_1937}.
