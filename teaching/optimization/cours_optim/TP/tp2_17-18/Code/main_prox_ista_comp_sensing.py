@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
 """
 Created on Tue Mar 13 09:15:34 2018
 
@@ -13,9 +11,12 @@ import warnings
 warnings.filterwarnings('ignore')
 from ista import ista
 
-lambda_l1 = 1
-y, A = noisy_observations()
-#
+lambda_l1 = 10 ** -5
+n_it = 20
+n = 32
+r_sparse = 1
+r_info = 1
+y, A = noisy_observations(n, r_sparse, r_info)
 
 
 def proxL1(x, gamma):
@@ -38,11 +39,18 @@ def fun_total_1(x):
 dim = A.shape[1]
 
 x_final_ista, fun_iterate_ista = ista(
-    dim, proxL1, grad_f_1, fun_total_1, lambda_l1, n_it=500)
+    dim, proxL1, grad_f_1, fun_total_1, lambda_l1, n_it)
 
-plt.figure()
+energy_plt = plt.figure(1)
 plt.plot(fun_iterate_ista)
 
-plot_image(x_final_ista)
+images_plt = plt.figure('images')
+images_plt.add_subplot(1, 2, 1)
+plt.axis('off')
+plt.imshow(back_to_image(np.linalg.inv(A).dot(y)), cmap='gray')
+
+# fig.add_subplot(1, 2, 2)
+# plot_image(x_final_ista)
 
 print("||Ax-y||=", np.linalg.norm(A.dot(x_final_ista) - y))
+plt.show()
