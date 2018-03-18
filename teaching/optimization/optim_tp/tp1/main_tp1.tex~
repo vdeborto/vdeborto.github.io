@@ -1,0 +1,451 @@
+ \documentclass[a4paper,french,12pt]{article}
+
+
+\usepackage{../tp_anne}               % package for TP documents
+\usepackage{../defs_anne}           % package for shortcuts 
+\DeclareMathOperator{\BETA}{BETA}
+%\Opensolutionfile{ans_file}[Ans_ETUDECAS]
+
+% \newcommand{\site}{\url{http://josephsalmon.eu/index.php?page=teaching_13_14&lang=fr} } 
+
+
+ % \newcommand{\site}{\url{https://sitepedago.telecom-paristech.fr/front/frontoffice.php?SP_ID=797166} } 
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%    Headers   			             %%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\lhead{\textsc{Calcul Numérique MDI345, Télécom ParisTech}
+    \hfill \textsc{Evaluation:  25/03/2016 } \\
+\textsc{Anne Sabourin, Alain Durmus} %\hfill     \mailperso{anne.sabourin@telecom-paristech.fr}\ 
+\\
+\, \vspace{5cm}\, 
+}  
+
+
+%%%%\allowdisplaybreaks            %% TODO:What is it doing?
+%  \begin{lstlisting}
+%  > U = K \ B
+% \end{lstlisting}
+%\lstinline+ solveHeatExpli(L,T,nx,nt,SOURCE, UINIT) + 
+
+\input{def}
+
+\begin{document}
+
+%\sloppy
+\titlefront{MDI345 - partie 1 : interpolation et quadrature \\ Étude
+  de Cas }
+
+
+\section{Introduction}
+\label{sec:intro}
+
+L'étude de cas consiste à utiliser les résultats théoriques et les
+méthodes numériques vus en cours pour 
+\begin{enumerate}
+\item  l'estimation d'une 
+  densité de probabilité, étant donné un histogramme formé à partir d'un
+  échantillon de variables indépendantes et identiquement distribuées
+  selon cette densité,
+\item  l'estimation de la probabilité pour la
+  variable aléatoire associée  d'appartenir à un certain intervalle, étant donnée sa  densité de probabilité. 
+\end{enumerate}
+
+On s'intéressera en particulier à la loi Beta de paramètres $\alpha>0,
+\beta>0$, de densité
+\begin{equation}
+  \label{eq:def_phi_alpha_beta}
+\phi_{\alpha,\beta}(x) = x^{\alpha - 1}(1-x)^{\beta - 1}/\betaI_{\alpha,\beta} %%(1) \eqsp,
+\end{equation}
+
+
+où $\betaI_{\alpha, \beta} $ est la constante de normalisation % : [0,1] \to \rset$, est la fonction beta incomplète
+% de paramètres $\alpha,\beta >0$ et définie pour tout $x \in [0,1]$ par
+\begin{equation}
+  \label{eq:def_beta_incomplete}
+  \betaI_{\alpha,\beta} = \int_{0}^1 t^{\alpha - 1}(1-t)^{\beta -
+    1}\rmd t \eqsp = \frac{\Gamma(\alpha)\Gamma(\beta)}{\Gamma(\alpha+\beta)}.
+\end{equation}
+Dans toute la suite, on prendra
+\[
+\alpha = 1.5, \beta = 2.2.
+\]
+% On étudiera aussi la densité de la loi de la variable aléatoire $X$ à valeurs dans $[0,1]$ et définie par:
+% \begin{equation}
+%   \label{eq:def_X}
+%   X = \mathbf{1}_{\{|G|\leq 1\}}G Y + B\sin(U/4.5) + (E+1/3)(E+1/2)^{-1} \eqsp,
+% \end{equation}
+% où $G\sim \mathcal{N}(0,1)$, $Y$ suit une loi béta de paramètre $3,2$,
+% $B$ est une Bernouilli de paramètre $0.3$ et $E$ est une Laplace de
+% paramètre $1/2$. Vous trouverez le code pour générer $10^{7}$
+% échantillons dans le document annexe et l'histogramme associé.
+
+% On considerera deux approches. On utilisera dans un premier temps
+% l'expression de $\phi_{1.2,2.2}$ fournit par \octave. Dans un second
+% temps, on utilisera un estimateur par histogramme de cette fonction, cf Section $1$.
+
+La première partie du sujet vous amènera à utiliser les méthodes
+d'interpolation vues en cours sur la densité $\phi_{1.5,2.2}$, ainsi
+que sur sa ``version bruitée'', c'est-à-dire l'histogramme d'un
+échantillon i.i.d $(X_i, i= 1,\ldots,n)$ suivant la loi
+Beta de paramètre $(1.5,2.2)$. La deuxième partie consiste à   exploiter les méthodes d'intégration
+numériques pour approcher la quantité 
+\begin{equation}
+  \label{eq:pab}
+p_{0.1} = \PP(0.1\le X_1\le 0.9) = \int_{0.1}^{0.9} \phi_{1.5,2.2}(t) \ud t.  
+\end{equation}
+
+
+% $\betaI_{1.5,2.2}(1)$ et
+% l'intégrale de l'histogramme construit à partir des échantillons de
+% loi beta de paramètre $(1.5,2.2)$. Dans ce dernier cas, on utilisera comme fonction
+% à intégrer une des interpolations que vous avez implémentée à partir de
+% l'histogramme.
+\section*{Consignes}
+\label{sec:cons}
+
+
+L'ensemble de votre travail devra être rassemblé dans un seul dossier
+portant votre nom, et archivé au format .zip ou tar.gz. Ce dossier
+doit contenir 
+\begin{itemize}
+\item Un rapport écrit,  au format pdf, contenant  contenant les réponses
+  rédigées au questions,  les figures et 
+  résultats numériques obtenus. L'utilisation du \LaTeX\,  est
+  recommandée mais non obligatoire.   
+\item L'histogramme des échantillons générés, sauvegardé dans un fichier \lstinline+hist1.mat+.
+\item  Toutes  les fonctions utilisées -- une fonction par fichier-- 
+\item Les scripts exécutables avec \octave~ contenant
+  votre travail sur les questions numériques : un script par question,
+  nommé \lstinline+scriptQuestionN_K.m+ % (ou
+  % \lstinline+scriptQuestionN_K.R+ si vous travaillez avec \texttt{R}
+  ,
+  pour  le script correspond à la
+  question $K$ de l'exercice $N$. Le correcteur doit pouvoir retrouver
+  tous vos résultats (y compris les figures, dotées d'une légende
+  sommaire et d'un titre) en appelant le script depuis \octave. %%\  ou  \texttt{R}.
+\end{itemize}
+ 
+Les dossiers doivent être déposés sur l'espace de partage  sur Eole avant le dimanche 3 avril
+2016, 23h59. Passé cette limite, 
+vous devrez envoyer votre dossier par mail à l'adresse : \\
+\texttt{anne.sabourin@telecom-paristech.fr}, avec en objet l'intitulé
+``EDC MACS205''.  Chaque heure de retard vous coûtera deux points (sur vingt).
+\section{Génération des données et fonctions préliminaires}
+
+\begin{enumerate}
+\item Implémentez une fonction \lstinline+densite+ qui à partir d'un
+  vecteur contenant $n \geq 1$ réels $(x_1,\cdots,x_n)$, appartenant à
+  $[0,1]$, retourne le vecteur
+  $(\phi_{1.5,2.2}(x_1),\cdots,\phi_{1.5,2.2}(x_n))$. On utilisera pour
+  cela l'expression~(\ref{eq:def_phi_alpha_beta}) et la fonction
+  \lstinline+beta+ d'octave. %% (ou de \texttt{R})
+% \item Implémenter une fonction \lstinline+betaIAB+ qui à partir d'un vecteur contenant $n \geq 1$ réels $(x_1,\cdots,x_n)$, appartenant à $[0,1]$, retournent le vecteur $(\betaI_{1.5,2}(x_1),\cdots,\betaI_{1.5,2.2}(x_n))$.
+% Pour cela, on utilisera les fonctions \lstinline+betainc+ et \lstinline+beta+.
+\end{enumerate}
+
+On considérera aussi une version approchée  de $\phi_{1.5,2.2}$, basée
+sur un histogramme construit à partir de $n$ échantillons i.i.d $w_i$
+de loi $\beta(1.5,2.2)$. On définit   pour tout $x\in [0,1[$,
+\begin{equation*}
+  \hat{\phi}_{1.5,2.2}^{N_w} (x) = (2^{8}/N_w) \sum_{i=1}^{N_w} \mathbf{1}_{w_i \in [k(x) 2^{-8}, (k(x)+1) 2^{-8}[ } \eqsp,
+\end{equation*}
+où $k(x)$ est la partie entière de $2^8 x$.
+\begin{enumerate}[resume]
+\item Soit $x \in [0,1[$. Quelle est la limite presque sûr de
+  $\hat{\phi}_{1.5,2.2}^{N_w} (x) $ lorsque $N_w$ tend vers l'infini ?
+On notera $\hat{\phi}_{1.5,2.2}^{\infty} (x)$ cette limite. 
+\item Donner une majoration de $\hat{\phi}_{1.5,2.2}^{\infty}
+  (x) - \phi_{1.5,2.2} (x)$ en fonction de  $x \in [0,1[$.
+\end{enumerate}
+Pour générer l'histogramme et l'estimateur associé, il vous est fourni
+un script \lstinline+ini.m+, et deux fonctions
+\lstinline+hist_value.m+, \lstinline+generation_X.m+. Récupérer ces
+fichiers (répertoire \lstinline+script_et_fonctions.tar.gz+ sur le
+site pédagogique) et placez-les dans votre répertoire de
+travail. Exécutez le script ``ini.m'' pour générer $10^7$ échantillons
+i.i.d. selon $\phi_{1.5,2.2}$ et l'histogramme associé. L'histogramme
+doit s'afficher, et un fichier \lstinline+hist1.mat+ sera créé dans
+votre répertoire de travail . \textsc{n'oubliez pas de joindre ce
+  dernier à votre rendu !}
+\begin{enumerate}[resume]
+\item On sera amené dans la suite à utiliser les fonctions
+  implémentées  en cours, en leur passant en argument  la fonction
+  \lstinline+fun = hist_value+. Que fait la 
+  fonction \lstinline+hist_value+ ? (faites le lien avec les questions
+   précédentes). %%L'utiliser pour un vecteur que vous aurez convenablement
+  % choisi.
+\end{enumerate}
+
+
+\section{Interpolation polynomiale}
+\label{sec:interpolPoly}
+\subsection{Interpolation à partir de l'expression exacte de $\phi_{1.5,2.2}$}
+\begin{enumerate}
+\item Construisez le polynôme d'interpolation de Lagrange de la
+  fonction $\phi_{1.5,2.2}$ avec des noeuds d'interpolation 
+  équi-distants, évalué en $1000$ points de l'intervalle $[a = 2^{-8}, b =
+  1-2^{-8}]$. Faites varier le degré du polynôme d'interpolation
+  entre 2 et 50. 
+  \begin{enumerate}
+  \item A partir de quel degré voyez- vous apparaître le
+  phénomène de Runge ?
+\item  Affichez trois exemples mettant en évidence les
+  défauts de l'interpolation avec un degré trop bas ou trop haut. Vous
+  tracerez sur chaque graphique le résultat de l'interpolation et le
+  graphe de la fonction de référence. 
+  \end{enumerate}
+\item Reprenez les étapes de la question 1, en utilisant cette fois
+  les noeuds de Tchebychev. commentez. 
+\item On considère maintenant une interpolation par morceaux, de degré
+  $n=2$ ou $n=3$, avec noeuds équi-distants  sur chaque sous-intervalle, de pas
+  $h = (b-a)/M$.
+
+
+Affichez le résultat de l'interpolation en même temps que la
+    fonction de référence, pour $M = 20$ et $n=1, 2, 3$.
+ % Vous
+ %    utiliserez la fonction \lstinline+piecewiseInterpol+ dont le
+ %    squelette est donné dans la feuille de TD 3. 
+
+
+% Rappelons que la fonction
+%     \lstinline+piecewiseInterpol+ renvoie deux objets: les abscisses
+%     des points  d'évaluation et les évaluations elles-mêmes. Le nombre
+%     de points d'évaluation sur chaque sous intervalle est déterminé
+%     par le paramètre \lstinline+ni+. Appelons \lstinline+[xx,yy]+ le
+%     résultat de l'appel à     \lstinline+piecewiseInterpol+. Une
+%     approximation du maximum de l'erreur (absolue) d'interpolation sur $[a,b]$
+%     et donné par \lstinline+max(abs( yy - densite(xx)))+.  
+
+
+  \item On veut comparer l'évolution de l'erreur pour l'interpolation
+    par morceau de degré $n=3$ et $M$ sous intervalles comme ci-dessus
+    (fonction \texttt{piecewiseInterpol}), avec l'erreur de
+    l'interpolation de Lagrange 'simple' de degré $n' = 3 * M + 1$,
+    avec des noeuds d'interpolation equirépartis (fonction\texttt{interpolLagrange}).
+
+    \begin{enumerate}
+    \item Expliquez le choix de $n'$ (comparez le nombre de points
+      d'évaluation de la fonction \texttt{densite}). 
+    \end{enumerate}
+    On approche la norme infinie de l'erreur par le maximum des
+    valeurs absolues des erreurs évaluées sur la grille
+    d'interpolation (définie par le parametre \texttt{ni}). Pour chaque
+    valeur de $M$ on prendra \lstinline@ni = floor( (2^10 -1)/M) +1@
+    comme argument de la fonction \lstinline+piecewiseInterpol+ et
+    \lstinline+ni = 2^10+ comme argument de la fonction
+    \lstinline+interpolLagrange+.
+    \begin{enumerate}[resume]
+    \item Justifiez le choix de \lstinline+ni+ dans les deux cas. 
+    \item Faites varier $M$  de $1$ à $20$, et pour chaque valeur de
+      $M$, calculez une approximation de la norme infinie de l'erreur
+      comme expliqué ci-dessus. Tracez sur le même graphique
+      l'évolution de cette approximation en fonction de $M$, pour les
+      deux méthodes considérées. Commentez. 
+    \end{enumerate}
+
+
+%  Calculez une  approximation du maximum de l'erreur (absolue) d'interpolation sur $[a,b]$  pour $M$ variant de $2$ à
+% $102$ (avec un pas de $5$), et un paramètre \lstinline+ni+ fixé à $2^{10}+1$. Stockez les résultats dans un vecteur nommé \lstinline+maxErr+. 
+% Quelle allure devrait théoriquement avoir la courbe de \lstinline+maxErr+ en
+% fonction de $M$ ? Justifiez à l'aide du cours. Mettez ceci en évidence
+% numériquement grâce à un tracé 
+% ``log-log''. Calculez et affichez la ``pente'' (choisir une portion de
+% la courbe qui parait raisonnablement linéaire). 
+
+\end{enumerate}
+
+\subsection{Interpolation à partir de l'histogramme} 
+\begin{enumerate}[resume]
+\item
+Reprendre les questions $1$-$2$-$3$ en utilisant l'histogramme généré
+à la partie 2 (en pratique, vous utiliserez la fonction
+\lstinline+hist_value+). Que remarquez-vous à propos des deux premières
+méthodes (questions 1 et 2) ?
+
+Quelle méthode d'interpolation vous parait  la plus judicieuse? 
+% \item Pour des raisons de régularités, dans la suite on utilisera plus
+%   la fonction \lstinline+hist_value+ pour avoir les valeurs de
+%   l'histogramme des échantillons mais la meilleurs interpolation selon
+%   vous. Construire une fonction \lstinline+hist_value_interp+ qui à
+%   partir d'un vecteur $x \in [0,1]^n$ retourne le vecteur des valeurs de
+%   cette interpolation en les $x_i$.
+\end{enumerate}
+
+\section{Méthodes de quadrature}
+\label{sec:quad}
+\subsection{Estimation de $p_{0.1}$ à partir de la densité 
+$\phi_{1.5,2.2}$}
+On se place dorénavant dans le cas où la densité est connue, mais où
+son intégrale ne l'est pas. 
+
+\begin{enumerate}
+\item 
+ Pour estimer la valeur de $p_{0.1}$ définie par
+ l'équation~(\ref{eq:pab}), on utilise la méthode de quadrature
+ composite de Cavalieri-Simpson, où la fonction à intégrer est la
+ densité $\phi_{1.5,2.2}$, connue, les bornes d'intégration sont $a=0.1,b=0.9$. 
+On appelle $\hat I_M^{simp}$ le résultat obtenu par une méthode de
+simpson composite avec $M$ intervalles de même taille. 
+\begin{enumerate}
+\item Affichez le graphe de $\hat I_M^{simp}$ en fonction de $M$ :  faites varier le nombre $M$ de sous-intervalle d'abord entre 2 et 50,
+puis sur une plage  appropriée plus restreinte (de manière à 'zoomer'
+sur les zones plates de la courbe). 
+\item En déduire une première estimation
+'à vue d'oeil', à $10^{-4}$ près (en erreur absolue).
+\end{enumerate}
+\item \label{qu:errorPosterior} On s'intéresse à l'erreur commise en fonction du nombre $M$ de
+  sous intervalles d'intégration. 
+  \begin{enumerate}
+  \item Quel est l'ordre de grandeur théorique de l'erreur en
+    fonction de $h = \frac{b-a}{M}$ ? 
+  \item
+\label{que:b}
+ La fonction \lstinline@betacdf@ d'\octave~
+donne une très bonne approximation de
+ la fonction de répartition de la loi beta. Calculez une valeur ``de
+ référence'' $p_{0.1, table}$ en utilisant la fonction
+ \lstinline@betacdf@. %% (ou la fonction \lstinline+pbeta+ de
+                      %% \texttt{R}).   
+ Tracez le graphe du logarithme de la valeur absolue de l'erreur,
+ $\log|p_{0.1, table} - \hat I_M^{simp}|$ en fonction de
+ $\log(M)$. Que pouvez-vous en déduire et cela est-il en accord avec
+ le cours ?
+  \item \'Evaluez a posteriori la valeur absolue de l'erreur, (sans utiliser la fonction
+    \lstinline@betacdf@)  pour $M$ variant entre 14
+    et 80. (Attention, la fonction \texttt{evalErrSimpson} renvoie une erreur correspondant au
+    double du paramètre $M$ passé en argument). 
+   \begin{enumerate}
+   \item 
+% Nommez 
+%     \lstinline+vectErrorSimpson+ le vecteur des erreurs
+%     absolues estimées a posteriori par \lstinline+evalErrSimpson+. 
+
+Tracez le graphe ``log-log'' de  l'erreur absolue contre
+   le nombre de pas $M$. 
+   \item Estimez la pente dans une portion linéaire
+   \item Comparez vos résultats à ceux de la  question \eqref{que:b}.
+   \end{enumerate}
+  \end{enumerate}
+\item \label{Iauto}On voudrait une méthode automatique pour choisir $M$ en fonction
+  de l'estimation  de l'erreur a posteriori, pour avoir une estimation 
+  $\hat I$ à $10^{-6}$ près de $p_{0.1}$. 
+ 
+ Écrire un algorithme utilisant la fonction \lstinline+evalErrSimpson+
+ en s'inspirant du pseudo-code suivant 
+ \begin{lstlisting}
+    %%  INITIALISATION %%
+M = 10 ;  erreur = 1 ;  Mvecteur = 0 ; Qvecteur = 0 ; Evecteur = 0 ;
+%% Qvecteur :  contiendra les valeurs renvoyees par la MQ composite de
+%% cavalieri-simpson
+%% Evecteur :  contiendra les estimations d'erreur
+%% Mvecteur : contiendra les valeurs de M correspondantes
+%% erreur : valeur courante de l'erreur
+    %% boucle while %%
+tant que ( 2 * erreur > tolerance) : %% erreur multipliee par 2 pour
+                                %% tenir compte des approximations de
+                                %% la methode d'evaluation de l'erreur
+       - estimer l'erreur et la quadrature pour 2M sous-intervalles 
+en appelant 'evalErrSimpson'
+       - mettre a jour  'Mvecteur', 'Qvecteur', 'Evecteur'
+       - mettre a  jour 'erreur'
+       - M = 2 * M
+fin (tant que).
+ \end{lstlisting}
+
+Donnez maintenant une estimation de $p_{0.1}$ à $10^{-8}$ près. 
+% \item Quel est, d'après le cours, et indépendemment de vos résultats
+%   précédents,  l'ordre de grandeur de l'erreur $\hat I_M - I$ en
+%   fonction de $M$, toujours pour la méthode de Cavalieri-Simpson ? 
+\end{enumerate}
+
+\subsection{Estimation de $p_{0.1}$ à partir de $\hat{\phi}_{1.5,2.2}$}
+On se demande dans cette partie comment les erreurs en entrée (sur les
+données, \ie\ sur l'intégrande $\phi_{1.5,2.2}$) impactent la sortie (la valeure de
+l'intégrale approchée). 
+\begin{enumerate}
+\item Ecrire une fonction \lstinline+ densite_bruitee+ prenant en
+  argument un vecteur $x$ (dont les éléments sont dans l'intervalle
+ $ [0,1]$) et renvoyant un vecteur $y$ de même taille dont chaque
+ élément est la valeur de l'histogramme $\hat{\phi}_{1.5,2.2}$  évalué en 
+ l'élément de $x$ associé. On utilisera la fonction
+ \lstinline+hist_value+ fournie.
+\end{enumerate}
+      On considère
+  \begin{itemize}
+  \item l'approximation $\hat{  p}_{0.1, M}^{bruit}$  de $p_{0.1}$ obtenue par la  la méthode de
+  composite de Simpson appliquée à \lstinline+densite_bruitee+, avec
+  $M$ sous-intervalles.
+\item l'approximation $\hat{ p}_{0.1, M}$ obtenue par la même méthode, appliquée à la
+vraie densité \lstinline+densite+. 
+  \end{itemize}
+On s'intéresse à la différence absolue
+\[
+\Delta_M = |\hat{
+  p}_{0.1, M}^{bruit} -  \hat{
+  p}_{0.1, M}|. 
+\]
+\begin{enumerate}[resume]
+\item Que vous dit la théorie sur l'allure de la courbe de $\Delta_M$
+  en fonction de $M$ ? 
+\item Affichez cette courbe et commentez le résultat vi-à-vis de la
+  question précédente. 
+\end{enumerate}
+%\lstinline+evalErrSimpson+ et 
+ 
+
+
+% \item 
+%  Tracer l'approximation de la densité de probabilité que on peut en déduire.
+
+\section{Extrapolation de Richardson et méthode de Romberg}
+\label{sec:rich}
+
+Dans cette partie, on cherche à évaluer à nouveau $p_{0.1}$, en
+utilisant la ``vraie'' densité $\phi_{1.5,2.2}$,  
+%l'intégrale de l'histogramme des échantillons générés 
+par la méthode des trapèzes, avec une étape d'extrapolation de Romberg.
+
+\subsection*{Estimation de $p_{0.1}$}
+Estimez la valeur de $p_{0.1}$ avec la méthode de Romberg :
+on pose $t = h^2$ , $A(t) = \hat I(\sqrt t)$ (méthode composite des
+trapèzes employée pour approcher $p_{0.1}$), avec $h =
+(b-a)/M$, et on applique la méthode de Richardson à la fonction $A$.
+Voir le TD 4 pour le squelette de la fonction
+\lstinline+Romberg+. Passez en argument de la fonction un nombre
+d'intervalles initial $M = 3$ et un nombre de raffinements successifs
+$n = 12$. Le vecteur renvoyé par la fonction est formé  des
+éléments diagonaux de la matrice $(A_{i,j})$ calculée par la méthode
+de Richardson. Ainsi, l'élément $k$ du vecteur correspond à une
+évaluation par la méthode de Romberg avec $k$ raffinements successifs.
+  \begin{enumerate}
+\item Nommez \lstinline+estRomberg+ le vecteur
+  renvoyé par la fonction \lstinline+Romberg+ avec les paramètres
+  indiqués, et affichez-le. 
+  \item On prendra comme ``vraie'' valeur de l'intégrale  la quantité
+    $p_{0.1,table}$ calculée à la Section 4. 
+      Tracez sur le même graphique :  le
+    vecteur \lstinline+0:n+ en abscisses ; et en ordonnées : le
+    logarithme de l'erreur
+   $\log | $ \lstinline+estRomberg+   $-p_{0.1,table}|$    et le logarithme de
+   l'erreur des  estimateurs ``naïfs''
+    correspondants, c'est à dire les  $\log | \hat I_{m} -  p_{0.1, table}|$, pour $m =
+    M, 2M, \ldots,  2^{n} M$. Que constatez-vous ? Comment
+    interprétez-vous le palier ? l'autre portion de la courbe ?
+  \end{enumerate}
+
+% \subsection{Estimation de l'intégrale de $\hat{\phi}_{1.5,2.2}$}
+% \label{sec:loi-de-x}
+% Reprendre les questions précédentes pour l'histogramme des échantillons générés, dont les valeurs seront approchées par la fonction \lstinline+hist_value_interp+ précédemment implémentée. 
+% 
+%On prendra comme ``vraie'' valeur de l'intégrale de l'histogramme l'estimation   obtenue à la Section 4.2. 
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

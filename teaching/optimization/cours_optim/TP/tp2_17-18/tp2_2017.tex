@@ -1,0 +1,322 @@
+ \documentclass[a4paper,french,12pt]{article}
+
+
+\usepackage{../tp}               % package for TP documents
+\usepackage{../defs}           % package for shortcuts 
+\DeclareMathOperator{\BETA}{BETA}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%    Headers   			             %%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% \lhead{
+
+% }  
+
+
+
+\input{def}
+
+\begin{document}
+
+\noindent
+ \textsc{Valentin De Bortoli} \hfill \url{debortoli@cmla.ens-cachan.fr} \\
+    \textsc{Alain Durmus} \hfill \url{alain.durmus@cmla.ens-cachan.fr}
+    \\
+    TP 2 : optimisation numérique\hfill
+    Première année Master Hadamard\\
+\hrulefill\ \\
+    
+ \vspace{-5cm} 
+
+
+% \sloppy
+  %\phantom{am} 
+%http://scipy-cookbook.readthedocs.io/items/robust_regression.html 
+\titlefront{Minimisation par optimisation proximale}
+En préambule de tout module python, on suppose que les paquets suivants ont été chargés
+\begin{lstlisting}
+  import numpy as np
+  import matplotlib.pyplot as plt
+\end{lstlisting}
+
+\section{Implémentation de ISTA}
+\label{sec:impl-de-ista}
+L'algorithme ISTA \cite{beck09_fast_iterat_shrin_thres_algor} est un
+algorithme a pour objectif à minimiser une fonction $F : \rset^d \to \rset$ s'écrivant sous la
+forme $F = f + \lambda g$ où $\lambda >0$ est une constante, 
+\begin{enumerate}
+\item $f$ est un fonction convexe, $C^1$, gradient Lipschitz \ie pour
+  tout $x,y \in \rset^d$,
+  \begin{equation*}
+    \norm{\nabla f(x) - \nabla f(y) } \leq L \norm{x-y } \eqsp.
+  \end{equation*}
+\item $g$ est une fonction continue convexe dont on peut calculer l'opérateur proximal $\prox_g^{\gamma}$ défini pour tout $\gamma >0$ et $x \in \rset^d$ par
+  \begin{equation*}
+    \prox_g^{\gamma}  = \argmin_{y \in \rset} \defEns{g(y) + (2 \gamma)^{-1} \norm[2]{x-y}} \eqsp.
+  \end{equation*}
+\end{enumerate}
+
+L'algorithme ISTA consiste alors à construire la suite
+$(x_k)_{k \in \nset}$ partant de $x_0 \in \rset^d$ à partir de la récursion suivante :
+\begin{equation*}
+  x_{k+1} = \prox_{\lambda g}^{\gamma} \defEns{x_k - \gamma \nabla f(x_k)} \eqsp.
+\end{equation*}
+
+\begin{enumerate}
+\item Montrer que pour tout $\gamma, \lambda >0$, on a
+  \begin{equation*}
+    \prox_{\lambda g}^{\gamma} = \prox_{ g}^{\lambda \gamma} \eqsp.
+  \end{equation*}
+\item Implémenter alors l'algorithme ISTA. On pourra par exemple considérer un fonction
+  sous la forme
+  \begin{lstlisting}
+    ista(dim,prox_op_g, grad_f, fun_total, lambda_l, n_it=100):
+    Variables d'entree :
+    dim : dimension du probleme
+    prox_op_g : operateur proximal de g qui prend en entree x et gamma
+    grad_f : fonction qui a partir d'un point x retourne le gradient de f
+            et la constante de Lipschitz du gradient de f
+    fun_total : fonction F = f+lambda*g
+    lambda_l : parametre lambda dans F
+    n_it : nombre d'iterations
+    Variables de sortie : x, fun_iterate
+    x : itere final de ISTA
+    fun_iterate : suite (f(x_k))
+  \end{lstlisting}
+\end{enumerate}
+
+\section{Acquisition comprimée}
+%-----------------------------------------------------
+%
+Dans de nombreux problèmes, notamment en traitement du signal,
+seulement des observations partielles, regroupées dans un vecteur
+$y \in \rset^p$, d'un signal $x \in \rset^d$ sont disponibles. Cela
+s'explique par une volonté de compresser le signal par exemple ou
+encore parce que les instruments de mesures du signal sont dans
+certains cas peu précis. Mathématiquement, cette perte de données se
+modélise par une relation $y=Ax$, où $A \in \rset^{p,d}$, et $p <<
+d$. Comme $A$ n'est pas inversible, le plus souvent le problème
+inverse $y=Ax$ a de nombreuses solutions mais qui ne sont pas
+satisfaisantes. En effet, dans de nombreux cas, le signal d'origine
+$x$ est le plus souvent parcimonieux, \ie~un grand nombre de ses
+composantes sont nulles. Ainsi, pour reconstruire ce type de signal,
+il a été proposé de considérer le minimum de la fonction
+\begin{equation*}
+  F(x) = f(x) + \lambda g(x) \eqsp, \qquad f(x) = \norm[2]{y-Ax} \eqsp, \,  g(x) =  \sum_{i=1}^d \abs{x_i} \eqsp,
+\end{equation*}
+où $\lambda >0$ est un coefficient qui contrôle le niveau de
+parcimonie de $x$.  On peut observer que $F$ peut s'écrire comme $f+g$
+où $f$ est une fonction convexe gradient Lipschitz and $g$ est un
+fonction convexe continue mais non différentiable. On se propose dans
+cette partie d'appliquer l'algorithme ISTA à la minimisation de $F$
+avec une application au traitement d'image. Ici $y$ sera des
+coefficients d'ondelettes dans une base $(\psi_i)_{i \in I}$ où $I$
+est fini, d'une image $x$, alors $A$ est simplement l'opérateur
+linéaire qui à partir de $x$ donne ses coefficients dans
+$(\psi_i)_{i \in I}$.
+
+Avant de commencer le TP, installer les librairies suivantes de python. Taper dans un terminal:
+\begin{lstlisting}
+  pip install -U scikit-learn scikit-image
+\end{lstlisting}
+
+Vous aurez aussi besoin du fichier \lstinline+tp2_tools.py+ à télécharger sur la page suivante : \url{www.dfsqd.}
+
+\begin{enumerate}
+\item Créer un nouveau module python pour ce problème qui commencera par
+\begin{lstlisting}
+import numpy as np
+import matplotlib.pyplot as plt
+from tp2_tools import *
+import warnings
+warnings.filterwarnings('ignore')
+from ista import ista
+\end{lstlisting}
+\item Générer les données $A$ et $y$ et fixer pour le moment $\lambda$
+  \begin{lstlisting}
+lambda_l1 = 1
+y, A = noisy_observations()
+  \end{lstlisting}
+\item Calculer le gradient de $f$ pour cet exemple.
+\item Dans cette question, on s'intéresse au calcul de l'opérateur
+  proximal de $g$.
+  \begin{enumerate}
+  \item Soit $h$ une fonction convexe sci propre sur $\rset^d$ sous la
+    forme $h(x)= \sum_{i=1}^d h_i(x_i)$, pour tout
+    $x = (x_i,\ldots,x_d)\in \rset^d$, où pour tout
+    $i \in \{1,\ldots,d\}$,
+    $h_i : \rset \to \ocint{-\infty,\plusinfty}$, est convexe sci
+    propre. Montrer que pour tout $x \in \rset^d$ et $\gamma >0$,
+    \begin{equation*}
+      \prox_h^{\gamma}(x) = (      \prox_{h_i}^{\gamma}(x_i))_{i \in \{1,\ldots,d\}} \eqsp. 
+    \end{equation*}
+  \item Considérons $\phi(t) = \abs{t}$ pour tout $t \in \rset$.
+    Montrer que pour tout $u \in \rset$ et $\gamma >0$
+    \begin{equation*}
+      t^{\star} = \argmin_{t \in \rset} \defEns{\abs{t} + (1/2\gamma) \abs{t-u}^2} \eqsp,
+    \end{equation*}
+    si et seulement si
+    \begin{equation*}
+      \tstar \in u - \gamma \partial \phi(\tstar) \eqsp. 
+    \end{equation*}
+  \item Déterminer la sous-différentielle de $\phi$ sur $\rset$.
+    
+  \item En distinguant les cas $\abs{u} < \gamma$ et $\abs{u} \geq \lambda$, déterminer pour tout $u \in \rset$ et $\gamma >0$, $\prox_{\phi}^{\gamma}(u)$.
+    
+  \item En déduire pour tout $x \in \rset^d$ et $\gamma >0$, $\prox_{g}^{\gamma}(x)$. 
+  \end{enumerate}
+  
+\item Implémenter le gradient de $f$ et l'opérateur proximal de $g$.
+  
+\item Appliquer la fonction ista que vous avez précédemment coder pour minimiser $F$ et afficher l'image que vous obtenez à l'aide la fonction \lstinline+plot_image+.
+  
+\item Vérifier numériquement que l'ordre de convergence de ISTA est de l'ordre $O(k^{-1})$ où $k$ est le nombre d'itérations.
+  
+\item Changer la valeur du paramètre $\lambda$ et afficher les images que vous obtenez. Discuter de vos résultats. 
+\end{enumerate}
+
+\section{Minimisation de la fonction $\max$}
+\label{sec:minimisation-de-la}
+
+Dans cette section, on s'intéresse à la minimisation de la fonction $F$ définie sur $\rset^d$ par
+\begin{equation*}
+  F(x) = f(x) + \lambda g(x) \eqsp, \qquad f(x) = \norm[2]{y-Ax} \eqsp, \, g(x)= \max_{i \in \{1,\ldots,d\}} x_i \eqsp,
+\end{equation*}
+où $y \in \rset^d$ et $A \in \rset^{d\times d}$. 
+\begin{enumerate}
+\item Créer un nouveau module python pour ce problème qui commencera par
+\begin{lstlisting}
+import numpy as np
+import matplotlib.pyplot as plt
+from tp2_tools import *
+import warnings
+warnings.filterwarnings('ignore')
+from ista import ista
+\end{lstlisting}
+\item Générer les données $A$ et $y$ et fixer pour le moment $\lambda$
+  \begin{lstlisting}
+lambda_max = 1
+y, A = noisy_observations_inf()
+  \end{lstlisting}
+\item Calculer le gradient de $f$ pour cet exemple.
+\item Dans cette question, on s'intéresse au calcul de l'opérateur proximal de $g$.
+  \begin{enumerate}
+  \item Montrer que le calcul de $\prox_g^{\gamma}(x)$ pour $\gamma>0$ et $x \in \rset^d$ revient au problème de minimisation sous contrainte
+    \begin{equation}
+      \label{eq:lagrangian_max_prox}
+      \begin{aligned}
+      \text{min}_{t \in \rset, x \in \rset^d} &\qquad t + (1/(2\gamma)) \norm[2]{y-x} \\
+      \text{ sous contraintes} &\qquad x_i \leq t \text{ pour tout $i \in \{1,\ldots,d\}$} \eqsp.
+      \end{aligned}
+    \end{equation}
+  \item Donner le Lagrangien associé à ce problème.
+  \item En déduire à partir des conditions KKT, une expression
+    implicite pour la solution $(\tstar,\ystar)$ du problème \eqref{eq:lagrangian_max_prox}.     
+  \end{enumerate}
+  
+\item Télécharger le module  \lstinline+prox_max.py+ à partir de \url{blabla} et utiliser la fonction ista que vous avez implémenté pour minimiser $F$.
+  
+\item Illustrer graphiquement la convergence de l'algorithme. 
+\end{enumerate}
+
+\section{Complétion de matrice de faible rang}
+\label{sec:minimisation-de-la}
+
+Dans cette section, on s'intéresse au problème de complétion de
+matrice. Dans certains problèmes statistiques, on a accès à seulement
+certaines entrées d'une matrice $X \in \rset^{d \times d}$,
+$Y = A \odot X$ où
+$A =(\1_{I \times J}((i,j)))_{i,j \in \{1,\ldots,d\}}$, où
+$I,J \subset \{1,\ldots,d\}$ et $\odot$ est la multiplication élément
+par élément (ou appelé par certains ``matlab'').  Dans ce problème, on
+voudrait alors retrouver les composantes manquantes de $X$. Pour cela,
+il est commun de chercher une matrice $X$ de faible rang. Cela revient
+alors à chercher à minimiser la fonction $F$ définie sur $\rset^{d\times d}$ par
+\begin{equation*}
+  F(X) = f(X) + \lambda g(X) \eqsp, \qquad f(X) = \norm[2]{Y-A\odot X}_{2} \eqsp, \, g(X )= \norm{X}_{\star}  = \sum_{i=1}^d \abs{\sigma_i(X)}  \eqsp,
+\end{equation*}
+où $\norm{\cdot}_2$ est la norme de Frobenius et
+$(\sigma_i)_{i \in \{1,\ldots,d\}}$ sont les valeurs singulières de
+$X$. On rappelle le théorème de décomposition en valeurs propres
+singulières:
+\begin{theoreme}
+  \label{theo:svd}
+Soit $A \in \rset^{d \times m}$, $d \leq m$. Il existe alors deux matrices orthogonales $O_1,O_2$ et $\sigma_1(A) \geq \cdots \geq \sigma_d(A) \geq 0$ tel que $A = O_1 \Sigma O_2$ où $\Sigma_A \in \rset^{d \times m}$ est la matrice dont les entrées sont données par $\Sigma_{i,i} = \sigma_i(A)$ pour $i \in\{1,\ldots,d\}$ et $\Sigma_{i,j} = 0$ sinon.  Les réels $(\sigma_1(A), \ldots, \sigma_d(A))$ sont appelés les valeurs singulières de $A$ et sont les valeurs propres de $A A^{\transpose}$.  
+\end{theoreme}
+\begin{enumerate}
+\item Montrer que $g$ est la norme dual de la norme opérateur $\normop{\cdot}$ sur
+  $\rset^{d \times d}$, \ie
+  \begin{equation*}
+    g(X) = \sup_{V \in \rset^{d \times d}, \, \normop{V} \leq 1} \ps{X}{V} = \sup_{V \in \rset^{d \times d}, \, \normop{V} \leq 1}\tr(X^{\transpose}V) \eqsp. 
+  \end{equation*}
+ En déduire que $g$ est convexe. 
+\end{enumerate}
+On cherche alors à appliquer ISTA pour minimiser $F$. 
+\begin{enumerate}[resume]
+\item On pourra dans un premier temps modifier ou créer une nouvelle fonction \lstinline+ista_mat+ qui s'applique directement à des matrices. 
+\item Créer un nouveau module python pour ce problème qui commencera par
+\begin{lstlisting}
+import numpy as np
+import matplotlib.pyplot as plt
+from tp2_tools import *
+import warnings
+warnings.filterwarnings('ignore')
+from ista import ista_mat
+\end{lstlisting}
+\item Générer les données $A$ et $y$ et fixer pour le moment $\lambda$
+  \begin{lstlisting}
+lambda_nuclear = 1
+Y, A = noisy_observations_nuclear()
+  \end{lstlisting}
+\item Calculer le gradient de $f$ pour cet exemple.
+\item Dans cette question, on s'intéresse au calcul de l'opérateur proximal de $g$.
+  \begin{enumerate}
+  \item En utilisant que la norme de Frobenius est invariant par
+    rotation, montrer que pour tout $X \in \rset^{d \times d}$  le problème de minimisation
+    \begin{equation}
+      \label{eq:prox_nuclea_proof_1}
+      \min_{Y \in \rset^{d\times d} } \norm{Y}_{\star} +(1/(2\gamma)) \norm[2]{Y-X}_2 \eqsp,
+    \end{equation}
+    est équivalent à  
+          \begin{equation}
+      \label{eq:prox_nuclea_proof_2}
+      \min_{D \in \mathsf{E}} \norm{D}_{\star} +(1/(2\gamma)) \norm[2]{D-\Sigma_X}_2 \eqsp,
+    \end{equation}
+    où $\mathsf{E}$ est l'ensemble des matrices diagonales de $\rset^{d \times d}$ et $\Sigma_X$ est la matrice diagonale donnée par la décomposition en valeurs singulières de $X$.
+    Pour cela on utilisera le résultat suivant \cite{vonNeumann_1937}.
+    \begin{theoreme}
+      \label{theofr:van_neu_svd}
+      Soit $A,B \in \rset^{d \times d}$ deux matrices de dimension $d$. Alors pour toutes matrices orthogonales $O_1,O_2$,
+      \begin{equation*}
+        \ps{O_1 A O_2}{B} \leq \ps{\Sigma_A}{\Sigma_B} \eqsp,
+      \end{equation*}
+      où $\Sigma_A$ et $\Sigma_B$ sont les deux matrices diagonales données par la décomposition en valeurs singulières de respectivement $A$ et $B$.
+    \end{theoreme}
+    Si $D$ est une solution de \eqref{eq:prox_nuclea_proof_2}, comment construire $Y$ solution de \eqref{eq:prox_nuclea_proof_1} ? 
+  \item En déduire que pour tout $\gamma >0$ et $X \in \rset^{d \times d}$
+    \begin{equation*}
+      \prox_g^{\gamma}(X) = U \prox_{\ell_1}^{\gamma}(\Sigma_X) V \eqsp,
+    \end{equation*}
+    où $X = U \Sigma_X V$ est une décomposition en valeurs singulières
+    de $X$ et $\prox_{\ell_1}^{\gamma}$ est l'operateur proximal de la
+    norme $\ell_1$, $Y \mapsto \sum_{i,j=1}^d \abs{Y_{i,j}}$. 
+  \end{enumerate}
+  
+\item Implémenter l'opérateur proximal de $g$.
+  
+\item Tester l'algorithme ISTA et illustrer graphiquement sa convergence.  
+\end{enumerate}
+
+
+\bibliographystyle{plain}
+\bibliography{../optim}
+\end{document}
+
+
+%%% Local Variables:
+%%% mode: latex
+%%% ispell-local-dictionary: "francais"
+%%% TeX-master: t
+%%% End:

@@ -1,0 +1,86 @@
+
+\usepackage[active]{srcltx}
+\usepackage{xargs}
+
+
+\def\betaI{\mathrm{B}}
+\def\ie{\textit{i.e.}}
+\def\eqsp{\;}
+\newcommand{\coint}[1]{\left[#1\right)}
+\newcommand{\ocint}[1]{\left(#1\right]}
+\newcommand{\ooint}[1]{\left(#1\right)}
+\newcommand{\ccint}[1]{\left[#1\right]}
+
+\def\rmd{\mathrm{d}}
+\newcommand{\wrt}{w.r.t.}
+
+\def\iid{i.i.d.}
+\def\rme{\mathrm{e}}
+\def\thetabf{\boldsymbol{\theta}}
+\def\thetabfhat{\boldsymbol{\hat{\theta}}}
+\def\rset{\mathbb{R}}
+\def\nset{\mathbb{N}}
+\def\zset{\mathbb{Z}}
+
+
+\def\restriction#1#2{\mathchoice
+              {\setbox1\hbox{${\displaystyle #1}_{\scriptstyle #2}$}
+              \restrictionaux{#1}{#2}}
+              {\setbox1\hbox{${\textstyle #1}_{\scriptstyle #2}$}
+              \restrictionaux{#1}{#2}}
+              {\setbox1\hbox{${\scriptstyle #1}_{\scriptscriptstyle #2}$}
+              \restrictionaux{#1}{#2}}
+              {\setbox1\hbox{${\scriptscriptstyle #1}_{\scriptscriptstyle #2}$}
+              \restrictionaux{#1}{#2}}}
+\def\restrictionaux#1#2{{#1\,\smash{\vrule height .8\ht1 depth .85\dp1}}_{\,#2}} 
+
+
+
+\def\step{h}
+
+\def\transpose{\mathrm{T}}
+
+\newcommand\fracaaa[2]{#1/(#2)}
+
+\newcommand{\ps}[2]{\left\langle#1,#2 \right\rangle}
+
+\newcommandx\lnorm[3][1=]{\lVert #2 \rVert^{#1}_{#3}}
+\newcommand{\opernorm}[1]{\Vert\hspace{-1pt}| #1 \Vert\hspace{-1pt}|}
+\newcommand{\normop}[1]{\opernorm{#1}}
+\newcommand{\normLigne}[1]{\Vert #1 \Vert}
+\newcommandx{\norm}[2][1=]{\left\Vert #2 \right\Vert^{#1}}
+
+\newcommand{\abs}[1]{\left\vert #1 \right\vert}
+\newcommand{\absLigne}[1]{\vert #1 \vert}
+\newcommandx\vectornorm[2][1=]{\left| #2 \right|^{#1}}  %%%% norme de vecteurs pas
+
+\def\prox{\operatorname{prox}}
+
+
+
+
+\newcommand{\defEns}[1]{\left\lbrace #1 \right\rbrace }
+\newcommand{\ensemble}[2]{\left\{#1\,:\eqsp #2\right\}}
+\newcommand{\ensembleLigne}[2]{\{#1\,:\eqsp #2\}}
+\newcommand{\ensembleD}[2]{\left\{#1,\ldots, #2\right\}}
+\newcommand{\ensembleDLigne}[2]{\left\{#1,\ldots, #2\right\}}
+\newcommand{\set}[2]{\ensemble{#1}{#2}}
+
+\newcommand{\parenthese}[1]{\left( #1 \right)}
+\newcommand{\parentheseDeux}[1]{\left[ #1 \right]}
+
+\def\tstar{t^{\star}}
+\def\ystar{y^{\star}}
+
+
+% \newcommand{\ocint}[1]{\left(#1\right]}
+% \newcommand{\ooint}[1]{\left(#1\right)}
+% \newcommand{\ccint}[1]{\left[#1\right]}
+\def\plusinfty{+\infty}
+
+\newcommand{\cointLigne}[1]{[#1)}
+\newcommand{\ocintLigne}[1]{(#1]}
+\newcommand{\oointLigne}[1]{(#1)}
+\newcommand{\ccintLigne}[1]{[#1]}
+
+\def\tr{\operatorname{Tr}}
