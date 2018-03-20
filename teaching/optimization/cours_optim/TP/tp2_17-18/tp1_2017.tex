@@ -43,16 +43,16 @@ En préambule de tout module python, on suppose que les paquets suivants ont ét
 
 \section{Implémentation de ISTA}
 \label{sec:impl-de-ista}
-L'algorithme Iterative Shrinkage-Thresholding Algorithm, ISTA \cite{beck09_fast_iterat_shrin_thres_algor} est un
-algorithme qui a pour objectif de minimiser une fonction $F : \rset^d \to \rset$ s'écrivant sous la
+L'algorithme ISTA \cite{beck09_fast_iterat_shrin_thres_algor} est un
+algorithme a pour objectif à minimiser une fonction $F : \rset^d \to \rset$ s'écrivant sous la
 forme $F = f + \lambda g$ où $\lambda >0$ est une constante, 
 \begin{enumerate}
-\item $f$ est un fonction convexe, $C^1$, gradient Lipschitz \ie il existe $L\in \mathbb{R}_+^*$ tel que  pour
+\item $f$ est un fonction convexe, $C^1$, gradient Lipschitz \ie pour
   tout $x,y \in \rset^d$,
   \begin{equation*}
     \norm{\nabla f(x) - \nabla f(y) } \leq L \norm{x-y } \eqsp.
   \end{equation*}
-\item $g$ est une fonction continue, convexe dont on peut calculer l'opérateur proximal $\prox_g^{\gamma}$ défini pour tout $\gamma >0$ et $x \in \rset^d$ par
+\item $g$ est une fonction continue convexe dont on peut calculer l'opérateur proximal $\prox_g^{\gamma}$ défini pour tout $\gamma >0$ et $x \in \rset^d$ par
   \begin{equation*}
     \prox_g^{\gamma}  = \argmin_{y \in \rset} \defEns{g(y) + (2 \gamma)^{-1} \norm[2]{x-y}} \eqsp.
   \end{equation*}
@@ -107,7 +107,7 @@ il a été proposé de considérer le minimum de la fonction
   F(x) = f(x) + \lambda g(x) \eqsp, \qquad f(x) = \norm[2]{y-Ax} \eqsp, \,  g(x) =  \sum_{i=1}^d \abs{x_i} \eqsp,
 \end{equation*}
 où $\lambda >0$ est un coefficient qui contrôle le niveau de
-parcimonie de $x$.  On peut observer que $F$ peut s'écrire comme $f+\lambda g$
+parcimonie de $x$.  On peut observer que $F$ peut s'écrire comme $f+g$
 où $f$ est une fonction convexe gradient Lipschitz and $g$ est un
 fonction convexe continue mais non différentiable. On se propose dans
 cette partie d'appliquer l'algorithme ISTA à la minimisation de $F$
@@ -155,7 +155,7 @@ y, A = noisy_observations()
   \item Considérons $\phi(t) = \abs{t}$ pour tout $t \in \rset$.
     Montrer que pour tout $u \in \rset$ et $\gamma >0$
     \begin{equation*}
-      t^{\star} = \argmin_{t \in \rset} \defEns{\phi(t) + (1/2\gamma) \abs{t-u}^2} \eqsp,
+      t^{\star} = \argmin_{t \in \rset} \defEns{\abs{t} + (1/2\gamma) \abs{t-u}^2} \eqsp,
     \end{equation*}
     si et seulement si
     \begin{equation*}
@@ -170,7 +170,7 @@ y, A = noisy_observations()
   
 \item Implémenter le gradient de $f$ et l'opérateur proximal de $g$.
   
-\item Appliquer la fonction ista que vous avez précédemment codée pour minimiser $F$ et afficher l'image que vous obtenez à l'aide la fonction \lstinline+plot_image+.
+\item Appliquer la fonction ista que vous avez précédemment coder pour minimiser $F$ et afficher l'image que vous obtenez à l'aide la fonction \lstinline+plot_image+.
   
 \item Vérifier numériquement que l'ordre de convergence de ISTA est de l'ordre $O(k^{-1})$ où $k$ est le nombre d'itérations.
   
@@ -207,7 +207,7 @@ y, A = noisy_observations_inf()
     \begin{equation}
       \label{eq:lagrangian_max_prox}
       \begin{aligned}
-      \text{min}_{t \in \rset, x \in \rset^d} &\qquad t + (2 \gamma)^{-1} \norm[2]{y-x} \\
+      \text{min}_{t \in \rset, x \in \rset^d} &\qquad t + (1/(2\gamma)) \norm[2]{y-x} \\
       \text{ sous contraintes} &\qquad x_i \leq t \text{ pour tout $i \in \{1,\ldots,d\}$} \eqsp.
       \end{aligned}
     \end{equation}
@@ -277,12 +277,12 @@ Y, A = noisy_observations_nuclear()
     rotation, montrer que pour tout $X \in \rset^{d \times d}$  le problème de minimisation
     \begin{equation}
       \label{eq:prox_nuclea_proof_1}
-      \min_{Y \in \rset^{d\times d} } \norm{Y}_{\star} +(2 \gamma)^{-1} \norm[2]{Y-X}_2 \eqsp,
+      \min_{Y \in \rset^{d\times d} } \norm{Y}_{\star} +(1/(2\gamma)) \norm[2]{Y-X}_2 \eqsp,
     \end{equation}
     est équivalent à  
           \begin{equation}
       \label{eq:prox_nuclea_proof_2}
-      \min_{D \in \mathsf{E}} \norm{D}_{\star} +(2 \gamma)^{-1} \norm[2]{D-\Sigma_X}_2 \eqsp,
+      \min_{D \in \mathsf{E}} \norm{D}_{\star} +(1/(2\gamma)) \norm[2]{D-\Sigma_X}_2 \eqsp,
     \end{equation}
     où $\mathsf{E}$ est l'ensemble des matrices diagonales de $\rset^{d \times d}$ et $\Sigma_X$ est la matrice diagonale donnée par la décomposition en valeurs singulières de $X$.
     Pour cela on utilisera le résultat suivant \cite{vonNeumann_1937}.

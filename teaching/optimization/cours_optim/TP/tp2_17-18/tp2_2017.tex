@@ -111,11 +111,15 @@ parcimonie de $x$.  On peut observer que $F$ peut s'écrire comme $f+g$
 où $f$ est une fonction convexe gradient Lipschitz and $g$ est un
 fonction convexe continue mais non différentiable. On se propose dans
 cette partie d'appliquer l'algorithme ISTA à la minimisation de $F$
-avec une application au traitement d'image. Ici $y$ sera des
-coefficients d'ondelettes dans une base $(\psi_i)_{i \in I}$ où $I$
-est fini, d'une image $x$, alors $A$ est simplement l'opérateur
-linéaire qui à partir de $x$ donne ses coefficients dans
-$(\psi_i)_{i \in I}$.
+avec une application au traitement d'image.
+Ici $y$ sera une mesure d'une image et $x$ les coefficients en ondelettes de
+la même image. Ainsi la matrice $A$ est simplement l'opérateur linéaire qui à une représentation en ondelettes associe
+un signal.
+% Ici $y$ sera des
+% coefficients d'ondelettes dans une base $(\psi_i)_{i \in I}$ où $I$
+% est fini, d'une image $x$, alors $A$ est simplement l'opérateur
+% linéaire qui à partir de $x$ donne ses coefficients dans
+% $(\psi_i)_{i \in I}$.
 
 Avant de commencer le TP, installer les librairies suivantes de python. Taper dans un terminal:
 \begin{lstlisting}
@@ -207,8 +211,8 @@ y, A = noisy_observations_inf()
     \begin{equation}
       \label{eq:lagrangian_max_prox}
       \begin{aligned}
-      \text{min}_{t \in \rset, x \in \rset^d} &\qquad t + (2\gamma)^{-1} \norm[2]{y-x} \\
-      \text{ sous contraintes} &\qquad x_i \leq t \text{ pour tout $i \in \{1,\ldots,d\}$} \eqsp.
+      \text{min}_{t \in \rset, y \in \rset^d} &\qquad t + (2\gamma)^{-1} \norm[2]{y-x} \\
+      \text{ sous contraintes} &\qquad y_i \leq t \text{ pour tout $i \in \{1,\ldots,d\}$} \eqsp.
       \end{aligned}
     \end{equation}
   \item Donner le Lagrangien associé à ce problème.
