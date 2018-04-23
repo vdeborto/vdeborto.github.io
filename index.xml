@@ -277,10 +277,10 @@ cd my_website
 &lt;li&gt;Set &lt;code&gt;baseurl&lt;/code&gt; to your website URL (we recommend &lt;a href=&#34;https://georgecushen.com/create-your-website-with-hugo/&#34; target=&#34;_blank&#34;&gt;GitHub Pages&lt;/a&gt; for free hosting)&lt;/li&gt;
 &lt;li&gt;Set &lt;code&gt;title&lt;/code&gt; to your desired website title such as your name&lt;/li&gt;
 &lt;li&gt;The example Disqus commenting variable should be cleared (e.g. &lt;code&gt;disqusShortname = &amp;quot;&amp;quot;&lt;/code&gt;) or set to your own &lt;a href=&#34;https://disqus.com/&#34; target=&#34;_blank&#34;&gt;Disqus&lt;/a&gt; shortname to enable commenting&lt;/li&gt;
-&lt;li&gt;Edit your details under &lt;code&gt;[params]&lt;/code&gt;; these will be displayed mainly in the homepage &lt;em&gt;about&lt;/em&gt; and &lt;em&gt;contact&lt;/em&gt; widgets (if used). To disable a contact field, simply clear the value to &lt;code&gt;&amp;quot;&amp;quot;&lt;/code&gt;.&lt;/li&gt;
+&lt;li&gt;Edit your details under &lt;code&gt;[Params]&lt;/code&gt;; these will be displayed mainly in the homepage &lt;em&gt;about&lt;/em&gt; and &lt;em&gt;contact&lt;/em&gt; widgets (if used). To disable a contact field, simply clear the value to &lt;code&gt;&amp;quot;&amp;quot;&lt;/code&gt;.&lt;/li&gt;
 &lt;li&gt;Place a square cropped portrait photo named &lt;code&gt;portrait.jpg&lt;/code&gt; into the &lt;code&gt;static/img/&lt;/code&gt; folder, overwriting any defaults. Note that you can edit the &lt;code&gt;avatar&lt;/code&gt; filepath to point to a different image name or clear the value to disable the avatar feature. Alternatively, set &lt;code&gt;gravatar&lt;/code&gt; to &lt;code&gt;true&lt;/code&gt; to use the Gravatar/Wordpress avatar associated with your &lt;code&gt;email&lt;/code&gt; address.&lt;/li&gt;
 &lt;li&gt;To enable LaTeX math for your site, set &lt;code&gt;math = true&lt;/code&gt;&lt;/li&gt;
-&lt;li&gt;Social/academic networking links are defined as multiples of &lt;code&gt;[[params.social]]&lt;/code&gt;. They can be created or deleted as necessary.&lt;/li&gt;
+&lt;li&gt;Social/academic networking links are defined as multiples of &lt;code&gt;[[Params.social]]&lt;/code&gt;. They can be created or deleted as necessary.&lt;/li&gt;
 &lt;/ul&gt;
 
 &lt;h3 id=&#34;introduce-yourself&#34;&gt;Introduce yourself&lt;/h3&gt;
@@ -387,7 +387,7 @@ cd my_website
 
 &lt;h3 id=&#34;permalinks&#34;&gt;Permalinks&lt;/h3&gt;
 
-&lt;p&gt;&lt;em&gt;Permalinks&lt;/em&gt;, or &lt;em&gt;permanent links&lt;/em&gt;, are URLs to individual pages and posts on your website. They are permanent web addresses which can be used to link to your content. Using Hugo&amp;rsquo;s &lt;em&gt;permalinks&lt;/em&gt; option these can be easily customized. For example, the blog post URL can be changed to the form &lt;em&gt;yourURL/2016/05/01/my-post-slug&lt;/em&gt; by adding the following near the top of your &lt;code&gt;config.toml&lt;/code&gt; (before &lt;code&gt;[params]&lt;/code&gt; settings):&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;Permalinks&lt;/em&gt;, or &lt;em&gt;permanent links&lt;/em&gt;, are URLs to individual pages and posts on your website. They are permanent web addresses which can be used to link to your content. Using Hugo&amp;rsquo;s &lt;em&gt;permalinks&lt;/em&gt; option these can be easily customized. For example, the blog post URL can be changed to the form &lt;em&gt;yourURL/2016/05/01/my-post-slug&lt;/em&gt; by adding the following near the top of your &lt;code&gt;config.toml&lt;/code&gt; (before &lt;code&gt;[Params]&lt;/code&gt; settings):&lt;/p&gt;
 
 &lt;pre&gt;&lt;code&gt;[permalinks]
     post = &amp;quot;/:year/:month/:day/:slug&amp;quot;
@@ -395,7 +395,7 @@ cd my_website
 
 &lt;p&gt;Where &lt;code&gt;:slug&lt;/code&gt; defaults to the filename of the post, excluding the file extension. However, slug may be overridden on a per post basis if desired, simply by setting &lt;code&gt;slug = &amp;quot;my-short-post-title&amp;quot;&lt;/code&gt; in your post preamble.&lt;/p&gt;
 
-&lt;p&gt;&lt;strong&gt;Example 2:&lt;/strong&gt; let&amp;rsquo;s consider changing the URL path of posts from &lt;code&gt;post/&lt;/code&gt; to &lt;code&gt;blog/&lt;/code&gt;. First, add the following parameters right above the &lt;code&gt;[params]&lt;/code&gt; section of your &lt;code&gt;config.toml&lt;/code&gt;:&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Example 2:&lt;/strong&gt; let&amp;rsquo;s consider changing the URL path of posts from &lt;code&gt;post/&lt;/code&gt; to &lt;code&gt;blog/&lt;/code&gt;. First, add the following parameters right above the &lt;code&gt;[Params]&lt;/code&gt; section of your &lt;code&gt;config.toml&lt;/code&gt;:&lt;/p&gt;
 
 &lt;pre&gt;&lt;code&gt;[permalinks]
     post = &amp;quot;/blog/:slug&amp;quot;
