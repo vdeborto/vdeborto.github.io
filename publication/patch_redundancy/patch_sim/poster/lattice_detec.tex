@@ -1,0 +1,16 @@
+\begin{tikzpicture}
+  \node[inner sep=0pt] (input) at (0,0)
+  {\includegraphics[width=.2\textwidth]{./figures/Iout.png}};
+  \node[inner sep=0pt] (a_contrario) at (6,0)
+    {\includegraphics[width=.2\textwidth]{./figures/d_true_out.png}};
+  \node[inner sep=0pt] (vertice) at (12.65,0.65)
+    {\includegraphics[width=.2\textwidth]{./figures/vertice_im.png}};
+  \node[inner sep=0pt] (periodicity) at (12,0)
+  {\includegraphics[width=.2\textwidth]{./figures/super.png}};
+  \draw [->, line width=.5mm,>=stealth, black] (input) -- node[above=3pt]{$D(u, \pi_0,\varepsilon)$} (a_contrario);
+  \draw [->, line width=.5mm,>=stealth, black] (a_contrario) -- node[above=3pt]{$L(\delta,\eta,N)$}(periodicity);
+\end{tikzpicture}
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "main"
+%%% End:

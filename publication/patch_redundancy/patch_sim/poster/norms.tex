@@ -1,0 +1,20 @@
+\begin{tikzpicture}[scale=0.7]
+      \node[inner sep=0pt] (input) at (0,0)
+      {\includegraphics[width=.2\textwidth]{./figures/export_fig_out.png}};
+      \node[] (4) at (-2.4,-0.6) {\tiny $4$};
+      \node[] (8) at (-2.4,0.6) {\tiny $8$};
+      \node[] (exp) at (-2.5,2) {\tiny $\times 10^{-3}$};      
+      \node[] (02) at (-.5,-2) {\tiny $0.2$};
+      \node[] (03) at (.5,-2) {\tiny $0.3$};            
+      \node[inner sep=0pt] (input) at (-1.25,-2.25)
+      {\includegraphics[width=.06\textwidth]{./figures/orig_skew.png}};
+      \node[inner sep=0pt] (input) at (2,-2.25)
+      {\includegraphics[width=.06\textwidth]{./figures/noisy_skew.png}};
+      \draw [->, red, line width=0.5mm, >=stealth] (-1,-2.25) --node[below=1mm, black] {\tiny noise std} (1.2,-2.25);
+      \draw [->, red, line width=0.5mm, >=stealth] (-2.6,-1.75) -- (-2.6,1.75);
+      \node[left=3mm, black, text width = 3cm, rotate=90] at (-2.5,2.5) {\tiny \% of pixels detected};
+\end{tikzpicture}      
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "main"
+%%% End:

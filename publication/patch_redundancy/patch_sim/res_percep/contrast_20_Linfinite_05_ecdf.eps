@@ -1,0 +1,3326 @@
+%!PS-Adobe-3.0 EPSF-3.0
+%Produced by poppler pdftops version: 0.41.0 (http://poppler.freedesktop.org)
+%%Creator: \050MATLAB, The Mathworks, Inc. Version 9.2.0.556344 \\(R2017a\\). Operating System: Linux)
+%%LanguageLevel: 2
+%%DocumentSuppliedResources: (atend)
+%%BoundingBox: 0 0 360 278
+%%HiResBoundingBox: 0 0 359.75 278
+%%DocumentSuppliedResources: (atend)
+%%EndComments
+%%BeginProlog
+%%BeginResource: procset xpdf 3.00 0
+%%Copyright: Copyright 1996-2011 Glyph & Cog, LLC
+/xpdf 75 dict def xpdf begin
+% PDF special state
+/pdfDictSize 15 def
+/pdfSetup {
+  /setpagedevice where {
+    pop 2 dict begin
+      /Policies 1 dict dup begin /PageSize 6 def end def
+      { /Duplex true def } if
+    currentdict end setpagedevice
+  } {
+    pop
+  } ifelse
+} def
+/pdfSetupPaper {
+  % Change paper size, but only if different from previous paper size otherwise
+  % duplex fails. PLRM specifies a tolerance of 5 pts when matching paper size
+  % so we use the same when checking if the size changes.
+  /setpagedevice where {
+    pop currentpagedevice
+    /PageSize known {
+      2 copy
+      currentpagedevice /PageSize get aload pop
+      exch 4 1 roll
+      sub abs 5 gt
+      3 1 roll
+      sub abs 5 gt
+      or
+    } {
+      true
+    } ifelse
+    {
+      2 array astore
+      2 dict begin
+        /PageSize exch def
+        /ImagingBBox null def
+      currentdict end
+      setpagedevice
+    } {
+      pop pop
+    } ifelse
+  } {
+    pop
+  } ifelse
+} def
+/pdfStartPage {
+  pdfDictSize dict begin
+  /pdfFillCS [] def
+  /pdfFillXform {} def
+  /pdfStrokeCS [] def
+  /pdfStrokeXform {} def
+  /pdfFill [0] def
+  /pdfStroke [0] def
+  /pdfFillOP false def
+  /pdfStrokeOP false def
+  /pdfLastFill false def
+  /pdfLastStroke false def
+  /pdfTextMat [1 0 0 1 0 0] def
+  /pdfFontSize 0 def
+  /pdfCharSpacing 0 def
+  /pdfTextRender 0 def
+  /pdfPatternCS false def
+  /pdfTextRise 0 def
+  /pdfWordSpacing 0 def
+  /pdfHorizScaling 1 def
+  /pdfTextClipPath [] def
+} def
+/pdfEndPage { end } def
+% PDF color state
+/cs { /pdfFillXform exch def dup /pdfFillCS exch def
+      setcolorspace } def
+/CS { /pdfStrokeXform exch def dup /pdfStrokeCS exch def
+      setcolorspace } def
+/sc { pdfLastFill not { pdfFillCS setcolorspace } if
+      dup /pdfFill exch def aload pop pdfFillXform setcolor
+     /pdfLastFill true def /pdfLastStroke false def } def
+/SC { pdfLastStroke not { pdfStrokeCS setcolorspace } if
+      dup /pdfStroke exch def aload pop pdfStrokeXform setcolor
+     /pdfLastStroke true def /pdfLastFill false def } def
+/op { /pdfFillOP exch def
+      pdfLastFill { pdfFillOP setoverprint } if } def
+/OP { /pdfStrokeOP exch def
+      pdfLastStroke { pdfStrokeOP setoverprint } if } def
+/fCol {
+  pdfLastFill not {
+    pdfFillCS setcolorspace
+    pdfFill aload pop pdfFillXform setcolor
+    pdfFillOP setoverprint
+    /pdfLastFill true def /pdfLastStroke false def
+  } if
+} def
+/sCol {
+  pdfLastStroke not {
+    pdfStrokeCS setcolorspace
+    pdfStroke aload pop pdfStrokeXform setcolor
+    pdfStrokeOP setoverprint
+    /pdfLastStroke true def /pdfLastFill false def
+  } if
+} def
+% build a font
+/pdfMakeFont {
+  4 3 roll findfont
+  4 2 roll matrix scale makefont
+  dup length dict begin
+    { 1 index /FID ne { def } { pop pop } ifelse } forall
+    /Encoding exch def
+    currentdict
+  end
+  definefont pop
+} def
+/pdfMakeFont16 {
+  exch findfont
+  dup length dict begin
+    { 1 index /FID ne { def } { pop pop } ifelse } forall
+    /WMode exch def
+    currentdict
+  end
+  definefont pop
+} def
+% graphics state operators
+/q { gsave pdfDictSize dict begin } def
+/Q {
+  end grestore
+  /pdfLastFill where {
+    pop
+    pdfLastFill {
+      pdfFillOP setoverprint
+    } {
+      pdfStrokeOP setoverprint
+    } ifelse
+  } if
+} def
+/cm { concat } def
+/d { setdash } def
+/i { setflat } def
+/j { setlinejoin } def
+/J { setlinecap } def
+/M { setmiterlimit } def
+/w { setlinewidth } def
+% path segment operators
+/m { moveto } def
+/l { lineto } def
+/c { curveto } def
+/re { 4 2 roll moveto 1 index 0 rlineto 0 exch rlineto
+      neg 0 rlineto closepath } def
+/h { closepath } def
+% path painting operators
+/S { sCol stroke } def
+/Sf { fCol stroke } def
+/f { fCol fill } def
+/f* { fCol eofill } def
+% clipping operators
+/W { clip newpath } def
+/W* { eoclip newpath } def
+/Ws { strokepath clip newpath } def
+% text state operators
+/Tc { /pdfCharSpacing exch def } def
+/Tf { dup /pdfFontSize exch def
+      dup pdfHorizScaling mul exch matrix scale
+      pdfTextMat matrix concatmatrix dup 4 0 put dup 5 0 put
+      exch findfont exch makefont setfont } def
+/Tr { /pdfTextRender exch def } def
+/Tp { /pdfPatternCS exch def } def
+/Ts { /pdfTextRise exch def } def
+/Tw { /pdfWordSpacing exch def } def
+/Tz { /pdfHorizScaling exch def } def
+% text positioning operators
+/Td { pdfTextMat transform moveto } def
+/Tm { /pdfTextMat exch def } def
+% text string operators
+/xyshow where {
+  pop
+  /xyshow2 {
+    dup length array
+    0 2 2 index length 1 sub {
+      2 index 1 index 2 copy get 3 1 roll 1 add get
+      pdfTextMat dtransform
+      4 2 roll 2 copy 6 5 roll put 1 add 3 1 roll dup 4 2 roll put
+    } for
+    exch pop
+    xyshow
+  } def
+}{
+  /xyshow2 {
+    currentfont /FontType get 0 eq {
+      0 2 3 index length 1 sub {
+        currentpoint 4 index 3 index 2 getinterval show moveto
+        2 copy get 2 index 3 2 roll 1 add get
+        pdfTextMat dtransform rmoveto
+      } for
+    } {
+      0 1 3 index length 1 sub {
+        currentpoint 4 index 3 index 1 getinterval show moveto
+        2 copy 2 mul get 2 index 3 2 roll 2 mul 1 add get
+        pdfTextMat dtransform rmoveto
+      } for
+    } ifelse
+    pop pop
+  } def
+} ifelse
+/cshow where {
+  pop
+  /xycp {
+    0 3 2 roll
+    {
+      pop pop currentpoint 3 2 roll
+      1 string dup 0 4 3 roll put false charpath moveto
+      2 copy get 2 index 2 index 1 add get
+      pdfTextMat dtransform rmoveto
+      2 add
+    } exch cshow
+    pop pop
+  } def
+}{
+  /xycp {
+    currentfont /FontType get 0 eq {
+      0 2 3 index length 1 sub {
+        currentpoint 4 index 3 index 2 getinterval false charpath moveto
+        2 copy get 2 index 3 2 roll 1 add get
+        pdfTextMat dtransform rmoveto
+      } for
+    } {
+      0 1 3 index length 1 sub {
+        currentpoint 4 index 3 index 1 getinterval false charpath moveto
+        2 copy 2 mul get 2 index 3 2 roll 2 mul 1 add get
+        pdfTextMat dtransform rmoveto
+      } for
+    } ifelse
+    pop pop
+  } def
+} ifelse
+/Tj {
+  fCol
+  0 pdfTextRise pdfTextMat dtransform rmoveto
+  currentpoint 4 2 roll
+  pdfTextRender 1 and 0 eq {
+    2 copy xyshow2
+  } if
+  pdfTextRender 3 and dup 1 eq exch 2 eq or {
+    3 index 3 index moveto
+    2 copy
+    currentfont /FontType get 3 eq { fCol } { sCol } ifelse
+    xycp currentpoint stroke moveto
+  } if
+  pdfTextRender 4 and 0 ne {
+    4 2 roll moveto xycp
+    /pdfTextClipPath [ pdfTextClipPath aload pop
+      {/moveto cvx}
+      {/lineto cvx}
+      {/curveto cvx}
+      {/closepath cvx}
+    pathforall ] def
+    currentpoint newpath moveto
+  } {
+    pop pop pop pop
+  } ifelse
+  0 pdfTextRise neg pdfTextMat dtransform rmoveto
+} def
+/TJm { 0.001 mul pdfFontSize mul pdfHorizScaling mul neg 0
+       pdfTextMat dtransform rmoveto } def
+/TJmV { 0.001 mul pdfFontSize mul neg 0 exch
+        pdfTextMat dtransform rmoveto } def
+/Tclip { pdfTextClipPath cvx exec clip newpath
+         /pdfTextClipPath [] def } def
+/Tclip* { pdfTextClipPath cvx exec eoclip newpath
+         /pdfTextClipPath [] def } def
+% Level 2/3 image operators
+/pdfImBuf 100 string def
+/pdfImStr {
+  2 copy exch length lt {
+    2 copy get exch 1 add exch
+  } {
+    ()
+  } ifelse
+} def
+/skipEOD {
+  { currentfile pdfImBuf readline
+    not { pop exit } if
+    (%-EOD-) eq { exit } if } loop
+} def
+/pdfIm { image skipEOD } def
+/pdfImM { fCol imagemask skipEOD } def
+/pr { 2 index 2 index 3 2 roll putinterval 4 add } def
+/pdfImClip {
+  gsave
+  0 2 4 index length 1 sub {
+    dup 4 index exch 2 copy
+    get 5 index div put
+    1 add 3 index exch 2 copy
+    get 3 index div put
+  } for
+  pop pop rectclip
+} def
+/pdfImClipEnd { grestore } def
+% shading operators
+/colordelta {
+  false 0 1 3 index length 1 sub {
+    dup 4 index exch get 3 index 3 2 roll get sub abs 0.004 gt {
+      pop true
+    } if
+  } for
+  exch pop exch pop
+} def
+/funcCol { func n array astore } def
+/funcSH {
+  dup 0 eq {
+    true
+  } {
+    dup 6 eq {
+      false
+    } {
+      4 index 4 index funcCol dup
+      6 index 4 index funcCol dup
+      3 1 roll colordelta 3 1 roll
+      5 index 5 index funcCol dup
+      3 1 roll colordelta 3 1 roll
+      6 index 8 index funcCol dup
+      3 1 roll colordelta 3 1 roll
+      colordelta or or or
+    } ifelse
+  } ifelse
+  {
+    1 add
+    4 index 3 index add 0.5 mul exch 4 index 3 index add 0.5 mul exch
+    6 index 6 index 4 index 4 index 4 index funcSH
+    2 index 6 index 6 index 4 index 4 index funcSH
+    6 index 2 index 4 index 6 index 4 index funcSH
+    5 3 roll 3 2 roll funcSH pop pop
+  } {
+    pop 3 index 2 index add 0.5 mul 3 index  2 index add 0.5 mul
+    funcCol sc
+    dup 4 index exch mat transform m
+    3 index 3 index mat transform l
+    1 index 3 index mat transform l
+    mat transform l pop pop h f*
+  } ifelse
+} def
+/axialCol {
+  dup 0 lt {
+    pop t0
+  } {
+    dup 1 gt {
+      pop t1
+    } {
+      dt mul t0 add
+    } ifelse
+  } ifelse
+  func n array astore
+} def
+/axialSH {
+  dup 0 eq {
+    true
+  } {
+    dup 8 eq {
+      false
+    } {
+      2 index axialCol 2 index axialCol colordelta
+    } ifelse
+  } ifelse
+  {
+    1 add 3 1 roll 2 copy add 0.5 mul
+    dup 4 3 roll exch 4 index axialSH
+    exch 3 2 roll axialSH
+  } {
+    pop 2 copy add 0.5 mul
+    axialCol sc
+    exch dup dx mul x0 add exch dy mul y0 add
+    3 2 roll dup dx mul x0 add exch dy mul y0 add
+    dx abs dy abs ge {
+      2 copy yMin sub dy mul dx div add yMin m
+      yMax sub dy mul dx div add yMax l
+      2 copy yMax sub dy mul dx div add yMax l
+      yMin sub dy mul dx div add yMin l
+      h f*
+    } {
+      exch 2 copy xMin sub dx mul dy div add xMin exch m
+      xMax sub dx mul dy div add xMax exch l
+      exch 2 copy xMax sub dx mul dy div add xMax exch l
+      xMin sub dx mul dy div add xMin exch l
+      h f*
+    } ifelse
+  } ifelse
+} def
+/radialCol {
+  dup t0 lt {
+    pop t0
+  } {
+    dup t1 gt {
+      pop t1
+    } if
+  } ifelse
+  func n array astore
+} def
+/radialSH {
+  dup 0 eq {
+    true
+  } {
+    dup 8 eq {
+      false
+    } {
+      2 index dt mul t0 add radialCol
+      2 index dt mul t0 add radialCol colordelta
+    } ifelse
+  } ifelse
+  {
+    1 add 3 1 roll 2 copy add 0.5 mul
+    dup 4 3 roll exch 4 index radialSH
+    exch 3 2 roll radialSH
+  } {
+    pop 2 copy add 0.5 mul dt mul t0 add
+    radialCol sc
+    encl {
+      exch dup dx mul x0 add exch dup dy mul y0 add exch dr mul r0 add
+      0 360 arc h
+      dup dx mul x0 add exch dup dy mul y0 add exch dr mul r0 add
+      360 0 arcn h f
+    } {
+      2 copy
+      dup dx mul x0 add exch dup dy mul y0 add exch dr mul r0 add
+      a1 a2 arcn
+      dup dx mul x0 add exch dup dy mul y0 add exch dr mul r0 add
+      a2 a1 arcn h
+      dup dx mul x0 add exch dup dy mul y0 add exch dr mul r0 add
+      a1 a2 arc
+      dup dx mul x0 add exch dup dy mul y0 add exch dr mul r0 add
+      a2 a1 arc h f
+    } ifelse
+  } ifelse
+} def
+end
+%%EndResource
+%%EndProlog
+%%BeginSetup
+xpdf begin
+%%BeginResource: font NFYUAE+Helvetica
+%!FontType1-1.0: NFYUAE+Helvetica
+12 dict begin
+/FontInfo 10 dict dup begin
+/Notice (Copyright \(URW\)++,Copyright 2014 by \(URW\)++ Design & Develo\
+pment) readonly def
+/FullName (Nimbus Sans L Regular) readonly def
+/FamilyName (Nimbus Sans L) readonly def
+/isFixedPitch false def
+/ItalicAngle 0 def
+/UnderlinePosition 0 def
+/UnderlineThickness 0 def
+end readonly def
+/FontName /NFYUAE+Helvetica def
+/PaintType 0 def
+/FontType 1 def
+/FontMatrix [0.001 0 0 0.001 0 0] readonly def
+/FontBBox [0 -23 520 709] readonly def
+/StrokeWidth 0 def
+/Encoding 256 array
+0 1 255 {1 index exch /.notdef put} for
+dup 46 /period put
+dup 48 /zero put
+dup 49 /one put
+dup 50 /two put
+dup 51 /three put
+dup 52 /four put
+dup 53 /five put
+dup 54 /six put
+dup 55 /seven put
+dup 56 /eight put
+dup 57 /nine put
+readonly def
+currentdict end
+currentfile eexec
+5AA4F71255501637F1A431BAB555283D093E1B588B45B0281559110D21315C62
+BD638C6B34BA54AA75227715D9947EBCD51A104CAEA657499E94138F5645BF68
+368BB1B1EC8E4776F067FFF2CE9B89FB7E63A7DB304498C1036D399C47A4CB79
+BD517EDB02BEB90195FD7DDAF3E839BCE2DB156D9337DBB2305A465B3E0FFB97
+1985C79DC71C47E26F9F0F042B2CDEE97B679358059256FB93D662D43C7ECB5B
+1A564DFCECB963478373C69F52172F071E0AA6082A3E10D9E1CE2851CFA210EE
+7BD5FCB1AAE15E89D1FB339D587D218B89C18A32F47C7451A80CB1FC07CF5EF6
+FB39B30D1F8747CF302EAFC179F06E5D11CA91B74E937CCBD27A32CB3BCF5FE6
+C45D34D885BFB86FF350A90A5782FFBE48234DAA06C5D150B2EC09D77404EC3D
+B43160154612D64E10BACD89A617F4DEA98A315408AD9D54BEFC25C4416E4A72
+6632CCC5C9AF2C341A0AE136E29843D68B1251F5FA845C13AC8B7DE251BFFEA8
+A8EDD813DCEE74501D2E689B7E24D26500F2D6EE48A8B8000CB839582669CE55
+2E2326EC60875EE39AF01AD6CB90C35E45C7457BC68C9C2E098644FAD811D4D2
+D75023F9E96CF1929E5A6687FE3E915824CD1FB756913FBF72B5D3237EBB6898
+F837994F441B87E664B1316EC92FA9592D4D0D13A8CC8B21A573FB50055903C4
+A8486246A6CB8AC5EFC73EB8BB15AE287E3EF81F02BB828CFC3021756186E6B2
+2304F9F6AA984A60889B580A4A04042C1DB2BFD088DCC37886C4DA9780A2AE6F
+9AC19DD5B914B855253CC081B97FC85B98959677156014318D308FB4CC119CD3
+D82AAB29BEE377B0E887C9CBC1EDF99A78C72632DA6A87A8ECBEAB23F4AD5BA9
+F8FFFB3F1DBF138F721EDFB88DA79395A78F03A8FC4FC5E9AA720BF3C7FFB509
+76D7359999DBE13508FA3C5D406152CD4670D14AA0D5DBD4322CF2B5E8D07DB9
+2664A0B44EF68A3D65185C67DFEDE9C42526598616363C6D3262C14D1B0C1BA7
+023ADC44BA43174856F5BBACE2B6359619A4B8DC70A9D298C041003FDB0A5DE1
+EB8B1ADB8B9DB4A97FFF09B23411F870ED6C8801E1BA94A32FD6BF03368CED8B
+8CD0337C286806063178EA9B778C856AD472785573A713A6150680A6F86B409B
+305205FBCCDAF559749CCCADA8168C84E7028087C67E17A25037AA0BE663C9D3
+083DD117594F1C7FC2016B4583217EB7A451886F6AC772F1AA9FC5C1D4A87076
+A8043E6D0A2CAD2A7A9E99CC17CE424C78500F07D4AD1D1DECA2828CEF7E819E
+E559A8791681E6F5C7BC3519EA4CE0162AC3E29F02C143EA1F069FF2EEA1F7D0
+FEF119CB795ECC3749E16B06A521F187598CBB60711DA0C015A8F754ACBCDA6C
+74906A13729B868E64403E4187B75BD53E2BC241E4BF78B39AD32800CDDD39E2
+7BD32A0EE38E7865041A95BDDCEF491F35F69435B62FE36B9C6BC2911F9E3CF8
+D2EBEDA1B790E67ED1555AE86FDDC6409C4DDFB39ECC0C68E0F6F28C20BD04EC
+AEBEF0BDFA1010C17332F349AA7D3B5EE63404132262F8EE8F74F103A964CC7A
+3A0952939EA4A819BE9F935395851A0A7FE2586775A73650D0CAEBA1C60E53DF
+AEBE874FE183EA424EC201F11349771DB18D79E898965E5EC2810C29ADAAD26A
+F2350DEA0F3EDD36EF06C75041429BD0BBF232D6F878C3DE19999ADC9A2E9208
+E1AFC5B3E02F1369D9655D490F7A0B5864A91A701DEFAFFA421E39C9EF19FC5D
+202E095EE05A1242E25C362DCBA76F36AD71BDAB3824E83B9EFADC94A7716D9C
+B471ACF28CF9C94F939CDCCF6E9814E5E60EC9A435F757A430B34CDD687605E8
+84FE3B5819A887CDB74E7C4608C1BEDE4C3772943D82AE089C31BAF53E5E795E
+EE2B8A824C4D89B780B100D24728D49FD356954AD384C960371CE1052BD34102
+45826DB54E3557E41984DC8B48D53E82D3BB907121E27886387D116EA9F2BB1D
+1A0523ED355E527BFCA662A4353518976748388FFA0BC6AD261DB9655078CB81
+CCE775778ACAA644F0D5ED2FD1AED51533A5CE8B7173919C6421C857C2FFCB2E
+98C5CA49DF0CF40142AE58D82A54A88288D8721E5988E4A5C26DBF355FD4DF73
+DF280837680AEAFEA80FC07499E2D164D2FA928789800AFFAEF3BA226EE1D2F3
+CC5423A2FF5853565F4B351F6876C9B69BB10B86B4C5C92BD0CD3611F6F8934E
+411A2461E1546EA604498A3EC04B58D4BEE775495D6F8E664CA135CACEFEB18A
+F5CF3B4777817D7B820F647A5687FAF18F2E6BADEE3C6B97D9D94F29BADFA8B9
+20F300179C418429E1D55E403F4D2EE33281E11E0CB79BE8BEB49B3A17A518B3
+17C66034384F48F3CA919DD06B27579678ABA683FFC3307D01653A58BA940804
+03D277B10617F4842D6CADB7B18182B32808C2C3F8DD4B8902083C2288C3D540
+C1E94ABF52DD87792644E5B44EC5284648C53D0590F37A590588A24603F6E05E
+0B99566AE4A6BB693606F90698AB992495E65322748A6AB538AB310929F8F04D
+EC2808
+0000000000000000000000000000000000000000000000000000000000000000
+0000000000000000000000000000000000000000000000000000000000000000
+0000000000000000000000000000000000000000000000000000000000000000
+0000000000000000000000000000000000000000000000000000000000000000
+0000000000000000000000000000000000000000000000000000000000000000
+0000000000000000000000000000000000000000000000000000000000000000
+0000000000000000000000000000000000000000000000000000000000000000
+0000000000000000000000000000000000000000000000000000000000000000
+cleartomark
+%%EndResource
+/F8_0 /NFYUAE+Helvetica 1 1
+[ /.notdef/.notdef/.notdef/.notdef/.notdef/.notdef/.notdef/.notdef
+  /.notdef/.notdef/.notdef/.notdef/.notdef/.notdef/.notdef/.notdef
+  /.notdef/.notdef/.notdef/.notdef/.notdef/.notdef/.notdef/.notdef
+  /.notdef/.notdef/.notdef/.notdef/.notdef/.notdef/.notdef/.notdef
+  /space/exclam/quotedbl/numbersign/dollar/percent/ampersand/quotesingle
+  /parenleft/parenright/asterisk/plus/comma/hyphen/period/slash
+  /zero/one/two/three/four/five/six/seven
+  /eight/nine/colon/semicolon/less/equal/greater/question
+  /at/A/B/C/D/E/F/G
+  /H/I/J/K/L/M/N/O
+  /P/Q/R/S/T/U/V/W
+  /X/Y/Z/bracketleft/backslash/bracketright/asciicircum/underscore
+  /grave/a/b/c/d/e/f/g
+  /h/i/j/k/l/m/n/o
+  /p/q/r/s/t/u/v/w
+  /x/y/z/braceleft/bar/braceright/asciitilde/bullet
+  /Euro/bullet/quotesinglbase/florin/quotedblbase/ellipsis/dagger/daggerdbl
+  /circumflex/perthousand/Scaron/guilsinglleft/OE/bullet/Zcaron/bullet
+  /bullet/quoteleft/quoteright/quotedblleft/quotedblright/bullet/endash/emdash
+  /tilde/trademark/scaron/guilsinglright/oe/bullet/zcaron/Ydieresis
+  /space/exclamdown/cent/sterling/currency/yen/brokenbar/section
+  /dieresis/copyright/ordfeminine/guillemotleft/logicalnot/hyphen/registered/macron
+  /degree/plusminus/twosuperior/threesuperior/acute/mu/paragraph/periodcentered
+  /cedilla/onesuperior/ordmasculine/guillemotright/onequarter/onehalf/threequarters/questiondown
+  /Agrave/Aacute/Acircumflex/Atilde/Adieresis/Aring/AE/Ccedilla
+  /Egrave/Eacute/Ecircumflex/Edieresis/Igrave/Iacute/Icircumflex/Idieresis
+  /Eth/Ntilde/Ograve/Oacute/Ocircumflex/Otilde/Odieresis/multiply
+  /Oslash/Ugrave/Uacute/Ucircumflex/Udieresis/Yacute/Thorn/germandbls
+  /agrave/aacute/acircumflex/atilde/adieresis/aring/ae/ccedilla
+  /egrave/eacute/ecircumflex/edieresis/igrave/iacute/icircumflex/idieresis
+  /eth/ntilde/ograve/oacute/ocircumflex/otilde/odieresis/divide
+  /oslash/ugrave/uacute/ucircumflex/udieresis/yacute/thorn/ydieresis]
+pdfMakeFont
+%%EndSetup
+pdfStartPage
+%%EndPageSetup
+[] 0 d
+1 i
+0 j
+0 J
+10 M
+1 w
+/DeviceGray {} cs
+[0] sc
+/DeviceGray {} CS
+[0] SC
+false op
+false OP
+{} settransfer
+0 0 359.75 278 re
+W
+q
+q
+[0.1 0 0 0.1 0 0] cm
+/DeviceGray {} cs
+[1] sc
+205 160 3255 2572.5 re
+f
+5.0025 w
+2 J
+1 j
+/DeviceGray {} CS
+[0.1489] SC
+205 160 m
+3460 160 l
+S
+205 2732.5 m
+3460 2732.5 l
+S
+205 160 m
+205 192.551 l
+S
+670 160 m
+670 192.551 l
+S
+1135 160 m
+1135 192.551 l
+S
+1600 160 m
+1600 192.551 l
+S
+2065 160 m
+2065 192.551 l
+S
+2530 160 m
+2530 192.551 l
+S
+2995 160 m
+2995 192.551 l
+S
+3460 160 m
+3460 192.551 l
+S
+205 2732.5 m
+205 2699.95 l
+S
+670 2732.5 m
+670 2699.95 l
+S
+1135 2732.5 m
+1135 2699.95 l
+S
+1600 2732.5 m
+1600 2699.95 l
+S
+2065 2732.5 m
+2065 2699.95 l
+S
+2530 2732.5 m
+2530 2699.95 l
+S
+2995 2732.5 m
+2995 2699.95 l
+S
+3460 2732.5 m
+3460 2699.95 l
+S
+/DeviceGray {} cs
+[0.1489] sc
+q
+[10 0 0 10 0 0] cm
+[1 0 0 1 0 0] Tm
+0 0 Td
+[1 0 0 1 17.125 2.25] Tm
+0 0 Td
+/F8_0 9.99975 Tf
+(0)
+[5.559861
+0] Tj
+-3494.1 TJm
+(500)
+[5.559861
+0
+5.559861
+0
+5.559861
+0] Tj
+-2644.61 TJm
+(1000)
+[5.559861
+0
+5.559861
+0
+5.559861
+0
+5.559861
+0] Tj
+-2426.12 TJm
+(1500)
+[5.559861
+0
+5.559861
+0
+5.559861
+0
+5.559861
+0] Tj
+-2426.12 TJm
+(2000)
+[5.559861
+0
+5.559861
+0
+5.559861
+0
+5.559861
+0] Tj
+-2426.12 TJm
+(2500)
+[5.559861
+0
+5.559861
+0
+5.559861
+0
+5.559861
+0] Tj
+-2426.12 TJm
+(3000)
+[5.559861
+0
+5.559861
+0
+5.559861
+0
+5.559861
+0] Tj
+-2426.12 TJm
+(3500)
+[5.559861
+0
+5.559861
+0
+5.559861
+0
+5.559861
+0] Tj
+Q
+205 160 m
+205 2732.5 l
+S
+3460 160 m
+3460 2732.5 l
+S
+205 160 m
+237.551 160 l
+S
+205 417.25 m
+237.551 417.25 l
+S
+205 674.5 m
+237.551 674.5 l
+S
+205 931.75 m
+237.551 931.75 l
+S
+205 1189 m
+237.551 1189 l
+S
+205 1446.25 m
+237.551 1446.25 l
+S
+205 1703.5 m
+237.551 1703.5 l
+S
+205 1960.75 m
+237.551 1960.75 l
+S
+205 2218 m
+237.551 2218 l
+S
+205 2475.25 m
+237.551 2475.25 l
+S
+205 2732.5 m
+237.551 2732.5 l
+S
+3460 160 m
+3427.45 160 l
+S
+3460 417.25 m
+3427.45 417.25 l
+S
+3460 674.5 m
+3427.45 674.5 l
+S
+3460 931.75 m
+3427.45 931.75 l
+S
+3460 1189 m
+3427.45 1189 l
+S
+3460 1446.25 m
+3427.45 1446.25 l
+S
+3460 1703.5 m
+3427.45 1703.5 l
+S
+3460 1960.75 m
+3427.45 1960.75 l
+S
+3460 2218 m
+3427.45 2218 l
+S
+3460 2475.25 m
+3427.45 2475.25 l
+S
+3460 2732.5 m
+3427.45 2732.5 l
+S
+q
+[10 0 0 10 0 0] cm
+[1 0 0 1 0 0] Tm
+0 0 Td
+[1 0 0 1 9.75 12.625] Tm
+0 0 Td
+/F8_0 9.99975 Tf
+(0)
+[5.559861
+0] Tj
+-9 25.725 Td
+(0.1)
+[5.559861
+0
+2.779931
+0
+5.559861
+0] Tj
+-9 51.45 Td
+(0.2)
+[5.559861
+0
+2.779931
+0
+5.559861
+0] Tj
+-9 77.175 Td
+(0.3)
+[5.559861
+0
+2.779931
+0
+5.559861
+0] Tj
+-9 102.9 Td
+(0.4)
+[5.559861
+0
+2.779931
+0
+5.559861
+0] Tj
+-9 128.625 Td
+(0.5)
+[5.559861
+0
+2.779931
+0
+5.559861
+0] Tj
+-9 154.35 Td
+(0.6)
+[5.559861
+0
+2.779931
+0
+5.559861
+0] Tj
+-9 180.075 Td
+(0.7)
+[5.559861
+0
+2.779931
+0
+5.559861
+0] Tj
+-9 205.8 Td
+(0.8)
+[5.559861
+0
+2.779931
+0
+5.559861
+0] Tj
+-9 231.525 Td
+(0.9)
+[5.559861
+0
+2.779931
+0
+5.559861
+0] Tj
+0 257.25 Td
+(1)
+[5.559861
+0] Tj
+Q
+0 J
+/DeviceRGB {} CS
+[0 0.447 0.7402] SC
+205 160 m
+205 160.039 l
+530.906 160.074 l
+541.246 160.121 l
+544.309 160.156 l
+549.297 160.195 l
+550.75 160.234 l
+559.824 160.277 l
+565.023 160.316 l
+569.703 160.352 l
+571.156 160.391 l
+572.859 160.434 l
+573.609 160.473 l
+576.641 160.512 l
+578.035 160.586 l
+578.547 160.629 l
+581.719 160.668 l
+581.867 160.789 l
+584.02 160.824 l
+586.18 160.863 l
+587.387 160.945 l
+587.547 160.984 l
+587.59 161.02 l
+591.109 161.059 l
+591.414 161.102 l
+593.078 161.254 l
+594.211 161.297 l
+594.414 161.336 l
+596.125 161.371 l
+596.754 161.41 l
+598.375 161.457 l
+598.766 161.492 l
+599.621 161.566 l
+601.758 161.613 l
+602.156 161.648 l
+603.137 161.688 l
+604.254 161.77 l
+604.676 161.809 l
+605.934 161.883 l
+607.066 161.922 l
+608.133 161.965 l
+608.305 162.039 l
+610.082 162.078 l
+611.754 162.234 l
+612.273 162.281 l
+613.457 162.355 l
+614.379 162.395 l
+615.191 162.43 l
+615.992 162.477 l
+617.172 162.586 l
+618.363 162.633 l
+619.156 162.707 l
+619.691 162.746 l
+620.656 163.023 l
+623.074 163.059 l
+623.262 163.098 l
+624.887 163.457 l
+625.473 163.496 l
+626.77 163.57 l
+627.086 163.613 l
+628.66 163.848 l
+628.871 163.887 l
+630.258 164.082 l
+630.648 164.125 l
+632.492 164.477 l
+632.523 164.516 l
+634.059 164.832 l
+634.781 164.867 l
+636.211 165.102 l
+636.363 165.145 l
+637.969 165.453 l
+638.246 165.496 l
+639.887 165.969 l
+640.074 166.008 l
+641.824 166.164 l
+641.965 166.203 l
+643.645 166.324 l
+643.824 166.359 l
+645.438 166.75 l
+646.219 166.789 l
+647.453 166.988 l
+647.582 167.027 l
+649.211 167.418 l
+649.48 167.453 l
+651.168 168.012 l
+651.301 168.047 l
+652.961 168.52 l
+653.125 168.559 l
+654.953 169.383 l
+655.141 169.422 l
+656.582 169.699 l
+657.004 169.734 l
+658.727 170.246 l
+658.801 170.281 l
+660.551 170.793 l
+660.672 170.836 l
+662.477 171.422 l
+662.738 171.461 l
+664.203 172.246 l
+664.473 172.285 l
+666.016 172.914 l
+666.309 172.953 l
+668.078 173.816 l
+668.621 173.859 l
+669.977 174.25 l
+670.074 174.289 l
+671.867 174.918 l
+671.891 174.953 l
+673.48 175.855 l
+673.766 175.898 l
+675.566 176.363 l
+675.754 176.41 l
+677.477 176.957 l
+677.793 176.996 l
+679.352 177.625 l
+679.457 177.664 l
+681.07 178.801 l
+681.266 178.84 l
+683.066 179.824 l
+683.266 179.859 l
+684.977 180.844 l
+685 180.879 l
+686.785 181.824 l
+686.898 181.863 l
+688.594 182.809 l
+688.797 182.844 l
+690.617 183.477 l
+690.625 183.512 l
+692.461 184.652 l
+692.695 184.691 l
+694.344 185.32 l
+694.383 185.359 l
+696.211 186.969 l
+696.297 187.008 l
+698.082 188.102 l
+698.23 188.148 l
+699.992 189.281 l
+700.031 189.324 l
+701.832 190.344 l
+701.914 190.383 l
+703.707 191.246 l
+703.758 191.281 l
+705.535 192.145 l
+705.625 192.191 l
+707.469 193.051 l
+707.508 193.09 l
+709.352 194.387 l
+709.48 194.426 l
+711.145 195.289 l
+711.348 195.324 l
+713.082 196.66 l
+713.141 196.707 l
+714.961 197.996 l
+715.066 198.039 l
+716.809 199.645 l
+716.883 199.684 l
+718.707 201.063 l
+718.801 201.102 l
+720.414 202.434 l
+720.723 202.473 l
+722.461 203.926 l
+722.559 203.965 l
+724.352 205.414 l
+724.465 205.457 l
+726.234 207.109 l
+726.301 207.145 l
+728.094 208.75 l
+728.148 208.797 l
+729.926 210.281 l
+730.023 210.324 l
+731.867 211.93 l
+731.934 211.977 l
+733.719 213.504 l
+733.848 213.543 l
+735.559 214.996 l
+735.648 215.035 l
+737.484 216.797 l
+737.574 216.836 l
+739.367 218.566 l
+739.406 218.605 l
+741.184 220.727 l
+741.309 220.766 l
+743.117 222.527 l
+743.172 222.574 l
+744.961 224.371 l
+745.09 224.418 l
+746.852 225.949 l
+746.883 225.984 l
+748.676 227.949 l
+748.773 227.988 l
+750.566 229.988 l
+750.715 230.027 l
+752.426 231.91 l
+752.547 231.957 l
+754.375 233.836 l
+754.422 233.875 l
+756.207 235.953 l
+756.273 235.996 l
+758.094 237.879 l
+758.184 237.918 l
+759.957 240.273 l
+760.008 240.309 l
+761.824 242.434 l
+761.883 242.469 l
+763.742 244.824 l
+763.801 244.863 l
+765.559 247.18 l
+765.648 247.219 l
+767.477 249.379 l
+767.531 249.422 l
+769.375 251.973 l
+769.422 252.012 l
+771.242 254.246 l
+771.281 254.289 l
+773.082 256.441 l
+773.164 256.488 l
+774.949 259.586 l
+775.023 259.621 l
+776.867 261.781 l
+776.891 261.82 l
+778.719 264.73 l
+778.758 264.77 l
+780.527 267.281 l
+780.625 267.316 l
+782.461 269.949 l
+782.508 269.988 l
+784.344 272.852 l
+784.422 272.891 l
+786.227 275.719 l
+786.273 275.754 l
+788.117 279.055 l
+788.148 279.094 l
+789.977 281.645 l
+790.016 281.688 l
+791.816 284.59 l
+791.875 284.629 l
+793.734 287.648 l
+793.75 287.688 l
+795.602 290.516 l
+795.641 290.559 l
+797.426 292.758 l
+797.531 292.797 l
+799.375 295.27 l
+799.391 295.309 l
+801.242 297.934 l
+801.258 297.977 l
+803.109 300.566 l
+803.148 300.602 l
+804.992 303.355 l
+805.016 303.391 l
+806.867 307 l
+806.891 307.047 l
+808.742 310.145 l
+808.766 310.18 l
+810.609 313.129 l
+810.656 313.164 l
+812.484 315.676 l
+812.523 315.715 l
+814.352 318.664 l
+814.434 318.699 l
+816.199 321.961 l
+816.301 322 l
+818.086 324.941 l
+818.164 324.977 l
+819.984 327.73 l
+820.031 327.766 l
+821.852 330.207 l
+821.883 330.242 l
+823.742 333.422 l
+823.766 333.461 l
+825.594 336.957 l
+825.625 336.992 l
+827.5 340.449 l
+827.508 340.488 l
+829.367 343.426 l
+829.383 343.473 l
+831.242 347.469 l
+831.258 347.516 l
+833.125 350.852 l
+833.133 350.891 l
+834.992 355.324 l
+835.016 355.359 l
+836.859 359.207 l
+836.891 359.254 l
+838.75 363.527 l
+838.758 363.566 l
+840.617 367.766 l
+840.625 367.809 l
+842.484 370.984 l
+842.508 371.027 l
+844.367 374.559 l
+844.406 374.598 l
+846.219 378.129 l
+846.258 378.168 l
+848.082 381.781 l
+848.141 381.82 l
+849.992 385.473 l
+850.105 385.512 l
+851.875 389.199 l
+851.898 389.238 l
+853.734 392.453 l
+853.766 392.5 l
+855.566 396.07 l
+855.625 396.109 l
+857.477 399.324 l
+857.531 399.363 l
+859.352 403.367 l
+859.383 403.414 l
+861.242 406.824 l
+861.258 406.863 l
+863.125 410.359 l
+863.141 410.395 l
+864.957 414.559 l
+865 414.594 l
+866.852 418.051 l
+866.934 418.09 l
+868.742 421.039 l
+868.766 421.074 l
+870.602 425.035 l
+870.641 425.082 l
+872.484 428.809 l
+872.508 428.844 l
+874.375 431.59 l
+874.375 431.637 l
+876.25 435.086 l
+876.301 435.121 l
+878.051 438.617 l
+878.125 438.656 l
+879.992 442.074 l
+880.023 442.113 l
+881.867 445.367 l
+881.891 445.414 l
+883.734 448.984 l
+883.75 449.02 l
+885.602 452.672 l
+885.641 452.711 l
+887.492 456.484 l
+887.508 456.52 l
+889.367 460.016 l
+889.383 460.051 l
+891.25 463.977 l
+891.266 464.02 l
+893.086 468.063 l
+893.125 468.102 l
+894.969 472.105 l
+895.008 472.141 l
+896.844 476.184 l
+896.891 476.223 l
+898.742 479.793 l
+898.766 479.836 l
+900.617 483.957 l
+900.676 483.992 l
+902.484 487.609 l
+902.531 487.645 l
+904.316 492.281 l
+904.473 492.316 l
+906.25 496.441 l
+906.324 496.48 l
+908.117 500.012 l
+908.133 500.051 l
+909.984 503.703 l
+910.039 503.738 l
+911.836 507.586 l
+911.883 507.625 l
+913.734 511.711 l
+913.766 511.75 l
+915.586 515.914 l
+915.641 515.949 l
+917.457 519.953 l
+917.539 519.992 l
+919.344 524.035 l
+919.375 524.074 l
+921.242 528.039 l
+921.266 528.078 l
+923.066 532.824 l
+923.148 532.871 l
+924.992 536.793 l
+925 536.828 l
+926.852 541.383 l
+926.883 541.426 l
+928.707 544.996 l
+928.758 545.035 l
+930.574 549.078 l
+930.648 549.113 l
+932.434 553.047 l
+932.5 553.082 l
+934.367 556.969 l
+934.391 557.004 l
+936.219 560.934 l
+936.266 560.973 l
+938.117 565.211 l
+938.148 565.246 l
+939.992 569.215 l
+940.008 569.254 l
+941.859 572.98 l
+941.875 573.023 l
+943.75 576.828 l
+943.758 576.871 l
+945.594 580.324 l
+945.633 580.359 l
+947.492 584.922 l
+947.516 584.957 l
+949.344 588.602 l
+949.406 588.648 l
+951.219 592.691 l
+951.266 592.727 l
+953.117 596.648 l
+953.133 596.695 l
+954.992 600.184 l
+955.031 600.227 l
+956.867 604.188 l
+956.941 604.234 l
+958.75 608.156 l
+958.773 608.191 l
+960.625 611.41 l
+960.641 611.457 l
+962.469 615.379 l
+962.508 615.414 l
+964.359 619.383 l
+964.422 619.422 l
+966.242 623.738 l
+966.289 623.777 l
+968.094 627.859 l
+968.125 627.895 l
+969.977 631.434 l
+970.047 631.473 l
+971.875 634.887 l
+971.941 634.922 l
+973.734 638.613 l
+973.797 638.656 l
+975.602 642.34 l
+975.633 642.387 l
+977.477 646.504 l
+977.551 646.539 l
+979.359 650.035 l
+979.383 650.082 l
+981.25 654.234 l
+981.258 654.281 l
+983.125 658.48 l
+983.125 658.52 l
+984.969 662.754 l
+985.016 662.793 l
+986.859 666.602 l
+986.883 666.641 l
+988.75 670.609 l
+988.75 670.645 l
+990.625 674.727 l
+990.641 674.77 l
+992.5 678.656 l
+992.508 678.691 l
+994.344 682.809 l
+994.375 682.855 l
+996.242 687.02 l
+996.266 687.055 l
+998.117 691.293 l
+998.125 691.332 l
+999.992 695.02 l
+1000.04 695.059 l
+1001.88 699.023 l
+1001.89 699.063 l
+1003.73 702.836 l
+1003.77 702.871 l
+1005.59 707.191 l
+1005.64 707.23 l
+1007.49 710.727 l
+1007.52 710.762 l
+1009.36 714.414 l
+1009.41 714.453 l
+1011.23 718.422 l
+1011.28 718.457 l
+1013.12 723.047 l
+1013.16 723.086 l
+1014.98 726.82 l
+1015.02 726.859 l
+1016.87 731.133 l
+1016.88 731.172 l
+1018.75 735.258 l
+1018.75 735.297 l
+1020.63 739.059 l
+1020.64 739.105 l
+1022.49 742.676 l
+1022.51 742.711 l
+1024.36 746.363 l
+1024.38 746.402 l
+1026.24 750.762 l
+1026.26 750.797 l
+1028.1 754.922 l
+1028.19 754.961 l
+1029.98 758.965 l
+1030.01 759.004 l
+1031.88 762.73 l
+1031.88 762.773 l
+1033.75 766.422 l
+1033.77 766.465 l
+1035.61 770.508 l
+1035.63 770.547 l
+1037.48 774.039 l
+1037.51 774.078 l
+1039.34 777.379 l
+1039.38 777.414 l
+1041.25 781.531 l
+1041.32 781.578 l
+1043.1 785.066 l
+1043.13 785.109 l
+1045 788.68 l
+1045.02 788.719 l
+1046.87 792.371 l
+1046.91 792.406 l
+1048.75 795.977 l
+1048.78 796.023 l
+1050.62 799.984 l
+1050.71 800.027 l
+1052.47 803.637 l
+1052.51 803.672 l
+1054.38 807.676 l
+1054.38 807.715 l
+1056.19 811.137 l
+1056.25 811.172 l
+1058.12 815.094 l
+1058.14 815.141 l
+1059.98 819.73 l
+1060 819.77 l
+1061.83 823.227 l
+1061.88 823.262 l
+1063.73 827.621 l
+1063.78 827.656 l
+1065.6 831.781 l
+1065.68 831.82 l
+1067.49 835.352 l
+1067.52 835.391 l
+1069.35 839.164 l
+1069.38 839.199 l
+1071.23 843.207 l
+1071.26 843.242 l
+1073.11 846.969 l
+1073.13 847.008 l
+1075 851.328 l
+1075.02 851.363 l
+1076.88 854.508 l
+1076.89 854.547 l
+1078.69 858.863 l
+1078.77 858.902 l
+1080.61 862.906 l
+1080.66 862.945 l
+1082.49 866.363 l
+1082.53 866.402 l
+1084.37 870.797 l
+1084.38 870.836 l
+1086.24 874.801 l
+1086.27 874.84 l
+1088.12 878.141 l
+1088.16 878.176 l
+1090 881.477 l
+1090.01 881.516 l
+1091.86 885.281 l
+1091.88 885.324 l
+1093.67 889.285 l
+1093.76 889.324 l
+1095.59 893.207 l
+1095.63 893.254 l
+1097.45 896.508 l
+1097.52 896.547 l
+1099.32 900.316 l
+1099.38 900.355 l
+1101.23 904.238 l
+1101.29 904.277 l
+1103.09 907.301 l
+1103.15 907.344 l
+1104.98 910.637 l
+1105.01 910.684 l
+1106.84 913.977 l
+1106.88 914.012 l
+1108.73 918.332 l
+1108.78 918.371 l
+1110.63 921.863 l
+1110.65 921.902 l
+1112.48 925.324 l
+1112.51 925.359 l
+1114.36 929.328 l
+1114.38 929.363 l
+1116.24 932.898 l
+1116.29 932.934 l
+1118.13 936.746 l
+1118.13 936.781 l
+1120 940.391 l
+1120.01 940.434 l
+1121.87 944.32 l
+1121.88 944.359 l
+1123.73 948.52 l
+1123.78 948.559 l
+1125.62 952.211 l
+1125.66 952.246 l
+1127.5 955.977 l
+1127.5 956.012 l
+1129.36 960.332 l
+1129.38 960.371 l
+1131.24 964.301 l
+1131.25 964.336 l
+1133.13 968.574 l
+1133.13 968.621 l
+1135 971.875 l
+1135.01 971.914 l
+1136.86 975.641 l
+1136.89 975.684 l
+1138.74 979.328 l
+1138.91 979.375 l
+1140.63 982.824 l
+1140.64 982.863 l
+1142.49 985.848 l
+1142.51 985.887 l
+1144.33 989.574 l
+1144.38 989.621 l
+1146.21 993.191 l
+1146.27 993.227 l
+1148.11 997.309 l
+1148.18 997.352 l
+1149.98 1001.63 l
+1150.05 1001.66 l
+1151.87 1005.63 l
+1151.9 1005.67 l
+1153.71 1010.34 l
+1153.82 1010.38 l
+1155.59 1014.03 l
+1155.63 1014.07 l
+1157.44 1017.76 l
+1157.5 1017.8 l
+1159.38 1021.8 l
+1159.41 1021.85 l
+1161.23 1024.79 l
+1161.27 1024.82 l
+1163.11 1028.79 l
+1163.13 1028.83 l
+1164.97 1032.32 l
+1165.02 1032.36 l
+1166.88 1035.86 l
+1166.91 1035.89 l
+1168.75 1039.04 l
+1168.75 1039.07 l
+1170.62 1042.61 l
+1170.66 1042.64 l
+1172.5 1045.59 l
+1172.5 1045.63 l
+1174.38 1048.93 l
+1174.43 1048.97 l
+1176.23 1052.27 l
+1176.27 1052.3 l
+1178.11 1055.36 l
+1178.13 1055.4 l
+1179.96 1059.57 l
+1180.02 1059.6 l
+1181.86 1062.39 l
+1181.88 1062.43 l
+1183.73 1065.73 l
+1183.79 1065.77 l
+1185.61 1069.5 l
+1185.64 1069.54 l
+1187.49 1073.74 l
+1187.54 1073.78 l
+1189.35 1077.86 l
+1189.38 1077.89 l
+1191.23 1080.92 l
+1191.27 1080.96 l
+1193.07 1084.18 l
+1193.16 1084.22 l
+1194.97 1087.55 l
+1195.02 1087.59 l
+1196.85 1091.13 l
+1196.9 1091.16 l
+1198.73 1094.85 l
+1198.75 1094.9 l
+1200.6 1098.23 l
+1200.63 1098.27 l
+1202.48 1101.88 l
+1202.52 1101.92 l
+1204.36 1105.02 l
+1204.39 1105.06 l
+1206.23 1108.28 l
+1206.26 1108.32 l
+1208.11 1111.7 l
+1208.15 1111.73 l
+1210 1115.23 l
+1210.01 1115.27 l
+1211.85 1118.72 l
+1211.88 1118.76 l
+1213.71 1122.21 l
+1213.76 1122.26 l
+1215.56 1125.43 l
+1215.63 1125.48 l
+1217.5 1128.85 l
+1217.51 1128.89 l
+1219.34 1132.03 l
+1219.38 1132.07 l
+1221.19 1134.35 l
+1221.26 1134.39 l
+1223.12 1137.17 l
+1223.13 1137.21 l
+1224.98 1140.86 l
+1225.02 1140.9 l
+1226.87 1144.59 l
+1226.89 1144.63 l
+1228.74 1147.73 l
+1228.77 1147.77 l
+1230.62 1151.26 l
+1230.64 1151.3 l
+1232.49 1155.03 l
+1232.51 1155.07 l
+1234.35 1158.64 l
+1234.46 1158.68 l
+1236.23 1162.37 l
+1236.28 1162.41 l
+1238.09 1166.26 l
+1238.13 1166.3 l
+1239.98 1169.39 l
+1240.02 1169.43 l
+1241.81 1173.4 l
+1241.88 1173.44 l
+1243.69 1176.58 l
+1243.77 1176.62 l
+1245.63 1180.2 l
+1245.71 1180.23 l
+1247.45 1183.57 l
+1247.52 1183.61 l
+1249.34 1186.59 l
+1249.45 1186.63 l
+1251.23 1190.44 l
+1251.27 1190.48 l
+1253.11 1193.82 l
+1253.13 1193.85 l
+1254.96 1196.79 l
+1255.01 1196.84 l
+1256.84 1200.05 l
+1256.88 1200.09 l
+1258.73 1203.98 l
+1258.76 1204.02 l
+1260.62 1207.82 l
+1260.63 1207.86 l
+1262.46 1211.2 l
+1262.51 1211.24 l
+1264.37 1214.7 l
+1264.39 1214.73 l
+1266.24 1217.09 l
+1266.27 1217.13 l
+1268.11 1220.82 l
+1268.13 1220.86 l
+1269.98 1224.27 l
+1270.09 1224.31 l
+1271.84 1227.57 l
+1271.88 1227.61 l
+1273.71 1230.51 l
+1273.76 1230.55 l
+1275.58 1233.85 l
+1275.63 1233.89 l
+1277.5 1237.15 l
+1277.52 1237.19 l
+1279.37 1240.44 l
+1279.38 1240.49 l
+1281.23 1243.46 l
+1281.27 1243.51 l
+1283.11 1246.84 l
+1283.16 1246.89 l
+1284.96 1249.79 l
+1285.03 1249.82 l
+1286.88 1253.25 l
+1286.88 1253.28 l
+1288.75 1256.46 l
+1288.79 1256.5 l
+1290.63 1259.4 l
+1290.63 1259.45 l
+1292.48 1262.78 l
+1292.52 1262.82 l
+1294.34 1266.2 l
+1294.38 1266.23 l
+1296.23 1268.39 l
+1296.34 1268.43 l
+1297.99 1271.54 l
+1298.16 1271.57 l
+1299.99 1275.11 l
+1300.02 1275.14 l
+1301.84 1278.6 l
+1301.88 1278.64 l
+1303.75 1281.78 l
+1303.75 1281.82 l
+1305.62 1284.57 l
+1305.67 1284.6 l
+1307.46 1287.39 l
+1307.55 1287.43 l
+1309.26 1289.98 l
+1309.42 1290.02 l
+1311.23 1293.09 l
+1311.3 1293.12 l
+1313.11 1296.18 l
+1313.13 1296.23 l
+1315 1299.4 l
+1315.01 1299.45 l
+1316.83 1302.47 l
+1316.93 1302.5 l
+1318.71 1305.57 l
+1318.77 1305.6 l
+1320.6 1308.32 l
+1320.69 1308.36 l
+1322.48 1311.57 l
+1322.51 1311.61 l
+1324.34 1314.95 l
+1324.41 1314.98 l
+1326.24 1317.54 l
+1326.26 1317.58 l
+1328.11 1320.71 l
+1328.13 1320.76 l
+1329.98 1324.84 l
+1330.01 1324.88 l
+1331.85 1328.02 l
+1331.89 1328.06 l
+1333.75 1331.47 l
+1333.75 1331.52 l
+1335.62 1334.7 l
+1335.63 1334.73 l
+1337.43 1338.42 l
+1337.51 1338.46 l
+1339.37 1341.68 l
+1339.41 1341.71 l
+1341.25 1344.59 l
+1341.28 1344.63 l
+1343.09 1347.57 l
+1343.13 1347.61 l
+1344.96 1350.16 l
+1345.01 1350.2 l
+1346.85 1353.14 l
+1346.88 1353.18 l
+1348.75 1356.68 l
+1348.8 1356.71 l
+1350.63 1359.74 l
+1350.63 1359.77 l
+1352.49 1362.68 l
+1352.52 1362.72 l
+1354.35 1365.98 l
+1354.39 1366.02 l
+1356.24 1369.39 l
+1356.31 1369.43 l
+1358.06 1371.63 l
+1358.13 1371.67 l
+1359.98 1374.81 l
+1360.02 1374.85 l
+1361.82 1378.26 l
+1361.91 1378.3 l
+1363.75 1381.21 l
+1363.77 1381.25 l
+1365.61 1384.34 l
+1365.63 1384.39 l
+1367.48 1387.17 l
+1367.51 1387.21 l
+1369.37 1389.8 l
+1369.39 1389.84 l
+1371.23 1392.9 l
+1371.29 1392.95 l
+1373.13 1395.81 l
+1373.13 1395.85 l
+1374.98 1399.19 l
+1375 1399.23 l
+1376.88 1402.56 l
+1376.9 1402.6 l
+1378.75 1405.46 l
+1378.9 1405.5 l
+1380.62 1408.06 l
+1380.66 1408.1 l
+1382.48 1410.72 l
+1382.51 1410.77 l
+1384.37 1413.86 l
+1384.41 1413.9 l
+1386.23 1417.08 l
+1386.27 1417.13 l
+1388.08 1420.46 l
+1388.13 1420.5 l
+1390 1423.76 l
+1390.02 1423.8 l
+1391.79 1426.39 l
+1391.91 1426.43 l
+1393.73 1429.49 l
+1393.75 1429.52 l
+1395.58 1432.59 l
+1395.63 1432.63 l
+1397.48 1435.06 l
+1397.51 1435.11 l
+1399.36 1437.54 l
+1399.41 1437.57 l
+1401.23 1440.48 l
+1401.27 1440.52 l
+1403.07 1443.19 l
+1403.13 1443.23 l
+1405 1446.25 l
+1405.03 1446.29 l
+1406.88 1449.27 l
+1406.9 1449.31 l
+1408.73 1452.49 l
+1408.75 1452.53 l
+1410.63 1455.79 l
+1410.63 1455.83 l
+1412.48 1458.66 l
+1412.54 1458.69 l
+1414.33 1461.59 l
+1414.49 1461.64 l
+1416.21 1464.42 l
+1416.28 1464.46 l
+1418.1 1467.33 l
+1418.13 1467.37 l
+1419.98 1470.04 l
+1420 1470.08 l
+1421.81 1472.94 l
+1421.9 1472.98 l
+1423.72 1475.77 l
+1423.77 1475.81 l
+1425.58 1478.25 l
+1425.63 1478.28 l
+1427.47 1481.07 l
+1427.51 1481.11 l
+1429.34 1483.77 l
+1429.39 1483.82 l
+1431.24 1487.31 l
+1431.29 1487.35 l
+1433.13 1490.45 l
+1433.13 1490.48 l
+1434.99 1492.77 l
+1435.08 1492.8 l
+1436.84 1495.79 l
+1436.88 1495.82 l
+1438.7 1498.46 l
+1438.75 1498.5 l
+1440.61 1501.25 l
+1440.63 1501.29 l
+1442.49 1504.03 l
+1442.5 1504.07 l
+1444.37 1507.05 l
+1444.38 1507.09 l
+1446.25 1510.9 l
+1446.26 1510.94 l
+1448.05 1514.12 l
+1448.16 1514.16 l
+1449.99 1517.07 l
+1450.01 1517.1 l
+1451.87 1519.46 l
+1451.93 1519.5 l
+1453.74 1522.32 l
+1453.75 1522.36 l
+1455.62 1524.71 l
+1455.63 1524.76 l
+1457.47 1527.78 l
+1457.57 1527.82 l
+1459.35 1530.18 l
+1459.4 1530.21 l
+1461.21 1533.27 l
+1461.26 1533.31 l
+1463.12 1536.69 l
+1463.16 1536.73 l
+1464.98 1539.24 l
+1465.02 1539.28 l
+1466.8 1542.02 l
+1466.91 1542.07 l
+1468.73 1544.93 l
+1468.75 1544.97 l
+1470.62 1547.48 l
+1470.7 1547.52 l
+1472.48 1550.9 l
+1472.52 1550.93 l
+1474.36 1553.81 l
+1474.38 1553.84 l
+1476.25 1556.71 l
+1476.26 1556.75 l
+1478.08 1558.95 l
+1478.19 1558.98 l
+1479.96 1562.05 l
+1480.09 1562.09 l
+1481.86 1564.25 l
+1482.02 1564.29 l
+1483.69 1566.52 l
+1483.78 1566.56 l
+1485.61 1569.58 l
+1485.67 1569.63 l
+1487.46 1572.49 l
+1487.52 1572.53 l
+1489.37 1575.63 l
+1489.43 1575.67 l
+1491.21 1578.06 l
+1491.28 1578.1 l
+1493.12 1580.96 l
+1493.14 1581.01 l
+1494.99 1584.03 l
+1495.07 1584.07 l
+1496.87 1586.11 l
+1496.9 1586.15 l
+1498.74 1588.74 l
+1498.81 1588.78 l
+1500.57 1591.45 l
+1500.64 1591.49 l
+1502.44 1594.16 l
+1502.5 1594.2 l
+1504.32 1597.06 l
+1504.4 1597.1 l
+1506.25 1600.24 l
+1506.27 1600.28 l
+1508.04 1602.98 l
+1508.13 1603.03 l
+1509.98 1605.85 l
+1510.12 1605.89 l
+1511.73 1608.6 l
+1511.9 1608.64 l
+1513.71 1611.98 l
+1513.77 1612.02 l
+1515.63 1614.88 l
+1515.74 1614.92 l
+1517.49 1617.79 l
+1517.52 1617.83 l
+1519.34 1620.06 l
+1519.41 1620.1 l
+1521.22 1622.7 l
+1521.27 1622.73 l
+1523.06 1625.36 l
+1523.13 1625.4 l
+1524.97 1628.43 l
+1525.01 1628.46 l
+1526.88 1631.36 l
+1526.89 1631.41 l
+1528.74 1634.27 l
+1528.8 1634.31 l
+1530.57 1636.82 l
+1530.63 1636.86 l
+1532.48 1639.18 l
+1532.53 1639.22 l
+1534.38 1641.22 l
+1534.39 1641.26 l
+1536.25 1644.75 l
+1536.3 1644.79 l
+1538.09 1647.11 l
+1538.16 1647.14 l
+1539.96 1649.66 l
+1540.06 1649.7 l
+1541.85 1652.48 l
+1541.88 1652.52 l
+1543.73 1655.27 l
+1543.77 1655.31 l
+1545.61 1658.57 l
+1545.68 1658.61 l
+1547.46 1661.32 l
+1547.51 1661.36 l
+1549.36 1664.26 l
+1549.42 1664.3 l
+1551.24 1667.01 l
+1551.27 1667.05 l
+1553.12 1670.04 l
+1553.13 1670.07 l
+1555 1673.64 l
+1555.02 1673.68 l
+1556.84 1676.19 l
+1556.96 1676.24 l
+1558.74 1678.47 l
+1558.82 1678.51 l
+1560.61 1681.26 l
+1560.63 1681.3 l
+1562.48 1683.77 l
+1562.52 1683.81 l
+1564.33 1686.28 l
+1564.44 1686.32 l
+1566.18 1689 l
+1566.27 1689.03 l
+1568.13 1691.66 l
+1568.15 1691.7 l
+1569.98 1694.21 l
+1570.03 1694.25 l
+1571.81 1696.8 l
+1571.88 1696.84 l
+1573.72 1700.34 l
+1573.79 1700.37 l
+1575.63 1703.28 l
+1575.63 1703.32 l
+1577.49 1706.07 l
+1577.5 1706.11 l
+1579.38 1709.09 l
+1579.41 1709.13 l
+1581.23 1711.64 l
+1581.26 1711.68 l
+1583.13 1714.46 l
+1583.15 1714.51 l
+1585 1717.45 l
+1585.04 1717.49 l
+1586.87 1719.65 l
+1586.88 1719.68 l
+1588.73 1722.36 l
+1588.76 1722.4 l
+1590.56 1724.95 l
+1590.65 1724.99 l
+1592.44 1727.46 l
+1592.54 1727.5 l
+1594.34 1729.82 l
+1594.38 1729.86 l
+1596.19 1732.76 l
+1596.3 1732.8 l
+1598.06 1735.51 l
+1598.14 1735.55 l
+1599.99 1737.75 l
+1600.02 1737.78 l
+1601.81 1740.38 l
+1601.88 1740.41 l
+1603.74 1742.84 l
+1603.77 1742.89 l
+1605.63 1745.4 l
+1605.63 1745.44 l
+1607.48 1748.11 l
+1607.54 1748.15 l
+1609.35 1751.01 l
+1609.43 1751.05 l
+1611.24 1754.23 l
+1611.32 1754.27 l
+1613.11 1756.51 l
+1613.17 1756.55 l
+1614.97 1758.71 l
+1615.03 1758.75 l
+1616.86 1761.54 l
+1616.88 1761.57 l
+1618.71 1764.28 l
+1618.75 1764.32 l
+1620.57 1767.22 l
+1620.64 1767.27 l
+1622.49 1769.62 l
+1622.56 1769.66 l
+1624.34 1772.21 l
+1624.39 1772.25 l
+1626.23 1775.07 l
+1626.25 1775.11 l
+1628.09 1777.82 l
+1628.13 1777.86 l
+1629.99 1779.86 l
+1630.01 1779.9 l
+1631.88 1782.02 l
+1631.89 1782.06 l
+1633.74 1784.73 l
+1633.78 1784.77 l
+1635.59 1787.05 l
+1635.76 1787.09 l
+1637.5 1790.15 l
+1637.52 1790.18 l
+1639.35 1792.78 l
+1639.39 1792.82 l
+1641.23 1795.49 l
+1641.29 1795.52 l
+1643.13 1798.2 l
+1643.15 1798.23 l
+1644.97 1800.59 l
+1645.02 1800.63 l
+1646.85 1803.26 l
+1646.89 1803.3 l
+1648.74 1806.32 l
+1648.82 1806.36 l
+1650.53 1808.64 l
+1650.68 1808.67 l
+1652.45 1811.03 l
+1652.52 1811.07 l
+1654.34 1813.66 l
+1654.46 1813.7 l
+1656.23 1816.41 l
+1656.29 1816.45 l
+1658.11 1818.72 l
+1658.17 1818.76 l
+1660 1821.51 l
+1660.04 1821.55 l
+1661.84 1824.02 l
+1661.91 1824.06 l
+1663.75 1826.73 l
+1663.82 1826.77 l
+1665.55 1829.21 l
+1665.65 1829.25 l
+1667.49 1832.3 l
+1667.51 1832.34 l
+1669.35 1834.66 l
+1669.38 1834.7 l
+1671.21 1836.94 l
+1671.25 1836.98 l
+1673.09 1839.72 l
+1673.17 1839.76 l
+1674.99 1842.36 l
+1675.05 1842.39 l
+1676.86 1844.91 l
+1676.91 1844.94 l
+1678.71 1847.46 l
+1678.76 1847.5 l
+1680.63 1849.11 l
+1680.63 1849.14 l
+1682.45 1852.09 l
+1682.54 1852.13 l
+1684.38 1854.52 l
+1684.4 1854.57 l
+1686.24 1856.96 l
+1686.28 1857 l
+1688.1 1859.98 l
+1688.13 1860.02 l
+1689.99 1862.81 l
+1690 1862.84 l
+1691.85 1866.06 l
+1691.88 1866.1 l
+1693.68 1869.05 l
+1693.79 1869.09 l
+1695.5 1871.4 l
+1695.66 1871.44 l
+1697.39 1874.11 l
+1697.53 1874.15 l
+1699.37 1877.13 l
+1699.38 1877.17 l
+1701.24 1880.12 l
+1701.26 1880.16 l
+1703.11 1882.82 l
+1703.15 1882.86 l
+1704.98 1885.53 l
+1705.01 1885.57 l
+1706.86 1888.59 l
+1706.88 1888.64 l
+1708.74 1891.46 l
+1708.8 1891.5 l
+1710.57 1893.89 l
+1710.68 1893.93 l
+1712.45 1896.37 l
+1712.54 1896.41 l
+1714.37 1899.19 l
+1714.38 1899.23 l
+1716.24 1901.63 l
+1716.27 1901.66 l
+1718.12 1905 l
+1718.13 1905.04 l
+1719.98 1908.02 l
+1720.05 1908.06 l
+1721.84 1911.24 l
+1722 1911.28 l
+1723.74 1914.5 l
+1723.77 1914.54 l
+1725.59 1916.86 l
+1725.65 1916.9 l
+1727.45 1919.64 l
+1727.57 1919.68 l
+1729.36 1922.04 l
+1729.42 1922.08 l
+1731.22 1924.43 l
+1731.3 1924.47 l
+1733.13 1927.34 l
+1733.15 1927.38 l
+1734.98 1930.64 l
+1735.03 1930.68 l
+1736.84 1932.71 l
+1736.91 1932.75 l
+1738.69 1935.27 l
+1738.76 1935.3 l
+1740.62 1937.3 l
+1740.67 1937.35 l
+1742.48 1939.66 l
+1742.51 1939.71 l
+1744.37 1943.04 l
+1744.43 1943.08 l
+1746.23 1945.63 l
+1746.35 1945.67 l
+1748.12 1948.34 l
+1748.13 1948.38 l
+1749.99 1951.24 l
+1750.03 1951.29 l
+1751.86 1954.58 l
+1751.88 1954.61 l
+1753.71 1957.02 l
+1753.79 1957.05 l
+1755.62 1960.43 l
+1755.66 1960.46 l
+1757.43 1962.98 l
+1757.52 1963.02 l
+1759.37 1965.14 l
+1759.38 1965.18 l
+1761.21 1968.44 l
+1761.31 1968.48 l
+1763.12 1971.22 l
+1763.21 1971.27 l
+1764.99 1973.78 l
+1765.01 1973.82 l
+1766.88 1976.68 l
+1767 1976.72 l
+1768.72 1979.51 l
+1768.76 1979.55 l
+1770.61 1982.34 l
+1770.63 1982.37 l
+1772.48 1984.89 l
+1772.52 1984.92 l
+1774.38 1987.67 l
+1774.43 1987.71 l
+1776.22 1990.18 l
+1776.33 1990.23 l
+1778.09 1992.89 l
+1778.16 1992.93 l
+1779.98 1996.03 l
+1780.01 1996.07 l
+1781.82 1999.33 l
+1781.9 1999.37 l
+1783.68 2002.07 l
+1783.8 2002.11 l
+1785.57 2004.75 l
+1785.68 2004.78 l
+1787.48 2007.89 l
+1787.55 2007.93 l
+1789.34 2010.56 l
+1789.39 2010.59 l
+1791.24 2013.07 l
+1791.25 2013.11 l
+1793.13 2016.4 l
+1793.16 2016.45 l
+1794.99 2019.11 l
+1795.02 2019.15 l
+1796.86 2021.27 l
+1796.89 2021.31 l
+1798.7 2024.41 l
+1798.77 2024.45 l
+1800.63 2027.27 l
+1800.64 2027.31 l
+1802.46 2030.3 l
+1802.52 2030.34 l
+1804.37 2033.52 l
+1804.4 2033.56 l
+1806.24 2036.54 l
+1806.27 2036.58 l
+1808.13 2039.13 l
+1808.17 2039.17 l
+1809.98 2042.12 l
+1810 2042.16 l
+1811.87 2045.09 l
+1811.88 2045.14 l
+1813.73 2047.45 l
+1813.76 2047.5 l
+1815.63 2050.79 l
+1815.66 2050.82 l
+1817.48 2053.61 l
+1817.55 2053.65 l
+1819.32 2057.03 l
+1819.41 2057.07 l
+1821.23 2060.25 l
+1821.31 2060.29 l
+1823.1 2063.07 l
+1823.14 2063.12 l
+1824.9 2066.49 l
+1825.01 2066.53 l
+1826.79 2069.71 l
+1826.9 2069.75 l
+1828.71 2073.56 l
+1828.75 2073.59 l
+1830.62 2076.85 l
+1830.63 2076.89 l
+1832.45 2079.92 l
+1832.53 2079.96 l
+1834.37 2082.54 l
+1834.41 2082.59 l
+1836.25 2085.18 l
+1836.26 2085.21 l
+1838.02 2088.43 l
+1838.13 2088.48 l
+1839.99 2092.08 l
+1840.01 2092.12 l
+1841.81 2094.87 l
+1841.91 2094.91 l
+1843.74 2097.93 l
+1843.77 2097.97 l
+1845.55 2101.43 l
+1845.65 2101.46 l
+1847.45 2104.33 l
+1847.52 2104.37 l
+1849.37 2107.82 l
+1849.41 2107.86 l
+1851.24 2110.97 l
+1851.27 2111 l
+1853.12 2114.1 l
+1853.14 2114.15 l
+1854.95 2118.03 l
+1855.03 2118.07 l
+1856.84 2121.68 l
+1856.95 2121.72 l
+1858.72 2124.31 l
+1858.76 2124.35 l
+1860.6 2127.02 l
+1860.63 2127.05 l
+1862.47 2130.55 l
+1862.51 2130.59 l
+1864.31 2133.5 l
+1864.39 2133.54 l
+1866.25 2136.71 l
+1866.27 2136.75 l
+1868.12 2139.5 l
+1868.13 2139.54 l
+1869.97 2142.76 l
+1870.01 2142.8 l
+1871.85 2146.06 l
+1871.91 2146.1 l
+1873.75 2149.51 l
+1873.75 2149.55 l
+1875.62 2152.41 l
+1875.63 2152.46 l
+1877.5 2155.48 l
+1877.54 2155.52 l
+1879.34 2158.7 l
+1879.39 2158.73 l
+1881.25 2161.76 l
+1881.26 2161.8 l
+1883.09 2164.71 l
+1883.16 2164.74 l
+1884.98 2167.68 l
+1885.06 2167.73 l
+1886.86 2171.1 l
+1886.88 2171.14 l
+1888.7 2173.81 l
+1888.77 2173.85 l
+1890.58 2176.43 l
+1890.64 2176.48 l
+1892.48 2179.77 l
+1892.52 2179.82 l
+1894.36 2183.04 l
+1894.38 2183.07 l
+1896.24 2186.17 l
+1896.28 2186.21 l
+1898.11 2189.47 l
+1898.18 2189.51 l
+1899.97 2192.61 l
+1900.01 2192.65 l
+1901.88 2195.95 l
+1901.93 2195.99 l
+1903.73 2199.24 l
+1903.75 2199.29 l
+1905.59 2202.35 l
+1905.63 2202.39 l
+1907.47 2205.92 l
+1907.52 2205.96 l
+1909.38 2208.39 l
+1909.41 2208.43 l
+1911.22 2211.68 l
+1911.3 2211.73 l
+1913.08 2214.79 l
+1913.13 2214.83 l
+1914.98 2218.05 l
+1915.02 2218.09 l
+1916.84 2221.03 l
+1916.88 2221.07 l
+1918.74 2224.17 l
+1918.81 2224.21 l
+1920.6 2227.55 l
+1920.63 2227.59 l
+1922.46 2229.82 l
+1922.52 2229.86 l
+1924.37 2232.84 l
+1924.45 2232.89 l
+1926.25 2236.3 l
+1926.26 2236.34 l
+1928.11 2239.87 l
+1928.13 2239.91 l
+1929.98 2243.33 l
+1930.07 2243.36 l
+1931.88 2246.9 l
+1931.89 2246.93 l
+1933.7 2249.57 l
+1933.81 2249.61 l
+1935.6 2252.52 l
+1935.63 2252.55 l
+1937.49 2255.81 l
+1937.52 2255.84 l
+1939.37 2259.11 l
+1939.38 2259.14 l
+1941.24 2262.17 l
+1941.26 2262.21 l
+1943.05 2265.58 l
+1943.13 2265.63 l
+1944.99 2268.92 l
+1945.01 2268.96 l
+1946.87 2272.25 l
+1946.88 2272.29 l
+1948.74 2275.32 l
+1948.76 2275.36 l
+1950.62 2278.58 l
+1950.64 2278.61 l
+1952.47 2282.34 l
+1952.52 2282.38 l
+1954.36 2285.56 l
+1954.38 2285.61 l
+1956.23 2288.43 l
+1956.34 2288.47 l
+1958.09 2291.84 l
+1958.18 2291.88 l
+1959.99 2294.94 l
+1960 2294.98 l
+1961.83 2298.63 l
+1961.88 2298.67 l
+1963.74 2301.74 l
+1963.77 2301.77 l
+1965.62 2305.89 l
+1965.64 2305.94 l
+1967.47 2308.84 l
+1967.52 2308.88 l
+1969.36 2311.47 l
+1969.38 2311.51 l
+1971.2 2314.73 l
+1971.27 2314.77 l
+1973.12 2317.91 l
+1973.13 2317.95 l
+1974.9 2320.38 l
+1975.01 2320.42 l
+1976.81 2323.48 l
+1976.91 2323.52 l
+1978.73 2326.59 l
+1978.77 2326.62 l
+1980.61 2329.96 l
+1980.63 2330 l
+1982.49 2333.14 l
+1982.52 2333.18 l
+1984.34 2336.39 l
+1984.41 2336.43 l
+1986.25 2339.7 l
+1986.26 2339.73 l
+1988.13 2342.44 l
+1988.13 2342.48 l
+1989.99 2345.82 l
+1990 2345.85 l
+1991.87 2349.19 l
+1991.92 2349.23 l
+1993.72 2352.49 l
+1993.77 2352.53 l
+1995.61 2357.13 l
+1995.63 2357.16 l
+1997.49 2360.5 l
+1997.51 2360.54 l
+1999.34 2363.56 l
+1999.4 2363.6 l
+2001.24 2366.82 l
+2001.25 2366.85 l
+2003.13 2369.84 l
+2003.2 2369.88 l
+2005 2373.41 l
+2005.01 2373.45 l
+2006.87 2376.28 l
+2006.89 2376.32 l
+2008.74 2379.5 l
+2008.77 2379.54 l
+2010.61 2383.11 l
+2010.63 2383.14 l
+2012.44 2385.86 l
+2012.5 2385.89 l
+2014.37 2389.15 l
+2014.41 2389.19 l
+2016.23 2392.88 l
+2016.26 2392.92 l
+2018.11 2395.98 l
+2018.13 2396.02 l
+2019.96 2399.24 l
+2020.01 2399.28 l
+2021.85 2402.42 l
+2021.88 2402.46 l
+2023.74 2405.68 l
+2023.75 2405.72 l
+2025.63 2409.41 l
+2025.63 2409.45 l
+2027.48 2411.88 l
+2027.52 2411.92 l
+2029.36 2415.14 l
+2029.38 2415.18 l
+2031.24 2418.32 l
+2031.27 2418.36 l
+2033.1 2420.48 l
+2033.14 2420.52 l
+2035 2423.26 l
+2035.03 2423.3 l
+2036.86 2426.28 l
+2036.91 2426.33 l
+2038.75 2429.23 l
+2038.8 2429.27 l
+2040.61 2432.69 l
+2040.63 2432.73 l
+2042.49 2436.3 l
+2042.51 2436.33 l
+2044.34 2439.2 l
+2044.38 2439.24 l
+2046.23 2442.18 l
+2046.28 2442.22 l
+2048.11 2445.29 l
+2048.13 2445.32 l
+2049.94 2447.8 l
+2050.02 2447.84 l
+2051.79 2450.66 l
+2051.88 2450.7 l
+2053.73 2453.13 l
+2053.77 2453.18 l
+2055.58 2456.27 l
+2055.63 2456.31 l
+2057.48 2459.14 l
+2057.52 2459.18 l
+2059.36 2462.2 l
+2059.38 2462.25 l
+2061.25 2464.75 l
+2061.26 2464.8 l
+2063.09 2467.42 l
+2063.13 2467.46 l
+2064.98 2470.33 l
+2065.04 2470.37 l
+2066.88 2473.07 l
+2066.88 2473.11 l
+2068.73 2475.86 l
+2068.75 2475.9 l
+2070.52 2478.93 l
+2070.63 2478.96 l
+2072.48 2481.98 l
+2072.54 2482.02 l
+2074.34 2484.22 l
+2074.4 2484.27 l
+2076.18 2486.93 l
+2076.26 2486.97 l
+2078 2489.6 l
+2078.15 2489.64 l
+2079.98 2492.07 l
+2080 2492.11 l
+2081.82 2494.39 l
+2081.88 2494.43 l
+2083.71 2497.38 l
+2083.76 2497.41 l
+2085.61 2499.84 l
+2085.63 2499.89 l
+2087.49 2502.28 l
+2087.52 2502.32 l
+2089.27 2504.71 l
+2089.39 2504.75 l
+2091.11 2507.34 l
+2091.26 2507.38 l
+2093.09 2509.98 l
+2093.18 2510.01 l
+2094.98 2512.21 l
+2095.02 2512.25 l
+2096.87 2515.11 l
+2096.92 2515.16 l
+2098.67 2517.55 l
+2098.75 2517.59 l
+2100.61 2520.49 l
+2100.63 2520.54 l
+2102.42 2523 l
+2102.51 2523.05 l
+2104.38 2525.52 l
+2104.41 2525.56 l
+2106.23 2527.41 l
+2106.27 2527.44 l
+2108.13 2529.25 l
+2108.16 2529.29 l
+2110 2531.13 l
+2110.05 2531.17 l
+2111.87 2533.21 l
+2111.91 2533.25 l
+2113.73 2535.37 l
+2113.76 2535.41 l
+2115.6 2537.69 l
+2115.68 2537.73 l
+2117.48 2539.77 l
+2117.52 2539.8 l
+2119.37 2542.01 l
+2119.46 2542.05 l
+2121.24 2544 l
+2121.36 2544.05 l
+2123.13 2546.44 l
+2123.13 2546.48 l
+2124.98 2548.64 l
+2125.08 2548.68 l
+2126.86 2550.68 l
+2126.96 2550.71 l
+2128.7 2552.4 l
+2128.8 2552.45 l
+2130.57 2554.02 l
+2130.63 2554.05 l
+2132.44 2556.21 l
+2132.5 2556.25 l
+2134.31 2558.21 l
+2134.49 2558.25 l
+2136.25 2560.02 l
+2136.25 2560.06 l
+2138.12 2561.43 l
+2138.16 2561.47 l
+2139.98 2563.43 l
+2140 2563.47 l
+2141.85 2565.83 l
+2141.92 2565.87 l
+2143.75 2567.88 l
+2143.76 2567.91 l
+2145.54 2569.6 l
+2145.63 2569.64 l
+2147.48 2571.29 l
+2147.5 2571.32 l
+2149.37 2572.78 l
+2149.4 2572.82 l
+2151.24 2574.27 l
+2151.27 2574.31 l
+2153.07 2576.12 l
+2153.13 2576.16 l
+2154.99 2577.65 l
+2155.08 2577.68 l
+2156.84 2579.37 l
+2156.89 2579.41 l
+2158.73 2580.9 l
+2158.76 2580.94 l
+2160.58 2582.27 l
+2160.68 2582.32 l
+2162.48 2584.4 l
+2162.53 2584.43 l
+2164.34 2585.7 l
+2164.42 2585.73 l
+2166.06 2587.65 l
+2166.33 2587.7 l
+2168.11 2589.42 l
+2168.2 2589.46 l
+2169.99 2590.88 l
+2170.04 2590.91 l
+2171.87 2592.17 l
+2171.97 2592.21 l
+2173.64 2593.46 l
+2173.75 2593.5 l
+2175.61 2594.8 l
+2175.66 2594.84 l
+2177.47 2596.45 l
+2177.51 2596.49 l
+2179.33 2597.51 l
+2179.47 2597.55 l
+2181.13 2598.68 l
+2181.28 2598.72 l
+2183.09 2599.71 l
+2183.14 2599.74 l
+2184.92 2600.96 l
+2185.05 2601 l
+2186.83 2602.5 l
+2186.96 2602.53 l
+2188.75 2603.75 l
+2188.76 2603.79 l
+2190.57 2605.12 l
+2190.75 2605.16 l
+2192.48 2606.26 l
+2192.52 2606.3 l
+2194.34 2607.79 l
+2194.38 2607.84 l
+2196.06 2608.86 l
+2196.45 2608.89 l
+2198.13 2610.14 l
+2198.16 2610.19 l
+2199.96 2612.11 l
+2200.09 2612.15 l
+2201.84 2613.37 l
+2201.93 2613.41 l
+2203.68 2614.5 l
+2203.8 2614.55 l
+2205.6 2615.61 l
+2205.64 2615.64 l
+2207.44 2616.5 l
+2207.55 2616.54 l
+2209.26 2617.57 l
+2209.4 2617.61 l
+2211.07 2618.94 l
+2211.34 2618.98 l
+2213.1 2620.12 l
+2213.16 2620.16 l
+2214.94 2621.49 l
+2215.04 2621.53 l
+2216.84 2622.79 l
+2216.88 2622.83 l
+2218.74 2624.04 l
+2218.86 2624.08 l
+2220.59 2625.1 l
+2220.66 2625.14 l
+2222.4 2626.05 l
+2222.55 2626.08 l
+2224.34 2626.75 l
+2224.4 2626.79 l
+2226.22 2627.89 l
+2226.28 2627.93 l
+2227.98 2628.75 l
+2228.17 2628.79 l
+2229.96 2629.58 l
+2230.06 2629.61 l
+2231.8 2630.64 l
+2231.91 2630.68 l
+2233.71 2631.54 l
+2233.78 2631.58 l
+2235.58 2632.44 l
+2235.72 2632.48 l
+2237.46 2633.55 l
+2237.54 2633.58 l
+2239.34 2634.53 l
+2239.46 2634.57 l
+2241.21 2635.86 l
+2241.36 2635.9 l
+2242.92 2636.64 l
+2243.18 2636.68 l
+2245 2637.59 l
+2245.28 2637.63 l
+2246.79 2638.33 l
+2246.9 2638.37 l
+2248.72 2639 l
+2248.75 2639.04 l
+2249.95 2639.55 l
+2250.67 2639.59 l
+2252.34 2640.26 l
+2252.67 2640.3 l
+2254.38 2641.2 l
+2254.42 2641.23 l
+2256.17 2642.37 l
+2256.35 2642.42 l
+2258.06 2643.2 l
+2258.43 2643.23 l
+2260 2643.67 l
+2260.34 2643.71 l
+2261.7 2644.34 l
+2262.11 2644.38 l
+2263.63 2645.08 l
+2263.77 2645.13 l
+2265.61 2645.83 l
+2266.15 2645.87 l
+2267.29 2646.46 l
+2267.57 2646.5 l
+2269.35 2647.2 l
+2269.38 2647.24 l
+2271.13 2647.91 l
+2271.29 2647.95 l
+2272.62 2648.38 l
+2273.21 2648.42 l
+2274.97 2649.09 l
+2275.03 2649.12 l
+2276.75 2649.84 l
+2276.95 2649.87 l
+2278.46 2650.58 l
+2278.9 2650.61 l
+2280.57 2651.17 l
+2280.68 2651.21 l
+2282.27 2651.84 l
+2282.8 2651.88 l
+2284.36 2652.27 l
+2284.44 2652.3 l
+2286.15 2652.97 l
+2286.33 2653.02 l
+2288.07 2653.56 l
+2288.16 2653.6 l
+2289.86 2654.35 l
+2290.06 2654.39 l
+2291.7 2654.86 l
+2291.94 2654.9 l
+2293.64 2655.32 l
+2293.9 2655.37 l
+2295.56 2656.07 l
+2295.74 2656.11 l
+2297.47 2656.59 l
+2297.87 2656.62 l
+2299.37 2657.37 l
+2299.55 2657.41 l
+2301 2658 l
+2301.46 2658.04 l
+2302.93 2658.71 l
+2303.14 2658.75 l
+2304.71 2659.14 l
+2305.06 2659.17 l
+2306.82 2659.77 l
+2306.98 2659.8 l
+2308.7 2660.47 l
+2308.94 2660.51 l
+2310.52 2661.06 l
+2310.63 2661.1 l
+2312.48 2661.73 l
+2312.64 2661.77 l
+2314.36 2662.2 l
+2314.45 2662.24 l
+2316.23 2662.95 l
+2316.27 2662.98 l
+2318.11 2663.53 l
+2318.13 2663.57 l
+2319.68 2663.81 l
+2320.04 2663.84 l
+2321.7 2664.44 l
+2322.04 2664.48 l
+2323.42 2665.02 l
+2323.88 2665.06 l
+2325.53 2665.57 l
+2325.71 2665.61 l
+2327.46 2666.04 l
+2327.65 2666.08 l
+2329.2 2666.44 l
+2329.54 2666.48 l
+2331.08 2666.79 l
+2331.32 2666.83 l
+2332.72 2667.18 l
+2333.14 2667.22 l
+2334.69 2667.81 l
+2335.13 2667.85 l
+2336.87 2668.36 l
+2336.94 2668.4 l
+2338.74 2668.75 l
+2338.75 2668.8 l
+2340.46 2669.34 l
+2340.85 2669.38 l
+2342.43 2669.82 l
+2342.51 2669.85 l
+2344.27 2670.32 l
+2344.52 2670.36 l
+2345.66 2670.75 l
+2346.44 2670.8 l
+2347.57 2671.23 l
+2348.16 2671.26 l
+2349.73 2671.93 l
+2350.22 2671.98 l
+2351.85 2672.52 l
+2352.46 2672.56 l
+2353.32 2672.88 l
+2353.86 2672.91 l
+2355.5 2673.19 l
+2355.72 2673.23 l
+2357.48 2673.82 l
+2357.74 2673.86 l
+2359.3 2674.56 l
+2359.41 2674.6 l
+2361.24 2674.91 l
+2361.8 2674.95 l
+2362.96 2675.23 l
+2363.61 2675.27 l
+2364.88 2675.9 l
+2365.01 2675.93 l
+2366.8 2676.48 l
+2367.09 2676.53 l
+2368.58 2676.84 l
+2369 2676.88 l
+2370.5 2677.23 l
+2370.63 2677.27 l
+2372.43 2677.86 l
+2372.52 2677.9 l
+2374.24 2678.48 l
+2374.43 2678.53 l
+2375.84 2679.04 l
+2376.32 2679.08 l
+2377.99 2679.59 l
+2378.42 2679.63 l
+2379.77 2680.1 l
+2380.18 2680.14 l
+2381.37 2680.45 l
+2381.96 2680.49 l
+2383.68 2680.84 l
+2383.82 2680.89 l
+2385.57 2681.43 l
+2385.69 2681.47 l
+2387.32 2681.98 l
+2387.85 2682.02 l
+2389.15 2682.37 l
+2389.62 2682.41 l
+2391.18 2682.73 l
+2391.32 2682.77 l
+2393.12 2683.35 l
+2393.17 2683.4 l
+2394.94 2683.86 l
+2395.03 2683.91 l
+2396.53 2684.21 l
+2397.77 2684.26 l
+2397.91 2684.34 l
+2398.82 2684.37 l
+2400.6 2684.65 l
+2400.67 2684.69 l
+2402.26 2684.96 l
+2402.65 2685 l
+2404.23 2685.59 l
+2404.56 2685.63 l
+2406.24 2685.95 l
+2406.31 2685.98 l
+2408.07 2686.5 l
+2408.23 2686.53 l
+2409.8 2686.97 l
+2410.3 2687 l
+2411.83 2687.2 l
+2412.02 2687.24 l
+2413.72 2687.52 l
+2414.3 2687.55 l
+2415.57 2687.95 l
+2415.77 2687.99 l
+2417.43 2688.54 l
+2417.6 2688.57 l
+2419.29 2688.97 l
+2419.45 2689.01 l
+2421.14 2689.4 l
+2421.6 2689.44 l
+2422.98 2689.8 l
+2423.2 2689.83 l
+2424.86 2690.26 l
+2425.34 2690.3 l
+2426.83 2690.82 l
+2426.91 2690.85 l
+2428.7 2691.32 l
+2429.09 2691.36 l
+2430.59 2691.71 l
+2430.9 2691.75 l
+2431.68 2691.96 l
+2432.6 2691.99 l
+2434.25 2692.23 l
+2434.47 2692.26 l
+2435.47 2692.58 l
+2436.32 2692.61 l
+2438.12 2693.01 l
+2438.2 2693.05 l
+2439.98 2693.33 l
+2440.22 2693.36 l
+2441.66 2693.84 l
+2441.96 2693.88 l
+2443.02 2694.15 l
+2443.75 2694.19 l
+2445.48 2694.5 l
+2445.71 2694.54 l
+2447.43 2695.02 l
+2447.66 2695.05 l
+2449.38 2695.52 l
+2449.5 2695.56 l
+2451.15 2695.88 l
+2451.41 2695.91 l
+2453 2696.39 l
+2453.73 2696.43 l
+2454.71 2696.7 l
+2455.01 2696.74 l
+2456.77 2697.21 l
+2457.21 2697.25 l
+2458.74 2697.57 l
+2458.92 2697.6 l
+2460.33 2697.76 l
+2460.93 2697.8 l
+2462.39 2698.11 l
+2462.86 2698.15 l
+2464.23 2698.43 l
+2464.4 2698.46 l
+2466.11 2698.62 l
+2466.65 2698.66 l
+2468.04 2698.9 l
+2468.17 2698.94 l
+2469.79 2699.37 l
+2470.32 2699.41 l
+2471.77 2699.69 l
+2472.28 2699.73 l
+2473.73 2700 l
+2473.95 2700.04 l
+2475.24 2700.27 l
+2475.98 2700.31 l
+2477.44 2700.63 l
+2477.65 2700.66 l
+2479.36 2700.94 l
+2479.46 2700.98 l
+2480.91 2701.29 l
+2481.25 2701.33 l
+2482.25 2701.49 l
+2483.27 2701.53 l
+2484.71 2701.73 l
+2485.05 2701.77 l
+2486.86 2702 l
+2487.11 2702.04 l
+2487.95 2702.35 l
+2489.08 2702.39 l
+2490.63 2702.63 l
+2490.67 2702.66 l
+2492.43 2703.02 l
+2492.54 2703.06 l
+2494.23 2703.33 l
+2494.78 2703.38 l
+2496.09 2703.53 l
+2496.39 2703.57 l
+2497.44 2703.68 l
+2498.34 2703.73 l
+2499.81 2703.96 l
+2500.28 2704 l
+2501.2 2704.28 l
+2502.04 2704.32 l
+2503.64 2704.75 l
+2504.07 2704.79 l
+2504.93 2704.98 l
+2505.66 2705.02 l
+2507.34 2705.22 l
+2507.78 2705.26 l
+2509.3 2705.57 l
+2509.43 2705.61 l
+2510.32 2705.77 l
+2511.44 2705.81 l
+2512.98 2706.28 l
+2513.17 2706.32 l
+2514.77 2706.55 l
+2515.01 2706.59 l
+2516.62 2706.75 l
+2517.1 2706.79 l
+2518.64 2707.26 l
+2519.03 2707.3 l
+2519.95 2707.5 l
+2521.19 2707.53 l
+2522.13 2707.73 l
+2522.6 2707.77 l
+2524 2707.97 l
+2524.46 2708 l
+2525.68 2708.32 l
+2527.41 2708.36 l
+2528.15 2708.39 l
+2529.57 2708.64 l
+2530.11 2708.67 l
+2531.72 2709.06 l
+2531.94 2709.11 l
+2533.65 2709.18 l
+2533.82 2709.22 l
+2535.35 2709.34 l
+2535.65 2709.38 l
+2536.65 2709.54 l
+2537.75 2709.57 l
+2538.57 2709.73 l
+2540.03 2709.77 l
+2540.73 2709.85 l
+2541.5 2709.89 l
+2543.09 2710.2 l
+2543.27 2710.24 l
+2544.6 2710.36 l
+2545.03 2710.4 l
+2546.72 2710.6 l
+2547.24 2710.64 l
+2548.28 2710.71 l
+2549.62 2710.75 l
+2549.96 2710.8 l
+2550.65 2710.83 l
+2551.86 2711.22 l
+2552.53 2711.27 l
+2554.3 2711.62 l
+2555.61 2711.66 l
+2556.19 2711.89 l
+2556.8 2711.93 l
+2558.11 2712.09 l
+2559.13 2712.13 l
+2559.56 2712.24 l
+2560.1 2712.29 l
+2561.82 2712.52 l
+2562.12 2712.56 l
+2563.74 2712.91 l
+2563.8 2712.96 l
+2564.88 2713.11 l
+2565.87 2713.15 l
+2567 2713.31 l
+2567.75 2713.34 l
+2569.21 2713.5 l
+2569.52 2713.54 l
+2571.11 2713.66 l
+2572.79 2713.7 l
+2572.81 2713.73 l
+2573.36 2713.77 l
+2574.39 2713.93 l
+2575.09 2713.98 l
+2575.46 2714.13 l
+2577.01 2714.17 l
+2578.43 2714.36 l
+2579.14 2714.4 l
+2580.49 2714.64 l
+2582.2 2714.68 l
+2582.27 2714.72 l
+2582.99 2714.75 l
+2584.08 2714.91 l
+2585.46 2714.96 l
+2586.23 2715.03 l
+2586.35 2715.07 l
+2587.78 2715.35 l
+2589.51 2715.39 l
+2590.11 2715.42 l
+2591.69 2715.58 l
+2591.9 2715.62 l
+2593.67 2715.82 l
+2595.84 2715.86 l
+2597.29 2716.17 l
+2597.55 2716.21 l
+2599.02 2716.41 l
+2599.85 2716.44 l
+2601.25 2716.76 l
+2601.99 2716.8 l
+2602.81 2717.04 l
+2605.12 2717.07 l
+2606.87 2717.23 l
+2606.91 2717.27 l
+2607.92 2717.43 l
+2608.92 2717.46 l
+2610.36 2717.58 l
+2611.64 2717.62 l
+2612.15 2717.82 l
+2612.82 2717.86 l
+2614.17 2718.02 l
+2614.54 2718.05 l
+2616.01 2718.09 l
+2616.43 2718.13 l
+2617.76 2718.29 l
+2618.78 2718.33 l
+2619.95 2718.57 l
+2620.71 2718.6 l
+2621.25 2718.68 l
+2621.91 2718.72 l
+2623.61 2718.88 l
+2624.48 2718.92 l
+2624.51 2718.96 l
+2625.8 2719 l
+2627.38 2719.23 l
+2627.89 2719.27 l
+2629.19 2719.39 l
+2629.45 2719.43 l
+2631.25 2719.67 l
+2632.16 2719.71 l
+2633.08 2719.9 l
+2633.18 2719.94 l
+2634.35 2720.06 l
+2635.01 2720.09 l
+2636.78 2720.41 l
+2637.89 2720.45 l
+2637.95 2720.48 l
+2639.91 2720.53 l
+2640.09 2720.57 l
+2640.65 2720.61 l
+2642.44 2720.64 l
+2642.51 2720.69 l
+2643.58 2720.84 l
+2645.18 2720.88 l
+2646.2 2721.04 l
+2646.44 2721.08 l
+2647.26 2721.15 l
+2648.48 2721.2 l
+2649.18 2721.27 l
+2650.35 2721.31 l
+2651.87 2721.43 l
+2652.19 2721.47 l
+2652.82 2721.63 l
+2655.18 2721.66 l
+2655.58 2721.82 l
+2655.84 2721.86 l
+2657.19 2721.94 l
+2657.83 2721.98 l
+2658.01 2722.02 l
+2659.46 2722.06 l
+2660.71 2722.18 l
+2661.67 2722.22 l
+2662.68 2722.25 l
+2663.57 2722.29 l
+2665.34 2722.33 l
+2665.38 2722.38 l
+2667.17 2722.41 l
+2668.76 2722.45 l
+2670.08 2722.64 l
+2671.37 2722.69 l
+2672.58 2722.73 l
+2674.34 2722.89 l
+2674.72 2722.92 l
+2676.17 2723.16 l
+2678.94 2723.2 l
+2679.75 2723.36 l
+2680.76 2723.39 l
+2682.61 2723.43 l
+2683.7 2723.59 l
+2684.27 2723.63 l
+2685.5 2723.66 l
+2686.59 2723.71 l
+2687.25 2723.79 l
+2689.11 2723.82 l
+2689.21 2723.87 l
+2689.38 2723.91 l
+2690.39 2724.02 l
+2691.58 2724.06 l
+2692.82 2724.1 l
+2695.03 2724.14 l
+2696.78 2724.22 l
+2697.4 2724.26 l
+2698.34 2724.33 l
+2700.6 2724.38 l
+2700.72 2724.41 l
+2702.29 2724.61 l
+2703.1 2724.65 l
+2704.17 2724.77 l
+2705.86 2724.8 l
+2707.79 2724.84 l
+2708.79 2724.89 l
+2709.58 2724.93 l
+2711.18 2724.96 l
+2711.85 2725.05 l
+2712.91 2725.08 l
+2713.64 2725.12 l
+2713.76 2725.16 l
+2716.84 2725.2 l
+2717.12 2725.24 l
+2717.58 2725.28 l
+2717.93 2725.35 l
+2719.43 2725.4 l
+2719.95 2725.55 l
+2721.47 2725.59 l
+2722.29 2725.67 l
+2723.43 2725.71 l
+2724.77 2725.82 l
+2725.73 2725.86 l
+2725.95 2725.95 l
+2727.17 2725.98 l
+2727.57 2726.02 l
+2729.15 2726.07 l
+2730.48 2726.22 l
+2731.16 2726.26 l
+2732.03 2726.38 l
+2734.43 2726.42 l
+2734.58 2726.49 l
+2736.41 2726.53 l
+2737.02 2726.57 l
+2738.66 2726.61 l
+2739.02 2726.65 l
+2740.41 2726.69 l
+2743.29 2726.73 l
+2744.46 2726.77 l
+2745.62 2726.84 l
+2746.93 2726.89 l
+2747.17 2726.96 l
+2747.7 2727 l
+2749.35 2727.12 l
+2750.36 2727.16 l
+2751.26 2727.2 l
+2751.59 2727.24 l
+2753.35 2727.28 l
+2754.77 2727.36 l
+2755.65 2727.4 l
+2759.73 2727.44 l
+2761.2 2727.48 l
+2762.43 2727.51 l
+2763 2727.56 l
+2763.71 2727.59 l
+2764.46 2727.63 l
+2765.87 2727.67 l
+2766.63 2727.71 l
+2769.58 2727.75 l
+2769.87 2727.79 l
+2770.26 2727.83 l
+2770.32 2727.86 l
+2774.53 2727.91 l
+2775.11 2728.02 l
+2777.87 2728.07 l
+2778.92 2728.14 l
+2780.3 2728.18 l
+2780.75 2728.26 l
+2781.45 2728.3 l
+2782.13 2728.42 l
+2783.36 2728.46 l
+2784.66 2728.53 l
+2785.11 2728.58 l
+2786.6 2728.65 l
+2787.97 2728.69 l
+2791.06 2728.73 l
+2792.41 2728.85 l
+2794.4 2728.89 l
+2795.91 2728.93 l
+2797.01 2728.97 l
+2797.66 2729 l
+2798.67 2729.04 l
+2798.98 2729.13 l
+2800.08 2729.16 l
+2801.77 2729.25 l
+2802.27 2729.28 l
+2803.7 2729.48 l
+2804.93 2729.52 l
+2805.73 2729.55 l
+2807.92 2729.6 l
+2808.11 2729.64 l
+2809.52 2729.67 l
+2810.61 2729.75 l
+2812.12 2729.79 l
+2812.51 2729.95 l
+2813.17 2729.99 l
+2816.25 2730.02 l
+2816.84 2730.07 l
+2817.94 2730.11 l
+2818.11 2730.14 l
+2820.67 2730.18 l
+2821.51 2730.22 l
+2822.54 2730.27 l
+2823.43 2730.46 l
+2825.93 2730.5 l
+2831.61 2730.54 l
+2832.91 2730.58 l
+2835.83 2730.62 l
+2836.86 2730.69 l
+2838.51 2730.73 l
+2840.08 2730.77 l
+2841.11 2730.81 l
+2843.87 2730.85 l
+2844.41 2730.93 l
+2846.53 2730.97 l
+2847.84 2731.01 l
+2851.17 2731.05 l
+2854.13 2731.09 l
+2856.08 2731.13 l
+2858 2731.16 l
+2858.24 2731.2 l
+2859.48 2731.36 l
+2860.76 2731.4 l
+2866.74 2731.44 l
+2867.05 2731.48 l
+2869.38 2731.52 l
+2871.77 2731.55 l
+2873.59 2731.6 l
+2877.46 2731.64 l
+2877.93 2731.68 l
+2884.85 2731.71 l
+2886.67 2731.76 l
+2892.17 2731.8 l
+2896.96 2731.83 l
+2907.6 2731.87 l
+2910.36 2731.91 l
+2915.71 2731.95 l
+2916.09 2731.99 l
+2920.96 2732.03 l
+2923.55 2732.07 l
+2930.59 2732.11 l
+2934.92 2732.15 l
+2953.86 2732.18 l
+2963.7 2732.22 l
+2974.79 2732.27 l
+2989.07 2732.3 l
+2998.8 2732.34 l
+3001.34 2732.38 l
+3012.02 2732.43 l
+3026.22 2732.46 l
+3050.84 2732.5 l
+S
+Q
+Q
+showpage
+%%PageTrailer
+pdfEndPage
+%%Trailer
+end
+%%DocumentSuppliedResources:
+%%+ font NFYUAE+Helvetica
+%%EOF
