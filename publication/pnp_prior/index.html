@@ -48,14 +48,16 @@
   <link rel="icon" type="image/png" href="/img/icon.png">
   <link rel="apple-touch-icon" type="image/png" href="/img/apple-touch-icon.png">
 
-  <link rel="canonical" href="/publication/macrocanonical/">
+  <link rel="canonical" href="/publication/soul/">
 
   <meta property="twitter:card" content="summary_large_image">
   
   <meta property="og:site_name" content="vdb">
-  <meta property="og:url" content="/publication/macrocanoncial/">
-  <meta property="og:title" content="Review of wavelet-based unsupervised texture segmentation, advantage of adaptive wavelets | vdb">
-  <meta property="og:description" content="blip blop">
+  <meta property="og:url" content="/publication/texture_soul/">
+  <meta property="og:title" content="Bayesian imaging using Plug & Play priors: when Langevin meets Tweedie
+
+ | vdb">
+  <meta property="og:description" content="Recent years have seen the rise of convolutional neural network techniques in exemplar-based image synthesis. These methods often rely on the minimization of some variational formulation on the image space for which the minimizers are assumed to be the solutions of the synthesis problem. In this paper we investigate, both theoretically and experimentally, another framework to deal with this problem using an alternate sampling/minimization scheme. First, we use results from information geometry to assess that our method yields a probability measure which has maximum entropy under some constraints in expectation. Then, we turn to the analysis of our method and we show, using recent results from the Markov chain literature, that its error can be explicitly bounded with constants which depend polynomially in the dimension even in the non-convex setting. This includes the case where the constraints are defined via a differentiable neural network. Finally, we present an extensive experimental study of the model, including a comparison with state-of-the-art methods and an extension to style transfer.">
   <meta property="og:locale" content="en-us">
   
   <meta property="article:published_time" content="2017-09-23T00:00:00&#43;00:00">
@@ -65,7 +67,8 @@
 
   
 
-  <title>Convergence of diffusions and their discretizations: from continuous to discrete processes and back | vdb</title>
+  <title>Bayesian imaging using Plug & Play priors: when Langevin meets Tweedie
+ | vdb</title>
 
 </head>
 <body id="top" data-spy="scroll" data-target="#navbar-main" data-offset="71">
@@ -155,10 +158,11 @@
 
 
   <div class="container pub-title">
-    <h1 itemprop="name">Convergence of diffusions and their discretizations: from continuous to discrete processes and back</h1>
+    <h1 itemprop="name">Bayesian imaging using Plug & Play priors: when Langevin meets Tweedie
+</h1>
     <span class="pub-authors" itemprop="author">
       
-      De Bortoli, Durmus
+      Laumont, De Bortoli, Almansa, Delon, Durmus, Pereyra
       
     </span>
     <span class="pull-right">
@@ -212,10 +216,10 @@
 
     <h3>Abstract</h3>
     <p class="pub-abstract" itemprop="text">
-      In this paper, we establish new quantitative convergence bounds for a class of functional autoregressive models in weighted total variation metrics. To derive this result, we show that under mild assumptions explicit minorization and Foster-Lyapunov drift conditions hold. Our bounds are then obtained adapting classical results from Markov chain theory. To illustrate our results we study the geometric ergodicity of Euler-Maruyama discretizations of diffusion with covariance matrix identity. Second, we provide a new approach to establish quantitative convergence of these diffusion processes by applying our conclusions in the discrete-time setting to a well-suited sequence of discretizations whose associated stepsizes decrease towards zero.
+      Since the seminal work of Venkatakrishnan et al. (2013), Plug & Play (PnP) methods have become ubiquitous in Bayesian imaging. These methods derive Minimum Mean Square Error (MMSE) or Maximum A Posteriori (MAP) estimators for inverse problems in imaging by combining an explicit likelihood function with a prior that is implicitly defined by an image denoising algorithm. The PnP algorithms proposed in the literature mainly differ in the iterative schemes they use for optimisation or for sampling. In the case of optimisation schemes, some recent works guarantee the convergence to a fixed point, albeit not necessarily a MAP estimate. In the case of sampling schemes, to the best of our knowledge, there is no known proof of convergence. There also remain important open questions regarding whether the underlying Bayesian models and estimators are well defined, well-posed, and have the basic regularity properties required to support these numerical schemes. To address these limitations, this paper develops theory, methods, and provably convergent algorithms for performing Bayesian inference with PnP priors. We introduce two algorithms: 1) PnP-ULA (Unadjusted Langevin Algorithm) for Monte Carlo sampling and MMSE inference; and 2) PnP-SGD (Stochastic Gradient Descent) for MAP inference. Using recent results on the quantitative convergence of Markov chains, we establish detailed convergence guarantees for these two algorithms under realistic assumptions on the denoising operators used, with special attention to denoisers based on deep neural networks. We also show that these algorithms approximately target a decision-theoretically optimal Bayesian model that is well-posed. The proposed algorithms are demonstrated on several canonical problems such as image deblurring, inpainting, and denoising, where they are used for point estimation as well as for uncertainty visualisation and quantification.
     </p>
 
-
+    
     
     <div class="row">
       <div class="col-sm-1"></div>
@@ -224,7 +228,7 @@
           <div class="col-xs-12 col-sm-3 pub-row-heading">Type</div>
           <div class="col-xs-12 col-sm-9">
             
-            <a href="/publication/#2">
+            <a href="/publication/#3">
               Submitted
             </a>
             
@@ -241,7 +245,7 @@
       <div class="col-sm-10">
         <div class="row">
           <div class="col-xs-12 col-sm-3 pub-row-heading">Publication</div>
-          <div class="col-xs-12 col-sm-9">Journal</div>
+          <div class="col-xs-12 col-sm-9">Preprint</div>
         </div>
       </div>
       <div class="col-sm-1"></div>
@@ -254,7 +258,7 @@
         <div class="row">
           <div class="col-xs-12 col-sm-3 pub-row-heading">Date</div>
           <div class="col-xs-12 col-sm-9" itemprop="datePublished">
-            2019
+            2020
           </div>
         </div>
       </div>
@@ -268,7 +272,7 @@
         <div class="row">
           <div class="col-xs-12 col-sm-3 pub-row-heading" style="line-height:34px;">Links</div>
           <div class="col-xs-12 col-sm-9">
-	    <a href="/publication/diffusion.pdf">Preprint</a> and <a href="https://arxiv.org/abs/1904.09808">Arxiv link</a>
+	    <a href="https://arxiv.org/abs/2103.04715">Arxiv link</a>
             
 
 
