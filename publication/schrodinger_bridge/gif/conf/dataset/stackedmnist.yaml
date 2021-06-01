@@ -1,0 +1,31 @@
+Model : VGG
+Dataset: stackedmnist
+
+data:
+  dataset: "Stacked_MNIST"
+  category: ""
+  image_size: 16
+  channels: 1
+  logit_transform: false
+  uniform_dequantization: false
+  gaussian_dequantization: false
+  random_flip: true
+  rescaled: false
+  num_workers: 32
+
+model:
+  sigma_begin: 50.0
+  num_classes: 200
+  ema: true
+  ema_rate: 0.999
+  spec_norm: false
+  sigma_dist: geometric
+  sigma_end: 0.01
+  normalization: InstanceNorm++
+  nonlinearity: elu
+  ngf: 128
+
+final_adaptive: True
+mean_final: torch.zeros([${data.channels}, ${data.image_size}, ${data.image_size}])
+var_final: 8.* torch.ones([${data.channels}, ${data.image_size}, ${data.image_size}])
+device: cuda:0

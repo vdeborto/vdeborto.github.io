@@ -1,0 +1,24 @@
+# @package _global_
+defaults:
+  - launcher: local
+  - job
+  - dataset: 2d #celeba, 2d, stackedmnist
+  - training: full_ipf #full, test
+  - hydra/launcher: basic # WHAT IS THIS?  
+  
+
+data_dir: ./ # ARE THESE TWO LINES USEFUL?
+init_name: None
+
+description: weighted, uniform gammas
+LOGGER: CSV
+log_freq : 1
+gif_freq: 1
+
+
+paths: # WHICH PATHS ARE USEFUL?
+  data: /home/debortoli/research/20-schrodinger/code/scripts
+  logdir: /home/debortoli/research/20-schrodinger/code/scripts
+  experiments_dir_name: experiments
+  experiments: ${paths.logdir}/${env:USER}/${env:PROJECT_NAME}/${paths.experiments_dir_name}
+  # local_logdir: /data/localhost/not-backed-up/
