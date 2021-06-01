@@ -221,33 +221,33 @@
     <!-- <p class="pub-abstract" itemprop="text"> -->
     <!-- </p> -->
 
-    <h3>Two dimensional examples</h3>
-    <p class="pub-abstract" itemprop="text">
-    </p>
+    <!-- <h3>Two dimensional examples</h3> -->
+    <!-- <p class="pub-abstract" itemprop="text"> -->
+    <!-- </p> -->
 
-    <img src="swiss_init.png" alt="swiss init roll dataset">
-    <img src="swiss_0123.gif" alt="swiss roll dataset">
+    <!-- <img src="swiss_init.png" alt="swiss init roll dataset"> -->
+    <!-- <img src="swiss_0123.gif" alt="swiss roll dataset"> -->
 
-    <img src="8gaussians_init.png" alt="8gaussians init roll dataset">
-    <img src="8gaussians_0123.gif" alt="8gaussians roll dataset">
+    <!-- <img src="8gaussians_init.png" alt="8gaussians init roll dataset"> -->
+    <!-- <img src="8gaussians_0123.gif" alt="8gaussians roll dataset"> -->
 
-    <img src="moon_init.png" alt="moon init roll dataset">
-    <img src="moon_0123.gif" alt="moon roll dataset">
+    <!-- <img src="moon_init.png" alt="moon init roll dataset"> -->
+    <!-- <img src="moon_0123.gif" alt="moon roll dataset"> -->
 
-    <img src="mixture_init.png" alt="mixture init roll dataset">
-    <img src="mixture_0123.gif" alt="mixture roll dataset">
+    <!-- <img src="mixture_init.png" alt="mixture init roll dataset"> -->
+    <!-- <img src="mixture_0123.gif" alt="mixture roll dataset"> -->
 
-    <img src="circle_init.png" alt="circle init roll dataset">
-    <img src="circle_0123.gif" alt="circle roll dataset">
+    <!-- <img src="circle_init.png" alt="circle init roll dataset"> -->
+    <!-- <img src="circle_0123.gif" alt="circle roll dataset"> -->
 
-    <img src="scurve_init.png" alt="scurve init roll dataset">
-    <img src="scurve_0123.gif" alt="scurve roll dataset">
+    <!-- <img src="scurve_init.png" alt="scurve init roll dataset"> -->
+    <!-- <img src="scurve_0123.gif" alt="scurve roll dataset"> -->
 
-    <img src="pinwheel_init.png" alt="pinwheel init roll dataset">
-    <img src="pinwheel_0123.gif" alt="pinwheel roll dataset">
+    <!-- <img src="pinwheel_init.png" alt="pinwheel init roll dataset"> -->
+    <!-- <img src="pinwheel_0123.gif" alt="pinwheel roll dataset"> -->
 
-    <img src="checker_init.png" alt="checker init roll dataset">
-    <img src="checker_0123.gif" alt="checker roll dataset">    
+    <!-- <img src="checker_init.png" alt="checker init roll dataset"> -->
+    <!-- <img src="checker_0123.gif" alt="checker roll dataset">     -->
     
     <!-- <div class="row"> -->
     <!--   <div class="col-sm-1"></div> -->
@@ -308,13 +308,102 @@
 
 
 
+<h3>What is a  Schr&ouml;dinger Bridge?</h3>
 
+The Schr&ouml;dinger Bridge (SB) problem is a classical problem appearing in
+applied mathematics, optimal control and probability; see [1, 2, 3].  In the
+discrete-time setting, it takes the following (dynamic) form. Consider as
+reference density $p(x_{0:N})$ describing the process adding noise to the data.
+We aim to find $p^*(x_{0:N})$ such that $p^*(x_0) = p_{\mathrm{data}}(x_0)$ and
+$p^*(x_N) = p_{\mathrm{prior}}(x_N)$ and minimize the Kullback-Leibler
+divergence between $p^*$ and $p$. In this work we introduce <b>Diffusion Schrodinger
+Bridge</b> (DSB), a new algorithm which uses score-matching approaches [4] to
+approximate the <i>Iterative Proportional Fitting</i> algorithm, an iterative method
+to find the solutions of the SB problem. DSB can be seen as a refinement of
+	    existing score-based generative modeling methods [5, 6].
 
+<img src="schrodinger_bridge.png" />	    
 
+<h3>Two dimensional examples</h3>
+<p float="left">
+  <img src="gif/circle_init.png" width="300" />
+  <img src="gif_schro/circle_0123.gif" width="300" /> 
+</p>
 
+<p float="left">
+  <img src="gif/moon_init.png" width="300" />
+  <img src="gif_schro/moon_0123.gif" width="300" /> 
+</p>
 
+<p float="left">
+  <img src="gif/pinwheel_init.png" width="300" />
+  <img src="gif_schro/pinwheel_0123.gif" width="300" /> 
+</p>
 
+<p float="left">
+  <img src="gif/mixture_init.png" width="300" />
+  <img src="gif_schro/mixture_0123.gif" width="300" /> 
+</p>
 
+<p float="left">
+  <img src="gif/swiss_init.png" width="300" />
+  <img src="gif_schro/swiss_0123.gif" width="300" /> 
+</p>
+
+<p float="left">
+  <img src="gif/scurve_init.png" width="300" />
+  <img src="gif_schro/scurve_0123.gif" width="300" /> 
+</p>
+
+<p float="left">
+  <img src="gif/8gaussians_init.png" width="300" />
+  <img src="gif_schro/8gaussians_0123.gif" width="300" /> 
+</p>
+
+<p float="left">
+  <img src="gif/checker_init.png" width="300" />
+  <img src="gif_schro/checker_0123.gif" width="300" /> 
+</p>
+
+<h3>MNIST</h3>
+
+<img src="gif/mnist_out.gif" />
+
+<h3>References</h3>
+<br>
+[1] Hans F&ouml;llmer
+       *Random fields and diffusion processes*
+       In: École d'été de Probabilités de Saint-Flour 1985-1987
+<br>
+<br>
+
+[2] Christian Léonard 
+       *A survey of the Schr&ouml;dinger problem and some of its connections with optimal transport*
+       In: Discrete & Continuous Dynamical Systems-A 2014
+<br>
+<br>
+
+[3] Yongxin Chen, Tryphon Georgiou and Michele Pavon
+       *Optimal Transport in Systems and Control*
+       In: Annual Review of Control, Robotics, and Autonomous Systems 2020
+<br>
+<br>
+
+[4] Aapo Hyv&auml;rinen and Peter Dayan
+       *Estimation of non-normalized statistical models by score matching*
+       In: Journal of Machine Learning Research 2005
+<br>
+<br>
+
+[5] Yang Song and Stefano Ermon
+       *Generative modeling by estimating gradients of the data distribution*
+       In: Advances in Neural Information Processing Systems 2019
+<br>
+<br>
+
+[6] Jonathan Ho, Ajay Jain and Pieter Abbeel
+       *Denoising diffusion probabilistic models*
+       In: Advances in Neural Information Processing Systems 2020
 
 
 
