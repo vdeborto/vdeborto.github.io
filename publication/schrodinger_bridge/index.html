@@ -229,17 +229,18 @@
     classical task in machine learning and image processing. There is a flurry
     of frameworks which aim at solving this problem such as Energy-Based models,
     Generative Adversarial Networks, normalizing flows, Variational
-    Auto-encoders or diffusion score-matching  techniques. The latter has shown
-    great promises in outperforming GANs in term of visual quality, CITE
-    DHARIWAL but also can be recast as the discretization of some diffusion
-    process and thus is also appealing from a mathematical point of view.
+    Auto-encoders or diffusion score-matching techniques. The latter has shown
+    great promises in outperforming GANs in term of visual
+    quality, <a href=#ref>[1]</a> and can be recast as the discretization of
+    some diffusion process and thus is also appealing from a mathematical point
+    of view.
 
     <br>
     <br>
     Let us recall some of the basics concepts of score-based generative
     modeling, see
     also <a href="http://yang-song.github.io/blog/2021/score/">Yang Song
-    blogpost</a> for an introduction.  If we have access to a
+    blogpost</a> for an introduction or the original papers <a href="#ref">[2,3]</a>.  If we have access to a
     (Ornstein-Ulhenbeck) diffusion $$ \mathrm{d} \mathbf{X}_t = -\alpha
     \mathbf{X}_t \mathrm{d} t + \sqrt{2} \mathrm{d} \mathbf{B}_t \ , \qquad
     \mathbf{X}_0 \sim p_{\mathrm{data}} \ ,$$ with $\alpha > 0$. The process
@@ -252,7 +253,7 @@
     (approximately) sample from $p_{\mathrm{data}}$ by first sampling from
     $p_{\mathrm{prior}}$ and reversing the dynamics of $(\mathbf{X}_t)_{t \in
     [0,T]}$. Surprisingly this time-reversal operation leads to another
-    diffusion process with explicit drift and diffusion matrix [1].  $$
+    diffusion process with explicit drift and diffusion matrix <a href="#ref">[4]</a>.  $$
     \mathrm{d} \mathbf{Y}_t = \{\alpha \mathbf{Y}_t + 2 \nabla \log
     p_{T-t}(\mathbf{Y}_{t}) \}\mathrm{d} t + \sqrt{2} \mathrm{d} \mathbf{B}_t \
     , \qquad \mathbf{Y}_0 \sim p_{\mathrm{prior}} \ ,$$ Score-matching
@@ -303,63 +304,142 @@
     <a href="#top">&#10548; Go back</a> <br>
 
 The Schr&ouml;dinger Bridge (SB) problem is a classical problem appearing in
-applied mathematics, optimal control and probability; see [1, 2, 3].  In the
-discrete-time setting, it takes the following (dynamic) form. Consider as
-reference density $p(x_{0:N})$ describing the process adding noise to the data.
-We aim to find $p^\star(x_{0:N})$ such that $p^\star(x_0) = p_{\mathrm{data}}(x_0)$ and
-$p^\star(x_N) = p_{\mathrm{prior}}(x_N)$ and minimize the Kullback-Leibler
-divergence between $p^\star$ and $p$. More precisely 
-$$ p^\star = \mathrm{argmin} \ \{\mathrm{KL}(q|p)\ , \ q_0 = p_{\mathrm{data}} \ , \ q_N = p_{\mathrm{prior}}\}$$
-In this work we introduce <b>Diffusion
-Schr&ouml;dinger Bridge</b> (DSB), a new algorithm which uses score-matching
-approaches [4] to approximate the <i>Iterative Proportional Fitting</i>
-algorithm, an iterative method to find the solutions of the SB problem. DSB can
-be seen as a refinement of existing score-based generative modeling methods [5,
-6]. In the discrete world, the <i>Iterative Proportional Fitting</i> is also
-known as the <i>Sinkhorn algorithm</i> [7].
+applied mathematics, optimal control and probability; see <a href="#ref">[5, 6,
+7]</a>.  In the discrete-time setting, it takes the following (dynamic)
+form. Consider as reference density $p(x_{0:N})$ describing the process adding
+noise to the data.  We aim to find $p^\star(x_{0:N})$ such that $p^\star(x_0) =
+p_{\mathrm{data}}(x_0)$ and $p^\star(x_N) = p_{\mathrm{prior}}(x_N)$ and
+minimize the Kullback-Leibler divergence between $p^\star$ and $p$. More
+precisely $$ p^\star = \mathrm{argmin} \ \{\mathrm{KL}(q|p)\ , \ q_0 =
+p_{\mathrm{data}} \ , \ q_N = p_{\mathrm{prior}}\}$$ In this work we
+introduce <b>Diffusion Schr&ouml;dinger Bridge</b> (DSB), a new algorithm which
+uses score-matching approaches <a href="#href">[2,3]</a> to approximate
+the <i>Iterative Proportional Fitting</i> (IPF) algorithm, an iterative method
+to find the solutions of the SB problem. DSB can be seen as a refinement of
+existing score-based generative modeling methods [5, 6]. In the discrete world,
+IPF is also known as the <i>Sinkhorn algorithm</i>, see <a href="#href">[8]</a>
+for a review.
 
-<img src="schrodinger_bridge.png" width="100%" />	    
+    <img src="schrodinger_bridge.png" width="100%" />
+
+
+    First, let us describe IPF. In order to find the solution IPF operates
+    iteratively by successively solving half-bridge problems. We define a
+    sequence of distributions $(\pi^n)_{n \in \mathbb{N}}$ such that $$
+    \pi^{2n+1} = \mathrm{argmin} \{ \mathrm{KL}(\pi|\pi^{2n}) \ , \ \pi_N =
+    p_{\mathrm{prior}} \} \ , \\ \pi^{2n+2} = \mathrm{argmin} \{
+    \mathrm{KL}(\pi|\pi^{2n}) \ , \ \pi_0 = p_{\mathrm{data}} \} \ , $$ with
+    initial condition $\pi^{2n} = p$ the <i>reference</i> dynamics. For large
+    $n$, $\pi^n$ is close to the Schr&ouml;dinger bridge $p^\star$. Hence, a
+    generative model is obtained by sampling from $\pi^{2n+1}$.
+
+
+    <br>
+    <br>
+    We know show how this problem is related to score-based generative modeling.
+    Assume that $\pi^{2n}$ is the measure associated with the diffusion $$
+    \mathrm{d} \mathbf{X}_t^n = f_t^n(\mathbf{X}_t^n) \mathrm{d} t + \sqrt{2}
+    \mathrm{d} \mathbf{B}_t \ , \quad \mathbf{X}_0^n \sim p_{\mathrm{data}} \ ,
+    $$ then we show that $(\pi^{2n+1})^R$ (where $R$ denotes the time-reversal
+    operation) is associated with the diffusion $$ \mathrm{d} \mathbf{Y}_t^n =
+    b_{T-t}^n(\mathbf{Y}_t^n) \mathrm{d} t + \sqrt{2} \mathrm{d} \mathbf{B}_t \
+    , \quad \mathbf{Y}_0^n \sim p_{\mathrm{prior}} $$ where $$ b_{t}^n(x) =
+    -f_t(x) + 2 \nabla \log p_t^n(x) \ , $$ with $p_t^n$ the density of
+    $\pi_t^{2n}$.  We can iterate this procedure and we obtain that $\pi^{2n+2}$
+    is associated with the diffusion $$ \mathrm{d} \mathbf{X}_t^{n+1} =
+    f_t^{n+1}(\mathbf{X}_t^{n+1}) \mathrm{d} t + \sqrt{2} \mathrm{d}
+    \mathbf{B}_t \ , \quad \mathbf{X}_0^{n+1} \sim p_{\mathrm{data}} \ , $$
+    where $$ f_{t}^{n+1}(x) = -b_t(x) + 2 \nabla \log q_t^n(x) \ , $$ with
+    $q_t^n$ the density of $\pi_t^{2n+1}$.  We can then iterate this
+    procedure. Of course we can not sample from these dynamics directly and we
+    discretize them using Euler-Maruyama approximation. The logarithmic
+    gradients are then approximated using score-matching techniques (although
+    for memory reasons we do not approximate the scores but the <i>drift</i>
+    functions). This discretization and variational approximation defines
+    our <b>Diffusion Schr&ouml;dinger Bridge</b> algorithm.
+
+    <br>
+    <br>    
+    <b> Some advantages </b>
+       <ul>
+  <li>Contrary to existing score-based generative modeling methods which require
+  the reference process to converge to $p_{\mathrm{prior}}$ the convergence of
+  our algorithm is given by the convergence of the IPF and therefore does not
+  rely on the number of stepsizes.</li>
+  <li>The DSB algorithm can be used on top of existing algorithms. Hence, our
+  method can be seen as a refinement of original score-based generative models
+  and all techniques used to improve the quality/speed of theses methods can be
+  implemented for DSB.</li>
+  <li>DSB does not require $p_{\mathrm{prior}}$ to be Gaussian. In fact we only
+  require having access to $p_{\mathrm{prior}}$ which can be another dataset. In
+  particular we are able to perform <a href="#dataset_interpolation">dataset
+  interpolation</a>. This paves the way for further applications for high
+  dimensional optimal transport.</li>
+   </ul>
+
+       <b> Current limitation </b>
+       <ul>
+	 <li>DSB does not achieve state-of-the-art generative modeling results
+	 yet due to compute limitations as we use existing architectures in
+	 order to parameterize our score approximations. These architectures are
+	 deep and notably instable (for instance they require the use of
+	 exponential moving average). This requires careful selection of the
+	 parameters of DSB.</li>
+       </ul>
+
+In the next sections we show some of our results on <a href="#twodim">two dimensional examples</a>, 
+  <a href="#MNIST">MNIST</a>, 
+  <a href="#celeba_exploration">CelebA</a> and 
+  <a href="#dataset_interpolation">dataset interpolation</a>.
+
+	   
 
 <h3>Two dimensional examples</h3>
 <a name="twodim"></a>
 <a href="#top">&#10548; Go back</a> <br>
 
-<p float="left">
+For each of the row, we show the target density on the left and an animated plot
+of the DSB iterations on the right. Here the prior density $p_{\mathrm{prior}}$
+is given by a Gaussian density with zero mean and covariance matrix $\sigma
+\mathrm{Id}$ where $\sigma$ is the variance computed from the target
+dataset. Here the number of stepsizes is fixed to $20$.
+
+<p style="text-align:center;">
   <img src="gif/circle_init.png" width="300" />
   <img src="gif_schro/circle_0123.gif" width="300" /> 
 </p>
 
-<p float="left">
+<p style="text-align:center;">
   <img src="gif/moon_init.png" width="300" />
   <img src="gif_schro/moon_0123.gif" width="300" /> 
 </p>
 
-<p float="left">
+<p style="text-align:center;">
   <img src="gif/pinwheel_init.png" width="300" />
   <img src="gif_schro/pinwheel_0123.gif" width="300" /> 
 </p>
 
-<p float="left">
+<p style="text-align:center;">
   <img src="gif/mixture_init.png" width="300" />
   <img src="gif_schro/mixture_0123.gif" width="300" /> 
 </p>
 
-<p float="left">
+<p style="text-align:center;">
   <img src="gif/swiss_init.png" width="300" />
   <img src="gif_schro/swiss_0123.gif" width="300" /> 
 </p>
 
-<p float="left">
+<p style="text-align:center;">
   <img src="gif/scurve_init.png" width="300" />
   <img src="gif_schro/scurve_0123.gif" width="300" /> 
 </p>
 
-<p float="left">
+<p style="text-align:center;">
   <img src="gif/8gaussians_init.png" width="300" />
   <img src="gif_schro/8gaussians_0123.gif" width="300" /> 
 </p>
 
-<p float="left">
+<p style="text-align:center;">
   <img src="gif/checker_init.png" width="300" />
   <img src="gif_schro/checker_0123.gif" width="300" /> 
 </p>
@@ -368,57 +448,116 @@ known as the <i>Sinkhorn algorithm</i> [7].
 <a name="MNIST"></a>
 <a href="#top">&#10548; Go back</a> <br>
 
-<img src="gif/mnist_out.gif" />
+First we show some of samples obtained with our DSB algorithm (obtained with 30 steps in the backward dynamics).
+    <p style="text-align:center;">
+      <img src="original.png" width="350" />
+      <img src="high_quality_mnist.png" width="350" />
+      <br>
+      Original dataset (left) and generated samples (right).
+  </p>
+Then, we present an animated plot of the DSB iterations (with 10 steps in the
+backward dynamics). Note how the quality of the samples improve through the DSB
+iterations.
+<p style="text-align:center;">
+  <img src="gif/mnist_out.gif" />
+  </p>
 
 <h3>CelebA exploration</h3>
 <a name="celeba_exploration"></a>
 <a href="#top">&#10548; Go back</a> <br>
+
+In our work we apply DSB for the generation of CelebA. Here we show some latent
+space exploration. The Gaussian random variables in the generative models are
+fixed and therefore the transformation is deterministic. In this animation we
+follow an Ornstein-Ulhenbeck process into the latent space and observe its
+transformation by this deterministic mapping in the image space.
+
+<p style="text-align:center;">
+  <img src="out.gif" width="400"/>
+  </p>
+
 
 <h3>Dataset interpolation</h3>
 <a name="dataset_interpolation"></a>
 <a href="#top">&#10548; Go back</a> <br>
 
 
+Finally, we present some dataset interpolations experiments in two dimensions.
+
+    <p style="text-align:center;">
+      <img src="scurve_init.png" width="32%" />
+      <img src="scurve2moon.gif" width="32%" />
+      <img src="moon_init.png" width="32%" />
+      <br>
+  </p>
+
+
+        <p style="text-align:center;">
+      <img src="moon_init.png" width="32%" />
+      <img src="moon2scurve.gif" width="32%" />
+      <img src="scurve_init.png" width="32%" />
+      <br>
+  </p>
+
+
+	    <p style="text-align:center;">
+      <img src="circle_init.png" width="32%" />
+      <img src="circle2scurve.gif" width="32%" />
+      <img src="scurve_init.png" width="32%" />
+      <br>
+  </p>
+
+
 <h3>References</h3>
-<br>
-[1] Hans F&ouml;llmer
-       <i>Random fields and diffusion processes</i>
-       In: École d'été de Probabilités de Saint-Flour 1985-1987
-<br>
-<br>
+<a name="ref"></a>
+<a href="#top">&#10548; Go back</a> <br> <br>
 
-[2] Christian Léonard 
-       <i>A survey of the Schr&ouml;dinger problem and some of its connections with optimal transport</i>
-       In: Discrete & Continuous Dynamical Systems-A 2014
-<br>
-<br>
+[1] Prafulla Dhariwal and Alex Nichol
+<i>Diffusion models beat GAN on Image Synthesis</i>
+In: arxiv preprint:2105.05233
 
-[3] Yongxin Chen, Tryphon Georgiou and Michele Pavon
-       <i>Optimal Transport in Systems and Control</i>
-       In: Annual Review of Control, Robotics, and Autonomous Systems 2020
-<br>
-<br>
+<br><br>
 
-[4] Aapo Hyv&auml;rinen and Peter Dayan
-       <i>Estimation of non-normalized statistical models by score matching</i>
-       In: Journal of Machine Learning Research 2005
-<br>
-<br>
-
-[5] Yang Song and Stefano Ermon
+[2] Yang Song and Stefano Ermon
        <i>Generative modeling by estimating gradients of the data distribution</i>
        In: Advances in Neural Information Processing Systems 2019
 <br>
 <br>
 
-[6] Jonathan Ho, Ajay Jain and Pieter Abbeel
+[3] Jonathan Ho, Ajay Jain and Pieter Abbeel
       <i>Denoising diffusion probabilistic models</i>
        In: Advances in Neural Information Processing Systems 2020
 
+<br>
+<br>
+
+[4] Hans F&ouml;llmer
+       <i>Random fields and diffusion processes</i>
+       In: École d'été de Probabilités de Saint-Flour 1985-1987
+<br>
+<br>
+
+[5] Christian Léonard 
+       <i>A survey of the Schr&ouml;dinger problem and some of its connections with optimal transport</i>
+       In: Discrete & Continuous Dynamical Systems-A 2014
+<br>
+<br>
+
+[6] Yongxin Chen, Tryphon Georgiou and Michele Pavon
+       <i>Optimal Transport in Systems and Control</i>
+       In: Annual Review of Control, Robotics, and Autonomous Systems 2020
+<br>
+<br>
+
+[7] Aapo Hyv&auml;rinen and Peter Dayan
+       <i>Estimation of non-normalized statistical models by score matching</i>
+       In: Journal of Machine Learning Research 2005
+<br>
+<br>
 
 
-
-
+[8] Gabriel Peyre and Marco Cuturi <i>Computational Optimal Transport</i>
+    In:  Foundations and Trends in Machine Learning 2019
 
           </div>
         </div>
