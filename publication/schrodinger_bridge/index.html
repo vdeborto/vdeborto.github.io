@@ -66,7 +66,7 @@
 
   
 
-  <title>Schrodinger bridge
+  <title> Diffusion Schr&ouml;dinger Bridge with Applications to Score-Based Generative Modeling
  | vdb</title>
 
 </head>
@@ -157,11 +157,11 @@
 
 
   <div class="container pub-title">
-    <h1 itemprop="name">Schrodinger bridge
+    <h1 itemprop="name">Diffusion Schr&ouml;dinger Bridge with Applications to Score-Based Generative Modeling
 </h1>
     <span class="pub-authors" itemprop="author">
       
-      
+      De Bortoli, Thornton, Heng, Doucet      
       
     </span>
     <span class="pull-right">
@@ -210,24 +210,120 @@
   </div>
 
   <div class="article-container">
+    <a name="top"></a>
+    <ul>
+  <li><a href="#generative">What is score-based generative modeling?</a></li>
+  <li><a href="#schrodinger">What is a  Schr&ouml;dinger Bridge?</a></li>
+  <li><a href="#twodim">Two dimensional examples</a></li>
+  <li><a href="#MNIST">MNIST dataset</a></li>
+  <li><a href="#celeba_exploration">CelebA exploration</a></li>
+  <li><a href="#dataset_interpolation">Dataset interpolation</a></li>
+</ul>
+    <h3>What is score-based generative modeling?</h3>
+    <a name="generative"></a>
     
-<h3>What is a  Schr&ouml;dinger Bridge?</h3>
+    In <i>generative modeling</i> we are interested into designing algorithms
+    which transform a given distribution $p_{\mathrm{prior}}$ into a given data
+    distribution $p_{\mathrm{data}}$. We have access to the data distribution
+    only through samples. In the last years, generative modeling has become a
+    classical task in machine learning and image processing. There is a flurry
+    of frameworks which aim at solving this problem such as Energy-Based models,
+    Generative Adversarial Networks, normalizing flows, Variational
+    Auto-encoders or diffusion score-matching  techniques. The latter has shown
+    great promises in outperforming GANs in term of visual quality, CITE
+    DHARIWAL but also can be recast as the discretization of some diffusion
+    process and thus is also appealing from a mathematical point of view.
+
+    <br>
+    <br>
+    Let us recall some of the basics concepts of score-based generative
+    modeling, see
+    also <a href="http://yang-song.github.io/blog/2021/score/">Yang Song
+    blogpost</a> for an introduction.  If we have access to a
+    (Ornstein-Ulhenbeck) diffusion $$ \mathrm{d} \mathbf{X}_t = -\alpha
+    \mathbf{X}_t \mathrm{d} t + \sqrt{2} \mathrm{d} \mathbf{B}_t \ , \qquad
+    \mathbf{X}_0 \sim p_{\mathrm{data}} \ ,$$ with $\alpha > 0$. The process
+    $(\mathbf{X}_t)_{t \in [0,T]}$ is interpreted as a <i>noising</i>
+    process, perturbing the data distribution $p_{\mathrm{data}}$. We denote
+    $p_{\mathrm{prior}}$ the invariant distribution of the noising process, here
+    $p_{\mathrm{prior}} = \mathcal{N}(0,1/\alpha)$. If $T > 0$ is large enough
+    then the distribution of $\mathbf{X}_T$ is close to $p_{\mathrm{prior}}$ due
+    to the ergodicity of the Ornstein-Ulhenbeck process. Then one can
+    (approximately) sample from $p_{\mathrm{data}}$ by first sampling from
+    $p_{\mathrm{prior}}$ and reversing the dynamics of $(\mathbf{X}_t)_{t \in
+    [0,T]}$. Surprisingly this time-reversal operation leads to another
+    diffusion process with explicit drift and diffusion matrix [1].  $$
+    \mathrm{d} \mathbf{Y}_t = \{\alpha \mathbf{Y}_t + 2 \nabla \log
+    p_{T-t}(\mathbf{Y}_{t}) \}\mathrm{d} t + \sqrt{2} \mathrm{d} \mathbf{B}_t \
+    , \qquad \mathbf{Y}_0 \sim p_{\mathrm{prior}} \ ,$$ Score-matching
+    approaches then discretize this continuous-time dynamics into a Markov
+    chain.  $$ Y_{k+1}^\star = Y_k^\star + \gamma_{k+1} \{\alpha Y_k^\star + 2
+    \nabla \log p_{T- t_k}(Y_k^\star)\} + \sqrt{2 \gamma_{k+1}} \ ,$$ The Markov
+    chain $\{Y_k^\star\}_{k=0}^N$ cannot be computed in practice because we do
+    not have access to the logarithmic gradient (Stein score) $\nabla \log
+    p_{t}$.  In score-based generative modeling techniques this score is
+    approximated by a neural network $s_{\theta^\star}$ solving the following
+    variational problem $$\theta^\star = \mathrm{argmin}_\theta \mathrm{E}[\|
+    \mathbf{Z}/\sigma_t + s_{\theta}(\mathbf{X}_t) \|^2] \ \, $$ where we recall
+    that solutions of the Ornstein-Ulhenbeck process can be written as
+    $\mathbf{X}_t = m_t \mathbf{X}_0 + \sigma_t \mathbf{Z}$, with $\mathbf{Z}
+    \sim \mathcal{N}(0,1)$, $m_t = \exp[-\alpha t]$ and $\sigma_t^2 = (1 -
+    \exp[-2 \alpha t])/\alpha$. The variational formulation for
+    $s_{\theta^\star}$ can be obtained using the following formula $$ \nabla
+    \log(p_t)(x) = \mathrm{E}[(m_t \mathbf{X}_0 - \mathbf{X}_t)/\sigma_t^2 |
+    \mathbf{X}_t=x] = -\mathrm{E}[\mathbf{Z}/\sigma_t | \mathbf{X}_t=x] $$
+    Finally the generative model is given by the following Markov chain $$
+    Y_{k+1} = Y_k + \gamma_{k+1} \{\alpha Y_k + 2 s_{\theta^\star}(T- t_k,
+    Y_k)\} + \sqrt{2 \gamma_{k+1}} \ .$$ These ideas are at the core of every
+    score-based generative modeling method.
+
+    <br>
+    <p style="text-align:center;">
+    <img src="celeba_large.gif" width="40%" /><br> Image extracted
+    from <a href="http://yang-song.github.io/blog/2021/score/">Yang Song
+    blog</a>. Generative model for  CelebA.
+    </p>
+
+    One of the main limitation of score-based generative modeling is that they
+    require a large number of step sizes so that the initial forward dynamics is
+    close to the distribution $p_{\mathrm{prior}}$ and small enough stepsizes
+    so that the neural network approximation holds.
+
+    <br>
+    <br> In the next paragraph we introduce our main contribution: <b>Diffusion
+    Schr&ouml;dinger Bridge</b>, a new algorithm which generalizes existing
+    score-based methods allowing to significantly reduce the number of stepsizes
+    needed in order to define score-based generative modeling. This contribution
+    also removes the limitation for $p_{\mathrm{prior}}$ to be Gaussian and
+    enables future applications in high-dimensional optimal transport.
+    
+    
+    <h3>What is a  Schr&ouml;dinger Bridge?</h3>
+    <a name="schrodinger"></a>
+    <a href="#top">&#10548; Go back</a> <br>
 
 The Schr&ouml;dinger Bridge (SB) problem is a classical problem appearing in
 applied mathematics, optimal control and probability; see [1, 2, 3].  In the
 discrete-time setting, it takes the following (dynamic) form. Consider as
 reference density $p(x_{0:N})$ describing the process adding noise to the data.
-We aim to find $p^*(x_{0:N})$ such that $p^*(x_0) = p_{\mathrm{data}}(x_0)$ and
-$p^*(x_N) = p_{\mathrm{prior}}(x_N)$ and minimize the Kullback-Leibler
-divergence between $p^*$ and $p$. In this work we introduce <b>Diffusion Schrodinger
-Bridge</b> (DSB), a new algorithm which uses score-matching approaches [4] to
-approximate the <i>Iterative Proportional Fitting</i> algorithm, an iterative method
-to find the solutions of the SB problem. DSB can be seen as a refinement of
-	    existing score-based generative modeling methods [5, 6].
+We aim to find $p^\star(x_{0:N})$ such that $p^\star(x_0) = p_{\mathrm{data}}(x_0)$ and
+$p^\star(x_N) = p_{\mathrm{prior}}(x_N)$ and minimize the Kullback-Leibler
+divergence between $p^\star$ and $p$. More precisely 
+$$ p^\star = \mathrm{argmin} \ \{\mathrm{KL}(q|p)\ , \ q_0 = p_{\mathrm{data}} \ , \ q_N = p_{\mathrm{prior}}\}$$
+In this work we introduce <b>Diffusion
+Schr&ouml;dinger Bridge</b> (DSB), a new algorithm which uses score-matching
+approaches [4] to approximate the <i>Iterative Proportional Fitting</i>
+algorithm, an iterative method to find the solutions of the SB problem. DSB can
+be seen as a refinement of existing score-based generative modeling methods [5,
+6]. In the discrete world, the <i>Iterative Proportional Fitting</i> is also
+known as the <i>Sinkhorn algorithm</i> [7].
 
 <img src="schrodinger_bridge.png" width="100%" />	    
 
 <h3>Two dimensional examples</h3>
+<a name="twodim"></a>
+<a href="#top">&#10548; Go back</a> <br>
+
 <p float="left">
   <img src="gif/circle_init.png" width="300" />
   <img src="gif_schro/circle_0123.gif" width="300" /> 
@@ -269,8 +365,19 @@ to find the solutions of the SB problem. DSB can be seen as a refinement of
 </p>
 
 <h3>MNIST</h3>
+<a name="MNIST"></a>
+<a href="#top">&#10548; Go back</a> <br>
 
 <img src="gif/mnist_out.gif" />
+
+<h3>CelebA exploration</h3>
+<a name="celeba_exploration"></a>
+<a href="#top">&#10548; Go back</a> <br>
+
+<h3>Dataset interpolation</h3>
+<a name="dataset_interpolation"></a>
+<a href="#top">&#10548; Go back</a> <br>
+
 
 <h3>References</h3>
 <br>
