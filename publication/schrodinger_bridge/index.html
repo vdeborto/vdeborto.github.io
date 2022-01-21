@@ -340,7 +340,7 @@ review.
     so, we define a sequence of distributions $(\pi^n)_{n \in \mathbb{N}}$ such
     that $$ \pi^{2n+1} = \mathrm{argmin} \{ \mathrm{KL}(\pi|\pi^{2n}) \ , \
     \pi_N = p_{\mathrm{prior}} \} \ , \\ \pi^{2n+2} = \mathrm{argmin} \{
-    \mathrm{KL}(\pi|\pi^{2n}) \ , \ \pi_0 = p_{\mathrm{data}} \} \ , $$ with
+    \mathrm{KL}(\pi|\pi^{2n+1}) \ , \ \pi_0 = p_{\mathrm{data}} \} \ , $$ with
     initial condition $\pi^0 = \mathbb{P}$ the <i>reference</i> dynamics. For large
     $n$, $\pi^n$ is close to the Schr&ouml;dinger bridge $p^\star$. Hence, a
     generative model is obtained by sampling from $\pi^{2n+1}$.
