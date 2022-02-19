@@ -1,0 +1,973 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+<!-- 2018-03-12 lun. 10:40 -->
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>&lrm;</title>
+<meta name="generator" content="Org mode" />
+<meta name="author" content="debortoli" />
+<style type="text/css">
+ <!--/*--><![CDATA[/*><!--*/
+  .title  { text-align: center;
+             margin-bottom: .2em; }
+  .subtitle { text-align: center;
+              font-size: medium;
+              font-weight: bold;
+              margin-top:0; }
+  .todo   { font-family: monospace; color: red; }
+  .done   { font-family: monospace; color: green; }
+  .priority { font-family: monospace; color: orange; }
+  .tag    { background-color: #eee; font-family: monospace;
+            padding: 2px; font-size: 80%; font-weight: normal; }
+  .timestamp { color: #bebebe; }
+  .timestamp-kwd { color: #5f9ea0; }
+  .org-right  { margin-left: auto; margin-right: 0px;  text-align: right; }
+  .org-left   { margin-left: 0px;  margin-right: auto; text-align: left; }
+  .org-center { margin-left: auto; margin-right: auto; text-align: center; }
+  .underline { text-decoration: underline; }
+  #postamble p, #preamble p { font-size: 90%; margin: .2em; }
+  p.verse { margin-left: 3%; }
+  pre {
+    border: 1px solid #ccc;
+    box-shadow: 3px 3px 3px #eee;
+    padding: 8pt;
+    font-family: monospace;
+    overflow: auto;
+    margin: 1.2em;
+  }
+  pre.src {
+    position: relative;
+    overflow: visible;
+    padding-top: 1.2em;
+  }
+  pre.src:before {
+    display: none;
+    position: absolute;
+    background-color: white;
+    top: -10px;
+    right: 10px;
+    padding: 3px;
+    border: 1px solid black;
+  }
+  pre.src:hover:before { display: inline;}
+  /* Languages per Org manual */
+  pre.src-asymptote:before { content: 'Asymptote'; }
+  pre.src-awk:before { content: 'Awk'; }
+  pre.src-C:before { content: 'C'; }
+  /* pre.src-C++ doesn't work in CSS */
+  pre.src-clojure:before { content: 'Clojure'; }
+  pre.src-css:before { content: 'CSS'; }
+  pre.src-D:before { content: 'D'; }
+  pre.src-ditaa:before { content: 'ditaa'; }
+  pre.src-dot:before { content: 'Graphviz'; }
+  pre.src-calc:before { content: 'Emacs Calc'; }
+  pre.src-emacs-lisp:before { content: 'Emacs Lisp'; }
+  pre.src-fortran:before { content: 'Fortran'; }
+  pre.src-gnuplot:before { content: 'gnuplot'; }
+  pre.src-haskell:before { content: 'Haskell'; }
+  pre.src-hledger:before { content: 'hledger'; }
+  pre.src-java:before { content: 'Java'; }
+  pre.src-js:before { content: 'Javascript'; }
+  pre.src-latex:before { content: 'LaTeX'; }
+  pre.src-ledger:before { content: 'Ledger'; }
+  pre.src-lisp:before { content: 'Lisp'; }
+  pre.src-lilypond:before { content: 'Lilypond'; }
+  pre.src-lua:before { content: 'Lua'; }
+  pre.src-matlab:before { content: 'MATLAB'; }
+  pre.src-mscgen:before { content: 'Mscgen'; }
+  pre.src-ocaml:before { content: 'Objective Caml'; }
+  pre.src-octave:before { content: 'Octave'; }
+  pre.src-org:before { content: 'Org mode'; }
+  pre.src-oz:before { content: 'OZ'; }
+  pre.src-plantuml:before { content: 'Plantuml'; }
+  pre.src-processing:before { content: 'Processing.js'; }
+  pre.src-python:before { content: 'Python'; }
+  pre.src-R:before { content: 'R'; }
+  pre.src-ruby:before { content: 'Ruby'; }
+  pre.src-sass:before { content: 'Sass'; }
+  pre.src-scheme:before { content: 'Scheme'; }
+  pre.src-screen:before { content: 'Gnu Screen'; }
+  pre.src-sed:before { content: 'Sed'; }
+  pre.src-sh:before { content: 'shell'; }
+  pre.src-sql:before { content: 'SQL'; }
+  pre.src-sqlite:before { content: 'SQLite'; }
+  /* additional languages in org.el's org-babel-load-languages alist */
+  pre.src-forth:before { content: 'Forth'; }
+  pre.src-io:before { content: 'IO'; }
+  pre.src-J:before { content: 'J'; }
+  pre.src-makefile:before { content: 'Makefile'; }
+  pre.src-maxima:before { content: 'Maxima'; }
+  pre.src-perl:before { content: 'Perl'; }
+  pre.src-picolisp:before { content: 'Pico Lisp'; }
+  pre.src-scala:before { content: 'Scala'; }
+  pre.src-shell:before { content: 'Shell Script'; }
+  pre.src-ebnf2ps:before { content: 'ebfn2ps'; }
+  /* additional language identifiers per "defun org-babel-execute"
+       in ob-*.el */
+  pre.src-cpp:before  { content: 'C++'; }
+  pre.src-abc:before  { content: 'ABC'; }
+  pre.src-coq:before  { content: 'Coq'; }
+  pre.src-groovy:before  { content: 'Groovy'; }
+  /* additional language identifiers from org-babel-shell-names in
+     ob-shell.el: ob-shell is the only babel language using a lambda to put
+     the execution function name together. */
+  pre.src-bash:before  { content: 'bash'; }
+  pre.src-csh:before  { content: 'csh'; }
+  pre.src-ash:before  { content: 'ash'; }
+  pre.src-dash:before  { content: 'dash'; }
+  pre.src-ksh:before  { content: 'ksh'; }
+  pre.src-mksh:before  { content: 'mksh'; }
+  pre.src-posh:before  { content: 'posh'; }
+  /* Additional Emacs modes also supported by the LaTeX listings package */
+  pre.src-ada:before { content: 'Ada'; }
+  pre.src-asm:before { content: 'Assembler'; }
+  pre.src-caml:before { content: 'Caml'; }
+  pre.src-delphi:before { content: 'Delphi'; }
+  pre.src-html:before { content: 'HTML'; }
+  pre.src-idl:before { content: 'IDL'; }
+  pre.src-mercury:before { content: 'Mercury'; }
+  pre.src-metapost:before { content: 'MetaPost'; }
+  pre.src-modula-2:before { content: 'Modula-2'; }
+  pre.src-pascal:before { content: 'Pascal'; }
+  pre.src-ps:before { content: 'PostScript'; }
+  pre.src-prolog:before { content: 'Prolog'; }
+  pre.src-simula:before { content: 'Simula'; }
+  pre.src-tcl:before { content: 'tcl'; }
+  pre.src-tex:before { content: 'TeX'; }
+  pre.src-plain-tex:before { content: 'Plain TeX'; }
+  pre.src-verilog:before { content: 'Verilog'; }
+  pre.src-vhdl:before { content: 'VHDL'; }
+  pre.src-xml:before { content: 'XML'; }
+  pre.src-nxml:before { content: 'XML'; }
+  /* add a generic configuration mode; LaTeX export needs an additional
+     (add-to-list 'org-latex-listings-langs '(conf " ")) in .emacs */
+  pre.src-conf:before { content: 'Configuration File'; }
+
+  table { border-collapse:collapse; }
+  caption.t-above { caption-side: top; }
+  caption.t-bottom { caption-side: bottom; }
+  td, th { vertical-align:top;  }
+  th.org-right  { text-align: center;  }
+  th.org-left   { text-align: center;   }
+  th.org-center { text-align: center; }
+  td.org-right  { text-align: right;  }
+  td.org-left   { text-align: left;   }
+  td.org-center { text-align: center; }
+  dt { font-weight: bold; }
+  .footpara { display: inline; }
+  .footdef  { margin-bottom: 1em; }
+  .figure { padding: 1em; }
+  .figure p { text-align: center; }
+  .inlinetask {
+    padding: 10px;
+    border: 2px solid gray;
+    margin: 10px;
+    background: #ffffcc;
+  }
+  #org-div-home-and-up
+   { text-align: right; font-size: 70%; white-space: nowrap; }
+  textarea { overflow-x: auto; }
+  .linenr { font-size: smaller }
+  .code-highlighted { background-color: #ffff00; }
+  .org-info-js_info-navigation { border-style: none; }
+  #org-info-js_console-label
+    { font-size: 10px; font-weight: bold; white-space: nowrap; }
+  .org-info-js_search-highlight
+    { background-color: #ffff00; color: #000000; font-weight: bold; }
+  .org-svg { width: 90%; }
+  /*]]>*/-->
+</style>
+<link rel="stylesheet" type="text/css" href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/>
+<link rel="stylesheet" type="text/css" href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="https://www.pirilampo.org/styles/lib/js/jquery.stickytableheaders.min.js"></script>
+<script type="text/javascript" src="https://www.pirilampo.org/styles/readtheorg/js/readtheorg.js"></script>
+<script type="text/javascript">
+/*
+@licstart  The following is the entire license notice for the
+JavaScript code in this tag.
+
+Copyright (C) 2012-2017 Free Software Foundation, Inc.
+
+The JavaScript code in this tag is free software: you can
+redistribute it and/or modify it under the terms of the GNU
+General Public License (GNU GPL) as published by the Free Software
+Foundation, either version 3 of the License, or (at your option)
+any later version.  The code is distributed WITHOUT ANY WARRANTY;
+without even the implied warranty of MERCHANTABILITY or FITNESS
+FOR A PARTICULAR PURPOSE.  See the GNU GPL for more details.
+
+As additional permission under GNU GPL version 3 section 7, you
+may distribute non-source (e.g., minimized or compacted) forms of
+that code without the copy of the GNU GPL normally required by
+section 4, provided you include this license notice and a URL
+through which recipients can access the Corresponding Source.
+
+
+@licend  The above is the entire license notice
+for the JavaScript code in this tag.
+*/
+<!--/*--><![CDATA[/*><!--*/
+ function CodeHighlightOn(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(null != target) {
+     elem.cacheClassElem = elem.className;
+     elem.cacheClassTarget = target.className;
+     target.className = "code-highlighted";
+     elem.className   = "code-highlighted";
+   }
+ }
+ function CodeHighlightOff(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(elem.cacheClassElem)
+     elem.className = elem.cacheClassElem;
+   if(elem.cacheClassTarget)
+     target.className = elem.cacheClassTarget;
+ }
+/*]]>*///-->
+</script>
+</head>
+<body>
+<div id="content">
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#orga55b1be">1. NOMS</a></li>
+<li><a href="#orgee389e5">2. VERBES</a></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orga55b1be" class="outline-2">
+<h2 id="orga55b1be"><span class="section-number-2">1</span> NOMS</h2>
+<div class="outline-text-2" id="text-1">
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-left" />
+
+<col  class="org-left" />
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">French word</th>
+<th scope="col" class="org-left">Spanish word</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">absence</td>
+<td class="org-left">ausencia (f.)</td>
+</tr>
+
+<tr>
+<td class="org-left">adresse/direction</td>
+<td class="org-left">direccion (f.)</td>
+</tr>
+
+<tr>
+<td class="org-left">armée</td>
+<td class="org-left">ejercito (m.)</td>
+</tr>
+
+<tr>
+<td class="org-left">arrivée</td>
+<td class="org-left">llegada (f.)</td>
+</tr>
+
+<tr>
+<td class="org-left">automne</td>
+<td class="org-left">autumn (m.)</td>
+</tr>
+
+<tr>
+<td class="org-left">avantage</td>
+<td class="org-left">ventaja (f.)</td>
+</tr>
+
+<tr>
+<td class="org-left">besoin</td>
+<td class="org-left">necesidad (f.)</td>
+</tr>
+
+<tr>
+<td class="org-left">bois</td>
+<td class="org-left">madera (f.)</td>
+</tr>
+
+<tr>
+<td class="org-left">bouche</td>
+<td class="org-left">boca (f.)</td>
+</tr>
+
+<tr>
+<td class="org-left">bras</td>
+<td class="org-left">brazo (m.)</td>
+</tr>
+
+<tr>
+<td class="org-left">bruit</td>
+<td class="org-left">ruido (m.)</td>
+</tr>
+
+<tr>
+<td class="org-left">bureau</td>
+<td class="org-left">escritorio (m.) / oficina (f.)</td>
+</tr>
+
+<tr>
+<td class="org-left">cap/direction</td>
+<td class="org-left">rumbo (m.)</td>
+</tr>
+
+<tr>
+<td class="org-left">chaise</td>
+<td class="org-left">silla (f.)</td>
+</tr>
+
+<tr>
+<td class="org-left">chambre</td>
+<td class="org-left">habitacion (f.)</td>
+</tr>
+
+<tr>
+<td class="org-left">chance</td>
+<td class="org-left">suerte (f.)</td>
+</tr>
+
+<tr>
+<td class="org-left">chanson</td>
+<td class="org-left">cancion (f.)</td>
+</tr>
+
+<tr>
+<td class="org-left">cheveu</td>
+<td class="org-left">pelo (m.)</td>
+</tr>
+
+<tr>
+<td class="org-left">chiffre</td>
+<td class="org-left">cifra (f.)</td>
+</tr>
+
+<tr>
+<td class="org-left">chute</td>
+<td class="org-left">caida (f.)</td>
+</tr>
+
+<tr>
+<td class="org-left">comportement</td>
+<td class="org-left">comportamiento (m.)</td>
+</tr>
+
+<tr>
+<td class="org-left">concours</td>
+<td class="org-left">concurso (m.)</td>
+</tr>
+
+<tr>
+<td class="org-left">conséquence</td>
+<td class="org-left">consecuencia (f.)</td>
+</tr>
+
+<tr>
+<td class="org-left">corps</td>
+<td class="org-left">cuerpo (m.)</td>
+</tr>
+
+<tr>
+<td class="org-left">costume</td>
+<td class="org-left">traje (m.)</td>
+</tr>
+
+<tr>
+<td class="org-left">course</td>
+<td class="org-left">carrera (f.)</td>
+</tr>
+
+<tr>
+<td class="org-left">coutume</td>
+<td class="org-left">costumbre (f.)</td>
+</tr>
+
+<tr>
+<td class="org-left">croissance</td>
+<td class="org-left">crecimiento (m.)</td>
+</tr>
+
+<tr>
+<td class="org-left">célébrité</td>
+<td class="org-left">fama (f.)</td>
+</tr>
+
+<tr>
+<td class="org-left">danger</td>
+<td class="org-left">peligro (m.)</td>
+</tr>
+
+<tr>
+<td class="org-left">degré</td>
+<td class="org-left">grado (m.)</td>
+</tr>
+
+<tr>
+<td class="org-left">dos</td>
+<td class="org-left">espalda (f.)</td>
+</tr>
+
+<tr>
+<td class="org-left">droit</td>
+<td class="org-left">derecho (m.)</td>
+</tr>
+
+<tr>
+<td class="org-left">droite</td>
+<td class="org-left">derecha (f.)</td>
+</tr>
+
+<tr>
+<td class="org-left">début</td>
+<td class="org-left">principio (m.)</td>
+</tr>
+
+<tr>
+<td class="org-left">découverte</td>
+<td class="org-left">descubrimiento (m.)</td>
+</tr>
+
+<tr>
+<td class="org-left">effort</td>
+<td class="org-left">esfuerzo (m.)</td>
+</tr>
+
+<tr>
+<td class="org-left">entrepreneur</td>
+<td class="org-left">empresario (m.)</td>
+</tr>
+
+<tr>
+<td class="org-left">entreprise</td>
+<td class="org-left">empresa (f.)</td>
+</tr>
+
+<tr>
+<td class="org-left">esprit</td>
+<td class="org-left">mente (f.)</td>
+</tr>
+
+<tr>
+<td class="org-left">fermier</td>
+<td class="org-left">granjero (m.)</td>
+</tr>
+
+<tr>
+<td class="org-left">feuille</td>
+<td class="org-left">hoja (f.)</td>
+</tr>
+
+<tr>
+<td class="org-left">fin</td>
+<td class="org-left">fin (f.)</td>
+</tr>
+
+<tr>
+<td class="org-left">forêt</td>
+<td class="org-left">bosque (m.)</td>
+</tr>
+
+<tr>
+<td class="org-left">fumée</td>
+<td class="org-left">humo (m.)</td>
+</tr>
+
+<tr>
+<td class="org-left">gauche</td>
+<td class="org-left">izquierda (f.)</td>
+</tr>
+
+<tr>
+<td class="org-left">herbe</td>
+<td class="org-left">pasto (m.)</td>
+</tr>
+
+<tr>
+<td class="org-left">hiver</td>
+<td class="org-left">ivierno (m.)</td>
+</tr>
+
+<tr>
+<td class="org-left">image</td>
+<td class="org-left">imagen (f.)</td>
+</tr>
+
+<tr>
+<td class="org-left">jambe</td>
+<td class="org-left">pierna (f.)</td>
+</tr>
+
+<tr>
+<td class="org-left">lapin</td>
+<td class="org-left">conejo (m.)</td>
+</tr>
+
+<tr>
+<td class="org-left">lumière</td>
+<td class="org-left">luz (f.)</td>
+</tr>
+
+<tr>
+<td class="org-left">maladie</td>
+<td class="org-left">enfermedad (f.)</td>
+</tr>
+
+<tr>
+<td class="org-left">manteau</td>
+<td class="org-left">abrigo (m.)</td>
+</tr>
+
+<tr>
+<td class="org-left">mesure</td>
+<td class="org-left">medida (f.)</td>
+</tr>
+
+<tr>
+<td class="org-left">moyen</td>
+<td class="org-left">medio (m.)</td>
+</tr>
+
+<tr>
+<td class="org-left">mur</td>
+<td class="org-left">pared (f.)</td>
+</tr>
+
+<tr>
+<td class="org-left">nature</td>
+<td class="org-left">naturaleza (f.)</td>
+</tr>
+
+<tr>
+<td class="org-left">nez</td>
+<td class="org-left">nariz (f.)</td>
+</tr>
+
+<tr>
+<td class="org-left">nom</td>
+<td class="org-left">nombre (m.)</td>
+</tr>
+
+<tr>
+<td class="org-left">oeil</td>
+<td class="org-left">ojo (m.)</td>
+</tr>
+
+<tr>
+<td class="org-left">oignon</td>
+<td class="org-left">cebolla (f.)</td>
+</tr>
+
+<tr>
+<td class="org-left">ordre</td>
+<td class="org-left">orden (f.)</td>
+</tr>
+
+<tr>
+<td class="org-left">oreille</td>
+<td class="org-left">oido (m.)</td>
+</tr>
+
+<tr>
+<td class="org-left">origine</td>
+<td class="org-left">origen (f.)</td>
+</tr>
+
+<tr>
+<td class="org-left">papier</td>
+<td class="org-left">papel (m.)</td>
+</tr>
+
+<tr>
+<td class="org-left">parapluie</td>
+<td class="org-left">paraguas (f.pl.)</td>
+</tr>
+
+<tr>
+<td class="org-left">pauvreté</td>
+<td class="org-left">pobreza (f.)</td>
+</tr>
+
+<tr>
+<td class="org-left">pensée</td>
+<td class="org-left">pensamiento (m.)</td>
+</tr>
+
+<tr>
+<td class="org-left">peur</td>
+<td class="org-left">miedo (m.)</td>
+</tr>
+
+<tr>
+<td class="org-left">pluie</td>
+<td class="org-left">lluvia (f.)</td>
+</tr>
+
+<tr>
+<td class="org-left">poitrine</td>
+<td class="org-left">pecho (m.)</td>
+</tr>
+
+<tr>
+<td class="org-left">poële</td>
+<td class="org-left">sarten (m.)</td>
+</tr>
+
+<tr>
+<td class="org-left">preuve</td>
+<td class="org-left">evidencia (f.)</td>
+</tr>
+
+<tr>
+<td class="org-left">printemps</td>
+<td class="org-left">primavera (f.)</td>
+</tr>
+
+<tr>
+<td class="org-left">problème</td>
+<td class="org-left">problema (m.)</td>
+</tr>
+
+<tr>
+<td class="org-left">propriétaire</td>
+<td class="org-left">dueno (m.)</td>
+</tr>
+
+<tr>
+<td class="org-left">présentation</td>
+<td class="org-left">presentacion (m.)</td>
+</tr>
+
+<tr>
+<td class="org-left">question</td>
+<td class="org-left">pregunta (f.)</td>
+</tr>
+
+<tr>
+<td class="org-left">raison</td>
+<td class="org-left">razon (m.)</td>
+</tr>
+
+<tr>
+<td class="org-left">rendez-vous</td>
+<td class="org-left">cita (f.)</td>
+</tr>
+
+<tr>
+<td class="org-left">richesse</td>
+<td class="org-left">riqueza (f.)</td>
+</tr>
+
+<tr>
+<td class="org-left">réponse</td>
+<td class="org-left">repuesta (f.)</td>
+</tr>
+
+<tr>
+<td class="org-left">réseau</td>
+<td class="org-left">red (f.)</td>
+</tr>
+
+<tr>
+<td class="org-left">rêve</td>
+<td class="org-left">sueno (m.)</td>
+</tr>
+
+<tr>
+<td class="org-left">sable</td>
+<td class="org-left">arena (f.)</td>
+</tr>
+
+<tr>
+<td class="org-left">saison</td>
+<td class="org-left">estacion (m.) / temporada (f.)</td>
+</tr>
+
+<tr>
+<td class="org-left">son</td>
+<td class="org-left">sonido (m.)</td>
+</tr>
+
+<tr>
+<td class="org-left">sport</td>
+<td class="org-left">deporte (m.)</td>
+</tr>
+
+<tr>
+<td class="org-left">stylo</td>
+<td class="org-left">boligrafo (m.) (boli)</td>
+</tr>
+
+<tr>
+<td class="org-left">succès</td>
+<td class="org-left">exito (m.)</td>
+</tr>
+
+<tr>
+<td class="org-left">tableau</td>
+<td class="org-left">cuadro (m.)</td>
+</tr>
+
+<tr>
+<td class="org-left">taille</td>
+<td class="org-left">tamano (m.)</td>
+</tr>
+
+<tr>
+<td class="org-left">thème</td>
+<td class="org-left">tema (m.)</td>
+</tr>
+
+<tr>
+<td class="org-left">thèse</td>
+<td class="org-left">tesis (f.)</td>
+</tr>
+
+<tr>
+<td class="org-left">toit</td>
+<td class="org-left">techo (m.)</td>
+</tr>
+
+<tr>
+<td class="org-left">voisin</td>
+<td class="org-left">vecino (m.)</td>
+</tr>
+
+<tr>
+<td class="org-left">voyage</td>
+<td class="org-left">viaje (m.)</td>
+</tr>
+
+<tr>
+<td class="org-left">âge</td>
+<td class="org-left">edad (f.)</td>
+</tr>
+
+<tr>
+<td class="org-left">équalité</td>
+<td class="org-left">igualdad (f.)</td>
+</tr>
+
+<tr>
+<td class="org-left">étoile</td>
+<td class="org-left">estrella (f.)</td>
+</tr>
+
+<tr>
+<td class="org-left">été</td>
+<td class="org-left">verano (m.)</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<div id="outline-container-orgee389e5" class="outline-2">
+<h2 id="orgee389e5"><span class="section-number-2">2</span> VERBES</h2>
+<div class="outline-text-2" id="text-2">
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-left" />
+
+<col  class="org-left" />
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">French word</th>
+<th scope="col" class="org-left">Spanish word</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">aider</td>
+<td class="org-left">ayudar a</td>
+</tr>
+
+<tr>
+<td class="org-left">arriver</td>
+<td class="org-left">llegar</td>
+</tr>
+
+<tr>
+<td class="org-left">choisir</td>
+<td class="org-left">elegir</td>
+</tr>
+
+<tr>
+<td class="org-left">commencer</td>
+<td class="org-left">empezar/iniciar/comenzar</td>
+</tr>
+
+<tr>
+<td class="org-left">continuer</td>
+<td class="org-left">continuar/seguir</td>
+</tr>
+
+<tr>
+<td class="org-left">demander</td>
+<td class="org-left">pedir</td>
+</tr>
+
+<tr>
+<td class="org-left">dépasser</td>
+<td class="org-left">superar a</td>
+</tr>
+
+<tr>
+<td class="org-left">laisser</td>
+<td class="org-left">dejar</td>
+</tr>
+
+<tr>
+<td class="org-left">marcher</td>
+<td class="org-left">caminar/andar</td>
+</tr>
+
+<tr>
+<td class="org-left">mettre/poser</td>
+<td class="org-left">poner</td>
+</tr>
+
+<tr>
+<td class="org-left">obtenir</td>
+<td class="org-left">conseguir</td>
+</tr>
+
+<tr>
+<td class="org-left">porter</td>
+<td class="org-left">llevar</td>
+</tr>
+
+<tr>
+<td class="org-left">rester</td>
+<td class="org-left">quedar</td>
+</tr>
+
+<tr>
+<td class="org-left">revenir</td>
+<td class="org-left">regresar/volver</td>
+</tr>
+
+<tr>
+<td class="org-left">réussir</td>
+<td class="org-left">lograr</td>
+</tr>
+
+<tr>
+<td class="org-left">réveiller</td>
+<td class="org-left">despetar</td>
+</tr>
+
+<tr>
+<td class="org-left">terminer</td>
+<td class="org-left">acabar</td>
+</tr>
+
+<tr>
+<td class="org-left">vouloir</td>
+<td class="org-left">querer</td>
+</tr>
+
+<tr>
+<td class="org-left">voir</td>
+<td class="org-left">ver</td>
+</tr>
+
+<tr>
+<td class="org-left">agir</td>
+<td class="org-left">actuar</td>
+</tr>
+
+<tr>
+<td class="org-left">oublier</td>
+<td class="org-left">olvidar</td>
+</tr>
+
+<tr>
+<td class="org-left">essayer</td>
+<td class="org-left">atentar</td>
+</tr>
+
+<tr>
+<td class="org-left">tuer</td>
+<td class="org-left">matar</td>
+</tr>
+
+<tr>
+<td class="org-left">placer</td>
+<td class="org-left">colocar</td>
+</tr>
+
+<tr>
+<td class="org-left">signer</td>
+<td class="org-left">firmir</td>
+</tr>
+
+<tr>
+<td class="org-left">goûter</td>
+<td class="org-left">pruebar</td>
+</tr>
+
+<tr>
+<td class="org-left">refuser</td>
+<td class="org-left">rechazar</td>
+</tr>
+
+<tr>
+<td class="org-left">vaincre</td>
+<td class="org-left">derrotar</td>
+</tr>
+
+<tr>
+<td class="org-left">aller</td>
+<td class="org-left">ir</td>
+</tr>
+
+<tr>
+<td class="org-left">entendre</td>
+<td class="org-left">oir</td>
+</tr>
+
+<tr>
+<td class="org-left">asseoir (s')</td>
+<td class="org-left">sentarse</td>
+</tr>
+
+<tr>
+<td class="org-left">trouver</td>
+<td class="org-left">encontrar</td>
+</tr>
+
+<tr>
+<td class="org-left">écouter</td>
+<td class="org-left">escuchar</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="author">Author: debortoli</p>
+<p class="date">Created: 2018-03-12 lun. 10:40</p>
+<p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>
