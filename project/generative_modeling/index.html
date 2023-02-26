@@ -226,27 +226,113 @@ The image in the description of the course is extracted from the paper <a href="
 
 <li>First part of the course handled by Bruno Galerne, see <a href="https://www.idpoisson.fr/galerne/mva/index.html">here</a></li>
 <li><a href="/project/generative_modeling/session_2.pdf">Introduction to Diffusion Models</a></li>
-<!-- <li><a href="/project/generative_modeling/session_3.pdf">Theory of Score-Based Generative Modeling</a></li> -->
+<li><a href="/project/generative_modeling/session_3.pdf">Theory of Score-Based Generative Modeling</a></li>
 <!-- <li><a href="/project/generative_modeling/session_4.pdf">Introduction to Schr\"odinger Bridge</a></li> -->
 
 
-<!-- <h2 id="exercises">Lab session</h2> -->
+<h2 id="exercises">Lab session</h2>
 
 <!-- <li><a href="https://github.com/yang-song/score_sde">MNIST tutorial by Yang Song</a></li> -->
 
 <h2 id="exercises">Final exam</h2>
+<p>
+For the final exam the students will study one research paper by group of 3
+(minimum) and 4 (maximum).
+</p>
 
-The goal is to understand, reimplement (not necessarily in high-dimensional
-settings), discuss and possibly extend one of the following paper (to be announced):
+<p>
+For each paper, the students must:
+<li>Summarize the paper and show they have understood the importance of the work and its impact within the field of denoising diffusion models</li>
+<li>Extend the paper in one direction (theoretical/methodological/experimental)</li>
+</p>
 
-<!-- <li><a href="https://arxiv.org/abs/2112.07804">Tackling the Generative Learning Trilemma with Denoising Diffusion GANs</a></li> -->
-<!-- <li><a href="https://arxiv.org/abs/2112.07068">Score-Based Generative Modeling with Critically-Damped Langevin Diffusion</a></li> -->
-<!-- <li><a href="https://arxiv.org/abs/2110.02037">Autoregressive Diffusion Models</a></li> -->
+<p>
+The report must include theoretical, methodological and experimental
+considerations. You will be evaluated on these three aspects.
+</p>
 
-The students will team up (three to four students per team) and present their findings
-during an oral presentation (30 minutes). They will also write a report on the
-project. 
+<p>
+We do not expect the students to reproduce some of the high-dimensional
+experiments presented in some of these papers as we are aware of the compute
+limitations.
+</p>
 
+<p>  
+You don't have to answer all the questions listed under each paper.  These are
+merely indications of potentially interesting avenues but feel free to pursue
+other directions. Most of these questions are open research problems.
+</p>
+
+<p>
+  The group and chosen paper must be reported in this form: <a href="https://forms.gle/726U7zRiofnKLHEB6">Google Form</a>
+  <br>
+  Please fill only one form per group!
+  </p>
+
+<p>
+Format: report of 10 pages maximum (code not included).
+Additional material containing proofs/notebook is appreciated.
+Your report is due on TBA.
+</p>
+
+<p>
+You will also present your work during the final evaluation (TBA). The format of
+this presentation is 30 minutes by group.
+</p>
+
+<p>
+The final grade will be $\tfrac{2}{3} G_1 + \tfrac{1}{3} G_2$ where $G_1$ is the
+grade obtained on the report and $G_2$ the grade obtained on the presentation of
+your work.
+</p>
+
+<li><b>Flow Matching for Generative Modeling</b> (<a href="https://arxiv.org/abs/2210.02747">Arxiv Link</a>)</li>
+Possible questions:
+<ol>
+<li> How this model compared to classical diffusion models? (advantages/inconvenients)</li>
+<li> Can you derive a theoretical framework for flow matching similar to the one of diffusion models?</li>
+<li> How can you leverage the additional flexibility of these models?</li>
+</ol>
+
+<li><b>Analog Bits: Generating Discrete Data using Diffusion Models with Self-Conditioning</b> (<a href="https://arxiv.org/abs/2208.04202">Arxiv Link</a>)</li>
+Possible questions:
+<ol>
+<li> Can you give a theoretical explanation of the self-conditioning procedure?</li>
+<li> What are the limitations of such quantized approaches?</li>
+<li> What is the experimental importance of self-conditioning?</li>
+</ol>
+
+<li><b>A Variational Perspective on Diffusion-Based Generative Models and Score Matching</b> (<a href="https://arxiv.org/abs/2106.02808">Arxiv Link</a>)</li>
+Possible questions:
+<ol>
+<li> What is the importance of a variational framework? What does it imply theoretically speaking?</li>
+<li> How do you interpret the discrepancy between the loss obtained using the variational framework and the one used in practice?</li>
+<li> How do diffusion models fit into the variational encoder family?</li>
+</ol>
+
+<li><b>Denoising Diffusion Restoration Models</b> (<a href="https://arxiv.org/abs/2201.11793">Arxiv Link</a>)</li>
+Possible questions:
+<ol>
+ <li>Can you provide a time-continuous interpretation of this model?</li>
+ <li>Can you extend the model to non-linear problems?</li>
+ <li>How can you combine this model with other inverse problem diffusion model techniques?</li>
+</ol> 
+
+<li><b>Denoising Diffusion Implicit Models</b> (<a href="https://arxiv.org/abs/2010.02502">Arxiv Link</a>)></li>
+Possible questions:
+<ol>
+ <li>Can you provide a time-continuous interpretation of this model?</li>
+ <li>What are the benefits/drawbacks of deterministic sampling compared to stochastic sampling?</li>
+ <li>What other probabilistic decomposition could be used to define diffusion models?</li>
+</ol> 
+
+<li><b>Likelihood training of Schrödinger Bridge</b> (<a href="https://arxiv.org/abs/2110.11291">Arxiv Link</a>)</li>
+Possible questions:
+<ol>
+ <li>What are the benefits of this formulation over classical diffusion models?</li>
+ <li>What are the links between this approach and stochastic control? How can we leverage this link?</li>
+ <li>Can this framework be extended to solve any quasi-parabolic PDEs? What are the potential applications?</li>
+</ol> 
 
 <!-- <ul> -->
 <!-- <li><a href="/teaching/differential_calculus_L3/exos/Feuille01.pdf">Topologie et espaces métriques (I)</a></li> -->
