@@ -1,0 +1,1505 @@
+<!DOCTYPE html>
+<html lang="en">
+  <!-- Head -->
+  <head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <!-- Metadata, OpenGraph and Schema.org -->
+
+
+
+
+<!-- Standard metadata -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<title>
+  
+  
+    
+      publications | Valentin De Bortoli
+    
+  
+</title>
+<meta name="author" content="Valentin De Bortoli">
+<meta name="description" content="Everything, newest first. Use the filter to search titles, authors and venues.">
+
+  <meta name="keywords" content="diffusion models, generative modelling, optimal transport, Schrodinger bridge, sampling, Markov chain Monte Carlo, machine learning">
+
+
+
+
+
+
+
+
+
+
+<!-- Security: Content Security Policy -->
+<!-- Permissive CSP suitable for academic websites. Allows external images, videos, and common embed services. -->
+<!-- To customize for your needs, see: https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https:; style-src 'self' 'unsafe-inline' https:; img-src 'self' data: https:; font-src 'self' data: https:; media-src 'self' https:; frame-src 'self' https:; connect-src 'self' https:;">
+<style>
+  :root {
+    --max-content-width: 930px;
+  }
+</style>
+
+<!-- Tailwind-first core styles -->
+<link rel="stylesheet" href="/assets/css/tailwind.css?v=50c64c15cbb9fd1ce6056fdb8bcb4b62">
+
+
+
+
+
+
+
+<!-- Icons -->
+
+  
+<!-- Font Awesome -->
+<link defer rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.2.0/css/all.min.css" integrity="sha256-MVopmdyC2tYTiJ8wlktf0uh0v4NgT+vNdyVFepi7Q0c=" crossorigin="anonymous">
+
+<!-- Academicons -->
+<link defer rel="stylesheet" href="https://cdn.jsdelivr.net/npm/academicons@1.9.5/css/academicons.min.css" integrity="sha256-SzrCOBJbGVFMahewkgjwnApaV2+av1DwMAA+/QGLyZw=" crossorigin="anonymous">
+
+<!-- Scholar Icons -->
+<link defer rel="stylesheet" href="https://cdn.jsdelivr.net/npm/scholar-icons@1.0.3/css/scholar-icons.css" integrity="sha256-VY3hHVj/hNX3fYG6wtbA6TcKJQl7+FthzGSyIB64klY=" crossorigin="anonymous">
+
+
+
+<link defer rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Roboto+Slab:100,300,400,500,700|Material+Icons&amp;display=swap">
+
+<!-- Code Syntax Highlighting -->
+<link defer rel="stylesheet" href="/assets/css/jekyll-pygments-themes-github.css?v=591dab5a4e56573bf4ef7fd332894c99" media="" id="highlight_theme_light">
+
+<!-- Styles -->
+
+
+
+
+
+  <link rel="shortcut icon" href="data:image/svg+xml,&lt;svg%20xmlns=%22http://www.w3.org/2000/svg%22%20viewBox=%220%200%20100%20100%22&gt;&lt;text%20y=%22.9em%22%20font-size=%2290%22&gt;%F0%9F%8C%80&lt;/text&gt;&lt;/svg&gt;">
+
+
+
+
+<link rel="stylesheet" href="/assets/css/main.css?v=3116ba77db9ee1581d05bb3e86fbf7f1">
+
+<link rel="canonical" href="https://vdeborto.github.io/publications/">
+
+
+  <!-- Dark Mode -->
+  <script src="/assets/js/theme.js?v=5286c3e4c334d0ecb8fc0c40ff4fa7ec"></script>
+  <link defer rel="stylesheet" href="/assets/css/jekyll-pygments-themes-native.css?v=5847e5ed4a4568527aa6cfab446049ca" media="none" id="highlight_theme_dark">
+  <script>
+    initTheme();
+  </script>
+
+
+
+
+
+
+
+  <!-- Image Features -->
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+  <!-- Right-to-left support -->
+  
+
+
+
+
+
+
+
+
+<!-- Custom typography and theme overrides -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,300;8..60,400;8..60,600&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<link rel="stylesheet" href="/assets/css/custom.css">
+
+  </head>
+
+  <!-- Body -->
+  <body class="fixed-top-nav sticky-bottom-footer">
+    <!-- Header -->
+    <header>
+  <!-- Nav Bar -->
+  <nav id="navbar" class="navbar navbar-light navbar-expand-sm fixed-top" role="navigation">
+    <div class="container">
+      
+        <a class="navbar-brand title font-weight-lighter" href="/">
+          
+            
+              <span class="font-weight-bold">Valentin</span>
+            
+            
+            De Bortoli
+          
+        </a>
+      
+      <!-- Navbar Toggle -->
+      <button class="navbar-toggler collapsed navbar-toggler-main" type="button" data-nav-toggle="navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar top-bar"></span>
+        <span class="icon-bar middle-bar"></span>
+        <span class="icon-bar bottom-bar"></span>
+      </button>
+
+      <div class="collapse navbar-collapse navbar-collapse-main" id="navbarNav">
+        <ul class="navbar-nav navbar-menu-list flex-nowrap">
+          
+
+          <!-- About -->
+          <li class="nav-item ">
+            <a class="nav-link" href="/">about
+              
+            </a>
+          </li>
+
+          <!-- Other pages -->
+          
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+              
+                
+                <li class="nav-item active">
+                  <a class="nav-link" href="/publications/">publications
+                    
+                      <span class="sr-only">(current)</span>
+                    
+                  </a>
+                </li>
+              
+            
+          
+            
+              
+                
+                <li class="nav-item ">
+                  <a class="nav-link" href="/teaching/">teaching
+                    
+                  </a>
+                </li>
+              
+            
+          
+          
+            <!-- Search -->
+            <li class="nav-item">
+              <button id="search-toggle" type="button" title="Search" aria-label="Open search">
+                <span class="nav-link">ctrl k <i class="fa-solid fa-magnifying-glass"></i></span>
+              </button>
+            </li>
+          
+          
+            <!-- Toogle theme mode -->
+            <li class="toggle-container">
+              <button id="light-toggle" type="button" title="Change theme" aria-label="Change color theme">
+                <i class="fa-half-sun-moon" id="light-toggle-system"></i>
+                <i class="fa-solid fa-moon" id="light-toggle-dark"></i>
+                <i class="fa-solid fa-sun" id="light-toggle-light"></i>
+              </button>
+            </li>
+          
+        </ul>
+      </div>
+    </div>
+  </nav>
+  
+    <!-- Scrolling Progress Bar -->
+    <progress id="progress" value="0">
+      <div class="progress-container">
+        <span class="progress-bar"></span>
+      </div>
+    </progress>
+  
+</header>
+
+
+    <!-- Content -->
+    <div class="container mt-5" role="main">
+      
+        
+
+<div class="post">
+  <header class="post-header">
+    <h1 class="post-title">publications</h1>
+    <p class="post-description">Everything, newest first. Use the filter to search titles, authors and venues.</p>
+  </header>
+
+  <article>
+    <!-- _pages/publications.md -->
+
+<!-- Bibsearch Feature -->
+
+<script src="/assets/js/bibsearch.js?v=1bc438ca9037884cc579601c09afd847" type="module"></script>
+
+<p><input type="text" id="bibsearch" spellcheck="false" autocomplete="off" class="search bibsearch-form-input" placeholder="Type to filter"></p>
+
+<div class="publications">
+
+<h2 class="bibliography">2026</h2>
+<ol class="bibliography">
+<li>
+<div class="pub" id="diffusiongemma2026">
+  <div class="pub-meta">Tech report<span class="pub-dot">·</span>2026</div>
+
+  <div class="pub-title">DiffusionGemma Technical Report</div>
+
+  <div class="pub-authors"> DiffusionGemma Team</div>
+
+  
+
+  
+
+  <div class="pub-links"><a href="https://arxiv.org/abs/2608.00146" rel="external nofollow noopener" target="_blank">arXiv</a></div>
+</div>
+</li>
+<li>
+<div class="pub" id="jacq2026rewarded">
+  <div class="pub-meta">Preprint<span class="pub-dot">·</span>2026</div>
+
+  <div class="pub-title">Diffusion Fine-tuning with Rewarded Moment Matching Distillation</div>
+
+  <div class="pub-authors">Alexis Jacq, Guillaume Couairon, <span class="pub-self">Valentin De Bortoli</span>, Quentin Berthet, Arnaud Doucet, Romuald Élie</div>
+
+  
+
+  
+
+  <div class="pub-links"><a href="https://arxiv.org/abs/2606.30414" rel="external nofollow noopener" target="_blank">arXiv</a></div>
+</div>
+</li>
+<li>
+<div class="pub" id="pokle2026cfg">
+  <div class="pub-meta">Preprint<span class="pub-dot">·</span>2026</div>
+
+  <div class="pub-title">Adversarial Learning of Classifier-Free Guidance Schedules</div>
+
+  <div class="pub-authors">Ashwini Pokle, Alexandre Galashov, Arnaud Doucet, Mauricio Delbracio, <span class="pub-self">Valentin De Bortoli</span>
+</div>
+
+  
+
+  
+
+  <div class="pub-links"><a href="https://arxiv.org/abs/2608.14038" rel="external nofollow noopener" target="_blank">arXiv</a></div>
+</div>
+</li>
+<li>
+<div class="pub" id="soen2026speculative">
+  <div class="pub-meta">Preprint<span class="pub-dot">·</span>2026</div>
+
+  <div class="pub-title">Accelerating Speculative Diffusions via Block Verification</div>
+
+  <div class="pub-authors">Alexander Soen, Hisham Husain, <span class="pub-self">Valentin De Bortoli</span>, Arnaud Doucet</div>
+
+  
+
+  
+
+  <div class="pub-links"><a href="https://arxiv.org/abs/2606.13426" rel="external nofollow noopener" target="_blank">arXiv</a></div>
+</div>
+</li>
+<li>
+<div class="pub" id="gretton2026drifting">
+  <div class="pub-meta">Preprint<span class="pub-dot">·</span>2026</div>
+
+  <div class="pub-title">On the Wasserstein Gradient Flow Interpretation of Drifting Models</div>
+
+  <div class="pub-authors">Arthur Gretton, W. Li, Alexandre Galashov, James Thornton, <span class="pub-self">Valentin De Bortoli</span>, Arnaud Doucet</div>
+
+  
+
+  
+
+  <div class="pub-links"><a href="https://arxiv.org/abs/2605.05118" rel="external nofollow noopener" target="_blank">arXiv</a></div>
+</div>
+</li>
+<li>
+<div class="pub" id="papa2026asyncpatch">
+  <div class="pub-meta">Preprint<span class="pub-dot">·</span>2026</div>
+
+  <div class="pub-title">AsyncPatch Diffusion: Spatially-Flexible Image Generation</div>
+
+  <div class="pub-authors">Samuele Papa, <span class="pub-self">Valentin De Bortoli</span>, Guillaume Couairon, Daniel Sýkora, Romuald Élie, Klaus Greff</div>
+
+  
+
+  
+
+  <div class="pub-links"><a href="https://arxiv.org/abs/2606.07079" rel="external nofollow noopener" target="_blank">arXiv</a></div>
+</div>
+</li>
+<li>
+<div class="pub" id="husain2026seasoning">
+  <div class="pub-meta">Preprint<span class="pub-dot">·</span>2026</div>
+
+  <div class="pub-title">Seasoning Generative Models for a Generalization Aftertaste</div>
+
+  <div class="pub-authors">Hisham Husain, <span class="pub-self">Valentin De Bortoli</span>, Richard Nock</div>
+
+  
+
+  
+
+  <div class="pub-links"><a href="https://arxiv.org/abs/2603.18817" rel="external nofollow noopener" target="_blank">arXiv</a></div>
+</div>
+</li>
+</ol>
+<h2 class="bibliography">2025</h2>
+<ol class="bibliography">
+<li>
+<div class="pub" id="debortoli2025dimensionfree">
+  <div class="pub-meta">TMLR<span class="pub-dot">·</span>2025</div>
+
+  <div class="pub-title">Dimension-Free Error Estimate for Diffusion Model and Optimal Scheduling</div>
+
+  <div class="pub-authors">
+<span class="pub-self">Valentin De Bortoli</span>, Romuald Élie, Anna Kazeykina, Zhenjie Ren, Jiacheng Zhang</div>
+
+  
+
+  
+
+  <div class="pub-links"><a href="https://arxiv.org/abs/2512.01820" rel="external nofollow noopener" target="_blank">arXiv</a></div>
+</div>
+</li>
+<li>
+<div class="pub" id="akhoundsadegh2025annealing">
+  <div class="pub-meta">NeurIPS<span class="pub-dot">·</span>2025</div>
+
+  <div class="pub-title">Progressive Inference-Time Annealing of Diffusion Models for Sampling from Boltzmann Densities</div>
+
+  <div class="pub-authors">Tara Akhound-Sadegh, Jungyoon Lee, Avishek Joey Bose, <span class="pub-self">Valentin De Bortoli</span>, Arnaud Doucet, Michael M. Bronstein, Dominique Beaini, Siamak Ravanbakhsh, Kirill Neklyudov, Alexander Tong</div>
+
+  
+
+  
+
+  <div class="pub-links"><a href="https://arxiv.org/abs/2506.16471" rel="external nofollow noopener" target="_blank">arXiv</a></div>
+</div>
+</li>
+<li>
+<div class="pub" id="buchanan2025memorization">
+  <div class="pub-meta">NeurIPS<span class="pub-dot">·</span>2025</div>
+
+  <div class="pub-title">On the Edge of Memorization in Diffusion Models</div>
+
+  <div class="pub-authors">Sam Buchanan, Druv Pai, Yi-Ting Ma, <span class="pub-self">Valentin De Bortoli</span>
+</div>
+
+  
+
+  <p class="pub-summary">Studies where diffusion models stop generalising and start reproducing their training data, and what controls the boundary between the two.</p>
+
+  <div class="pub-links"><a href="https://arxiv.org/abs/2508.17689" rel="external nofollow noopener" target="_blank">arXiv</a></div>
+</div>
+</li>
+<li>
+<div class="pub" id="debortoli2025scoringrules">
+  <div class="pub-meta">ICML<span class="pub-dot">·</span>2025</div>
+
+  <div class="pub-title">Distributional Diffusion Models with Scoring Rules</div>
+
+  <div class="pub-authors">
+<span class="pub-self">Valentin De Bortoli</span>, Alexandre Galashov, J. Swaroop Guntupalli, Guangyao Zhou, Kevin Murphy, Arthur Gretton, Arnaud Doucet</div>
+
+  
+
+  
+
+  <div class="pub-links"><a href="https://arxiv.org/abs/2502.02483" rel="external nofollow noopener" target="_blank">arXiv</a></div>
+</div>
+</li>
+<li>
+<div class="pub" id="renaud2025proximal">
+  <div class="pub-meta">NeurIPS<span class="pub-dot">·</span>2025</div>
+
+  <div class="pub-title">From Stability of Langevin Diffusion to Convergence of Proximal MCMC for Non-Log-Concave Sampling</div>
+
+  <div class="pub-authors">Marien Renaud, <span class="pub-self">Valentin De Bortoli</span>, Arthur Leclaire, Nicolas Papadakis</div>
+
+  
+
+  
+
+  <div class="pub-links"><a href="https://arxiv.org/abs/2505.14177" rel="external nofollow noopener" target="_blank">arXiv</a></div>
+</div>
+</li>
+<li>
+<div class="pub" id="campbell2025selfspeculative">
+  <div class="pub-meta">Preprint<span class="pub-dot">·</span>2025</div>
+
+  <div class="pub-title">Self-Speculative Masked Diffusions</div>
+
+  <div class="pub-authors">Andrew Campbell, <span class="pub-self">Valentin De Bortoli</span>, Jiaxin Shi, Arnaud Doucet</div>
+
+  
+
+  
+
+  <div class="pub-links"><a href="https://arxiv.org/abs/2510.03929" rel="external nofollow noopener" target="_blank">arXiv</a></div>
+</div>
+</li>
+<li>
+<div class="pub" id="galashov2025learnguide">
+  <div class="pub-meta">Preprint<span class="pub-dot">·</span>2025</div>
+
+  <div class="pub-title">Learn to Guide Your Diffusion Model</div>
+
+  <div class="pub-authors">Alexandre Galashov, Ashwini Pokle, Arnaud Doucet, Arthur Gretton, Mauricio Delbracio, <span class="pub-self">Valentin De Bortoli</span>
+</div>
+
+  
+
+  
+
+  <div class="pub-links"><a href="https://arxiv.org/abs/2510.00815" rel="external nofollow noopener" target="_blank">arXiv</a></div>
+</div>
+</li>
+</ol>
+<h2 class="bibliography">2024</h2>
+<ol class="bibliography">
+<li>
+<div class="pub" id="phillips2024pdds">
+  <div class="pub-meta">ICML<span class="pub-dot">·</span>2024</div>
+
+  <div class="pub-title">Particle Denoising Diffusion Sampler</div>
+
+  <div class="pub-authors">Angus Phillips, Hai-Dang Dau, Michael Hutchinson, <span class="pub-self">Valentin De Bortoli</span>, George Deligiannidis, Arnaud Doucet</div>
+
+  
+
+  
+
+  <div class="pub-links"><a href="https://arxiv.org/abs/2402.06320" rel="external nofollow noopener" target="_blank">arXiv</a></div>
+</div>
+</li>
+<li>
+<div class="pub" id="debortoli2024sbflow">
+  <div class="pub-meta">NeurIPS<span class="pub-dot">·</span>2024</div>
+
+  <div class="pub-title">Schrödinger Bridge Flow for Unpaired Data Translation</div>
+
+  <div class="pub-authors">
+<span class="pub-self">Valentin De Bortoli</span>, Iryna Korshunova, Andriy Mnih, Arnaud Doucet</div>
+
+  
+
+  
+
+  <div class="pub-links"><a href="https://arxiv.org/abs/2409.09347" rel="external nofollow noopener" target="_blank">arXiv</a></div>
+</div>
+</li>
+<li>
+<div class="pub" id="marion2024implicit">
+  <div class="pub-meta">AISTATS<span class="pub-dot">·</span>2024</div>
+
+  <div class="pub-title">Implicit Diffusion: Efficient Optimization through Stochastic Sampling</div>
+
+  <div class="pub-authors">Pierre Marion, Anna Korba, Peter L. Bartlett, Mathieu Blondel, <span class="pub-self">Valentin De Bortoli</span>, Arnaud Doucet, Felipe Llinares-López, Courtney Paquette, Quentin Berthet</div>
+
+  
+
+  
+
+  <div class="pub-links"><a href="https://arxiv.org/abs/2402.05468" rel="external nofollow noopener" target="_blank">arXiv</a></div>
+</div>
+</li>
+<li>
+<div class="pub" id="galashov2024mmd">
+  <div class="pub-meta">ICLR<span class="pub-dot">·</span>2024</div>
+
+  <div class="pub-title">Deep MMD Gradient Flow without Adversarial Training</div>
+
+  <div class="pub-authors">Alexandre Galashov, <span class="pub-self">Valentin De Bortoli</span>, Arthur Gretton</div>
+
+  
+
+  
+
+  <div class="pub-links"><a href="https://arxiv.org/abs/2405.06780" rel="external nofollow noopener" target="_blank">arXiv</a></div>
+</div>
+</li>
+<li>
+<div class="pub" id="crucinio2024fredholm">
+  <div class="pub-meta">SPA<span class="pub-dot">·</span>2024</div>
+
+  <div class="pub-title">Solving a Class of Fredholm Integral Equations of the First Kind via Wasserstein Gradient Flows</div>
+
+  <div class="pub-authors">Francesca R. Crucinio, <span class="pub-self">Valentin De Bortoli</span>, Arnaud Doucet, Adam M. Johansen</div>
+
+  
+
+  
+
+  <div class="pub-links"><a href="https://arxiv.org/abs/2209.09936" rel="external nofollow noopener" target="_blank">arXiv</a></div>
+</div>
+</li>
+<li>
+<div class="pub" id="debortoli2024targetscore">
+  <div class="pub-meta">Preprint<span class="pub-dot">·</span>2024</div>
+
+  <div class="pub-title">Target Score Matching</div>
+
+  <div class="pub-authors">
+<span class="pub-self">Valentin De Bortoli</span>, Michael Hutchinson, Peter Wirnsberger, Arnaud Doucet</div>
+
+  
+
+  
+
+  <div class="pub-links"><a href="https://arxiv.org/abs/2402.08667" rel="external nofollow noopener" target="_blank">arXiv</a></div>
+</div>
+</li>
+</ol>
+<h2 class="bibliography">2023</h2>
+<ol class="bibliography">
+<li>
+<div class="pub" id="shi2023dsbm">
+  <div class="pub-meta">NeurIPS<span class="pub-dot">·</span>2023</div>
+
+  <div class="pub-title">Diffusion Schrödinger Bridge Matching</div>
+
+  <div class="pub-authors">Yuyang Shi, <span class="pub-self">Valentin De Bortoli</span>, Andrew Campbell, Arnaud Doucet</div>
+
+  
+
+  <p class="pub-summary">Reformulates the Schrodinger bridge as iterative Markovian fitting, removing the error that accumulated across outer iterations in earlier bridge solvers.</p>
+
+  <div class="pub-links"><a href="https://arxiv.org/abs/2303.16852" rel="external nofollow noopener" target="_blank">arXiv</a></div>
+</div>
+</li>
+<li>
+<div class="pub" id="yim2023se3">
+  <div class="pub-meta">ICML<span class="pub-dot">·</span>2023</div>
+
+  <div class="pub-title">SE(3) Diffusion Model with Application to Protein Backbone Generation</div>
+
+  <div class="pub-authors">Jason Yim, Brian L. Trippe, <span class="pub-self">Valentin De Bortoli</span>, Emile Mathieu, Arnaud Doucet, Regina Barzilay, Tommi Jaakkola</div>
+
+  
+
+  <p class="pub-summary">A diffusion model on SE(3) that generates protein backbones by denoising the rigid-body frame of each residue.</p>
+
+  <div class="pub-links"><a href="https://arxiv.org/abs/2302.02277" rel="external nofollow noopener" target="_blank">arXiv</a></div>
+</div>
+</li>
+<li>
+<div class="pub" id="campbell2023transdim">
+  <div class="pub-meta">NeurIPS<span class="pub-dot">·</span>2023</div>
+
+  <div class="pub-title">Trans-Dimensional Generative Modeling via Jump Diffusion Models</div>
+
+  <div class="pub-authors">Andrew Campbell, William Harvey, Christian Weilbach, <span class="pub-self">Valentin De Bortoli</span>, Tom Rainforth, Arnaud Doucet</div>
+
+  
+
+  
+
+  <div class="pub-links"><a href="https://arxiv.org/abs/2305.16261" rel="external nofollow noopener" target="_blank">arXiv</a></div>
+</div>
+</li>
+<li>
+<div class="pub" id="benton2023dlinear">
+  <div class="pub-meta">ICLR<span class="pub-dot">·</span>2023</div>
+
+  <div class="pub-title">Nearly d-Linear Convergence Bounds for Diffusion Models via Stochastic Localization</div>
+
+  <div class="pub-authors">Joe Benton, <span class="pub-self">Valentin De Bortoli</span>, Arnaud Doucet, George Deligiannidis</div>
+
+  
+
+  
+
+  <div class="pub-links"><a href="https://arxiv.org/abs/2308.03686" rel="external nofollow noopener" target="_blank">arXiv</a></div>
+</div>
+</li>
+<li>
+<div class="pub" id="corso2023particleguidance">
+  <div class="pub-meta">ICLR<span class="pub-dot">·</span>2023</div>
+
+  <div class="pub-title">Particle Guidance: Non-I.I.D. Diverse Sampling with Diffusion Models</div>
+
+  <div class="pub-authors">Gabriele Corso, Yilun Xu, <span class="pub-self">Valentin De Bortoli</span>, Regina Barzilay, Tommi Jaakkola</div>
+
+  
+
+  
+
+  <div class="pub-links"><a href="https://arxiv.org/abs/2310.13102" rel="external nofollow noopener" target="_blank">arXiv</a></div>
+</div>
+</li>
+<li>
+<div class="pub" id="noble2023treesb">
+  <div class="pub-meta">NeurIPS<span class="pub-dot">·</span>2023</div>
+
+  <div class="pub-title">Tree-Based Diffusion Schrödinger Bridge with Applications to Wasserstein Barycenters</div>
+
+  <div class="pub-authors">Maxence Noble, <span class="pub-self">Valentin De Bortoli</span>, Arnaud Doucet, Alain Durmus</div>
+
+  
+
+  
+
+  <div class="pub-links"><a href="https://arxiv.org/abs/2305.16557" rel="external nofollow noopener" target="_blank">arXiv</a></div>
+</div>
+</li>
+<li>
+<div class="pub" id="fishman2023metropolis">
+  <div class="pub-meta">NeurIPS<span class="pub-dot">·</span>2023</div>
+
+  <div class="pub-title">Metropolis Sampling for Constrained Diffusion Models</div>
+
+  <div class="pub-authors">Nic Fishman, Leo Klarner, Emile Mathieu, Michael Hutchinson, <span class="pub-self">Valentin De Bortoli</span>
+</div>
+
+  
+
+  
+
+  <div class="pub-links"><a href="https://arxiv.org/abs/2307.05439" rel="external nofollow noopener" target="_blank">arXiv</a></div>
+</div>
+</li>
+<li>
+<div class="pub" id="mathieu2023gndp">
+  <div class="pub-meta">NeurIPS<span class="pub-dot">·</span>2023</div>
+
+  <div class="pub-title">Geometric Neural Diffusion Processes</div>
+
+  <div class="pub-authors">Emile Mathieu, Vincent Dutordoir, Michael Hutchinson, <span class="pub-self">Valentin De Bortoli</span>, Yee Whye Teh, Richard E. Turner</div>
+
+  
+
+  
+
+  <div class="pub-links"><a href="https://arxiv.org/abs/2307.05431" rel="external nofollow noopener" target="_blank">arXiv</a></div>
+</div>
+</li>
+<li>
+<div class="pub" id="renaud2023pnp">
+  <div class="pub-meta">ICLR<span class="pub-dot">·</span>2023</div>
+
+  <div class="pub-title">Plug-and-Play Posterior Sampling under Mismatched Measurement and Prior Models</div>
+
+  <div class="pub-authors">Marien Renaud, Jiaming Liu, <span class="pub-self">Valentin De Bortoli</span>, Andrés Almansa, Ulugbek Kamilov</div>
+
+  
+
+  
+
+  <div class="pub-links"><a href="https://arxiv.org/abs/2310.03546" rel="external nofollow noopener" target="_blank">arXiv</a></div>
+</div>
+</li>
+<li>
+<div class="pub" id="fishman2023constrained">
+  <div class="pub-meta">TMLR<span class="pub-dot">·</span>2023</div>
+
+  <div class="pub-title">Diffusion Models for Constrained Domains</div>
+
+  <div class="pub-authors">Nic Fishman, Leo Klarner, <span class="pub-self">Valentin De Bortoli</span>, Emile Mathieu, Michael Hutchinson</div>
+
+  
+
+  
+
+  <div class="pub-links"><a href="https://arxiv.org/abs/2304.05364" rel="external nofollow noopener" target="_blank">arXiv</a></div>
+</div>
+</li>
+<li>
+<div class="pub" id="debortoli2023augmented">
+  <div class="pub-meta">Preprint<span class="pub-dot">·</span>2023</div>
+
+  <div class="pub-title">Augmented Bridge Matching</div>
+
+  <div class="pub-authors">
+<span class="pub-self">Valentin De Bortoli</span>, Guan-Horng Liu, Tianrong Chen, Evangelos A. Theodorou, Weili Nie</div>
+
+  
+
+  
+
+  <div class="pub-links"><a href="https://arxiv.org/abs/2311.06978" rel="external nofollow noopener" target="_blank">arXiv</a></div>
+</div>
+</li>
+<li>
+<div class="pub" id="heng2023bayesian">
+  <div class="pub-meta">Preprint<span class="pub-dot">·</span>2023</div>
+
+  <div class="pub-title">Diffusion Schrödinger Bridges for Bayesian Computation</div>
+
+  <div class="pub-authors">Jeremy Heng, <span class="pub-self">Valentin De Bortoli</span>, Arnaud Doucet</div>
+
+  
+
+  
+
+  <div class="pub-links"><a href="https://arxiv.org/abs/2308.14106" rel="external nofollow noopener" target="_blank">arXiv</a></div>
+</div>
+</li>
+</ol>
+<h2 class="bibliography">2022</h2>
+<ol class="bibliography">
+<li>
+<div class="pub" id="debortoli2022manifold">
+  <div class="pub-meta">TMLR<span class="pub-dot">·</span>2022</div>
+
+  <div class="pub-title">Convergence of Denoising Diffusion Models under the Manifold Hypothesis</div>
+
+  <div class="pub-authors"><span class="pub-self">Valentin De Bortoli</span></div>
+
+  
+
+  <p class="pub-summary">Convergence guarantees for denoising diffusions when the data lies on a low-dimensional manifold - the regime where the score is unbounded and earlier analyses break down.</p>
+
+  <div class="pub-links"><a href="https://arxiv.org/abs/2208.05314" rel="external nofollow noopener" target="_blank">arXiv</a></div>
+</div>
+</li>
+<li>
+<div class="pub" id="benton2022denoisingmarkov">
+  <div class="pub-meta">JRSS-B<span class="pub-dot">·</span>2022</div>
+
+  <div class="pub-title">From Denoising Diffusions to Denoising Markov Models</div>
+
+  <div class="pub-authors">Joe Benton, Yuyang Shi, <span class="pub-self">Valentin De Bortoli</span>, George Deligiannidis, Arnaud Doucet</div>
+
+  
+
+  
+
+  <div class="pub-links"><a href="https://arxiv.org/abs/2211.03595" rel="external nofollow noopener" target="_blank">arXiv</a></div>
+</div>
+</li>
+<li>
+<div class="pub" id="debortoli2022riemannian">
+  <div class="pub-meta">NeurIPS<span class="pub-dot">·</span>2022</div>
+
+  <div class="pub-title">Riemannian Score-Based Generative Modelling</div>
+
+  <div class="pub-authors">
+<span class="pub-self">Valentin De Bortoli</span>, Emile Mathieu, Michael Hutchinson, James Thornton, Yee Whye Teh, Arnaud Doucet</div>
+
+  
+
+  <p class="pub-summary">Extends score-based generative models from Euclidean space to Riemannian manifolds, so data living on spheres, tori and other geometries is modelled in its own coordinates.</p>
+
+  <div class="pub-links"><a href="https://arxiv.org/abs/2202.02763" rel="external nofollow noopener" target="_blank">arXiv</a></div>
+</div>
+</li>
+<li>
+<div class="pub" id="campbell2022continuoustime">
+  <div class="pub-meta">NeurIPS<span class="pub-dot">·</span>2022</div>
+
+  <div class="pub-title">A Continuous Time Framework for Discrete Denoising Models</div>
+
+  <div class="pub-authors">Andrew Campbell, Joe Benton, <span class="pub-self">Valentin De Bortoli</span>, Tom Rainforth, George Deligiannidis, Arnaud Doucet</div>
+
+  
+
+  
+
+  <div class="pub-links"><a href="https://arxiv.org/abs/2205.14987" rel="external nofollow noopener" target="_blank">arXiv</a></div>
+</div>
+</li>
+<li>
+<div class="pub" id="guth2022wavelet">
+  <div class="pub-meta">NeurIPS<span class="pub-dot">·</span>2022</div>
+
+  <div class="pub-title">Wavelet Score-Based Generative Modeling</div>
+
+  <div class="pub-authors">Florentin Guth, Simon Coste, <span class="pub-self">Valentin De Bortoli</span>, Stéphane Mallat</div>
+
+  
+
+  
+
+  <div class="pub-links"><a href="https://arxiv.org/abs/2208.05003" rel="external nofollow noopener" target="_blank">arXiv</a></div>
+</div>
+</li>
+<li>
+<div class="pub" id="salmona2022pushforward">
+  <div class="pub-meta">NeurIPS<span class="pub-dot">·</span>2022</div>
+
+  <div class="pub-title">Can Push-Forward Generative Models Fit Multimodal Distributions?</div>
+
+  <div class="pub-authors">Antoine Salmona, <span class="pub-self">Valentin De Bortoli</span>, Julie Delon, Agnès Desolneux</div>
+
+  
+
+  
+
+  <div class="pub-links"><a href="https://arxiv.org/abs/2206.14476" rel="external nofollow noopener" target="_blank">arXiv</a></div>
+</div>
+</li>
+<li>
+<div class="pub" id="noble2022barrierhmc">
+  <div class="pub-meta">NeurIPS<span class="pub-dot">·</span>2022</div>
+
+  <div class="pub-title">Unbiased Constrained Sampling with Self-Concordant Barrier Hamiltonian Monte Carlo</div>
+
+  <div class="pub-authors">Maxence Noble, <span class="pub-self">Valentin De Bortoli</span>, Alain Durmus</div>
+
+  
+
+  
+
+  <div class="pub-links"><a href="https://arxiv.org/abs/2210.11925" rel="external nofollow noopener" target="_blank">arXiv</a></div>
+</div>
+</li>
+<li>
+<div class="pub" id="shi2022conditional">
+  <div class="pub-meta">UAI<span class="pub-dot">·</span>2022</div>
+
+  <div class="pub-title">Conditional Simulation Using Diffusion Schrödinger Bridges</div>
+
+  <div class="pub-authors">Yuyang Shi, <span class="pub-self">Valentin De Bortoli</span>, George Deligiannidis, Arnaud Doucet</div>
+
+  
+
+  
+
+  <div class="pub-links"><a href="https://arxiv.org/abs/2202.13460" rel="external nofollow noopener" target="_blank">arXiv</a></div>
+</div>
+</li>
+<li>
+<div class="pub" id="thornton2022riemanniandsb">
+  <div class="pub-meta">Preprint<span class="pub-dot">·</span>2022</div>
+
+  <div class="pub-title">Riemannian Diffusion Schrödinger Bridge</div>
+
+  <div class="pub-authors">James Thornton, Michael Hutchinson, Emile Mathieu, <span class="pub-self">Valentin De Bortoli</span>, Yee Whye Teh, Arnaud Doucet</div>
+
+  
+
+  
+
+  <div class="pub-links"><a href="https://arxiv.org/abs/2207.03024" rel="external nofollow noopener" target="_blank">arXiv</a></div>
+</div>
+</li>
+<li>
+<div class="pub" id="phillips2022spectral">
+  <div class="pub-meta">Preprint<span class="pub-dot">·</span>2022</div>
+
+  <div class="pub-title">Spectral Diffusion Processes</div>
+
+  <div class="pub-authors">Angus Phillips, Thomas Seror, Michael Hutchinson, <span class="pub-self">Valentin De Bortoli</span>, Arnaud Doucet, Emile Mathieu</div>
+
+  
+
+  
+
+  <div class="pub-links"><a href="https://arxiv.org/abs/2209.14125" rel="external nofollow noopener" target="_blank">arXiv</a></div>
+</div>
+</li>
+<li>
+<div class="pub" id="laumont2022map">
+  <div class="pub-meta">JMIV<span class="pub-dot">·</span>2022</div>
+
+  <div class="pub-title">On Maximum a Posteriori Estimation with Plug &amp; Play Priors and Stochastic Gradient Descent</div>
+
+  <div class="pub-authors">Rémi Laumont, <span class="pub-self">Valentin De Bortoli</span>, Andrés Almansa, Julie Delon, Alain Durmus, Marcelo Pereyra</div>
+
+  
+
+  
+
+  <div class="pub-links"></div>
+</div>
+</li>
+<li>
+<div class="pub" id="debortoli2022bayesianimaging">
+  <div class="pub-meta">Preprint<span class="pub-dot">·</span>2022</div>
+
+  <div class="pub-title">An Introduction to Bayesian Imaging with Data-Driven Priors Encoded by Neural Networks</div>
+
+  <div class="pub-authors">
+<span class="pub-self">Valentin De Bortoli</span>, Julie Delon, Andrés Almansa, Alain Durmus, Marcelo Pereyra</div>
+
+  
+
+  
+
+  <div class="pub-links"></div>
+</div>
+</li>
+</ol>
+<h2 class="bibliography">2021</h2>
+<ol class="bibliography">
+<li>
+<div class="pub" id="debortoli2021dsb">
+  <div class="pub-meta">NeurIPS<span class="pub-dot">·</span>2021</div>
+
+  <div class="pub-title">Diffusion Schrödinger Bridge with Applications to Score-Based Generative Modeling</div>
+
+  <div class="pub-authors">
+<span class="pub-self">Valentin De Bortoli</span>, James Thornton, Jeremy Heng, Arnaud Doucet</div>
+
+  
+
+  <p class="pub-summary">Casts generative modelling as a Schrodinger bridge - an entropic optimal transport problem - and solves it by iterative proportional fitting on learned scores.</p>
+
+  <div class="pub-links"><a href="https://arxiv.org/abs/2106.01357" rel="external nofollow noopener" target="_blank">arXiv</a></div>
+</div>
+</li>
+<li>
+<div class="pub" id="debortoli2021laplace">
+  <div class="pub-meta">JMLR<span class="pub-dot">·</span>2021</div>
+
+  <div class="pub-title">On Quantitative Laplace-Type Convergence Results for Some Exponential Probability Measures, with Two Applications</div>
+
+  <div class="pub-authors">
+<span class="pub-self">Valentin De Bortoli</span>, Agnès Desolneux</div>
+
+  
+
+  
+
+  <div class="pub-links"></div>
+</div>
+</li>
+<li>
+<div class="pub" id="debortoli2021simulating">
+  <div class="pub-meta">Biometrika<span class="pub-dot">·</span>2021</div>
+
+  <div class="pub-title">Simulating Diffusion Bridges with Score Matching</div>
+
+  <div class="pub-authors">
+<span class="pub-self">Valentin De Bortoli</span>, Arnaud Doucet, Jeremy Heng, James Thornton</div>
+
+  
+
+  
+
+  <div class="pub-links"><a href="https://arxiv.org/abs/2111.07243" rel="external nofollow noopener" target="_blank">arXiv</a></div>
+</div>
+</li>
+<li>
+<div class="pub" id="deligiannidis2021ipf">
+  <div class="pub-meta">AAP<span class="pub-dot">·</span>2021</div>
+
+  <div class="pub-title">Quantitative Uniform Stability of the Iterative Proportional Fitting Procedure</div>
+
+  <div class="pub-authors">George Deligiannidis, <span class="pub-self">Valentin De Bortoli</span>, Arnaud Doucet</div>
+
+  
+
+  
+
+  <div class="pub-links"><a href="https://arxiv.org/abs/2108.08129" rel="external nofollow noopener" target="_blank">arXiv</a></div>
+</div>
+</li>
+<li>
+<div class="pub" id="laumont2021tweedie">
+  <div class="pub-meta">SIIMS<span class="pub-dot">·</span>2021</div>
+
+  <div class="pub-title">Bayesian Imaging Using Plug &amp; Play Priors: When Langevin Meets Tweedie</div>
+
+  <div class="pub-authors">Rémi Laumont, <span class="pub-self">Valentin De Bortoli</span>, Andrés Almansa, Julie Delon, Alain Durmus, Marcelo Pereyra</div>
+
+  
+
+  
+
+  <div class="pub-links"><a href="https://arxiv.org/abs/2103.04715" rel="external nofollow noopener" target="_blank">arXiv</a></div>
+</div>
+</li>
+<li>
+<div class="pub" id="debortoli2021maxent">
+  <div class="pub-meta">SIMODS<span class="pub-dot">·</span>2021</div>
+
+  <div class="pub-title">Maximum Entropy Methods for Texture Synthesis: Theory and Practice</div>
+
+  <div class="pub-authors">
+<span class="pub-self">Valentin De Bortoli</span>, Agnès Desolneux, Alain Durmus, Bruno Galerne, Arthur Leclaire</div>
+
+  
+
+  
+
+  <div class="pub-links"><a href="https://arxiv.org/abs/1912.01691" rel="external nofollow noopener" target="_blank">arXiv</a></div>
+</div>
+</li>
+<li>
+<div class="pub" id="fontaine2021sgd">
+  <div class="pub-meta">COLT<span class="pub-dot">·</span>2021</div>
+
+  <div class="pub-title">Continuous and Discrete-Time Analysis of Stochastic Gradient Descent for Convex and Non-Convex Functions</div>
+
+  <div class="pub-authors">Xavier Fontaine, <span class="pub-self">Valentin De Bortoli</span>, Alain Durmus</div>
+
+  
+
+  
+
+  <div class="pub-links"><a href="https://arxiv.org/abs/2004.04193" rel="external nofollow noopener" target="_blank">arXiv</a></div>
+</div>
+</li>
+</ol>
+<h2 class="bibliography">2020</h2>
+<ol class="bibliography">
+<li>
+<div class="pub" id="debortoli2020chaos">
+  <div class="pub-meta">NeurIPS<span class="pub-dot">·</span>2020</div>
+
+  <div class="pub-title">Quantitative Propagation of Chaos for SGD in Wide Neural Networks</div>
+
+  <div class="pub-authors">
+<span class="pub-self">Valentin De Bortoli</span>, Alain Durmus, Xavier Fontaine, Umut Simsekli</div>
+
+  
+
+  
+
+  <div class="pub-links"><a href="https://arxiv.org/abs/2007.06352" rel="external nofollow noopener" target="_blank">arXiv</a></div>
+</div>
+</li>
+<li>
+<div class="pub" id="nadjahi2020swabc">
+  <div class="pub-meta">ICASSP<span class="pub-dot">·</span>2020<span class="pub-dot">·</span><span class="pub-award">Best Student Paper Award</span>
+</div>
+
+  <div class="pub-title">Approximate Bayesian Computation with the Sliced-Wasserstein Distance</div>
+
+  <div class="pub-authors">Kimia Nadjahi, <span class="pub-self">Valentin De Bortoli</span>, Alain Durmus, Roland Badeau, Umut Simsekli</div>
+
+  
+
+  
+
+  <div class="pub-links"></div>
+</div>
+</li>
+<li>
+<div class="pub" id="vidal2020empiricalbayes1">
+  <div class="pub-meta">SIIMS<span class="pub-dot">·</span>2020</div>
+
+  <div class="pub-title">Maximum Likelihood Estimation of Regularisation Parameters in High-Dimensional Inverse Problems: An Empirical Bayesian Approach. Part I: Methodology and Experiments</div>
+
+  <div class="pub-authors">Ana F. Vidal, <span class="pub-self">Valentin De Bortoli</span>, Marcelo Pereyra, Alain Durmus</div>
+
+  
+
+  
+
+  <div class="pub-links"></div>
+</div>
+</li>
+<li>
+<div class="pub" id="debortoli2020empiricalbayes2">
+  <div class="pub-meta">SIIMS<span class="pub-dot">·</span>2020</div>
+
+  <div class="pub-title">Maximum Likelihood Estimation of Regularisation Parameters in High-Dimensional Inverse Problems: An Empirical Bayesian Approach. Part II: Theoretical Analysis</div>
+
+  <div class="pub-authors">
+<span class="pub-self">Valentin De Bortoli</span>, Alain Durmus, Marcelo Pereyra, Ana F. Vidal</div>
+
+  
+
+  
+
+  <div class="pub-links"><a href="https://arxiv.org/abs/2008.05793" rel="external nofollow noopener" target="_blank">arXiv</a></div>
+</div>
+</li>
+<li>
+<div class="pub" id="debortoli2020gaussianredundancy">
+  <div class="pub-meta">ESAIM<span class="pub-dot">·</span>2020</div>
+
+  <div class="pub-title">Redundancy in Gaussian Random Fields</div>
+
+  <div class="pub-authors">
+<span class="pub-self">Valentin De Bortoli</span>, Agnès Desolneux, Bruno Galerne, Arthur Leclaire</div>
+
+  
+
+  
+
+  <div class="pub-links"></div>
+</div>
+</li>
+<li>
+<div class="pub" id="debortoli2020ula">
+  <div class="pub-meta">Preprint<span class="pub-dot">·</span>2020</div>
+
+  <div class="pub-title">Efficient Stochastic Optimisation by Unadjusted Langevin Monte Carlo. Application to Maximum Marginal Likelihood and Empirical Bayesian Estimation</div>
+
+  <div class="pub-authors">
+<span class="pub-self">Valentin De Bortoli</span>, Alain Durmus, Marcelo Pereyra, Ana F. Vidal</div>
+
+  
+
+  
+
+  <div class="pub-links"><a href="https://arxiv.org/abs/1906.12281" rel="external nofollow noopener" target="_blank">arXiv</a></div>
+</div>
+</li>
+<li>
+<div class="pub" id="debortoli2020thesis">
+  <div class="pub-meta">PhD<span class="pub-dot">·</span>2020</div>
+
+  <div class="pub-title">Non-Local Statistics in Images: Modelling, Estimation and Sampling</div>
+
+  <div class="pub-authors"><span class="pub-self">Valentin De Bortoli</span></div>
+
+  
+
+  
+
+  <div class="pub-links"></div>
+</div>
+</li>
+</ol>
+<h2 class="bibliography">2019</h2>
+<ol class="bibliography">
+<li>
+<div class="pub" id="debortoli2019patchredundancy">
+  <div class="pub-meta">SIIMS<span class="pub-dot">·</span>2019</div>
+
+  <div class="pub-title">Patch Redundancy in Images: A Statistical Testing Framework and Some Applications</div>
+
+  <div class="pub-authors">
+<span class="pub-self">Valentin De Bortoli</span>, Agnès Desolneux, Bruno Galerne, Arthur Leclaire</div>
+
+  
+
+  
+
+  <div class="pub-links"><a href="https://arxiv.org/abs/1904.06428" rel="external nofollow noopener" target="_blank">arXiv</a></div>
+</div>
+</li>
+<li>
+<div class="pub" id="debortoli2019macrocanonical">
+  <div class="pub-meta">SSVM<span class="pub-dot">·</span>2019</div>
+
+  <div class="pub-title">Macrocanonical Models for Texture Synthesis</div>
+
+  <div class="pub-authors">
+<span class="pub-self">Valentin De Bortoli</span>, Agnès Desolneux, Bruno Galerne, Arthur Leclaire</div>
+
+  
+
+  
+
+  <div class="pub-links"><a href="https://arxiv.org/abs/1904.06396" rel="external nofollow noopener" target="_blank">arXiv</a></div>
+</div>
+</li>
+<li>
+<div class="pub" id="debortoli2019convergence">
+  <div class="pub-meta">Preprint<span class="pub-dot">·</span>2019</div>
+
+  <div class="pub-title">Convergence of Diffusions and Their Discretizations: From Continuous to Discrete Processes and Back</div>
+
+  <div class="pub-authors">
+<span class="pub-self">Valentin De Bortoli</span>, Alain Durmus</div>
+
+  
+
+  
+
+  <div class="pub-links"><a href="https://arxiv.org/abs/1904.09808" rel="external nofollow noopener" target="_blank">arXiv</a></div>
+</div>
+</li>
+</ol>
+<h2 class="bibliography">2018</h2>
+<ol class="bibliography"><li>
+<div class="pub" id="huang2018wavelet">
+  <div class="pub-meta">IET<span class="pub-dot">·</span>2018</div>
+
+  <div class="pub-title">Review of Wavelet-Based Unsupervised Texture Segmentation, Advantage of Adaptive Wavelets</div>
+
+  <div class="pub-authors">Yuan Huang, <span class="pub-self">Valentin De Bortoli</span>, Fan Zhou, Jérôme Gilles</div>
+
+  
+
+  
+
+  <div class="pub-links"></div>
+</div>
+</li></ol>
+
+</div>
+
+  </article>
+
+  
+
+  
+    
+
+
+  
+</div>
+
+      
+    </div>
+
+    <!-- Footer -->
+    
+
+
+  <footer class="sticky-bottom mt-5" role="contentinfo">
+    
+
+    <div class="container">
+      
+  © Copyright 2026
+  Valentin
+  
+  De Bortoli. Built with <a href="https://jekyllrb.com/" target="_blank" rel="external nofollow noopener">Jekyll</a> and the <a href="https://github.com/alshedivat/al-folio" rel="external nofollow noopener" target="_blank">al-folio</a> theme. Hosted on <a href="https://pages.github.com/" target="_blank" rel="external nofollow noopener">GitHub Pages</a>.
+
+  
+  
+    Last updated: September 03, 2026.
+  
+
+    </div>
+  </footer>
+
+
+
+    <!-- JavaScripts -->
+    <script>
+  window.alFolio = {
+    compatBootstrap: false
+  };
+</script>
+
+<!-- Core navigation/runtime scripts -->
+<script src="/assets/js/nav-toggle.js?v=141bd79a73ebc0f0b6ea58e440ae79fc"></script>
+
+
+
+  <!-- Masonry & imagesLoaded -->
+  <script defer src="https://cdn.jsdelivr.net/npm/masonry-layout@4.2.2/dist/masonry.pkgd.min.js" integrity="sha256-Nn1q/fx0H7SNLZMQ5Hw5JLaTRZp0yILA/FRexe19VdI=" crossorigin="anonymous"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/imagesloaded@5.0.0/imagesloaded.pkgd.min.js" integrity="sha256-htrLFfZJ6v5udOG+3kNLINIKh2gvoKqwEhHYfTTMICc=" crossorigin="anonymous"></script>
+  <script defer src="/assets/js/masonry.js?v=e49affc7bd2646f6acdad1dbe02c2359" type="text/javascript"></script>
+
+
+
+  <!-- Charts and Diagrams -->
+  
+
+
+
+
+
+
+
+  <!-- Math and Tikzjax -->
+  
+<script defer type="text/javascript" id="MathJax-script" src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-mml-chtml.js" integrity="sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI=" crossorigin="anonymous"></script>
+<script src="/assets/al_math/js/mathjax-setup.js"></script>
+
+
+
+
+
+<!-- Tooltips & popovers runtime -->
+<script src="/assets/js/tooltips-setup.js?v=fe487e99db6c43751e6e7bdb2d6a0611"></script>
+
+
+
+
+
+
+<!-- Load Common JS -->
+<script src="/assets/js/no_defer.js?v=53b1b1a645525975c963ce8bf8bfefcf"></script>
+<script defer src="/assets/js/common.js?v=87baac90f765f2f3362dcf6aaf312a8a"></script>
+<script defer src="/assets/js/copy_code.js?v=c8a01c11a92744d44b093fc3bda915df" type="text/javascript"></script>
+
+<!-- Jupyter Open External Links New Tab -->
+<script defer src="/assets/js/jupyter_new_tab.js?v=896d254890d9b47f0281f63bfccf0dee"></script>
+
+<!-- Badges -->
+
+  <script async src="https://d1bxh8uas1mnw7.cloudfront.net/assets/embed.js"></script>
+
+
+  <script async src="https://badge.dimensions.ai/badge.js"></script>
+
+
+
+
+  <!-- Analytics -->
+  
+
+
+
+
+
+  <!-- Image Features -->
+  
+<!-- Medium Zoom JS -->
+<script defer src="https://cdn.jsdelivr.net/npm/medium-zoom@1.1.0/dist/medium-zoom.min.js" integrity="sha256-ZgMyDAIYDYGxbcpJcfUnYwNevG/xi9OHKaR/8GK+jWc=" crossorigin="anonymous"></script>
+<script defer src="/assets/al_img_tools/js/zoom.js"></script>
+
+
+
+
+
+  <!-- Scrolling Progress Bar -->
+  <script defer src="/assets/js/progress-bar.js?v=499464c5c63ced6cf7ad62509f1e2610" type="text/javascript"></script>
+
+
+
+
+
+  <!-- Back to Top -->
+  
+  
+  
+    <script src="https://cdn.jsdelivr.net/npm/vanilla-back-to-top@7.2.1/dist/vanilla-back-to-top.min.js" integrity="sha256-uMJJ3EoTyfRBoTbR+lrfu1uRQ87RZG8AR3cVNuQVeFg=" crossorigin="anonymous"></script>
+  
+  <script>
+    addBackToTop();
+  </script>
+
+
+
+  <!-- Search -->
+  
+    
+<script type="module" src="/assets/al_search/js/search/ninja-keys.min.js"></script>
+<ninja-keys hidebreadcrumbs noautoloadmdicons placeholder="Type to start searching"></ninja-keys>
+<script src="/assets/al_search/js/search-setup.js"></script>
+<script>
+// get the ninja-keys element
+const ninja = document.querySelector('ninja-keys');
+
+// add the home and posts menu items
+ninja.data = [{
+    id: "nav-about",
+    title: "about",
+    section: "Navigation",
+    handler: () => {
+      window.location.href = "/";
+    },
+  },{id: "nav-publications",
+          title: "publications",
+          description: "Everything, newest first. Use the filter to search titles, authors and venues.",
+          section: "Navigation",
+          handler: () => {
+            window.location.href = "/publications/";
+          },
+        },{id: "nav-teaching",
+          title: "teaching",
+          description: "Course materials from teaching in Paris, 2015–2018.",
+          section: "Navigation",
+          handler: () => {
+            window.location.href = "/teaching/";
+          },
+        },{id: "news-distributional-diffusion-models-with-scoring-rules-accepted-at-icml-2025",
+          title: 'Distributional Diffusion Models with Scoring Rules accepted at ICML 2025.',
+          description: "",
+          section: "News",},{id: "news-three-papers-accepted-at-neurips-2025-on-inference-time-annealing-memorization-in-diffusion-models-and-proximal-mcmc-for-non-log-concave-sampling",
+          title: 'Three papers accepted at NeurIPS 2025, on inference-time annealing, memorization in diffusion models,...',
+          description: "",
+          section: "News",},{id: "news-the-diffusiongemma-technical-report-is-out",
+          title: 'The DiffusionGemma technical report is out.',
+          description: "",
+          section: "News",},{
+        id: 'social-cv',
+        title: 'CV',
+        section: 'Socials',
+        handler: () => {
+          window.open("/assets/pdf/cv.pdf", "_blank");
+        },
+      },{
+        id: 'social-email',
+        title: 'email',
+        section: 'Socials',
+        handler: () => {
+          window.open("mailto:%76%64%65%62%6F%72%74%6F%6C%69@%67%6F%6F%67%6C%65.%63%6F%6D", "_blank");
+        },
+      },{
+        id: 'social-github',
+        title: 'GitHub',
+        section: 'Socials',
+        handler: () => {
+          window.open("https://github.com/vdeborto", "_blank");
+        },
+      },{
+        id: 'social-scholar',
+        title: 'Google Scholar',
+        section: 'Socials',
+        handler: () => {
+          window.open("https://scholar.google.com/citations?user=dn_F9I4AAAAJ", "_blank");
+        },
+      },{
+        id: 'social-rss',
+        title: 'RSS Feed',
+        section: 'Socials',
+        handler: () => {
+          window.open("/feed.xml", "_blank");
+        },
+      },{
+      id: 'light-theme',
+      title: 'Change theme to light',
+      description: 'Change the theme of the site to Light',
+      section: 'Theme',
+      handler: () => {
+        setThemeSetting("light");
+      },
+    },
+    {
+      id: 'dark-theme',
+      title: 'Change theme to dark',
+      description: 'Change the theme of the site to Dark',
+      section: 'Theme',
+      handler: () => {
+        setThemeSetting("dark");
+      },
+    },
+    {
+      id: 'system-theme',
+      title: 'Use system default theme',
+      description: 'Change the theme of the site to System Default',
+      section: 'Theme',
+      handler: () => {
+        setThemeSetting("system");
+      },
+    },];
+
+</script>
+<script src="/assets/al_search/js/shortcut-key.js"></script>
+
+
+  
+
+
+
+
+
+
+
+
+  </body>
+</html>

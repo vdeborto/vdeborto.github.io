@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="en">
+  <!-- Head -->
+  <head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <!-- Metadata, OpenGraph and Schema.org -->
+
+
+
+
+<!-- Standard metadata -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<title>
+  
+  
+    Valentin De Bortoli
+  
+</title>
+<meta name="author" content="Valentin De Bortoli">
+<meta name="description" content="Research scientist at Google DeepMind, London. Diffusion models, sampling, optimal transport and Markov chain theory.
+">
+
+  <meta name="keywords" content="diffusion models, generative modelling, optimal transport, Schrodinger bridge, sampling, Markov chain Monte Carlo, machine learning">
+
+
+
+
+
+
+
+
+
+
+<!-- Security: Content Security Policy -->
+<!-- Permissive CSP suitable for academic websites. Allows external images, videos, and common embed services. -->
+<!-- To customize for your needs, see: https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https:; style-src 'self' 'unsafe-inline' https:; img-src 'self' data: https:; font-src 'self' data: https:; media-src 'self' https:; frame-src 'self' https:; connect-src 'self' https:;">
+<style>
+  :root {
+    --max-content-width: 930px;
+  }
+</style>
+
+<!-- Tailwind-first core styles -->
+<link rel="stylesheet" href="/assets/css/tailwind.css?v=50c64c15cbb9fd1ce6056fdb8bcb4b62">
+
+
+
+
+
+
+
+<!-- Icons -->
+
+  
+<!-- Font Awesome -->
+<link defer rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.2.0/css/all.min.css" integrity="sha256-MVopmdyC2tYTiJ8wlktf0uh0v4NgT+vNdyVFepi7Q0c=" crossorigin="anonymous">
+
+<!-- Academicons -->
+<link defer rel="stylesheet" href="https://cdn.jsdelivr.net/npm/academicons@1.9.5/css/academicons.min.css" integrity="sha256-SzrCOBJbGVFMahewkgjwnApaV2+av1DwMAA+/QGLyZw=" crossorigin="anonymous">
+
+<!-- Scholar Icons -->
+<link defer rel="stylesheet" href="https://cdn.jsdelivr.net/npm/scholar-icons@1.0.3/css/scholar-icons.css" integrity="sha256-VY3hHVj/hNX3fYG6wtbA6TcKJQl7+FthzGSyIB64klY=" crossorigin="anonymous">
+
+
+
+<link defer rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Roboto+Slab:100,300,400,500,700|Material+Icons&amp;display=swap">
+
+<!-- Code Syntax Highlighting -->
+<link defer rel="stylesheet" href="/assets/css/jekyll-pygments-themes-github.css?v=591dab5a4e56573bf4ef7fd332894c99" media="" id="highlight_theme_light">
+
+<!-- Styles -->
+
+
+
+
+
+  <link rel="shortcut icon" href="data:image/svg+xml,&lt;svg%20xmlns=%22http://www.w3.org/2000/svg%22%20viewBox=%220%200%20100%20100%22&gt;&lt;text%20y=%22.9em%22%20font-size=%2290%22&gt;%F0%9F%8C%80&lt;/text&gt;&lt;/svg&gt;">
+
+
+
+
+<link rel="stylesheet" href="/assets/css/main.css?v=3116ba77db9ee1581d05bb3e86fbf7f1">
+
+<link rel="canonical" href="https://vdeborto.github.io/">
+
+
+  <!-- Dark Mode -->
+  <script src="/assets/js/theme.js?v=5286c3e4c334d0ecb8fc0c40ff4fa7ec"></script>
+  <link defer rel="stylesheet" href="/assets/css/jekyll-pygments-themes-native.css?v=5847e5ed4a4568527aa6cfab446049ca" media="none" id="highlight_theme_dark">
+  <script>
+    initTheme();
+  </script>
+
+
+
+
+
+
+
+  <!-- Image Features -->
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+  <!-- Right-to-left support -->
+  
+
+
+
+
+
+
+
+
+<!-- Custom typography and theme overrides -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,300;8..60,400;8..60,600&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<link rel="stylesheet" href="/assets/css/custom.css">
+
+  </head>
+
+  <!-- Body -->
+  <body class="fixed-top-nav sticky-bottom-footer">
+    <!-- Header -->
+    <header>
+  <!-- Nav Bar -->
+  <nav id="navbar" class="navbar navbar-light navbar-expand-sm fixed-top" role="navigation">
+    <div class="container">
+      
+      <!-- Navbar Toggle -->
+      <button class="navbar-toggler collapsed navbar-toggler-main" type="button" data-nav-toggle="navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar top-bar"></span>
+        <span class="icon-bar middle-bar"></span>
+        <span class="icon-bar bottom-bar"></span>
+      </button>
+
+      <div class="collapse navbar-collapse navbar-collapse-main" id="navbarNav">
+        <ul class="navbar-nav navbar-menu-list flex-nowrap">
+          
+
+          <!-- About -->
+          <li class="nav-item active">
+            <a class="nav-link" href="/">about
+              
+                <span class="sr-only">(current)</span>
+              
+            </a>
+          </li>
+
+          <!-- Other pages -->
+          
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+              
+                
+                <li class="nav-item ">
+                  <a class="nav-link" href="/publications/">publications
+                    
+                  </a>
+                </li>
+              
+            
+          
+            
+              
+                
+                <li class="nav-item ">
+                  <a class="nav-link" href="/teaching/">teaching
+                    
+                  </a>
+                </li>
+              
+            
+          
+          
+            <!-- Search -->
+            <li class="nav-item">
+              <button id="search-toggle" type="button" title="Search" aria-label="Open search">
+                <span class="nav-link">ctrl k <i class="fa-solid fa-magnifying-glass"></i></span>
+              </button>
+            </li>
+          
+          
+            <!-- Toogle theme mode -->
+            <li class="toggle-container">
+              <button id="light-toggle" type="button" title="Change theme" aria-label="Change color theme">
+                <i class="fa-half-sun-moon" id="light-toggle-system"></i>
+                <i class="fa-solid fa-moon" id="light-toggle-dark"></i>
+                <i class="fa-solid fa-sun" id="light-toggle-light"></i>
+              </button>
+            </li>
+          
+        </ul>
+      </div>
+    </div>
+  </nav>
+  
+    <!-- Scrolling Progress Bar -->
+    <progress id="progress" value="0">
+      <div class="progress-container">
+        <span class="progress-bar"></span>
+      </div>
+    </progress>
+  
+</header>
+
+
+    <!-- Content -->
+    <div class="container mt-5" role="main">
+      
+        <div class="post">
+  <header class="post-header">
+    <h1 class="post-title">
+      
+        <span class="font-weight-bold">Valentin</span> 
+        De Bortoli
+      
+    </h1>
+    <p class="desc"></p>
+  </header>
+
+  <article>
+    
+      <div class="profile float-right">
+        
+          
+          
+          
+          
+
+
+
+<figure>
+  <picture>
+    <!-- Auto scaling with imagemagick -->
+    <!--
+      See https://www.debugbear.com/blog/responsive-images#w-descriptors-and-the-sizes-attribute and
+      https://developer.mozilla.org/en-US/docs/Learn/HTML/Multimedia_and_embedding/Responsive_images for info on defining 'sizes' for responsive images
+    -->
+    
+      
+        <source class="responsive-img-srcset" srcset="/assets/img/prof_pic-480.webp 480w,/assets/img/prof_pic-800.webp 800w,/assets/img/prof_pic-1400.webp 1400w," type="image/webp" sizes="(min-width: 930px) 270.0px, (min-width: 576px)
+      30vw, 95vw">
+      
+    
+    <img src="/assets/img/prof_pic.jpg?v=4d421d000722c8af04903d4e83bbc5ae" class="img-fluid z-depth-1
+      rounded" width="100%" height="auto" alt="prof_pic.jpg" loading="eager" onerror="this.onerror=null; document.querySelectorAll('.responsive-img-srcset').forEach(function (n) { n.remove(); });">
+  </source></picture>
+
+  
+</figure>
+
+        
+        
+      </div>
+    
+
+    <div class="clearfix">
+<p>I do research at <a href="https://deepmind.google/" rel="external nofollow noopener" target="_blank">Google DeepMind</a> in London. I work on <strong>diffusion
+models</strong> — how to build them, how to sample from them efficiently, and why they work — and more
+broadly on sampling, optimal transport and Markov chain theory.</p>
+
+<h4 id="short-cv">Short CV</h4>
+
+<ul>
+  <li>
+<strong>2023 – now</strong> · Research Scientist, Google DeepMind</li>
+  <li>
+<strong>2022 – now</strong> · CNRS Researcher (on leave), ENS Ulm</li>
+  <li>
+<strong>2020 – 2022</strong> · Postdoctoral Researcher, University of Oxford</li>
+  <li>
+<strong>2017 – 2020</strong> · PhD, ENS Paris-Saclay</li>
+</ul>
+</div>
+
+    <!-- News -->
+    
+      <h2>
+        <a href="/news/" style="color: inherit">news</a>
+      </h2>
+      <div class="news">
+  
+    
+    <div class="table-responsive">
+      <table class="table table-sm table-borderless">
+        
+        
+        
+          <tr>
+            <th scope="row" style="width: 20%">Aug 01, 2026</th>
+            <td>
+              
+                The <a href="https://arxiv.org/abs/2608.00146" rel="external nofollow noopener" target="_blank">DiffusionGemma technical report</a> is out.
+
+              
+            </td>
+          </tr>
+        
+          <tr>
+            <th scope="row" style="width: 20%">Sep 20, 2025</th>
+            <td>
+              
+                Three papers accepted at NeurIPS 2025, on inference-time annealing, memorization in diffusion models,
+and proximal MCMC for non-log-concave sampling.
+
+              
+            </td>
+          </tr>
+        
+          <tr>
+            <th scope="row" style="width: 20%">May 01, 2025</th>
+            <td>
+              
+                <a href="https://arxiv.org/abs/2502.02483" rel="external nofollow noopener" target="_blank">Distributional Diffusion Models with Scoring Rules</a>
+accepted at ICML 2025.
+
+              
+            </td>
+          </tr>
+        
+      </table>
+    </div>
+  
+</div>
+
+    
+
+    <!-- Latest posts -->
+    
+
+    <!-- Selected papers -->
+    
+      <h2>
+        <a href="/publications/" style="color: inherit">selected publications</a>
+      </h2>
+      <div class="publications selected">
+  <ol class="bibliography">
+<li>
+<div class="pub" id="buchanan2025memorization">
+  <div class="pub-meta">NeurIPS<span class="pub-dot">·</span>2025</div>
+
+  <div class="pub-title">On the Edge of Memorization in Diffusion Models</div>
+
+  <div class="pub-authors">Sam Buchanan, Druv Pai, Yi-Ting Ma, <span class="pub-self">Valentin De Bortoli</span>
+</div>
+
+  
+
+  <p class="pub-summary">Studies where diffusion models stop generalising and start reproducing their training data, and what controls the boundary between the two.</p>
+
+  <div class="pub-links"><a href="https://arxiv.org/abs/2508.17689" rel="external nofollow noopener" target="_blank">arXiv</a></div>
+</div>
+</li>
+<li>
+<div class="pub" id="shi2023dsbm">
+  <div class="pub-meta">NeurIPS<span class="pub-dot">·</span>2023</div>
+
+  <div class="pub-title">Diffusion Schrödinger Bridge Matching</div>
+
+  <div class="pub-authors">Yuyang Shi, <span class="pub-self">Valentin De Bortoli</span>, Andrew Campbell, Arnaud Doucet</div>
+
+  
+
+  <p class="pub-summary">Reformulates the Schrodinger bridge as iterative Markovian fitting, removing the error that accumulated across outer iterations in earlier bridge solvers.</p>
+
+  <div class="pub-links"><a href="https://arxiv.org/abs/2303.16852" rel="external nofollow noopener" target="_blank">arXiv</a></div>
+</div>
+</li>
+<li>
+<div class="pub" id="yim2023se3">
+  <div class="pub-meta">ICML<span class="pub-dot">·</span>2023</div>
+
+  <div class="pub-title">SE(3) Diffusion Model with Application to Protein Backbone Generation</div>
+
+  <div class="pub-authors">Jason Yim, Brian L. Trippe, <span class="pub-self">Valentin De Bortoli</span>, Emile Mathieu, Arnaud Doucet, Regina Barzilay, Tommi Jaakkola</div>
+
+  
+
+  <p class="pub-summary">A diffusion model on SE(3) that generates protein backbones by denoising the rigid-body frame of each residue.</p>
+
+  <div class="pub-links"><a href="https://arxiv.org/abs/2302.02277" rel="external nofollow noopener" target="_blank">arXiv</a></div>
+</div>
+</li>
+<li>
+<div class="pub" id="debortoli2022manifold">
+  <div class="pub-meta">TMLR<span class="pub-dot">·</span>2022</div>
+
+  <div class="pub-title">Convergence of Denoising Diffusion Models under the Manifold Hypothesis</div>
+
+  <div class="pub-authors"><span class="pub-self">Valentin De Bortoli</span></div>
+
+  
+
+  <p class="pub-summary">Convergence guarantees for denoising diffusions when the data lies on a low-dimensional manifold - the regime where the score is unbounded and earlier analyses break down.</p>
+
+  <div class="pub-links"><a href="https://arxiv.org/abs/2208.05314" rel="external nofollow noopener" target="_blank">arXiv</a></div>
+</div>
+</li>
+<li>
+<div class="pub" id="debortoli2022riemannian">
+  <div class="pub-meta">NeurIPS<span class="pub-dot">·</span>2022</div>
+
+  <div class="pub-title">Riemannian Score-Based Generative Modelling</div>
+
+  <div class="pub-authors">
+<span class="pub-self">Valentin De Bortoli</span>, Emile Mathieu, Michael Hutchinson, James Thornton, Yee Whye Teh, Arnaud Doucet</div>
+
+  
+
+  <p class="pub-summary">Extends score-based generative models from Euclidean space to Riemannian manifolds, so data living on spheres, tori and other geometries is modelled in its own coordinates.</p>
+
+  <div class="pub-links"><a href="https://arxiv.org/abs/2202.02763" rel="external nofollow noopener" target="_blank">arXiv</a></div>
+</div>
+</li>
+<li>
+<div class="pub" id="debortoli2021dsb">
+  <div class="pub-meta">NeurIPS<span class="pub-dot">·</span>2021</div>
+
+  <div class="pub-title">Diffusion Schrödinger Bridge with Applications to Score-Based Generative Modeling</div>
+
+  <div class="pub-authors">
+<span class="pub-self">Valentin De Bortoli</span>, James Thornton, Jeremy Heng, Arnaud Doucet</div>
+
+  
+
+  <p class="pub-summary">Casts generative modelling as a Schrodinger bridge - an entropic optimal transport problem - and solves it by iterative proportional fitting on learned scores.</p>
+
+  <div class="pub-links"><a href="https://arxiv.org/abs/2106.01357" rel="external nofollow noopener" target="_blank">arXiv</a></div>
+</div>
+</li>
+</ol>
+</div>
+<p class="all-pubs"><a href="/publications/">All publications →</a></p>
+
+    
+
+    <!-- Social -->
+    
+      <div class="social">
+        <div class="contact-icons">
+<a href="/assets/pdf/cv.pdf" title="Cv pdf"><i class="ai ai-cv"></i></a> <a href="mailto:vdebortoli@google.com" title="Email"><i class="fa-solid fa-envelope"></i></a> <a href="https://github.com/vdeborto" title="Github username" rel="external nofollow noopener" target="_blank"><i class="fa-brands fa-github"></i></a> <a href="https://scholar.google.com/citations?user=dn_F9I4AAAAJ" title="Scholar userid" rel="external nofollow noopener" target="_blank"><i class="ai ai-google-scholar"></i></a> <a href="/feed.xml" title="Rss icon"><i class="fa-solid fa-square-rss"></i></a>
+</div>
+
+        <div class="contact-note">The fastest way to reach me is by email.
+</div>
+      </div>
+    
+
+    
+  </article>
+</div>
+
+      
+    </div>
+
+    <!-- Footer -->
+    
+
+
+  <footer class="sticky-bottom mt-5" role="contentinfo">
+    
+
+    <div class="container">
+      
+  © Copyright 2026
+  Valentin
+  
+  De Bortoli. Built with <a href="https://jekyllrb.com/" target="_blank" rel="external nofollow noopener">Jekyll</a> and the <a href="https://github.com/alshedivat/al-folio" rel="external nofollow noopener" target="_blank">al-folio</a> theme. Hosted on <a href="https://pages.github.com/" target="_blank" rel="external nofollow noopener">GitHub Pages</a>.
+
+  
+  
+    Last updated: September 03, 2026.
+  
+
+    </div>
+  </footer>
+
+
+
+    <!-- JavaScripts -->
+    <script>
+  window.alFolio = {
+    compatBootstrap: false
+  };
+</script>
+
+<!-- Core navigation/runtime scripts -->
+<script src="/assets/js/nav-toggle.js?v=141bd79a73ebc0f0b6ea58e440ae79fc"></script>
+
+
+
+  <!-- Masonry & imagesLoaded -->
+  <script defer src="https://cdn.jsdelivr.net/npm/masonry-layout@4.2.2/dist/masonry.pkgd.min.js" integrity="sha256-Nn1q/fx0H7SNLZMQ5Hw5JLaTRZp0yILA/FRexe19VdI=" crossorigin="anonymous"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/imagesloaded@5.0.0/imagesloaded.pkgd.min.js" integrity="sha256-htrLFfZJ6v5udOG+3kNLINIKh2gvoKqwEhHYfTTMICc=" crossorigin="anonymous"></script>
+  <script defer src="/assets/js/masonry.js?v=e49affc7bd2646f6acdad1dbe02c2359" type="text/javascript"></script>
+
+
+
+  <!-- Charts and Diagrams -->
+  
+
+
+
+
+
+
+
+  <!-- Math and Tikzjax -->
+  
+<script defer type="text/javascript" id="MathJax-script" src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-mml-chtml.js" integrity="sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI=" crossorigin="anonymous"></script>
+<script src="/assets/al_math/js/mathjax-setup.js"></script>
+
+
+
+
+
+<!-- Tooltips & popovers runtime -->
+<script src="/assets/js/tooltips-setup.js?v=fe487e99db6c43751e6e7bdb2d6a0611"></script>
+
+
+
+
+
+
+<!-- Load Common JS -->
+<script src="/assets/js/no_defer.js?v=53b1b1a645525975c963ce8bf8bfefcf"></script>
+<script defer src="/assets/js/common.js?v=87baac90f765f2f3362dcf6aaf312a8a"></script>
+<script defer src="/assets/js/copy_code.js?v=c8a01c11a92744d44b093fc3bda915df" type="text/javascript"></script>
+
+<!-- Jupyter Open External Links New Tab -->
+<script defer src="/assets/js/jupyter_new_tab.js?v=896d254890d9b47f0281f63bfccf0dee"></script>
+
+<!-- Badges -->
+
+  <script async src="https://d1bxh8uas1mnw7.cloudfront.net/assets/embed.js"></script>
+
+
+  <script async src="https://badge.dimensions.ai/badge.js"></script>
+
+
+
+
+  <!-- Analytics -->
+  
+
+
+
+
+
+  <!-- Image Features -->
+  
+<!-- Medium Zoom JS -->
+<script defer src="https://cdn.jsdelivr.net/npm/medium-zoom@1.1.0/dist/medium-zoom.min.js" integrity="sha256-ZgMyDAIYDYGxbcpJcfUnYwNevG/xi9OHKaR/8GK+jWc=" crossorigin="anonymous"></script>
+<script defer src="/assets/al_img_tools/js/zoom.js"></script>
+
+
+
+
+
+  <!-- Scrolling Progress Bar -->
+  <script defer src="/assets/js/progress-bar.js?v=499464c5c63ced6cf7ad62509f1e2610" type="text/javascript"></script>
+
+
+
+
+
+  <!-- Back to Top -->
+  
+  
+  
+    <script src="https://cdn.jsdelivr.net/npm/vanilla-back-to-top@7.2.1/dist/vanilla-back-to-top.min.js" integrity="sha256-uMJJ3EoTyfRBoTbR+lrfu1uRQ87RZG8AR3cVNuQVeFg=" crossorigin="anonymous"></script>
+  
+  <script>
+    addBackToTop();
+  </script>
+
+
+
+  <!-- Search -->
+  
+    
+<script type="module" src="/assets/al_search/js/search/ninja-keys.min.js"></script>
+<ninja-keys hidebreadcrumbs noautoloadmdicons placeholder="Type to start searching"></ninja-keys>
+<script src="/assets/al_search/js/search-setup.js"></script>
+<script>
+// get the ninja-keys element
+const ninja = document.querySelector('ninja-keys');
+
+// add the home and posts menu items
+ninja.data = [{
+    id: "nav-about",
+    title: "about",
+    section: "Navigation",
+    handler: () => {
+      window.location.href = "/";
+    },
+  },{id: "nav-publications",
+          title: "publications",
+          description: "Everything, newest first. Use the filter to search titles, authors and venues.",
+          section: "Navigation",
+          handler: () => {
+            window.location.href = "/publications/";
+          },
+        },{id: "nav-teaching",
+          title: "teaching",
+          description: "Course materials from teaching in Paris, 2015–2018.",
+          section: "Navigation",
+          handler: () => {
+            window.location.href = "/teaching/";
+          },
+        },{id: "news-distributional-diffusion-models-with-scoring-rules-accepted-at-icml-2025",
+          title: 'Distributional Diffusion Models with Scoring Rules accepted at ICML 2025.',
+          description: "",
+          section: "News",},{id: "news-three-papers-accepted-at-neurips-2025-on-inference-time-annealing-memorization-in-diffusion-models-and-proximal-mcmc-for-non-log-concave-sampling",
+          title: 'Three papers accepted at NeurIPS 2025, on inference-time annealing, memorization in diffusion models,...',
+          description: "",
+          section: "News",},{id: "news-the-diffusiongemma-technical-report-is-out",
+          title: 'The DiffusionGemma technical report is out.',
+          description: "",
+          section: "News",},{
+        id: 'social-cv',
+        title: 'CV',
+        section: 'Socials',
+        handler: () => {
+          window.open("/assets/pdf/cv.pdf", "_blank");
+        },
+      },{
+        id: 'social-email',
+        title: 'email',
+        section: 'Socials',
+        handler: () => {
+          window.open("mailto:%76%64%65%62%6F%72%74%6F%6C%69@%67%6F%6F%67%6C%65.%63%6F%6D", "_blank");
+        },
+      },{
+        id: 'social-github',
+        title: 'GitHub',
+        section: 'Socials',
+        handler: () => {
+          window.open("https://github.com/vdeborto", "_blank");
+        },
+      },{
+        id: 'social-scholar',
+        title: 'Google Scholar',
+        section: 'Socials',
+        handler: () => {
+          window.open("https://scholar.google.com/citations?user=dn_F9I4AAAAJ", "_blank");
+        },
+      },{
+        id: 'social-rss',
+        title: 'RSS Feed',
+        section: 'Socials',
+        handler: () => {
+          window.open("/feed.xml", "_blank");
+        },
+      },{
+      id: 'light-theme',
+      title: 'Change theme to light',
+      description: 'Change the theme of the site to Light',
+      section: 'Theme',
+      handler: () => {
+        setThemeSetting("light");
+      },
+    },
+    {
+      id: 'dark-theme',
+      title: 'Change theme to dark',
+      description: 'Change the theme of the site to Dark',
+      section: 'Theme',
+      handler: () => {
+        setThemeSetting("dark");
+      },
+    },
+    {
+      id: 'system-theme',
+      title: 'Use system default theme',
+      description: 'Change the theme of the site to System Default',
+      section: 'Theme',
+      handler: () => {
+        setThemeSetting("system");
+      },
+    },];
+
+</script>
+<script src="/assets/al_search/js/shortcut-key.js"></script>
+
+
+  
+
+
+
+
+
+
+
+
+  </body>
+</html>

@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html lang="en">
+  <!-- Head -->
+  <head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <!-- Metadata, OpenGraph and Schema.org -->
+
+
+
+
+<!-- Standard metadata -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<title>
+  
+  
+    
+      teaching | Valentin De Bortoli
+    
+  
+</title>
+<meta name="author" content="Valentin De Bortoli">
+<meta name="description" content="Course materials from teaching in Paris, 2015–2018.">
+
+  <meta name="keywords" content="diffusion models, generative modelling, optimal transport, Schrodinger bridge, sampling, Markov chain Monte Carlo, machine learning">
+
+
+
+
+
+
+
+
+
+
+<!-- Security: Content Security Policy -->
+<!-- Permissive CSP suitable for academic websites. Allows external images, videos, and common embed services. -->
+<!-- To customize for your needs, see: https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https:; style-src 'self' 'unsafe-inline' https:; img-src 'self' data: https:; font-src 'self' data: https:; media-src 'self' https:; frame-src 'self' https:; connect-src 'self' https:;">
+<style>
+  :root {
+    --max-content-width: 930px;
+  }
+</style>
+
+<!-- Tailwind-first core styles -->
+<link rel="stylesheet" href="/assets/css/tailwind.css?v=50c64c15cbb9fd1ce6056fdb8bcb4b62">
+
+
+
+
+
+
+
+<!-- Icons -->
+
+  
+<!-- Font Awesome -->
+<link defer rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.2.0/css/all.min.css" integrity="sha256-MVopmdyC2tYTiJ8wlktf0uh0v4NgT+vNdyVFepi7Q0c=" crossorigin="anonymous">
+
+<!-- Academicons -->
+<link defer rel="stylesheet" href="https://cdn.jsdelivr.net/npm/academicons@1.9.5/css/academicons.min.css" integrity="sha256-SzrCOBJbGVFMahewkgjwnApaV2+av1DwMAA+/QGLyZw=" crossorigin="anonymous">
+
+<!-- Scholar Icons -->
+<link defer rel="stylesheet" href="https://cdn.jsdelivr.net/npm/scholar-icons@1.0.3/css/scholar-icons.css" integrity="sha256-VY3hHVj/hNX3fYG6wtbA6TcKJQl7+FthzGSyIB64klY=" crossorigin="anonymous">
+
+
+
+<link defer rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Roboto+Slab:100,300,400,500,700|Material+Icons&amp;display=swap">
+
+<!-- Code Syntax Highlighting -->
+<link defer rel="stylesheet" href="/assets/css/jekyll-pygments-themes-github.css?v=591dab5a4e56573bf4ef7fd332894c99" media="" id="highlight_theme_light">
+
+<!-- Styles -->
+
+
+
+
+
+  <link rel="shortcut icon" href="data:image/svg+xml,&lt;svg%20xmlns=%22http://www.w3.org/2000/svg%22%20viewBox=%220%200%20100%20100%22&gt;&lt;text%20y=%22.9em%22%20font-size=%2290%22&gt;%F0%9F%8C%80&lt;/text&gt;&lt;/svg&gt;">
+
+
+
+
+<link rel="stylesheet" href="/assets/css/main.css?v=3116ba77db9ee1581d05bb3e86fbf7f1">
+
+<link rel="canonical" href="https://vdeborto.github.io/teaching/">
+
+
+  <!-- Dark Mode -->
+  <script src="/assets/js/theme.js?v=5286c3e4c334d0ecb8fc0c40ff4fa7ec"></script>
+  <link defer rel="stylesheet" href="/assets/css/jekyll-pygments-themes-native.css?v=5847e5ed4a4568527aa6cfab446049ca" media="none" id="highlight_theme_dark">
+  <script>
+    initTheme();
+  </script>
+
+
+
+
+
+
+
+  <!-- Image Features -->
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+  <!-- Right-to-left support -->
+  
+
+
+
+
+
+
+
+
+<!-- Custom typography and theme overrides -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,300;8..60,400;8..60,600&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<link rel="stylesheet" href="/assets/css/custom.css">
+
+  </head>
+
+  <!-- Body -->
+  <body class="fixed-top-nav sticky-bottom-footer">
+    <!-- Header -->
+    <header>
+  <!-- Nav Bar -->
+  <nav id="navbar" class="navbar navbar-light navbar-expand-sm fixed-top" role="navigation">
+    <div class="container">
+      
+        <a class="navbar-brand title font-weight-lighter" href="/">
+          
+            
+              <span class="font-weight-bold">Valentin</span>
+            
+            
+            De Bortoli
+          
+        </a>
+      
+      <!-- Navbar Toggle -->
+      <button class="navbar-toggler collapsed navbar-toggler-main" type="button" data-nav-toggle="navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar top-bar"></span>
+        <span class="icon-bar middle-bar"></span>
+        <span class="icon-bar bottom-bar"></span>
+      </button>
+
+      <div class="collapse navbar-collapse navbar-collapse-main" id="navbarNav">
+        <ul class="navbar-nav navbar-menu-list flex-nowrap">
+          
+
+          <!-- About -->
+          <li class="nav-item ">
+            <a class="nav-link" href="/">about
+              
+            </a>
+          </li>
+
+          <!-- Other pages -->
+          
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+              
+                
+                <li class="nav-item ">
+                  <a class="nav-link" href="/publications/">publications
+                    
+                  </a>
+                </li>
+              
+            
+          
+            
+              
+                
+                <li class="nav-item active">
+                  <a class="nav-link" href="/teaching/">teaching
+                    
+                      <span class="sr-only">(current)</span>
+                    
+                  </a>
+                </li>
+              
+            
+          
+          
+            <!-- Search -->
+            <li class="nav-item">
+              <button id="search-toggle" type="button" title="Search" aria-label="Open search">
+                <span class="nav-link">ctrl k <i class="fa-solid fa-magnifying-glass"></i></span>
+              </button>
+            </li>
+          
+          
+            <!-- Toogle theme mode -->
+            <li class="toggle-container">
+              <button id="light-toggle" type="button" title="Change theme" aria-label="Change color theme">
+                <i class="fa-half-sun-moon" id="light-toggle-system"></i>
+                <i class="fa-solid fa-moon" id="light-toggle-dark"></i>
+                <i class="fa-solid fa-sun" id="light-toggle-light"></i>
+              </button>
+            </li>
+          
+        </ul>
+      </div>
+    </div>
+  </nav>
+  
+    <!-- Scrolling Progress Bar -->
+    <progress id="progress" value="0">
+      <div class="progress-container">
+        <span class="progress-bar"></span>
+      </div>
+    </progress>
+  
+</header>
+
+
+    <!-- Content -->
+    <div class="container mt-5" role="main">
+      
+        
+
+<div class="post">
+  <header class="post-header">
+    <h1 class="post-title">teaching</h1>
+    <p class="post-description">Course materials from teaching in Paris, 2015–2018.</p>
+  </header>
+
+  <article>
+    <p>Most of it in French.</p>
+
+<h2 id="optimisation">Optimisation</h2>
+
+<p>Exercise sheets and computational labs for an undergraduate course in numerical optimisation.</p>
+
+<details>
+  <summary>20 files</summary>
+
+  <p><strong>cours_optim/TP/tp1</strong></p>
+
+  <ul>
+    <li><a href="/teaching/optimization/cours_optim/TP/tp1/tp1_2017.pdf">tp1_2017.pdf</a></li>
+  </ul>
+
+  <p><strong>cours_optim/TP/tp1_2016</strong></p>
+
+  <ul>
+    <li><a href="/teaching/optimization/cours_optim/TP/tp1_2016/TP1.pdf">TP1.pdf</a></li>
+  </ul>
+
+  <p><strong>cours_optim/TP/tp2_17-18</strong></p>
+
+  <ul>
+    <li><a href="/teaching/optimization/cours_optim/TP/tp2_17-18/tp1_2017.pdf">tp1_2017.pdf</a></li>
+    <li><a href="/teaching/optimization/cours_optim/TP/tp2_17-18/tp2_2017.pdf">tp2_2017.pdf</a></li>
+    <li><a href="/teaching/optimization/cours_optim/TP/tp2_17-18/tp_test.pdf">tp_test.pdf</a></li>
+  </ul>
+
+  <p><strong>optim_tp/tp1</strong></p>
+
+  <ul>
+    <li><a href="/teaching/optimization/optim_tp/tp1/main_tp1.pdf">main_tp1.pdf</a></li>
+    <li><a href="/teaching/optimization/optim_tp/tp1/tp1_2017.pdf">tp1_2017.pdf</a></li>
+  </ul>
+
+  <p><strong>optim_tp/tp1_2016</strong></p>
+
+  <ul>
+    <li><a href="/teaching/optimization/optim_tp/tp1_2016/TP1.pdf">TP1.pdf</a></li>
+  </ul>
+
+  <p><strong>tds/td10_2016</strong></p>
+
+  <ul>
+    <li><a href="/teaching/optimization/tds/td10_2016/td10.pdf">td10.pdf</a></li>
+  </ul>
+
+  <p><strong>tds/td1_2016</strong></p>
+
+  <ul>
+    <li><a href="/teaching/optimization/tds/td1_2016/td1.pdf">td1.pdf</a></li>
+  </ul>
+
+  <p><strong>tds/td2_2016</strong></p>
+
+  <ul>
+    <li><a href="/teaching/optimization/tds/td2_2016/td2.pdf">td2.pdf</a></li>
+  </ul>
+
+  <p><strong>tds/td3_2016</strong></p>
+
+  <ul>
+    <li><a href="/teaching/optimization/tds/td3_2016/td4.pdf">td4.pdf</a></li>
+  </ul>
+
+  <p><strong>tds/td4_2016</strong></p>
+
+  <ul>
+    <li><a href="/teaching/optimization/tds/td4_2016/td5.pdf">td5.pdf</a></li>
+  </ul>
+
+  <p><strong>tds/td5_2016</strong></p>
+
+  <ul>
+    <li><a href="/teaching/optimization/tds/td5_2016/td6.pdf">td6.pdf</a></li>
+  </ul>
+
+  <p><strong>tds/td6_2016</strong></p>
+
+  <ul>
+    <li><a href="/teaching/optimization/tds/td6_2016/td6.pdf">td6.pdf</a></li>
+  </ul>
+
+  <p><strong>tds/td7_2016</strong></p>
+
+  <ul>
+    <li><a href="/teaching/optimization/tds/td7_2016/td6.pdf">td6.pdf</a></li>
+  </ul>
+
+  <p><strong>tds/td8_2016</strong></p>
+
+  <ul>
+    <li><a href="/teaching/optimization/tds/td8_2016/td7.pdf">td7.pdf</a></li>
+  </ul>
+
+  <p><strong>tds/td9_2016</strong></p>
+
+  <ul>
+    <li><a href="/teaching/optimization/tds/td9_2016/td8.pdf">td8.pdf</a></li>
+  </ul>
+
+  <p><strong>tps</strong></p>
+
+  <ul>
+    <li><a href="/teaching/optimization/tps/TP_Optim_2015_1.pdf">TP_Optim_2015_1.pdf</a></li>
+    <li><a href="/teaching/optimization/tps/TP_Optim_2016_2.pdf">TP_Optim_2016_2.pdf</a></li>
+  </ul>
+
+</details>
+
+<h2 id="calcul-différentiel-l3">Calcul différentiel (L3)</h2>
+
+<p>Third-year differential calculus: differentiability, inverse and implicit function theorems, submanifolds, constrained optimisation, differential equations.</p>
+
+<details>
+  <summary>54 files</summary>
+
+  <p><strong>Equa_diff_06_01_16</strong></p>
+
+  <ul>
+    <li><a href="/teaching/differential_calculus_L3/Equa_diff_06_01_16/TD9.pdf">TD9.pdf</a></li>
+  </ul>
+
+  <p><strong>Optimisation_16_12_15</strong></p>
+
+  <ul>
+    <li><a href="/teaching/differential_calculus_L3/Optimisation_16_12_15/TD8.pdf">TD8.pdf</a></li>
+  </ul>
+
+  <p><strong>TIL_TFI_04_11_15</strong></p>
+
+  <ul>
+    <li><a href="/teaching/differential_calculus_L3/TIL_TFI_04_11_15/TD4.pdf">TD4.pdf</a></li>
+  </ul>
+
+  <p><strong>TIL_TFI_25_11_15</strong></p>
+
+  <ul>
+    <li><a href="/teaching/differential_calculus_L3/TIL_TFI_25_11_15/TD5.pdf">TD5.pdf</a></li>
+  </ul>
+
+  <p><strong>Varietes_02_12_15</strong></p>
+
+  <ul>
+    <li><a href="/teaching/differential_calculus_L3/Varietes_02_12_15/TD6.pdf">TD6.pdf</a></li>
+    <li><a href="/teaching/differential_calculus_L3/Varietes_02_12_15/TD6_1.pdf">TD6_1.pdf</a></li>
+  </ul>
+
+  <p><strong>Varietes_09_12_15</strong></p>
+
+  <ul>
+    <li><a href="/teaching/differential_calculus_L3/Varietes_09_12_15/TD7.pdf">TD7.pdf</a></li>
+  </ul>
+
+  <p><strong>Varietes_16_12_15</strong></p>
+
+  <ul>
+    <li><a href="/teaching/differential_calculus_L3/Varietes_16_12_15/TD7bis.pdf">TD7bis.pdf</a></li>
+    <li><a href="/teaching/differential_calculus_L3/accroissements_finis.pdf">accroissements_finis.pdf</a></li>
+    <li><a href="/teaching/differential_calculus_L3/correction_partiel.pdf">correction_partiel.pdf</a></li>
+    <li><a href="/teaching/differential_calculus_L3/exo_supp.pdf">exo_supp.pdf</a></li>
+    <li><a href="/teaching/differential_calculus_L3/partiel_1920.pdf">partiel_1920.pdf</a></li>
+  </ul>
+
+  <p><strong>differentiabilite_14_10_15</strong></p>
+
+  <ul>
+    <li><a href="/teaching/differential_calculus_L3/differentiabilite_14_10_15/L%28EF%29complet.pdf">L(EF)complet.pdf</a></li>
+    <li><a href="/teaching/differential_calculus_L3/differentiabilite_14_10_15/TD2.pdf">TD2.pdf</a></li>
+  </ul>
+
+  <p><strong>differentiabilite_21_10_15</strong></p>
+
+  <ul>
+    <li><a href="/teaching/differential_calculus_L3/differentiabilite_21_10_15/TD3.pdf">TD3.pdf</a></li>
+  </ul>
+
+  <p><strong>differentiabilité_reprise_des prec_03_11_14</strong></p>
+
+  <ul>
+    <li><a href="/teaching/differential_calculus_L3/differentiabilit%C3%A9_reprise_des%20prec_03_11_14/reprise_des_prec.pdf">reprise_des_prec.pdf</a></li>
+  </ul>
+
+  <p><strong>dossierTD/Equa_diff_06_01_16</strong></p>
+
+  <ul>
+    <li><a href="/teaching/differential_calculus_L3/dossierTD/Equa_diff_06_01_16/TD9.pdf">TD9.pdf</a></li>
+  </ul>
+
+  <p><strong>dossierTD/Optimisation_16_12_15</strong></p>
+
+  <ul>
+    <li><a href="/teaching/differential_calculus_L3/dossierTD/Optimisation_16_12_15/TD14.pdf">TD14.pdf</a></li>
+    <li><a href="/teaching/differential_calculus_L3/dossierTD/Optimisation_16_12_15/TD15.pdf">TD15.pdf</a></li>
+    <li><a href="/teaching/differential_calculus_L3/dossierTD/Optimisation_16_12_15/TD8.pdf">TD8.pdf</a></li>
+  </ul>
+
+  <p><strong>dossierTD/TIL_TFI_04_11_15</strong></p>
+
+  <ul>
+    <li><a href="/teaching/differential_calculus_L3/dossierTD/TIL_TFI_04_11_15/TD4.pdf">TD4.pdf</a></li>
+  </ul>
+
+  <p><strong>dossierTD/TIL_TFI_25_11_15</strong></p>
+
+  <ul>
+    <li><a href="/teaching/differential_calculus_L3/dossierTD/TIL_TFI_25_11_15/TD5.pdf">TD5.pdf</a></li>
+  </ul>
+
+  <p><strong>dossierTD/TIL_TFI_extra</strong></p>
+
+  <ul>
+    <li><a href="/teaching/differential_calculus_L3/dossierTD/TIL_TFI_extra/Exemples.pdf">Exemples.pdf</a></li>
+    <li><a href="/teaching/differential_calculus_L3/dossierTD/TIL_TFI_extra/TD_TIL_TFI_extra.pdf">TD_TIL_TFI_extra.pdf</a></li>
+    <li><a href="/teaching/differential_calculus_L3/dossierTD/TIL_TFI_extra/exemple_sol.pdf">exemple_sol.pdf</a></li>
+  </ul>
+
+  <p><strong>dossierTD/Varietes_02_12_15</strong></p>
+
+  <ul>
+    <li><a href="/teaching/differential_calculus_L3/dossierTD/Varietes_02_12_15/TD6.pdf">TD6.pdf</a></li>
+    <li><a href="/teaching/differential_calculus_L3/dossierTD/Varietes_02_12_15/TD6_1.pdf">TD6_1.pdf</a></li>
+  </ul>
+
+  <p><strong>dossierTD/Varietes_09_12_15</strong></p>
+
+  <ul>
+    <li><a href="/teaching/differential_calculus_L3/dossierTD/Varietes_09_12_15/TD7.pdf">TD7.pdf</a></li>
+  </ul>
+
+  <p><strong>dossierTD/Varietes_16_12_15</strong></p>
+
+  <ul>
+    <li><a href="/teaching/differential_calculus_L3/dossierTD/Varietes_16_12_15/TD7bis.pdf">TD7bis.pdf</a></li>
+  </ul>
+
+  <p><strong>dossierTD/differentiabilite_14_10_15</strong></p>
+
+  <ul>
+    <li><a href="/teaching/differential_calculus_L3/dossierTD/differentiabilite_14_10_15/L%28EF%29complet.pdf">L(EF)complet.pdf</a></li>
+    <li><a href="/teaching/differential_calculus_L3/dossierTD/differentiabilite_14_10_15/TD2.pdf">TD2.pdf</a></li>
+  </ul>
+
+  <p><strong>dossierTD/differentiabilite_21_10_15</strong></p>
+
+  <ul>
+    <li><a href="/teaching/differential_calculus_L3/dossierTD/differentiabilite_21_10_15/TD3.pdf">TD3.pdf</a></li>
+  </ul>
+
+  <p><strong>dossierTD/differentiabilité_reprise_des prec_03_11_14</strong></p>
+
+  <ul>
+    <li><a href="/teaching/differential_calculus_L3/dossierTD/differentiabilit%C3%A9_reprise_des%20prec_03_11_14/reprise_des_prec.pdf">reprise_des_prec.pdf</a></li>
+  </ul>
+
+  <p><strong>dossierTD/point_fixe_07_10_15</strong></p>
+
+  <ul>
+    <li><a href="/teaching/differential_calculus_L3/dossierTD/point_fixe_07_10_15/TD1.pdf">TD1.pdf</a></li>
+  </ul>
+
+  <p><strong>dossierTD/prelim</strong></p>
+
+  <ul>
+    <li><a href="/teaching/differential_calculus_L3/dossierTD/prelim/Feuille01.pdf">Feuille01.pdf</a></li>
+    <li><a href="/teaching/differential_calculus_L3/dossierTD/prelim/Feuille02.pdf">Feuille02.pdf</a></li>
+    <li><a href="/teaching/differential_calculus_L3/dossierTD/prelim/feuille03.pdf">feuille03.pdf</a></li>
+  </ul>
+
+  <p><strong>dossierTD</strong></p>
+
+  <ul>
+    <li><a href="/teaching/differential_calculus_L3/dossierTD/td-point-fixe.pdf">td-point-fixe.pdf</a></li>
+  </ul>
+
+  <p><strong>exos</strong></p>
+
+  <ul>
+    <li><a href="/teaching/differential_calculus_L3/exos/DM1.pdf">DM1.pdf</a></li>
+    <li><a href="/teaching/differential_calculus_L3/exos/Feuille01.pdf">Feuille01.pdf</a></li>
+    <li><a href="/teaching/differential_calculus_L3/exos/Feuille02.pdf">Feuille02.pdf</a></li>
+    <li><a href="/teaching/differential_calculus_L3/exos/Feuille03.pdf">Feuille03.pdf</a></li>
+    <li><a href="/teaching/differential_calculus_L3/exos/Feuille11.pdf">Feuille11.pdf</a></li>
+    <li><a href="/teaching/differential_calculus_L3/exos/Feuille21.pdf">Feuille21.pdf</a></li>
+    <li><a href="/teaching/differential_calculus_L3/exos/Feuille22.pdf">Feuille22.pdf</a></li>
+    <li><a href="/teaching/differential_calculus_L3/exos/Feuille31.pdf">Feuille31.pdf</a></li>
+    <li><a href="/teaching/differential_calculus_L3/exos/Feuille32.pdf">Feuille32.pdf</a></li>
+    <li><a href="/teaching/differential_calculus_L3/exos/Feuille41.pdf">Feuille41.pdf</a></li>
+    <li><a href="/teaching/differential_calculus_L3/exos/Feuille42.pdf">Feuille42.pdf</a></li>
+    <li><a href="/teaching/differential_calculus_L3/exos/Feuille51.pdf">Feuille51.pdf</a></li>
+    <li><a href="/teaching/differential_calculus_L3/exos/Feuille61.pdf">Feuille61.pdf</a></li>
+  </ul>
+
+  <p><strong>point_fixe_07_10_15</strong></p>
+
+  <ul>
+    <li><a href="/teaching/differential_calculus_L3/point_fixe_07_10_15/TD1.pdf">TD1.pdf</a></li>
+  </ul>
+
+  <p><strong>prelim</strong></p>
+
+  <ul>
+    <li><a href="/teaching/differential_calculus_L3/prelim/Feuille02.pdf">Feuille02.pdf</a></li>
+    <li><a href="/teaching/differential_calculus_L3/prelim/feuille03.pdf">feuille03.pdf</a></li>
+  </ul>
+
+</details>
+
+<h2 id="analyse-hilbertienne">Analyse hilbertienne</h2>
+
+<p>Hilbert space analysis, with companion sheets in algebra and analysis.</p>
+
+<details>
+  <summary>16 files</summary>
+
+  <ul>
+    <li><a href="/teaching/hilbert_analysis/Analyse_hilbertienne.pdf">Analyse_hilbertienne.pdf</a></li>
+    <li><a href="/teaching/hilbert_analysis/conditional_expectation.pdf">conditional_expectation.pdf</a></li>
+  </ul>
+
+  <p><strong>algebre</strong></p>
+
+  <ul>
+    <li><a href="/teaching/hilbert_analysis/algebre/102_gr_nb_complexes_module_un.pdf">102_gr_nb_complexes_module_un.pdf</a></li>
+    <li><a href="/teaching/hilbert_analysis/algebre/102_gr_nb_complexes_module_un_2.pdf">102_gr_nb_complexes_module_un_2.pdf</a></li>
+    <li><a href="/teaching/hilbert_analysis/algebre/123_corps_finis.pdf">123_corps_finis.pdf</a></li>
+    <li><a href="/teaching/hilbert_analysis/algebre/126_equations_diophantiennes.pdf">126_equations_diophantiennes.pdf</a></li>
+    <li><a href="/teaching/hilbert_analysis/algebre/141_polynomes_irreductibles.pdf">141_polynomes_irreductibles.pdf</a></li>
+    <li><a href="/teaching/hilbert_analysis/algebre/157_endomorphismes_trigonalisables_nilpotents.pdf">157_endomorphismes_trigonalisables_nilpotents.pdf</a></li>
+    <li><a href="/teaching/hilbert_analysis/algebre/158_matrices_symetriques_hermitiennes.pdf">158_matrices_symetriques_hermitiennes.pdf</a></li>
+    <li><a href="/teaching/hilbert_analysis/algebre/158_matrices_symetriques_hermitiennes_2.pdf">158_matrices_symetriques_hermitiennes_2.pdf</a></li>
+  </ul>
+
+  <p><strong>analyse</strong></p>
+
+  <ul>
+    <li><a href="/teaching/hilbert_analysis/analyse/203_compacite.pdf">203_compacite.pdf</a></li>
+    <li><a href="/teaching/hilbert_analysis/analyse/223_suites_numeriques.pdf">223_suites_numeriques.pdf</a></li>
+    <li><a href="/teaching/hilbert_analysis/analyse/223_suites_numeriques_2.pdf">223_suites_numeriques_2.pdf</a></li>
+    <li><a href="/teaching/hilbert_analysis/analyse/228_continuite_derivabilite.pdf">228_continuite_derivabilite.pdf</a></li>
+    <li><a href="/teaching/hilbert_analysis/analyse/235_interversion_limite_integrale.pdf">235_interversion_limite_integrale.pdf</a></li>
+    <li><a href="/teaching/hilbert_analysis/analyse/246_series_de_fourier.pdf">246_series_de_fourier.pdf</a></li>
+  </ul>
+
+</details>
+
+<h2 id="analyse-de-fourier">Analyse de Fourier</h2>
+
+<p>Fourier analysis course notes.</p>
+
+<details>
+  <summary>1 file</summary>
+
+  <ul>
+    <li><a href="/teaching/fourier_analysis/fourier.pdf">fourier.pdf</a></li>
+  </ul>
+
+</details>
+
+
+  </article>
+
+  
+
+  
+    
+
+
+  
+</div>
+
+      
+    </div>
+
+    <!-- Footer -->
+    
+
+
+  <footer class="sticky-bottom mt-5" role="contentinfo">
+    
+
+    <div class="container">
+      
+  © Copyright 2026
+  Valentin
+  
+  De Bortoli. Built with <a href="https://jekyllrb.com/" target="_blank" rel="external nofollow noopener">Jekyll</a> and the <a href="https://github.com/alshedivat/al-folio" rel="external nofollow noopener" target="_blank">al-folio</a> theme. Hosted on <a href="https://pages.github.com/" target="_blank" rel="external nofollow noopener">GitHub Pages</a>.
+
+  
+  
+    Last updated: September 03, 2026.
+  
+
+    </div>
+  </footer>
+
+
+
+    <!-- JavaScripts -->
+    <script>
+  window.alFolio = {
+    compatBootstrap: false
+  };
+</script>
+
+<!-- Core navigation/runtime scripts -->
+<script src="/assets/js/nav-toggle.js?v=141bd79a73ebc0f0b6ea58e440ae79fc"></script>
+
+
+
+  <!-- Masonry & imagesLoaded -->
+  <script defer src="https://cdn.jsdelivr.net/npm/masonry-layout@4.2.2/dist/masonry.pkgd.min.js" integrity="sha256-Nn1q/fx0H7SNLZMQ5Hw5JLaTRZp0yILA/FRexe19VdI=" crossorigin="anonymous"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/imagesloaded@5.0.0/imagesloaded.pkgd.min.js" integrity="sha256-htrLFfZJ6v5udOG+3kNLINIKh2gvoKqwEhHYfTTMICc=" crossorigin="anonymous"></script>
+  <script defer src="/assets/js/masonry.js?v=e49affc7bd2646f6acdad1dbe02c2359" type="text/javascript"></script>
+
+
+
+  <!-- Charts and Diagrams -->
+  
+
+
+
+
+
+
+
+  <!-- Math and Tikzjax -->
+  
+<script defer type="text/javascript" id="MathJax-script" src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-mml-chtml.js" integrity="sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI=" crossorigin="anonymous"></script>
+<script src="/assets/al_math/js/mathjax-setup.js"></script>
+
+
+
+
+
+<!-- Tooltips & popovers runtime -->
+<script src="/assets/js/tooltips-setup.js?v=fe487e99db6c43751e6e7bdb2d6a0611"></script>
+
+
+
+
+
+
+<!-- Load Common JS -->
+<script src="/assets/js/no_defer.js?v=53b1b1a645525975c963ce8bf8bfefcf"></script>
+<script defer src="/assets/js/common.js?v=87baac90f765f2f3362dcf6aaf312a8a"></script>
+<script defer src="/assets/js/copy_code.js?v=c8a01c11a92744d44b093fc3bda915df" type="text/javascript"></script>
+
+<!-- Jupyter Open External Links New Tab -->
+<script defer src="/assets/js/jupyter_new_tab.js?v=896d254890d9b47f0281f63bfccf0dee"></script>
+
+<!-- Badges -->
+
+  <script async src="https://d1bxh8uas1mnw7.cloudfront.net/assets/embed.js"></script>
+
+
+  <script async src="https://badge.dimensions.ai/badge.js"></script>
+
+
+
+
+  <!-- Analytics -->
+  
+
+
+
+
+
+  <!-- Image Features -->
+  
+<!-- Medium Zoom JS -->
+<script defer src="https://cdn.jsdelivr.net/npm/medium-zoom@1.1.0/dist/medium-zoom.min.js" integrity="sha256-ZgMyDAIYDYGxbcpJcfUnYwNevG/xi9OHKaR/8GK+jWc=" crossorigin="anonymous"></script>
+<script defer src="/assets/al_img_tools/js/zoom.js"></script>
+
+
+
+
+
+  <!-- Scrolling Progress Bar -->
+  <script defer src="/assets/js/progress-bar.js?v=499464c5c63ced6cf7ad62509f1e2610" type="text/javascript"></script>
+
+
+
+
+
+  <!-- Back to Top -->
+  
+  
+  
+    <script src="https://cdn.jsdelivr.net/npm/vanilla-back-to-top@7.2.1/dist/vanilla-back-to-top.min.js" integrity="sha256-uMJJ3EoTyfRBoTbR+lrfu1uRQ87RZG8AR3cVNuQVeFg=" crossorigin="anonymous"></script>
+  
+  <script>
+    addBackToTop();
+  </script>
+
+
+
+  <!-- Search -->
+  
+    
+<script type="module" src="/assets/al_search/js/search/ninja-keys.min.js"></script>
+<ninja-keys hidebreadcrumbs noautoloadmdicons placeholder="Type to start searching"></ninja-keys>
+<script src="/assets/al_search/js/search-setup.js"></script>
+<script>
+// get the ninja-keys element
+const ninja = document.querySelector('ninja-keys');
+
+// add the home and posts menu items
+ninja.data = [{
+    id: "nav-about",
+    title: "about",
+    section: "Navigation",
+    handler: () => {
+      window.location.href = "/";
+    },
+  },{id: "nav-publications",
+          title: "publications",
+          description: "Everything, newest first. Use the filter to search titles, authors and venues.",
+          section: "Navigation",
+          handler: () => {
+            window.location.href = "/publications/";
+          },
+        },{id: "nav-teaching",
+          title: "teaching",
+          description: "Course materials from teaching in Paris, 2015–2018.",
+          section: "Navigation",
+          handler: () => {
+            window.location.href = "/teaching/";
+          },
+        },{id: "news-distributional-diffusion-models-with-scoring-rules-accepted-at-icml-2025",
+          title: 'Distributional Diffusion Models with Scoring Rules accepted at ICML 2025.',
+          description: "",
+          section: "News",},{id: "news-three-papers-accepted-at-neurips-2025-on-inference-time-annealing-memorization-in-diffusion-models-and-proximal-mcmc-for-non-log-concave-sampling",
+          title: 'Three papers accepted at NeurIPS 2025, on inference-time annealing, memorization in diffusion models,...',
+          description: "",
+          section: "News",},{id: "news-the-diffusiongemma-technical-report-is-out",
+          title: 'The DiffusionGemma technical report is out.',
+          description: "",
+          section: "News",},{
+        id: 'social-cv',
+        title: 'CV',
+        section: 'Socials',
+        handler: () => {
+          window.open("/assets/pdf/cv.pdf", "_blank");
+        },
+      },{
+        id: 'social-email',
+        title: 'email',
+        section: 'Socials',
+        handler: () => {
+          window.open("mailto:%76%64%65%62%6F%72%74%6F%6C%69@%67%6F%6F%67%6C%65.%63%6F%6D", "_blank");
+        },
+      },{
+        id: 'social-github',
+        title: 'GitHub',
+        section: 'Socials',
+        handler: () => {
+          window.open("https://github.com/vdeborto", "_blank");
+        },
+      },{
+        id: 'social-scholar',
+        title: 'Google Scholar',
+        section: 'Socials',
+        handler: () => {
+          window.open("https://scholar.google.com/citations?user=dn_F9I4AAAAJ", "_blank");
+        },
+      },{
+        id: 'social-rss',
+        title: 'RSS Feed',
+        section: 'Socials',
+        handler: () => {
+          window.open("/feed.xml", "_blank");
+        },
+      },{
+      id: 'light-theme',
+      title: 'Change theme to light',
+      description: 'Change the theme of the site to Light',
+      section: 'Theme',
+      handler: () => {
+        setThemeSetting("light");
+      },
+    },
+    {
+      id: 'dark-theme',
+      title: 'Change theme to dark',
+      description: 'Change the theme of the site to Dark',
+      section: 'Theme',
+      handler: () => {
+        setThemeSetting("dark");
+      },
+    },
+    {
+      id: 'system-theme',
+      title: 'Use system default theme',
+      description: 'Change the theme of the site to System Default',
+      section: 'Theme',
+      handler: () => {
+        setThemeSetting("system");
+      },
+    },];
+
+</script>
+<script src="/assets/al_search/js/shortcut-key.js"></script>
+
+
+  
+
+
+
+
+
+
+
+
+  </body>
+</html>
