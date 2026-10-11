@@ -22,13 +22,11 @@ latest_posts:
   limit: 3
 ---
 
-I do research at [Google DeepMind](https://deepmind.google/) in London. I work on **diffusion
-models** — how to build them, how to sample from them efficiently, and why they work — and more
-broadly on sampling, optimal transport and Markov chain theory.
+I work on **diffusion models** — how to build them, how to sample from them efficiently, and why they work — and more broadly on sampling, optimal transport and Markov chain theory.
 
 #### Short CV
 
-- **2023 – now** · Research Scientist, Google DeepMind
+- **2023 – 2026** · Research Scientist, Google DeepMind
 - **2022 – now** · CNRS Researcher (on leave), ENS Ulm
 - **2020 – 2022** · Postdoctoral Researcher, University of Oxford
 - **2017 – 2020** · PhD, ENS Paris-Saclay
