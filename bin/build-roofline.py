@@ -8,6 +8,10 @@ interactive figures kept in this repo:
 
   _roofline/figures.html        markup of the interactive figures, one <!-- fig:NAME --> block each
   _roofline/cards.html          "more" panels of the TL;DR cards, one <!-- card:TITLE PREFIX --> block each
+  _roofline/gists.html          one-sentence summary of each definition and proposition box
+  assets/roofline/reading.js    contents rail, reading progress, and the intuition / full-math switch
+Every AR quantity in the math (I_{AR}, W_{AR}, F^{AR}_{...}, B^\\star_{AR}, ...) is wrapped in
+\\class{mj-ar}{...} and every TD quantity in \\class{mj-td}{...}, so that it takes the figures' colours.
   assets/roofline/theme.css     the note's colour and font tokens mapped to the site's palette,
                                 layout overrides, and the figures' styles (hand-written)
   assets/roofline/figures.js    the interactive figures (hand-written; reads window.BDModel / BDR)
@@ -34,6 +38,7 @@ PAGE = ROOT / "notes" / SLUG / "index.html"
 ASSETS = ROOT / "assets/roofline"
 FIGS = ROOT / "_roofline/figures.html"
 CARDS = ROOT / "_roofline/cards.html"
+GISTS = ROOT / "_roofline/gists.html"
 
 # Note tokens that do not exist on the site; --ink, --rule and --accent are the site's own.
 TOKENS = ["ink-2", "bg", "surface", "muted", "accent-soft", "ar", "td", "critical", "div-neg", "div-mid",
@@ -128,6 +133,34 @@ def add_cards(body):
     return body
 
 
+# An AR or TD quantity in TeX: a letter or macro, optional ^\star, then _{AR} or ^{AR} with an
+# optional subscript (same for TD).
+_TOK = r"(?:\\[a-zA-Z]+|[A-Za-z])(?:\^\\star)?"
+_SUB = r"(?:_\{(?:[^{}]|\{[^{}]*\})*\}|_[A-Za-z0-9])"
+QTY = re.compile(_TOK + r"(?:_\{(AR|TD)\}|\^\{(AR|TD)\}" + _SUB + r"?)")
+MATH = re.compile(r"\\\((.*?)\\\)|\\\[(.*?)\\\]", re.S)
+
+
+def color_math(body):
+    def qty(m):
+        side = (m.group(1) or m.group(2)).lower()
+        return f"\\class{{mj-{side}}}{{{m.group(0)}}}"
+    def seg(m):
+        return QTY.sub(qty, m.group(0))
+    return MATH.sub(seg, body)
+
+
+def add_gists(body):
+    blocks = re.split(r"<!-- gist:([\w-]+) -->\n", GISTS.read_text())
+    for i in range(1, len(blocks), 2):
+        bid, gist = blocks[i], blocks[i + 1].strip()
+        pat = re.compile(r'(<div class="box [^"]*" id="' + re.escape(bid) + r'">\s*<div class="title">.*?</div>)', re.S)
+        body, n = pat.subn(lambda m: m.group(1) + f'\n    <p class="gist"><span>In short.</span> {gist}</p>', body, count=1)
+        if n != 1:
+            problems.append(f"gist box {bid!r} not found")
+    return body
+
+
 def main():
     src = SRC.read_text()
     figs = figures()
@@ -156,6 +189,9 @@ def main():
     body = sub_once(body, "<figcaption>Figure 2. Smallest compute-bound batch", "<figcaption>Figure 5. Smallest compute-bound batch", "Figure 2 caption")
     body = sub_once(body, "  <h3>Across accelerators and models</h3>\n", "  <h3>Across accelerators and models</h3>\n" + figs["accel"], "accel anchor")
     body = add_cards(body)
+    body = add_gists(body)
+    body = sub_once(body, '  <div class="tiles hero-tiles">', '  <p class="math-key">In the equations, <span class="q-ar">AR quantities are in blue</span> and <span class="q-td">TD quantities in orange</span>, as in the figures.</p>\n  <div class="tiles hero-tiles">', "math key anchor")
+    body = color_math(body)
     body = rename_class_attr(rename_tokens(body))
 
     # JS: the cost model, the note's figures and the calculator
@@ -190,6 +226,7 @@ sitemap: false
 <script defer src="/assets/roofline/mathjax.js"></script>
 <script defer src="/assets/roofline/note.js"></script>
 <script defer src="/assets/roofline/figures.js"></script>
+<script defer src="/assets/roofline/reading.js"></script>
 {{% raw %}}
 <div class="bdr" id="top">
 <noscript><p>This page needs JavaScript for its equations, figures and calculator.</p></noscript>

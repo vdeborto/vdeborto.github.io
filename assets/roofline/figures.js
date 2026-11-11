@@ -23,7 +23,7 @@
   const kctx = (C) => (C >= 1 << 20 ? `${fmt(C / (1 << 20))}M` : `${fmt(C / 1024)}k`);
   const pct = (x) => (x >= 0.1 ? `${Math.round(x * 100)}%` : `${fmt(x * 100, 2)}%`);
   const sub = (base, s) => `${base}<tspan baseline-shift="sub" font-size="8.5">${s}</tspan>`;
-  const hsub = (base, s) => `<i>${base}</i><sub>${s}</sub>`;
+  const hsub = (base, s) => { const t = `<i>${base}</i><sub>${s}</sub>`; return s === 'AR' || s === 'TD' ? `<span class="q-${s.toLowerCase()}">${t}</span>` : t; };
   const colors = () => ({
     ar: css('--bdr-ar'), td: css('--bdr-td'), ink: css('--ink'), muted: css('--bdr-muted'), rule: css('--rule'),
     bg: css('--bdr-bg'), surface: css('--bdr-surface'), accent: css('--accent'), soft: css('--bdr-accent-soft'),

@@ -1,0 +1,31 @@
+<!-- One-sentence summaries of the definition and proposition boxes, inserted by
+     bin/build-roofline.py under each box's title (<!-- gist:BOX ID -->). They are shown in both
+     reading modes; in "intuition" mode the box folds to its title and this sentence. -->
+<!-- gist:def1 -->
+The sizes the costs depend on: active and total parameters, how many distinct experts a set of positions touches, and the attention FLOPs and KV bytes per cached token.
+<!-- gist:def2 -->
+Per sequence, a TD pass does \(b\) times the FLOPs of an AR step; the weight bytes are shared by the batch and the cache bytes are not.
+<!-- gist:def3 -->
+Intensity is FLOPs per byte read from memory; a pass is compute-bound when its intensity reaches the ridge point \(I^\star = \pi/\beta\), 206 on an H200.
+<!-- gist:def4 -->
+A penalty is how many more bytes per sequence a TD pass reads than an AR step: \(\Pi_{\mathrm{lin}}\) from the experts its \(b\) positions touch, \(\Pi_{\mathrm{attn}}\) from the cached tokens that sparse layers select.
+<!-- gist:prop1 -->
+The gain is the ratio of the two decoders' attainable FLOP rates, divided by the \(\omega\) passes a canvas costs.
+<!-- gist:cor1 -->
+If AR is compute-bound TD loses; otherwise the gain is the smaller of \(\mathrm{TPF}/\Pi\), set by bytes, and \(I^\star/(\omega I_{AR})\), set by the compute AR leaves idle.
+<!-- gist:prop2 -->
+Each intensity is the byte-weighted average of its linear and attention parts, so whichever part carries most of the bytes sets it.
+<!-- gist:prop3 -->
+A canvas touches almost every expert, so at batch 1 TD streams the total parameters where AR streams the active ones (a penalty of 7.9), and the penalty vanishes once the batch alone touches every expert.
+<!-- gist:prop4 -->
+The weights dominate an AR step's bytes up to a context that falls like \(1/B,\) because the batch shares the weights but each sequence brings its own cache.
+<!-- gist:prop5 -->
+With sparse attention each query selects its own cached tokens and a canvas reads their union: the MoE penalty again, with the canvas length in the role of the batch.
+<!-- gist:prop6 -->
+Attention overtakes the weights in an AR step's bytes at the context of Proposition 4, and in a position's FLOPs at \(C_F = 2N_{\mathrm{act}}/\alpha_G\) whatever the batch; as the context grows both intensities move to their attention values, \(I_{\mathrm{attn}}\) for AR and \(b\,I_{\mathrm{attn}}\) for TD.
+<!-- gist:prop7 -->
+TD wins exactly when a pass serves more tokens per read than it pays in penalty (\(\mathrm{TPF} \ge \Pi\)) and AR uses at most a fraction \(1/\omega\) of the compute (\(I_{AR} \le I^\star/\omega\)).
+<!-- gist:prop8 -->
+A batch cannot saturate compute on cache bytes, since each sequence brings its own cache, but a canvas can: once \(b\,I_{\mathrm{attn}} \gt I^\star\), a longer context makes a TD pass compute-bound at a smaller batch, not a larger one.
+<!-- gist:kernels -->
+Timing a pass as a chain of kernels instead of one fully overlapped kernel is never faster and at most twice slower; it moves DiffusionGemma's best batch from 5 to 9.

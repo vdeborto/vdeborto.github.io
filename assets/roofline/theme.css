@@ -166,3 +166,56 @@ html { scroll-behavior: smooth; }
 .bdr .card-more .card-link { font: 12px var(--bdr-font-ui); letter-spacing: .02em; margin: 8px 0 0; }
 .bdr .fig-controls.micro { margin: 6px 0 2px; }
 .bdr .fig-controls.micro label { max-width: 320px; }
+
+/* ---------------------------------------------------------------- colour-coded math */
+.bdr mjx-container .mj-ar, .bdr .q-ar { color: var(--bdr-ar); }
+.bdr mjx-container .mj-td, .bdr .q-td { color: var(--bdr-td); }
+.bdr .math-key { font: 12.5px var(--bdr-font-ui); color: var(--bdr-ink-2); margin: -4px 0 14px; }
+.bdr .math-key .q-ar, .bdr .math-key .q-td { font-weight: 500; }
+
+/* ---------------------------------------------------------------- box summaries and reading depth */
+.bdr .gist { font-size: 15.5px; line-height: 1.55; color: var(--bdr-ink-2); margin: -2px 0 10px; }
+.bdr .gist > span { font: 500 11px var(--bdr-font-ui); letter-spacing: .08em; text-transform: uppercase; color: var(--bdr-muted); margin-right: 6px; }
+.bdr .box-more { display: none; padding: 0; border: none; background: none; cursor: pointer; font: 500 11.5px var(--bdr-font-ui); letter-spacing: .06em; color: var(--accent); }
+.bdr .box-more:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.bdr.intuition .box-more { display: inline-block; }
+.bdr.intuition .box.prop:not(.open) > :not(.bdr-title):not(.gist):not(.box-more),
+.bdr.intuition .box.def:not(.open) > :not(.bdr-title):not(.gist):not(.box-more) { display: none; }
+.bdr.intuition .box.prop:not(.open), .bdr.intuition .box.def:not(.open) { padding-bottom: 12px; }
+.bdr.intuition .box.open .box-more { margin-bottom: 8px; }
+
+.bdr .depth { display: inline-flex; align-items: center; gap: 6px; flex-wrap: wrap; font: 12px var(--bdr-font-ui); color: var(--bdr-muted); }
+.bdr .depth-hero { margin: 14px 0 0; }
+.bdr .depth > span { letter-spacing: .08em; text-transform: uppercase; font-size: 11px; margin-right: 4px; }
+.bdr .depth button, .bdr-rail .depth button { font: 500 12px var(--bdr-font-ui); padding: 4px 10px; border: 1px solid var(--rule); border-radius: 3px; background: transparent; color: var(--bdr-ink-2); cursor: pointer; }
+.bdr .depth button[aria-pressed="true"], .bdr-rail .depth button[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--bdr-bg); }
+
+/* ---------------------------------------------------------------- contents rail (wide screens) */
+.bdr-rail { display: none; }
+@media (min-width: 1200px) {
+  :root { --bdr-wide: min(1000px, calc(100vw - 496px)); }
+  .bdr-rail {
+    display: block; position: fixed; z-index: 5; top: 92px; width: 200px; left: max(20px, calc(50% - 500px - 230px));
+    max-height: calc(100vh - 112px); overflow-y: auto; scrollbar-width: thin;
+    font: 12px/1.45 var(--bdr-font-ui); color: var(--bdr-muted);
+  }
+  .bdr-rail .rail-progress { height: 2px; background: var(--rule); margin-bottom: 12px; }
+  .bdr-rail .rail-progress i { display: block; height: 100%; width: 0; background: var(--accent); }
+  .bdr-rail a { color: var(--bdr-ink-2); text-decoration: none; }
+  .bdr-rail a:hover { color: var(--accent); }
+  .bdr-rail .rail-top { display: block; font-weight: 500; color: var(--ink); margin-bottom: 10px; }
+  .bdr-rail ol { list-style: none; margin: 0; padding: 0; border-left: 1px solid var(--rule); }
+  .bdr-rail li a { display: block; padding: 3px 0 3px 12px; margin-left: -1px; border-left: 2px solid transparent; }
+  .bdr-rail li a.active { color: var(--accent); border-left-color: var(--accent); font-weight: 500; }
+  .bdr-rail ol.sub { border-left: none; display: none; margin: 0 0 4px; }
+  .bdr-rail li.current ol.sub { display: block; }
+  .bdr-rail ol.sub a { padding: 2px 0 2px 24px; font-size: 11.5px; color: var(--bdr-muted); }
+  .bdr-rail ol.sub a.fig { color: var(--accent); opacity: .85; }
+  .bdr-rail ol.sub a.active { border-left-color: transparent; }
+  .bdr-rail .depth { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 14px; }
+  .bdr-rail .depth > span { width: 100%; letter-spacing: .08em; text-transform: uppercase; font-size: 10.5px; }
+}
+@media print { .bdr-rail, .bdr .depth { display: none !important; } }
+/* the hover anchor of a box title must not take a line of its own when the title wraps */
+.bdr .box > .bdr-title { position: relative; padding-right: 18px; }
+.bdr .box > .bdr-title > .anchor { position: absolute; right: 0; top: 0; margin: 0; }
