@@ -1,0 +1,49 @@
+<!-- Interactive figures inserted into the note by bin/build-roofline.py, one block per figure.
+     figures.js fills each [data-fig] element. Static math here is typeset by MathJax at load. -->
+<!-- fig:quiz -->
+  <div class="bdr-fig" id="fig-quiz">
+    <div class="fig-k">Test your intuition</div>
+    <p class="fig-title">Which decoder produces more tokens per second?</p>
+    <p class="fig-lede">Six settings of model, accelerator, batch and context. For each, decide whether block diffusion (TD) or autoregressive decoding (AR) has the higher throughput, using the four points above. The answer comes with the roofline that decides it.</p>
+    <div data-fig="quiz"></div>
+  </div>
+<!-- fig:reuse -->
+  <div class="bdr-fig" id="fig-reuse">
+    <div class="fig-k">Figure 1 · interactive</div>
+    <p class="fig-title">TD does more work per token, but reads each byte for more tokens.</p>
+    <p class="fig-lede">Each tick is one forward pass, and every pass reads the weights once. Press play, then change the canvas length \(b\) and the number of denoising passes \(S\).</p>
+    <div data-fig="reuse"></div>
+    <p class="fig-cap">A canvas costs \(\omega = S + 1\) passes (here \(r = 1\)) and commits \(b\) tokens; in the same \(\omega\) passes AR commits \(\omega\) tokens. Per committed token, TD therefore reads \(\omega/b = 1/\mathrm{TPF}\) times the weight bytes of AR and performs \(\omega\) times its FLOPs. The figure is drawn for a dense model at batch 1, where a pass takes the time to read its weights. With MoE, a canvas touches more experts than a single token does, and a TD pass reads more bytes than an AR step: that is the MoE penalty \(\Pi_{\mathrm{lin}}\) of §3.</p>
+  </div>
+<!-- fig:roofline -->
+  <div class="bdr-fig wide" id="fig-roofline">
+    <div class="fig-k">Figure 2 · interactive</div>
+    <p class="fig-title">Proposition 1 on the roofline.</p>
+    <p class="fig-lede">Each dot sits at the arithmetic intensity of its pass, on the roofline of the accelerator. The bracket is how much faster TD's FLOPs run than AR's; dividing it by \(\omega\) gives \(\Gamma\). Move the batch and the context, or pick one of the three regimes.</p>
+    <div data-fig="roofline"></div>
+    <p class="fig-cap">The roofline is \(\min(\pi,\ I\beta)\). Intensities from Definition 3 without the vocabulary, as in (A2): DiffusionGemma, BF16, \(b = 256\), \(S = 14\), \(\omega = 15\). The exact accounting of the appendix, vocabulary included, is given under the plot for comparison.</p>
+  </div>
+<!-- fig:bestbatch -->
+  <div class="bdr-fig wide" id="fig-bestbatch">
+    <div class="fig-k">Figure 3 · interactive</div>
+    <p class="fig-title">The best batch is the one at which a TD pass reaches the ridge.</p>
+    <p class="fig-lede">The curve is hidden. Drag the marker to the batch at which you expect TD's lead over AR to be largest, then reveal it.</p>
+    <div data-fig="bestbatch"></div>
+    <p class="fig-cap">Exact gain \(\Gamma(B)\) at context 1,024: DiffusionGemma, BF16, \(b = 256\), \(S = 14\), vocabulary included. Left of \(B^\star_{TD}\) both decoders are memory-bound and \(\Gamma \approx \mathrm{TPF}/\Pi_{\mathrm{lin}}(B)\) (Proposition 3, without the vocabulary) rises as the batch dilutes the MoE penalty. Right of it a TD pass is compute-bound and \(\Gamma \approx I^\star/(\omega I_{AR})\) falls, roughly like \(1/B\) while the weights dominate AR's bytes, down to parity at \(B_\times\) where there is one. Over integer batches the maximum is the last memory-bound batch or the first compute-bound one. Dashed: the model, the batch's KV cache and one canvas of logits do not fit in the accelerator's memory.</p>
+  </div>
+<!-- fig:context -->
+  <div class="bdr-fig wide" id="fig-context">
+    <div class="fig-k">Figure 4 · interactive</div>
+    <p class="fig-title">As the context grows, the batch matters less and less.</p>
+    <p class="fig-lede">Each curve is the gain at one batch size as the context grows. Drag along the context axis, and switch the attention layout.</p>
+    <div data-fig="context"></div>
+    <p class="fig-cap">Exact gain against the context \(C\) on an H200: DiffusionGemma, BF16, \(b = 256\), \(S = 14\), vocabulary included. The weights are shared by the batch and the KV cache is not, so once the cache carries most of an AR step's bytes the batch no longer moves either intensity, and the curves converge. For DiffusionGemma's layout their common limit is \(I^\star/(\omega I_{\mathrm{attn}})\) with \(I_{\mathrm{attn}} = 8\) the intensity of its global layers, 1.72 on an H200, which holds because \(b\,I_{\mathrm{attn}} \ge I^\star\). With sparse global layers a query reads at most \(m\) cached tokens, so the weights keep a larger share of the bytes and the curves converge later. Dashed: the weights, the batch's KV cache and one canvas of logits do not fit in the H200's 141 GB.</p>
+  </div>
+<!-- fig:accel -->
+  <div class="bdr-fig wide" id="fig-accel">
+    <div class="fig-k">Figure 6 · interactive</div>
+    <p class="fig-title">A higher ridge point means more to gain.</p>
+    <p class="fig-lede">Each dot is an accelerator, placed at its ridge point \(I^\star = \pi/\beta\). Switch between short and long context, and select a dot for its numbers.</p>
+    <div data-fig="accel"></div>
+    <p class="fig-cap">Exact gains, DiffusionGemma, BF16, \(b = 256\), \(S = 14\). Short context: \(C = 1{,}024\), at the batch that maximises \(\Gamma\), the one at which a TD pass turns compute-bound. Long context: \(C = 2^{20}\) at batch 1; the line is the limit \(I^\star/(\omega I_{\mathrm{attn}})\) as \(C \to \infty\), linear in \(I^\star\). The dots lie above it because at batch 1 the weights are still about a quarter of an AR step's bytes. Hollow dots: the model and its KV cache do not fit in the accelerator's memory.</p>
+  </div>
