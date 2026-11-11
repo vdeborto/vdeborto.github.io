@@ -1,0 +1,1 @@
+!function(){const t=window.MathJax;t&&!t.version&&(t.tex=Object.assign({},t.tex,{inlineMath:[["\\(","\\)"]],displayMath:[["\\[","\\]"]],tags:"none"}),t.options=Object.assign({},t.options,{skipHtmlTags:["script","noscript","style","textarea","pre","code","svg"]}))}();
