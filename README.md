@@ -24,6 +24,7 @@ Personal academic site, built with [Jekyll](https://jekyllrb.com/) and the
 | Custom theme (palette, type, blur-in) | `assets/css/custom.css` |
 | Publication entry template | `_layouts/bib.liquid` |
 | CV PDF | `assets/pdf/cv.pdf` |
+| Unlisted Block Diffusion Rooflines note (no links, noindex, not in sitemap); copied from the private `diffusion-roofline` repo by `python3 -I bin/sync-roofline.py` | `notes/block-diffusion-rooflines-6f924020/` |
 
 ### Adding a paper
 

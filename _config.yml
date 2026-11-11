@@ -297,6 +297,11 @@ defaults:
       path: "assets"
     values:
       sitemap: false
+  # Unlisted note (bin/sync-roofline.py): keep it out of the sitemap.
+  - scope:
+      path: "notes"
+    values:
+      sitemap: false
 
 sass:
   style: compressed
@@ -313,7 +318,7 @@ jekyll-minifier:
   # breaking every spacing/positioning utility (e.g. .fixed-top -> broken navbar). Disable it.
   compress_css: false
   # JS minification is delegated to jekyll-terser (compress_javascript above is false).
-  exclude: ["robots.txt"]
+  exclude: ["robots.txt", "notes/**/*"]
 
 # -----------------------------------------------------------------------------
 # Terser
