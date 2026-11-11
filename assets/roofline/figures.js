@@ -494,6 +494,70 @@
     watchWidth(box, draw);
   }
 
+  // ---------------------------------------------------------------- expandable TL;DR cards
+  // Each card with a .card-more panel opens in place, across the full row; its slider, if any, is
+  // built on first opening.
+  const CTX4 = [...CONTEXTS, 2 << 20, 4 << 20];
+  const BAREC = (m, w = W0) => M.compact({ ...m, V: 0, fSC: 0 }, w, { ...O0, bl: 0 }, hwOf('h200'));
+  const canvasCache = new Map();
+  const MICRO = {
+    omega: () => ({ label: 'denoising passes <i>S</i>', values: Array.from({ length: 32 }, (_, i) => i + 1), i: 13, show: String,
+      read: (S) => { const x = boe(hwOf('h200'), O0, { ...W0, S }); return `ω = ${S + 1}; Proposition 1 on an H200: Γ = <b>${g2(x.gain(1, 1024))}</b> at batch 1, <b>${g2(x.gain(8, 1024))}</b> at batch 8.`; } }),
+    canvas: () => ({ label: 'canvas length <i>b</i>', values: [16, 32, 64, 128, 256, 512, 1024], i: 4, show: String,
+      read: (b) => {
+        if (!canvasCache.has(b)) {
+          const hw = hwOf('h200'); let tdc = null, best = { g: 0, B: 1 };
+          for (let B = 1; B <= 256; B++) { const r = steady(DG, hw, B, 1024, O0, { b }); if (tdc === null && r.tdCompute) tdc = B; if (r.gain > best.g) best = { g: r.gain, B }; }
+          canvasCache.set(b, { tdc, best });
+        }
+        const { tdc, best } = canvasCache.get(b);
+        return `TPF = ${b}/15 = <b>${fmt(b / 15)}</b>; a TD pass is compute-bound from batch <b>${tdc ?? '> 256'}</b>; best Γ = <b>${g2(best.g)}</b> at batch ${best.B} (exact, H200, context 1k).`;
+      } }),
+    lin: () => ({ label: 'batch <i>B</i>', values: BATCHES, i: 0, show: String,
+      read: (B) => `AR touches ${fmt(M.distinctExperts(DG, B))} of 128 experts per layer, a canvas ${fmt(M.distinctExperts(DG, B * W0.b))}: ${hsub('Π', 'lin')} = <b>${fmt(BAREC(DG).Pi(B))}</b>.` }),
+    attn: () => ({ label: 'context <i>C</i>', values: CTX4, i: 7, show: kctx,
+      read: (C) => { const c = BAREC(M.MODELS.dgemma_sparse.build()); return `With sparse global layers (<i>m</i> = 2048), a canvas reads the union of ${X.comma(c.unionRead(C, W0.b))} cached tokens per sparse layer where one query reads ${X.comma(Math.min(C, c.msel))}; over all attention layers ${hsub('Π', 'attn')} = <b>${fmt(c.qkvTD(C) / c.qkv(C))}</b>.`; } }),
+    batch: () => ({ label: 'batch <i>B</i>', values: BATCHES, i: 0, show: String,
+      read: (B) => { const hw = hwOf('h200'), I = intensities(DG, hw, B, 1024), r = steady(DG, hw, B, 1024); return `${hsub('I', 'AR')} = <b>${fmt(I.IAR)}</b>, ${hsub('I', 'TD')} = <b>${fmt(I.ITD)}</b> (<i>I</i>* = 206): TD ${r.tdCompute ? 'compute' : 'memory'}-bound, Γ = <b>${g2(r.gain)}</b> (exact, context 1k).`; } }),
+    context: () => ({ label: 'context <i>C</i>', values: CONTEXTS, i: 0, show: kctx,
+      read: (C) => { const hw = hwOf('h200'), I = intensities(DG, hw, 64, C), r = steady(DG, hw, 64, C); return `At batch 64 the cache is <b>${pct(r.arKVshare)}</b> of an AR step's bytes; ${hsub('I', 'AR')} = <b>${fmt(I.IAR)}</b>, ${hsub('I', 'TD')} = <b>${fmt(I.ITD)}</b>; Γ = <b>${g2(r.gain)}</b>.`; } }),
+  };
+  function initMicro(box) {
+    const spec = MICRO[box.dataset.micro](), out = el('<div class="readout"></div>');
+    const sl = slider(spec.label, spec.values, spec.i, spec.show);
+    const sync = () => { out.innerHTML = spec.read(sl.value); };
+    sl.input.addEventListener('input', sync);
+    const row = el('<div class="fig-controls micro"></div>'); row.appendChild(sl.lab);
+    box.append(row, out); sync();
+  }
+  function initCards() {
+    document.querySelectorAll('.bdr .cards').forEach((grid) => {
+      const cards = [...grid.querySelectorAll('.bdr-card')].filter((c) => c.querySelector('.card-more'));
+      if (!cards.length) return;
+      const setOpen = (card, on) => {
+        card.classList.toggle('open', on);
+        card.querySelector('.card-more').hidden = !on;
+        card.querySelector('.card-toggle').setAttribute('aria-expanded', String(on));
+        card.querySelector('.card-toggle').textContent = on ? 'less −' : 'more +';
+        if (on) card.querySelectorAll('[data-micro]:empty').forEach(initMicro);
+      };
+      for (const card of cards) {
+        card.classList.add('has-more');
+        const t = el('<button type="button" class="card-toggle" aria-expanded="false">more +</button>');
+        card.insertBefore(t, card.querySelector('.card-more'));
+        card.addEventListener('click', (ev) => {
+          if (ev.target.closest('.card-more') || ev.target.closest('a, input, select')) return;
+          setOpen(card, !card.classList.contains('open'));
+        });
+      }
+      const tools = el('<div class="cards-tools"><button type="button" class="card-toggle">open all</button></div>');
+      const all = tools.querySelector('button');
+      all.addEventListener('click', () => { const on = !cards.every((c) => c.classList.contains('open')); cards.forEach((c) => setOpen(c, on)); all.textContent = on ? 'close all' : 'open all'; });
+      grid.parentNode.insertBefore(tools, grid);
+    });
+  }
+  initCards();
+
   // ---------------------------------------------------------------- mount
   const FIGS = { quiz: figQuiz, reuse: figReuse, roofline: figRoofline, bestbatch: figBestBatch, context: figContext, accel: figAccel };
   document.querySelectorAll('[data-fig]').forEach((root) => {

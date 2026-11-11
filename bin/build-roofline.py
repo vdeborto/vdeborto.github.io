@@ -7,6 +7,7 @@ page into a page of this Jekyll site, in the site's own layout and palette, and 
 interactive figures kept in this repo:
 
   _roofline/figures.html        markup of the interactive figures, one <!-- fig:NAME --> block each
+  _roofline/cards.html          "more" panels of the TL;DR cards, one <!-- card:TITLE PREFIX --> block each
   assets/roofline/theme.css     the note's colour and font tokens mapped to the site's palette,
                                 layout overrides, and the figures' styles (hand-written)
   assets/roofline/figures.js    the interactive figures (hand-written; reads window.BDModel / BDR)
@@ -32,6 +33,7 @@ SLUG = "block-diffusion-rooflines-6f924020"
 PAGE = ROOT / "notes" / SLUG / "index.html"
 ASSETS = ROOT / "assets/roofline"
 FIGS = ROOT / "_roofline/figures.html"
+CARDS = ROOT / "_roofline/cards.html"
 
 # Note tokens that do not exist on the site; --ink, --rule and --accent are the site's own.
 TOKENS = ["ink-2", "bg", "surface", "muted", "accent-soft", "ar", "td", "critical", "div-neg", "div-mid",
@@ -114,6 +116,18 @@ def figures():
     return {blocks[i]: blocks[i + 1].rstrip() + "\n" for i in range(1, len(blocks), 2)}
 
 
+def add_cards(body):
+    """Insert each card's "more" panel just before the card's closing tag."""
+    blocks = re.split(r"<!-- card:(.+?) -->\n", CARDS.read_text())
+    for i in range(1, len(blocks), 2):
+        prefix, more = blocks[i], blocks[i + 1].rstrip()
+        pat = re.compile(r'(<div class="card[^"]*"><div class="card-k">' + re.escape(prefix) + r'.*?</p>)(</div>)', re.S)
+        body, n = pat.subn(lambda m: m.group(1) + "\n" + more + "\n" + m.group(2), body, count=1)
+        if n != 1:
+            problems.append(f"card {prefix!r} not found")
+    return body
+
+
 def main():
     src = SRC.read_text()
     figs = figures()
@@ -141,6 +155,7 @@ def main():
     body = sub_once(body, '  <div class="table-wrap breakout"><table class="cls t6">', figs["context"] + '  <div class="table-wrap breakout"><table class="cls t6">', "context anchor")
     body = sub_once(body, "<figcaption>Figure 2. Smallest compute-bound batch", "<figcaption>Figure 5. Smallest compute-bound batch", "Figure 2 caption")
     body = sub_once(body, "  <h3>Across accelerators and models</h3>\n", "  <h3>Across accelerators and models</h3>\n" + figs["accel"], "accel anchor")
+    body = add_cards(body)
     body = rename_class_attr(rename_tokens(body))
 
     # JS: the cost model, the note's figures and the calculator
