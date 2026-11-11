@@ -148,3 +148,21 @@ html { scroll-behavior: smooth; }
 .bdr .fig-controls label.wide { flex: 2 1 300px; }
 .bdr .fig-controls label > span:first-child { display: block; }
 .bdr .fig-controls label.sel { flex: 0 1 230px; min-width: 0; }
+
+/* expandable TL;DR cards */
+.bdr .bdr-card.has-more { cursor: pointer; display: flex; flex-direction: column; transition: border-color .15s; }
+.bdr .bdr-card.has-more:hover { border-color: var(--accent); }
+.bdr .bdr-card.open { grid-column: 1 / -1; cursor: default; border-color: var(--accent); }
+.bdr .bdr-card .card-toggle, .bdr .cards-tools .card-toggle {
+  align-self: flex-end; margin-top: auto; padding: 6px 0 0; border: none; background: none; cursor: pointer;
+  font: 500 11.5px var(--bdr-font-ui); letter-spacing: .06em; color: var(--accent);
+}
+.bdr .bdr-card .card-toggle:focus-visible, .bdr .cards-tools .card-toggle:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.bdr .cards-tools { display: flex; justify-content: flex-end; margin: -4px 0 -4px; }
+.bdr .cards-tools .card-toggle { padding: 0; }
+.bdr .card-more { border-top: 1px dashed var(--rule); margin-top: 10px; padding-top: 10px; cursor: auto; }
+.bdr .card-more p { font-size: 15.5px; line-height: 1.6; color: var(--ink); }
+.bdr .card-more .eq { margin: 4px 0 12px; }
+.bdr .card-more .card-link { font: 12px var(--bdr-font-ui); letter-spacing: .02em; margin: 8px 0 0; }
+.bdr .fig-controls.micro { margin: 6px 0 2px; }
+.bdr .fig-controls.micro label { max-width: 320px; }
