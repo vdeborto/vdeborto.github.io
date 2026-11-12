@@ -24,7 +24,7 @@ Personal academic site, built with [Jekyll](https://jekyllrb.com/) and the
 | Custom theme (palette, type, blur-in) | `assets/css/custom.css` |
 | Publication entry template | `_layouts/bib.liquid` |
 | CV PDF | `assets/pdf/cv.pdf` |
-| Unlisted Block Diffusion Rooflines note (no links, noindex, not in sitemap), with interactive figures | built by `python3 -I bin/build-roofline.py` into `notes/block-diffusion-rooflines-6f924020/` and `assets/roofline/note.{css,js}`; text, cost model and calculator come from the private `diffusion-roofline` repo; figures in `_roofline/figures.html` and `assets/roofline/figures.js`, card panels in `_roofline/cards.html`, box summaries in `_roofline/gists.html`, contents rail and intuition/full-math switch in `assets/roofline/reading.js`, palette in `assets/roofline/theme.css`; AR/TD quantities in the math are coloured by the build |
+| Unlisted Block Diffusion Rooflines note (no links, noindex, not in sitemap), with interactive figures | built by `python3 -I bin/build-roofline.py` into `notes/block-diffusion-rooflines-6f924020/` and `assets/roofline/note.{css,js}`; text, cost model and calculator come from the private `diffusion-roofline` repo; figures, quiz and the accounting table in `_roofline/figures.html` and `assets/roofline/figures.js`, card panels in `_roofline/cards.html`, box summaries in `_roofline/gists.html`; contents (rail or phone sheet), intuition/full-math switch (intuition is the default) and the symbol key in `assets/roofline/reading.js`; palette in `assets/roofline/theme.css`; AR/TD quantities in the math are coloured by the build. Rule kept by the figures: intensities are always Proposition 1's, exact gains are labelled as such, every gain is called a roofline bound |
 
 ### Adding a paper
 

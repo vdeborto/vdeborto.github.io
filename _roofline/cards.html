@@ -11,7 +11,7 @@
 <!-- card:Canvas length, -->
 <div class="card-more" hidden>
   <div class="eq">\[ \begin{gathered} \mathrm{TPF} = \frac{b}{\omega},\qquad I_{TD} = \frac{b}{\Pi}\,I_{AR},\\[4pt] B^\star_{TD} \approx \frac{I^\star s_wW_{TD}}{2b\,N_{\mathrm{act}}}. \end{gathered} \]</div>
-  <p>While a TD pass is memory-bound, \(\Gamma = \mathrm{TPF}/\Pi\) grows with \(b\). Once it is compute-bound, \(\Gamma = I^\star/(\omega I_{AR})\) no longer depends on \(b\): a longer canvas reaches that regime at a smaller batch, and so raises the best gain, which sits at \(B^\star_{TD}\).</p>
+  <p>While a TD pass is memory-bound, \(\Gamma = \mathrm{TPF}/\Pi\) grows with \(b\). Once it is compute-bound, \(\Gamma = I^\star/(\omega I_{AR})\) no longer depends on \(b\): a longer canvas reaches that regime at a smaller batch, and so raises the best gain, which sits at \(B^\star_{TD}\) or one batch below it.</p>
   <div data-micro="canvas"></div>
   <p class="card-link"><a href="#lin-gain">The gain when the linear layers dominate</a> · <a href="#fig-bestbatch">Figure 3</a></p>
 </div>
@@ -32,7 +32,7 @@
 <!-- card:Batch, -->
 <div class="card-more" hidden>
   <div class="eq">\[ Q^{X}(B, C) = \underbrace{\frac{s_wW_X(B)}{B}}_{\text{weights}} + \underbrace{Q^{X}_{\mathrm{attn}}(C)}_{\text{cache}}. \]</div>
-  <p>For \(X \in \{AR, TD\}\), the weights are shared by the batch and each sequence brings its own cache. A larger batch divides the weight bytes per sequence and leaves the cache bytes unchanged, so it raises both intensities at short context. At first it helps TD more, because \(\Pi_{\mathrm{lin}}\) falls; once a TD pass is compute-bound it only raises \(I_{AR}\), and \(\Gamma = I^\star/(\omega I_{AR})\) falls, down to parity near batch 110.</p>
+  <p>For \(X \in \{AR, TD\}\), the weights are shared by the batch and each sequence brings its own cache. A larger batch divides the weight bytes per sequence and leaves the cache bytes unchanged, so it raises both intensities at short context. At first it helps TD more, because \(\Pi_{\mathrm{lin}}\) falls; once a TD pass is compute-bound it only raises \(I_{AR}\), and \(\Gamma = I^\star/(\omega I_{AR})\) falls, down to parity near batch 109.</p>
   <div data-micro="batch"></div>
   <p class="card-link"><a href="#prop4">Proposition 4</a> · <a href="#fig-bestbatch">Figure 3</a></p>
 </div>
@@ -47,7 +47,7 @@
 <div class="card-more" hidden>
   <p>Both passes run at the peak, so time is FLOPs, and a canvas spends \(\omega\) times AR's FLOPs per token: \(\Gamma \le 1/\omega\), equal to it under Proposition 1. AR reaches the ridge at</p>
   <div class="eq">\[ \begin{gathered} B^\star_{AR} = \frac{I^\star s_wW_{\mathrm{tot}}}{2N_{\mathrm{act}}}\\[4pt] = \frac{206 \times 2 \times 24.5\text{B}}{2 \times 3.08\text{B}} \approx 1{,}640, \end{gathered} \]</div>
-  <p>at which the KV cache alone of 1,640 sequences of 9k tokens takes about 650 GB, more than four H200s hold.</p>
+  <p>This closed form takes zero context. Holding 1,640 sequences of 9k tokens, the 1k prompt and 8k generated tokens of the running example, would take about 650 GB of KV cache, more than four H200s hold; and by Proposition 8, at a long enough context no batch makes an AR step compute-bound.</p>
   <p class="card-link"><a href="#cor1">Corollary 1</a> · <a href="#prop8">Proposition 8</a></p>
 </div>
 <!-- card:Both memory-bound -->
@@ -59,7 +59,7 @@
 </div>
 <!-- card:AR memory-, TD compute-bound -->
 <div class="card-more" hidden>
-  <p>TD runs at the peak \(\pi\) and AR at \(I_{AR}\,\beta\), so TD's FLOPs run \(I^\star/I_{AR}\) times faster and it does \(\omega\) times as many. The gain is the compute that AR leaves idle, divided by TD's extra work. At short context \(I_{AR}\) grows with the batch and \(\Gamma\) reaches 1 near batch 110. At long context \(I_{AR} \to I_{\mathrm{attn}}\), and at any batch</p>
+  <p>TD runs at the peak \(\pi\) and AR at \(I_{AR}\,\beta\), so TD's FLOPs run \(I^\star/I_{AR}\) times faster and it does \(\omega\) times as many. The gain is the compute that AR leaves idle, divided by TD's extra work. At short context \(I_{AR}\) grows with the batch and \(\Gamma\) reaches 1 near batch 109. At long context \(I_{AR} \to I_{\mathrm{attn}}\), and at any batch</p>
   <div class="eq">\[ \Gamma \to \frac{I^\star}{\omega\,I_{\mathrm{attn}}} = \frac{206}{15 \times 8} = 1.72. \]</div>
   <p class="card-link"><a href="#prop7">Proposition 7</a> · <a href="#fig-accel">Figure 6</a></p>
 </div>

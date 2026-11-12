@@ -150,6 +150,21 @@ def color_math(body):
     return MATH.sub(seg, body)
 
 
+TAKEAWAY_FIGS = [("fig-reuse", "Figure 1"), ("fig-bestbatch", "Figure 3"), ("fig-context", "Figure 4"), ("fig-accel", "Figure 6")]
+
+
+def link_takeaways(body):
+    """Each of the four takeaways ends with a link to the figure that shows it."""
+    m = re.search(r'<div class="takeaways">.*?</ol>', body, re.S)
+    if not m or m.group(0).count("</li>") != len(TAKEAWAY_FIGS):
+        problems.append("takeaways block not found or not four items")
+        return body
+    parts = m.group(0).split("</li>")
+    for i, (fid, name) in enumerate(TAKEAWAY_FIGS):
+        parts[i] += f' <a class="tk-fig" href="#{fid}">Try it in {name}</a>'
+    return body.replace(m.group(0), "</li>".join(parts))
+
+
 def add_gists(body):
     blocks = re.split(r"<!-- gist:([\w-]+) -->\n", GISTS.read_text())
     for i in range(1, len(blocks), 2):
@@ -177,7 +192,9 @@ def main():
     body = sub_once(body, "and the site lives in the private GitHub repository <code>vdeborto/diffusion-roofline</code>, whose history is the changelog.",
                     "and the page has no other dependency.", "private repo sentence")
     # Interactive figures, in reading order. Figure numbers follow the page.
-    body = sub_once(body, '  <h2 class="outline-title" id="outline">', figs["quiz"] + '  <h2 class="outline-title" id="outline">', "quiz anchor")
+    body = sub_once(body, '  <div class="formula-card">', figs["quiz"] + '  <div class="formula-card">', "quiz anchor")
+    body = sub_once(body, '  <div class="takeaways">', figs["accounting"] + '  <div class="takeaways">', "accounting anchor")
+    body = link_takeaways(body)
     body = sub_once(body, '  <div class="table-wrap"><table class="notation">', figs["reuse"] + '  <div class="table-wrap"><table class="notation">', "reuse anchor")
     body = sub_once(body, '  <div class="box prop" id="cor1">', figs["roofline"] + '  <div class="box prop" id="cor1">', "roofline anchor")
     old_fig1 = re.search(r'  <figure class="mapfig">\n    <figcaption>Figure 1\. .*?</figure>\n', body, re.S)
@@ -190,7 +207,7 @@ def main():
     body = sub_once(body, "  <h3>Across accelerators and models</h3>\n", "  <h3>Across accelerators and models</h3>\n" + figs["accel"], "accel anchor")
     body = add_cards(body)
     body = add_gists(body)
-    body = sub_once(body, '  <div class="tiles hero-tiles">', '  <p class="math-key">In the equations, <span class="q-ar">AR quantities are in blue</span> and <span class="q-td">TD quantities in orange</span>, as in the figures.</p>\n  <div class="tiles hero-tiles">', "math key anchor")
+    body = sub_once(body, '  <div class="tiles hero-tiles">', '  <p class="math-key">In the equations, <span class="q-ar">AR quantities are in blue</span> and <span class="q-td">TD quantities in orange</span>, as in the figures. Select any formula to see what its symbols mean.</p>\n  <div class="tiles hero-tiles">', "math key anchor")
     body = color_math(body)
     body = rename_class_attr(rename_tokens(body))
 
