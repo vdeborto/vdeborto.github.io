@@ -271,13 +271,19 @@
 <noscript><p>This page needs JavaScript for its equations, figures and calculator.</p></noscript>
 <header class="bdr-col hero">
   <p class="lede">Block text diffusion (TD) writes a block of tokens at once, but runs the model many times to do it. Autoregressive decoding (AR) runs the model once per token. This note works out, with a roofline model, when TD produces more tokens per second than AR for the same model on the same accelerator. The running example is DiffusionGemma 26B-A4B and its autoregressive twin, which runs the same weights one token at a time.</p>
+  <div class="bdr-fig" id="fig-quiz">
+    <div class="fig-k">Before reading on</div>
+    <p class="fig-title">Which decoder does the roofline model make faster?</p>
+    <p class="fig-lede">Six settings of model, accelerator, batch and context. For each, decide whether block diffusion (TD) or autoregressive decoding (AR) has the higher throughput under the roofline model. Each answer comes with the roofline that decides it, and the rest of the page explains why.</p>
+    <div data-fig="quiz"></div>
+  </div>
   <div class="formula-card">
     <div class="eq">\[
     \Gamma \;=\; \frac{1}{\omega}\cdot\frac{\min\bigl(\class{mj-td}{I_{TD}},\,I^\star\bigr)}{\min\bigl(\class{mj-ar}{I_{AR}},\,I^\star\bigr)},\qquad \omega = S\,r + 1
     \]</div>
     <p class="small">\(\Gamma\) is the multiplicative throughput gain of TD over AR. \(\omega = Sr + 1\) is the cost of one canvas in forward passes: \(S\) denoising passes at \(r\) forward passes each, plus one commit pass. \(\class{mj-ar}{I_{AR}}\) and \(\class{mj-td}{I_{TD}}\) are the arithmetic intensities of an AR step and of a TD pass, in FLOPs per byte read from memory. \(I^\star\) is the accelerator's ridge point, its peak FLOP/s divided by its memory bandwidth.</p>
   </div>
-  <p class="math-key">In the equations, <span class="q-ar">AR quantities are in blue</span> and <span class="q-td">TD quantities in orange</span>, as in the figures.</p>
+  <p class="math-key">In the equations, <span class="q-ar">AR quantities are in blue</span> and <span class="q-td">TD quantities in orange</span>, as in the figures. Select any formula to see what its symbols mean.</p>
   <div class="tiles hero-tiles">
     <div class="tile">
 <div class="k">Batch 1</div>
@@ -302,26 +308,31 @@
   </div>
   <p class="small muted">DiffusionGemma (\(r = 1\)) on one H200, exact accounting with vocabulary; prompt 1024, 8192 generated, canvas 256, \(S = 14\), BF16.</p>
 
+  <div class="bdr-fig" id="fig-accounting">
+    <div class="fig-k">How the numbers are counted</div>
+    <p class="fig-title">Every gain on this page is a ratio of roofline bounds, counted in one of three ways.</p>
+    <p class="fig-lede">A roofline time is a lower bound on the time of a pass, so each throughput is an upper bound, and \(\Gamma\) is the ratio of two such bounds, not a measurement. In vLLM, TD reaches 84% of its bound at batch 1 and 34% at batch 64 (appendix). The three accountings below differ in what they include, and each number on the page says which one it uses. For DiffusionGemma on an H200:</p>
+    <div data-fig="accounting"></div>
+    <p class="fig-cap">In the interactive figures and the cards, the intensities \(\class{mj-ar}{I_{AR}}\) and \(\class{mj-td}{I_{TD}}\) are always those of Definition 3, without the vocabulary; next to an exact gain, the regime of a pass is given instead as the share of the peak compute that it uses. The cards quote the closed-form values of the propositions, at zero context where §3 does, unless a readout says exact. A fourth variant, the kernel-by-kernel timing rule of §5, can be switched on in Figure 3 and in the calculator.</p>
+  </div>
   <div class="takeaways">
     <div class="takeaways-title">Four things to remember</div>
     <ol>
       <li>
-<b>TD trades work for reuse.</b> A canvas of \(b\) tokens costs \(\omega\) forward passes instead of one, so TD does \(\omega\) times more FLOPs per token than AR. In return, every byte it reads from memory serves \(b\) positions instead of one.</li>
+<b>TD trades work for reuse.</b> A canvas of \(b\) tokens costs \(\omega\) forward passes instead of one, so TD does \(\omega\) times more FLOPs per token than AR. In return, every byte it reads from memory serves \(b\) positions instead of one. <a class="tk-fig" href="#fig-reuse">Try it in Figure 1</a>
+</li>
       <li>
-<b>The best batch is the one at which a TD pass just becomes compute-bound.</b> At smaller batches TD is still memory-bound, and the gain grows as a larger batch dilutes the MoE penalty. At larger batches TD already runs at peak while AR keeps speeding up, so the gain falls like \(1/B\).</li>
+<b>The best batch is the one at which a TD pass just becomes compute-bound.</b> At smaller batches TD is still memory-bound, and the gain grows as a larger batch dilutes the MoE penalty. At larger batches TD already runs at peak while AR keeps speeding up, so the gain falls like \(1/B\). <a class="tk-fig" href="#fig-bestbatch">Try it in Figure 3</a>
+</li>
       <li>
-<b>At long context the batch stops mattering.</b> Both decoders are then reading the KV cache, which belongs to one sequence, so no batch can share it. What still separates them is when they become compute-bound: an AR step reads the cache for one query and never reaches the ridge, while a TD pass reads it once for \(b\) queries and does.</li>
+<b>At long context the batch stops mattering.</b> Both decoders are then reading the KV cache, which belongs to one sequence, so no batch can share it. What still separates them is when they become compute-bound: an AR step reads the cache for one query and never reaches the ridge, while a TD pass reads it once for \(b\) queries and does. <a class="tk-fig" href="#fig-context">Try it in Figure 4</a>
+</li>
       <li>
-<b>A higher ridge point means more to gain.</b> Whenever TD is compute-bound and AR is not, the gain scales with \(I^\star\), because \(I^\star\) measures the compute AR leaves idle. The price is that TD needs more to reach the ridge: a larger batch at short context, and a canvas longer than \(I^\star/I_{\mathrm{attn}}\) at long context. On a DGX Spark, 273 GB/s against a model that reads 3 GB per token caps AR at 90 tokens per second and 0.1% of the chip's compute; the other 99.9% is what TD spends.</li>
+<b>A higher ridge point means more to gain.</b> Whenever TD is compute-bound and AR is not, the gain scales with \(I^\star\), because \(I^\star\) measures the compute AR leaves idle. The price is that TD needs more to reach the ridge: a larger batch at short context, and a canvas longer than \(I^\star/I_{\mathrm{attn}}\) at long context. On a DGX Spark, 273 GB/s against a model that reads 3 GB per token caps AR at 90 tokens per second and 0.1% of the chip's compute; the other 99.9% is what TD spends. <a class="tk-fig" href="#fig-accel">Try it in Figure 6</a>
+</li>
     </ol>
   </div>
 
-  <div class="bdr-fig" id="fig-quiz">
-    <div class="fig-k">Test your intuition</div>
-    <p class="fig-title">Which decoder produces more tokens per second?</p>
-    <p class="fig-lede">Six settings of model, accelerator, batch and context. For each, decide whether block diffusion (TD) or autoregressive decoding (AR) has the higher throughput, using the four points above. The answer comes with the roofline that decides it.</p>
-    <div data-fig="quiz"></div>
-  </div>
   <h2 class="outline-title" id="outline">How the note is organised</h2>
   <ol class="bdr-outline">
     <li>
@@ -438,7 +449,7 @@
 <p>Every byte a TD pass reads serves \(b\) positions. While TD is memory-bound this sets the gain, through \(\mathrm{TPF} = b/\omega\). It also sets the batch at which TD becomes compute-bound, which scales like \(1/b\).</p>
 <div class="card-more" hidden>
   <div class="eq">\[ \begin{gathered} \mathrm{TPF} = \frac{b}{\omega},\qquad \class{mj-td}{I_{TD}} = \frac{b}{\Pi}\,\class{mj-ar}{I_{AR}},\\[4pt] \class{mj-td}{B^\star_{TD}} \approx \frac{I^\star s_w\class{mj-td}{W_{TD}}}{2b\,N_{\mathrm{act}}}. \end{gathered} \]</div>
-  <p>While a TD pass is memory-bound, \(\Gamma = \mathrm{TPF}/\Pi\) grows with \(b\). Once it is compute-bound, \(\Gamma = I^\star/(\omega \class{mj-ar}{I_{AR}})\) no longer depends on \(b\): a longer canvas reaches that regime at a smaller batch, and so raises the best gain, which sits at \(\class{mj-td}{B^\star_{TD}}\).</p>
+  <p>While a TD pass is memory-bound, \(\Gamma = \mathrm{TPF}/\Pi\) grows with \(b\). Once it is compute-bound, \(\Gamma = I^\star/(\omega \class{mj-ar}{I_{AR}})\) no longer depends on \(b\): a longer canvas reaches that regime at a smaller batch, and so raises the best gain, which sits at \(\class{mj-td}{B^\star_{TD}}\) or one batch below it.</p>
   <div data-micro="canvas"></div>
   <p class="card-link"><a href="#lin-gain">The gain when the linear layers dominate</a> · <a href="#fig-bestbatch">Figure 3</a></p>
 </div>
@@ -468,7 +479,7 @@
 <p>The weights are shared by the whole batch, so a larger batch raises AR's intensity. It helps TD first, by shrinking \(\Pi_{\mathrm{lin}}\), and AR after that. It does nothing for the cache, which is per sequence.</p>
 <div class="card-more" hidden>
   <div class="eq">\[ Q^{X}(B, C) = \underbrace{\frac{s_wW_X(B)}{B}}_{\text{weights}} + \underbrace{Q^{X}_{\mathrm{attn}}(C)}_{\text{cache}}. \]</div>
-  <p>For \(X \in \{AR, TD\}\), the weights are shared by the batch and each sequence brings its own cache. A larger batch divides the weight bytes per sequence and leaves the cache bytes unchanged, so it raises both intensities at short context. At first it helps TD more, because \(\Pi_{\mathrm{lin}}\) falls; once a TD pass is compute-bound it only raises \(\class{mj-ar}{I_{AR}}\), and \(\Gamma = I^\star/(\omega \class{mj-ar}{I_{AR}})\) falls, down to parity near batch 110.</p>
+  <p>For \(X \in \{AR, TD\}\), the weights are shared by the batch and each sequence brings its own cache. A larger batch divides the weight bytes per sequence and leaves the cache bytes unchanged, so it raises both intensities at short context. At first it helps TD more, because \(\Pi_{\mathrm{lin}}\) falls; once a TD pass is compute-bound it only raises \(\class{mj-ar}{I_{AR}}\), and \(\Gamma = I^\star/(\omega \class{mj-ar}{I_{AR}})\) falls, down to parity near batch 109.</p>
   <div data-micro="batch"></div>
   <p class="card-link"><a href="#prop4">Proposition 4</a> · <a href="#fig-bestbatch">Figure 3</a></p>
 </div>
@@ -494,7 +505,7 @@
 <div class="card-more" hidden>
   <p>Both passes run at the peak, so time is FLOPs, and a canvas spends \(\omega\) times AR's FLOPs per token: \(\Gamma \le 1/\omega\), equal to it under Proposition 1. AR reaches the ridge at</p>
   <div class="eq">\[ \begin{gathered} \class{mj-ar}{B^\star_{AR}} = \frac{I^\star s_wW_{\mathrm{tot}}}{2N_{\mathrm{act}}}\\[4pt] = \frac{206 \times 2 \times 24.5\text{B}}{2 \times 3.08\text{B}} \approx 1{,}640, \end{gathered} \]</div>
-  <p>at which the KV cache alone of 1,640 sequences of 9k tokens takes about 650 GB, more than four H200s hold.</p>
+  <p>This closed form takes zero context. Holding 1,640 sequences of 9k tokens, the 1k prompt and 8k generated tokens of the running example, would take about 650 GB of KV cache, more than four H200s hold; and by Proposition 8, at a long enough context no batch makes an AR step compute-bound.</p>
   <p class="card-link"><a href="#cor1">Corollary 1</a> · <a href="#prop8">Proposition 8</a></p>
 </div>
 </div>
@@ -514,7 +525,7 @@
 <div class="card-v">\(\Gamma = \dfrac{I^\star}{\omega\,\class{mj-ar}{I_{AR}}}\)</div>
 <p>TD uses the compute that AR leaves idle. At short context this falls like \(1/B\); at long context it tends to \(I^\star/(\omega I_{\mathrm{attn}})\), 1.72 on an H200, at any batch.</p>
 <div class="card-more" hidden>
-  <p>TD runs at the peak \(\pi\) and AR at \(\class{mj-ar}{I_{AR}}\,\beta\), so TD's FLOPs run \(I^\star/\class{mj-ar}{I_{AR}}\) times faster and it does \(\omega\) times as many. The gain is the compute that AR leaves idle, divided by TD's extra work. At short context \(\class{mj-ar}{I_{AR}}\) grows with the batch and \(\Gamma\) reaches 1 near batch 110. At long context \(\class{mj-ar}{I_{AR}} \to I_{\mathrm{attn}}\), and at any batch</p>
+  <p>TD runs at the peak \(\pi\) and AR at \(\class{mj-ar}{I_{AR}}\,\beta\), so TD's FLOPs run \(I^\star/\class{mj-ar}{I_{AR}}\) times faster and it does \(\omega\) times as many. The gain is the compute that AR leaves idle, divided by TD's extra work. At short context \(\class{mj-ar}{I_{AR}}\) grows with the batch and \(\Gamma\) reaches 1 near batch 109. At long context \(\class{mj-ar}{I_{AR}} \to I_{\mathrm{attn}}\), and at any batch</p>
   <div class="eq">\[ \Gamma \to \frac{I^\star}{\omega\,I_{\mathrm{attn}}} = \frac{206}{15 \times 8} = 1.72. \]</div>
   <p class="card-link"><a href="#prop7">Proposition 7</a> · <a href="#fig-accel">Figure 6</a></p>
 </div>
@@ -545,9 +556,9 @@
   <div class="bdr-fig" id="fig-reuse">
     <div class="fig-k">Figure 1 · interactive</div>
     <p class="fig-title">TD does more work per token, but reads each byte for more tokens.</p>
-    <p class="fig-lede">Each tick is one forward pass, and every pass reads the weights once. Press play, then change the canvas length \(b\) and the number of denoising passes \(S\).</p>
+    <p class="fig-lede">Each slot is one forward pass, and every pass reads the weights once. Press play, change the canvas length \(b\) and the number of denoising passes \(S\), then switch the model from dense to MoE.</p>
     <div data-fig="reuse"></div>
-    <p class="fig-cap">A canvas costs \(\omega = S + 1\) passes (here \(r = 1\)) and commits \(b\) tokens; in the same \(\omega\) passes AR commits \(\omega\) tokens. Per committed token, TD therefore reads \(\omega/b = 1/\mathrm{TPF}\) times the weight bytes of AR and performs \(\omega\) times its FLOPs. The figure is drawn for a dense model at batch 1, where a pass takes the time to read its weights. With MoE, a canvas touches more experts than a single token does, and a TD pass reads more bytes than an AR step: that is the MoE penalty \(\Pi_{\mathrm{lin}}\) of §3.</p>
+    <p class="fig-cap">One sequence, batch 1, short context, and both decoders assumed memory-bound, so that a pass takes the time to read its weights; this fails for a dense model once the canvas is longer than about \(I^\star\) positions, where Corollary 1 caps the gain. A canvas costs \(\omega = S + 1\) passes (here \(r = 1\)) and commits \(b\) tokens; in the same \(\omega\) passes AR commits \(\omega\) tokens. For a dense model both passes read the same weights, and per committed token TD reads \(\omega/b = 1/\mathrm{TPF}\) times the bytes of AR: \(\Gamma = \mathrm{TPF}\). For an MoE model a canvas touches more experts than one token does, a TD pass reads \(\Pi_{\mathrm{lin}}\) times the weights of an AR step (the two bars, Proposition 3), and \(\Gamma = \mathrm{TPF}/\Pi_{\mathrm{lin}}\).</p>
   </div>
   <div class="table-wrap"><table class="notation">
     <thead><tr>
@@ -867,7 +878,7 @@
     <p class="fig-title">Proposition 1 on the roofline.</p>
     <p class="fig-lede">Each dot sits at the arithmetic intensity of its pass, on the roofline of the accelerator. The bracket is how much faster TD's FLOPs run than AR's; dividing it by \(\omega\) gives \(\Gamma\). Move the batch and the context, or pick one of the three regimes.</p>
     <div data-fig="roofline"></div>
-    <p class="fig-cap">The roofline is \(\min(\pi,\ I\beta)\). Intensities from Definition 3 without the vocabulary, as in (A2): DiffusionGemma, BF16, \(b = 256\), \(S = 14\), \(\omega = 15\). The exact accounting of the appendix, vocabulary included, is given under the plot for comparison.</p>
+    <p class="fig-cap">The roofline is \(\min(\pi,\ I\beta)\), and the bracket is \(\min(\class{mj-td}{I_{TD}}, I^\star)/\min(\class{mj-ar}{I_{AR}}, I^\star)\). Intensities from Definition 3 without the vocabulary, as in (A2): DiffusionGemma, BF16, \(b = 256\), \(S = 14\), \(\omega = 15\). The exact accounting of the appendix, at the same fixed context, is given under the plot for comparison.</p>
   </div>
   <div class="box prop" id="cor1">
     <div class="bdr-title">
@@ -881,7 +892,7 @@
   <div class="box prop" id="prop2">
     <div class="bdr-title">
 <span class="tag">Proposition 2</span>Each intensity is a byte-weighted average of its linear and attention parts</div>
-    <p class="gist"><span>In short.</span> Each intensity is the byte-weighted average of its linear and attention parts, so whichever part carries most of the bytes sets it.</p>
+    <p class="gist"><span>In short.</span> Each intensity is the byte-weighted average of its linear and attention parts, so it lies between them, nearer to the part that carries more of the bytes.</p>
     <p>Under (A2), for \(X \in \{AR, TD\}\), let \(\theta^X_{\mathrm{lin}} = Q^X_{\mathrm{lin}}/Q^X\) and \(\theta^X_{\mathrm{attn}} = Q^X_{\mathrm{attn}}/Q^X\) be the shares of the two parts in the bytes of Definition 2. Then</p>
     <div class="eq eq-wide">\[ I_X = \theta^X_{\mathrm{lin}}\,I^X_{\mathrm{lin}} + \theta^X_{\mathrm{attn}}\,I^X_{\mathrm{attn}},\qquad \Pi - 1 = \class{mj-ar}{\theta^{AR}_{\mathrm{lin}}}(\Pi_{\mathrm{lin}} - 1) + \class{mj-ar}{\theta^{AR}_{\mathrm{attn}}}(\Pi_{\mathrm{attn}} - 1). \]</div>
     <div class="eq eq-narrow">\[ \begin{gathered} I_X = \theta^X_{\mathrm{lin}}\,I^X_{\mathrm{lin}} + \theta^X_{\mathrm{attn}}\,I^X_{\mathrm{attn}},\\[4pt] \Pi - 1 = \class{mj-ar}{\theta^{AR}_{\mathrm{lin}}}(\Pi_{\mathrm{lin}} - 1)\\ \qquad + \class{mj-ar}{\theta^{AR}_{\mathrm{attn}}}(\Pi_{\mathrm{attn}} - 1). \end{gathered} \]</div>
@@ -922,7 +933,7 @@ gain                                                              1,541 / 609 = 
   <div class="box prop" id="prop4">
     <div class="bdr-title">
 <span class="tag">Proposition 4</span>When the linear layers dominate</div>
-    <p class="gist"><span>In short.</span> The weights dominate an AR step's bytes up to a context that falls like \(1/B,\) because the batch shares the weights but each sequence brings its own cache.</p>
+    <p class="gist"><span>In short.</span> With dense attention and full windows, the weights dominate an AR step's bytes up to a context that shrinks as the batch grows, like \(1/B\) once the batch touches every expert, because the batch shares the weights but each sequence brings its own cache.</p>
     <p>Under (A2), with the windows full (\(C \ge w\)) and dense attention, an AR step spends at least a share \(x\) of its bytes on weights exactly when</p>
     <div class="eq eq-wide">\[ C \;\le\; C_{\mathrm{lin}}(B, x) = \frac{1}{\nu_G}\Bigl(\frac{1-x}{x}\cdot\frac{s_w\class{mj-ar}{W_{AR}}(B)}{B} - \nu_W\,w\Bigr). \]</div>
     <div class="eq eq-narrow">\[ \begin{gathered} C \le C_{\mathrm{lin}}(B, x)\\[2pt] = \frac{1}{\nu_G}\Bigl(\frac{1-x}{x}\,\frac{s_w\class{mj-ar}{W_{AR}}(B)}{B} - \nu_W w\Bigr). \end{gathered} \]</div>
@@ -973,7 +984,7 @@ gain                                                              1,541 / 609 = 
     <p class="fig-title">The best batch is the one at which a TD pass reaches the ridge.</p>
     <p class="fig-lede">The curve is hidden. Drag the marker to the batch at which you expect TD's lead over AR to be largest, then reveal it.</p>
     <div data-fig="bestbatch"></div>
-    <p class="fig-cap">Exact gain \(\Gamma(B)\) at context 1,024: DiffusionGemma, BF16, \(b = 256\), \(S = 14\), vocabulary included. Left of \(\class{mj-td}{B^\star_{TD}}\) both decoders are memory-bound and \(\Gamma \approx \mathrm{TPF}/\Pi_{\mathrm{lin}}(B)\) (Proposition 3, without the vocabulary) rises as the batch dilutes the MoE penalty. Right of it a TD pass is compute-bound and \(\Gamma \approx I^\star/(\omega \class{mj-ar}{I_{AR}})\) falls, roughly like \(1/B\) while the weights dominate AR's bytes, down to parity at \(B_\times\) where there is one. Over integer batches the maximum is the last memory-bound batch or the first compute-bound one. Dashed: the model, the batch's KV cache and one canvas of logits do not fit in the accelerator's memory.</p>
+    <p class="fig-cap">Exact roofline gain \(\Gamma(B)\) at a fixed context of 1,024: DiffusionGemma, BF16, \(b = 256\), \(S = 14\), vocabulary included. Under (A1), left of \(\class{mj-td}{B^\star_{TD}}\) both decoders are memory-bound and \(\Gamma \approx \mathrm{TPF}/\Pi_{\mathrm{lin}}(B)\) (Proposition 3, without the vocabulary) rises as the batch dilutes the MoE penalty. Right of it a TD pass is compute-bound and \(\Gamma \approx I^\star/(\omega \class{mj-ar}{I_{AR}})\) falls, roughly like \(1/B\) while the weights dominate AR's bytes, down to parity at \(B_\times\) where there is one. Over integer batches the maximum is the last memory-bound batch or the first compute-bound one. With the kernels of a pass timed one after another instead (the remark of §5), the dense layers of a TD pass are compute-bound before its experts are, and the peak no longer sits at a single transition: it is lower on every accelerator here, and on most of them it comes later (batch 9 instead of 5 on an H200). Dashed: the model, the batch's KV cache and one canvas of logits do not fit in the accelerator's memory.</p>
   </div>
   <div class="table-wrap"><table>
     <caption>Table 3. Proposition 1 against the exact accounting (appendix), DiffusionGemma, H200, at context 1k. The middle column removes the vocabulary from the exact model, as in (A2); the last puts it back.</caption>
@@ -1061,7 +1072,7 @@ gain                                                              1,541 / 609 = 
   <div class="box prop" id="prop6">
     <div class="bdr-title">
 <span class="tag">Proposition 6</span>When attention dominates</div>
-    <p class="gist"><span>In short.</span> Attention overtakes the weights in an AR step's bytes at the context of Proposition 4, and in a position's FLOPs at \(C_F = 2N_{\mathrm{act}}/\alpha_G\) whatever the batch; as the context grows both intensities move to their attention values, \(I_{\mathrm{attn}}\) for AR and \(b\,I_{\mathrm{attn}}\) for TD.</p>
+    <p class="gist"><span>In short.</span> With full windows, attention overtakes the weights in an AR step's bytes at the context of Proposition 4, and in a position's FLOPs at \(C_F(1-\sigma)\), which does not depend on the batch; as the context grows both intensities move to their attention values, \(I_{\mathrm{attn}}\) for AR and \(b\,I_{\mathrm{attn}}\) for TD with dense attention.</p>
     <p>Under (A2), with the windows full (\(C \ge w\)):</p>
     <ol>
       <li>Attention carries at least a share \(x\) of an AR step's bytes exactly when \(C \ge C_{\mathrm{lin}}(B, 1-x)\), the threshold of Proposition 4.</li>
@@ -1086,10 +1097,10 @@ gain                                                              1,541 / 609 = 
   <p>When attention carries most of the bytes, Corollary 1 reads \(\Gamma = \min\bigl(\mathrm{TPF}/\Pi_{\mathrm{attn}},\ I^\star/(\omega \class{mj-ar}{I^{AR}_{\mathrm{attn}}})\bigr)\) as long as \(\class{mj-ar}{I^{AR}_{\mathrm{attn}}} \lt I^\star\), and nothing in it depends on the batch, because a cache belongs to one sequence. Table 6 gives the three quantities for a model whose attention is of one kind, with the windows full and \(C \ge m\).</p>
   <div class="bdr-fig wide" id="fig-context">
     <div class="fig-k">Figure 4 · interactive</div>
-    <p class="fig-title">As the context grows, the batch matters less and less.</p>
-    <p class="fig-lede">Each curve is the gain at one batch size as the context grows. Drag along the context axis, and switch the attention layout.</p>
+    <p class="fig-title">As the context grows, both intensities forget the batch.</p>
+    <p class="fig-lede">Each curve is the intensity of a pass at one batch size: blue for an AR step, orange for a TD pass. Drag along the context axis, and change the accelerator to move the ridge.</p>
     <div data-fig="context"></div>
-    <p class="fig-cap">Exact gain against the context \(C\) on an H200: DiffusionGemma, BF16, \(b = 256\), \(S = 14\), vocabulary included. The weights are shared by the batch and the KV cache is not, so once the cache carries most of an AR step's bytes the batch no longer moves either intensity, and the curves converge. For DiffusionGemma's layout their common limit is \(I^\star/(\omega I_{\mathrm{attn}})\) with \(I_{\mathrm{attn}} = 8\) the intensity of its global layers, 1.72 on an H200, which holds because \(b\,I_{\mathrm{attn}} \ge I^\star\). With sparse global layers a query reads at most \(m\) cached tokens, so the weights keep a larger share of the bytes and the curves converge later. Dashed: the weights, the batch's KV cache and one canvas of logits do not fit in the H200's 141 GB.</p>
+    <p class="fig-cap">Intensities of Definition 3 (no vocabulary): DiffusionGemma, BF16, \(b = 256\). The weights are shared by the batch and the KV cache is not, so as the cache takes over the bytes, each family of curves merges: \(\class{mj-ar}{I_{AR}}\) tends to \(I_{\mathrm{attn}} = 8\), below every ridge point of this note, and \(\class{mj-td}{I_{TD}}\) to \(b\,I_{\mathrm{attn}} = 2{,}048\), above every one. Under Proposition 1 the gain then tends to \(I^\star/(\omega I_{\mathrm{attn}})\) whatever the batch, 1.72 on an H200. At 1M context the AR curves are within a factor 1.3 of each other. The TD curves are still a factor 3 apart, which no longer changes the gain once they are all above the ridge. Dashed: the model, the batch's KV cache and one canvas of logits do not fit in the accelerator's memory.</p>
   </div>
   <div class="table-wrap breakout"><table class="cls t6">
     <caption>Table 6. The attention part by kind of layer, for \(C \ge w, m\), and the gain when it dominates. Last column: DiffusionGemma on an H200 (\(I^\star = 206\), \(\omega = 15\), \(b = 256\), \(m = 2048\)).</caption>
@@ -1153,7 +1164,7 @@ gain                                                              1,541 / 609 = 
   <div class="box prop" id="prop8">
     <div class="bdr-title">
 <span class="tag">Proposition 8</span>The batch needed to saturate compute</div>
-    <p class="gist"><span>In short.</span> A batch cannot saturate compute on cache bytes, since each sequence brings its own cache, but a canvas can: once \(b\,I_{\mathrm{attn}} \gt I^\star\), a longer context makes a TD pass compute-bound at a smaller batch, not a larger one.</p>
+    <p class="gist"><span>In short.</span> With dense attention and full windows, a batch cannot saturate compute on cache bytes, since each sequence brings its own cache, but a canvas can: once \(b\,I_{\mathrm{attn}} \gt I^\star\), a longer context makes a TD pass compute-bound at a smaller batch, not a larger one.</p>
     <p>Let \(B^\star_n(C)\) be the smallest batch at which a pass with \(n\) queries per sequence (\(n = 1\) for AR, \(n = b\) for TD) is compute-bound, or \(\infty\) if there is none, with dense attention and the windows full (\(C \ge w\)).</p>
     <ol>
       <li>If \(n\,I_{\mathrm{attn}} \lt I^\star\), then \(B^\star_n(C)\) is non-decreasing in \(C\), and infinite beyond some finite context.</li>
@@ -1281,10 +1292,10 @@ gain                                                              1,541 / 609 = 
   <h3>Across accelerators and models</h3>
   <div class="bdr-fig wide" id="fig-accel">
     <div class="fig-k">Figure 6 · interactive</div>
-    <p class="fig-title">A higher ridge point means more to gain.</p>
-    <p class="fig-lede">Each dot is an accelerator, placed at its ridge point \(I^\star = \pi/\beta\). Switch between short and long context, and select a dot for its numbers.</p>
+    <p class="fig-title">The gain depends on the accelerator only through its ridge point, and a higher ridge never lowers it.</p>
+    <p class="fig-lede">The curve is the gain for a chip of ridge point \(I^\star = \pi/\beta\); each dot is an accelerator. Drag the marker along the axis, select a dot, or switch to long context.</p>
     <div data-fig="accel"></div>
-    <p class="fig-cap">Exact gains, DiffusionGemma, BF16, \(b = 256\), \(S = 14\). Short context: \(C = 1{,}024\), at the batch that maximises \(\Gamma\), the one at which a TD pass turns compute-bound. Long context: \(C = 2^{20}\) at batch 1; the line is the limit \(I^\star/(\omega I_{\mathrm{attn}})\) as \(C \to \infty\), linear in \(I^\star\). The dots lie above it because at batch 1 the weights are still about a quarter of an AR step's bytes. Hollow dots: the model and its KV cache do not fit in the accelerator's memory.</p>
+    <p class="fig-cap">Exact roofline gains, DiffusionGemma, BF16, \(b = 256\), \(S = 14\). Multiplying the peak \(\pi\) and the bandwidth \(\beta\) by the same factor multiplies the time of every pass alike, so \(\Gamma\) depends on the accelerator only through \(I^\star\), and the accelerators lie on the curve. Short context: \(C = 1{,}024\), at the batch that maximises \(\Gamma\); on the flat stretch near \(I^\star = 60\), batch 1 is best and both decoders are memory-bound, so the gain is \(\mathrm{TPF}/\Pi\) whatever the ridge. Long context: \(C = 2^{20}\) at batch 1; the dashed line is the limit \(I^\star/(\omega I_{\mathrm{attn}})\) as \(C \to \infty\), linear in \(I^\star\). Over this range the curve lies above the line, because at batch 1 the weights are still about a quarter of an AR step's bytes; above \(I^\star \approx 620\) a TD pass at batch 1 is itself memory-bound at this context, and the curve is flat. The curve assumes unlimited memory; a hollow dot marks an accelerator in which the model and its KV cache do not fit.</p>
   </div>
   <div class="table-wrap"><table>
     <caption>Table 8. Regime thresholds by accelerator, DiffusionGemma in BF16 under Proposition 1. The parity batch solves \(\class{mj-ar}{I^{AR}_{\mathrm{lin}}}(B) = I^\star/\omega\) with the full \(\class{mj-ar}{W_{AR}}(B)\). A higher ridge point favours TD.</caption>

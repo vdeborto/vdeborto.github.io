@@ -219,3 +219,61 @@ html { scroll-behavior: smooth; }
 /* the hover anchor of a box title must not take a line of its own when the title wraps */
 .bdr .box > .bdr-title { position: relative; padding-right: 18px; }
 .bdr .box > .bdr-title > .anchor { position: absolute; right: 0; top: 0; margin: 0; }
+
+/* ---------------------------------------------------------------- accounting table, takeaway links, card curves */
+.bdr table.acct td { white-space: normal; vertical-align: top; }
+.bdr table.acct td:first-child { min-width: 210px; width: 52%; }
+.bdr table.acct .muted { font-size: 13px; }
+.bdr .tk-fig { font: 500 12px var(--bdr-font-ui); letter-spacing: .02em; white-space: nowrap; }
+.bdr svg.spark { display: block; width: 100%; max-width: 340px; height: auto; overflow: visible; }
+.bdr svg.spark text { font: 500 12px var(--bdr-font-ui); fill: var(--ink); }
+.bdr .micro-pic { flex: 1 1 260px; min-width: 240px; }
+
+/* ---------------------------------------------------------------- intuition mode: folded tables, no outline */
+.bdr.intuition .table-wrap.foldable:not(.open) thead, .bdr.intuition .table-wrap.foldable:not(.open) tbody { display: none; }
+.bdr.intuition .table-wrap.foldable:not(.open) caption { padding-top: 0; }
+.bdr.intuition h2.outline-title, .bdr.intuition ol.bdr-outline { display: none; }
+
+/* ---------------------------------------------------------------- symbol key */
+.bdr mjx-container { cursor: help; }
+.bdr .bdr-card:not(.open) mjx-container, .bdr summary mjx-container { cursor: inherit; }
+.sym-key {
+  position: absolute; z-index: 1050; width: max-content; max-width: min(360px, calc(100vw - 16px)); padding: 10px 14px;
+  background: var(--bdr-surface); border: 1px solid var(--accent); border-radius: 3px; color: var(--ink);
+  font: 13px/1.5 "Source Serif 4", Charter, Georgia, serif;
+}
+.sym-key dl { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 4px 12px; margin: 0; }
+.sym-key dt { font-weight: 600; white-space: nowrap; }
+.sym-key dd { margin: 0; color: var(--bdr-ink-2); }
+
+/* ---------------------------------------------------------------- contents sheet (below 1200px) */
+.rail-fab, .rail-backdrop { display: none; }
+@media (max-width: 1199.98px) {
+  .rail-fab {
+    display: inline-flex; gap: 8px; align-items: center; position: fixed; z-index: 1035; left: 16px; bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+    font: 500 12.5px "IBM Plex Mono", ui-monospace, monospace; letter-spacing: .03em; padding: 9px 14px; border-radius: 999px;
+    background: var(--accent); color: var(--bdr-bg); border: none; cursor: pointer;
+  }
+  .rail-fab span { opacity: .75; }
+  .rail-backdrop:not([hidden]) { display: block; position: fixed; inset: 0; z-index: 1039; background: rgba(0, 0, 0, .35); }
+  .bdr-rail.open {
+    display: block; position: fixed; z-index: 1040; left: 0; right: 0; bottom: 0; max-height: 72vh; overflow-y: auto;
+    background: var(--bdr-surface); border-top: 1px solid var(--rule); border-radius: 12px 12px 0 0;
+    padding: 16px 20px calc(20px + env(safe-area-inset-bottom, 0px)); font: 14px/1.5 "IBM Plex Mono", ui-monospace, monospace; color: var(--bdr-muted);
+  }
+  .bdr-rail .rail-progress { height: 2px; background: var(--rule); margin-bottom: 14px; }
+  .bdr-rail .rail-progress i { display: block; height: 100%; width: 0; background: var(--accent); }
+  .bdr-rail a { color: var(--bdr-ink-2); text-decoration: none; }
+  .bdr-rail .rail-top { display: block; font-weight: 500; color: var(--ink); margin-bottom: 8px; }
+  .bdr-rail ol { list-style: none; margin: 0; padding: 0; }
+  .bdr-rail li a { display: block; padding: 7px 0 7px 12px; border-left: 2px solid var(--rule); }
+  .bdr-rail li a.active { color: var(--accent); border-left-color: var(--accent); font-weight: 500; }
+  .bdr-rail ol.sub { display: none; }
+  .bdr-rail li.current ol.sub { display: block; }
+  .bdr-rail ol.sub a { padding: 5px 0 5px 26px; font-size: 13px; color: var(--bdr-muted); }
+  .bdr-rail ol.sub a.fig { color: var(--accent); }
+  .bdr-rail .depth { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; align-items: center; }
+  .bdr-rail .depth > span { letter-spacing: .08em; text-transform: uppercase; font-size: 11px; margin-right: 4px; }
+  .bdr-rail .depth button { padding: 7px 12px; font-size: 13px; }
+}
+@media print { .rail-fab, .rail-backdrop, .sym-key { display: none !important; } }
