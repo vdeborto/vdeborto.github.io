@@ -118,8 +118,17 @@
   // The accelerator is shared by Figures 2, 3, 4 and 6: choosing one in a figure sets it in all.
   const ACCEL = ['h20', 'rtx5090', 'a100', 'h200', 'v5e', 'b200', 'mi355x', 'h100pcie', 'spark', 'v6e'];
   const SHORT = { h20: 'H20', rtx5090: 'RTX 5090', a100: 'A100', h200: 'H200', v5e: 'TPU v5e', b200: 'B200', mi355x: 'MI355X', h100pcie: 'H100 PCIe', spark: 'DGX Spark', v6e: 'TPU v6e' };
-  const shared = { hw: 'h200', subs: [] };
-  function setHw(id) { if (!HWBYID[id] || id === shared.hw) return; shared.hw = id; shared.subs.forEach((f) => f(id)); }
+  // The choice is remembered across the pages of the book (a per-viewer convenience).
+  const HW_KEY = 'bdr-hw';
+  let savedHw = null;
+  try { savedHw = localStorage.getItem(HW_KEY); } catch (e) { /* storage unavailable */ }
+  const shared = { hw: savedHw && HWBYID[savedHw] && ACCEL.includes(savedHw) ? savedHw : 'h200', subs: [] };
+  function setHw(id) {
+    if (!HWBYID[id] || id === shared.hw) return;
+    shared.hw = id;
+    try { localStorage.setItem(HW_KEY, id); } catch (e) { /* storage unavailable */ }
+    shared.subs.forEach((f) => f(id));
+  }
   function hwControl() {
     const lab = el(`<label class="sel">accelerator<select>${ACCEL.map((id) => `<option value="${id}"${id === shared.hw ? ' selected' : ''}>${HWBYID[id].label}</option>`).join('')}</select></label>`);
     const s = lab.querySelector('select');
@@ -300,7 +309,16 @@
   function openCalculator(hwId, B, rule) {
     const set = (id, v) => { const e = document.getElementById(id); if (!e) return; e.value = v; e.dispatchEvent(new Event('change', { bubbles: true })); };
     set('c-hw', hwId); set('c-kern', rule); set('c-B', B);
-    const calc = document.getElementById('calc'); if (calc) calc.scrollIntoView();
+    const calc = document.getElementById('calc');
+    if (calc) calc.scrollIntoView();
+    else location.href = calcHref(hwId, B, rule);
+  }
+  // The calculator is a page of its own; its settings travel in the address (hw, kern, B).
+  function calcHref(hwId, B, rule) {
+    let url = '#calc';
+    try { const c = JSON.parse(document.getElementById('bdr-book').textContent).chapters.find((x) => x.slug === 'calculator'); if (c) url = c.url; } catch (e) { /* single page */ }
+    if (url === '#calc') return url;
+    return `${url}?${new URLSearchParams({ hw: hwId, kern: rule, B: String(B) })}#calc`;
   }
   function figBestBatch(root) {
     const st = { i: nearestIndex(BSCAN, 64), revealed: false, rule: 'whole' };
@@ -356,7 +374,7 @@
           : `a TD pass is compute-bound from ${hsub('B*', 'TD')} = ${cur.bstar}`;
         out.innerHTML = `<span class="big">Best roofline gain: <b>${g2(cur.best.g)}× at B = ${cur.best.B}</b>; ${turn}${cur.parity ? `; AR catches up near ${hsub('B', '×')} ≈ ${Math.round(cur.parity)}` : '; AR does not catch up by batch 1024'}.</span><br>`
           + `${lastFit ? (lastFit.B < 1024 ? `Dashed: batches above ${lastFit.B} do not fit in ${HWBYID[shared.hw].gb} GB. ` : '') : `The model does not fit in ${HWBYID[shared.hw].gb} GB at any batch. `}`
-          + `At the marker, B = ${B}: Γ = ${off}; an <span class="ar">AR step uses ${pct(P.uAR)}</span> of the peak compute and a <span class="td">TD pass ${pct(P.uTD)}</span>; MoE penalty ${hsub('Π', 'lin')} = ${fmt(P.Pi)}. <a href="#calc" data-calc>Open this setting in the calculator</a>.`;
+          + `At the marker, B = ${B}: Γ = ${off}; an <span class="ar">AR step uses ${pct(P.uAR)}</span> of the peak compute and a <span class="td">TD pass ${pct(P.uTD)}</span>; MoE penalty ${hsub('Π', 'lin')} = ${fmt(P.Pi)}. <a href="${document.getElementById('calc') ? '#calc' : calcHref(shared.hw, B, st.rule)}" data-calc>Open this setting in the calculator</a>.`;
       }
     }
     draggable(pic, () => st.xs, BSCAN, () => st.i, (i) => { st.i = i; draw(); });

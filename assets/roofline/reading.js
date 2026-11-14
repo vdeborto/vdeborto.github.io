@@ -9,6 +9,17 @@
   'use strict';
   const page = document.querySelector('.bdr');
   if (!page) return;
+  try {
+    const meta = JSON.parse(document.getElementById('bdr-book').textContent);
+    if (meta.ids) {
+      const id = decodeURIComponent(location.hash.slice(1)), calc = meta.chapters.find((c) => c.slug === 'calculator');
+      if (location.search && calc) { location.replace(calc.url + location.search + (location.hash || '#calc')); return; }
+      if (id && !document.getElementById(id) && meta.ids[id] !== undefined) {
+        const to = meta.chapters.find((c) => c.slug === meta.ids[id]);
+        if (to) { location.replace(to.url + location.hash); return; }
+      }
+    }
+  } catch (e) { /* no book data */ }
   const el = (html) => { const t = document.createElement('template'); t.innerHTML = html.trim(); return t.content.firstElementChild; };
   const KEY = 'bdr-depth';
 
@@ -54,29 +65,34 @@
   if (hero) hero.after(depthSwitch('depth-hero'));
 
   // ---------------------------------------------------------------- contents: rail or sheet
-  const sections = [...page.querySelectorAll('section[id]')].map((sec) => {
-    const h = sec.querySelector('h2');
-    const label = h ? [...h.childNodes].filter((n) => !(n.classList && n.classList.contains('anchor'))).map((n) => n.textContent).join('').replace(/\s+/g, ' ').trim() : sec.id;
-    const subs = [...sec.querySelectorAll('h3[id], .bdr-fig[id]')].map((x) => ({
-      id: x.id,
-      label: x.classList.contains('bdr-fig') ? x.querySelector('.fig-k').textContent.replace(/·.*$/, '').trim() : x.textContent.replace('#', '').trim(),
-      fig: x.classList.contains('bdr-fig'),
-    }));
-    return { id: sec.id, label, subs };
-  });
-  const rail = el('<nav class="bdr-rail" aria-label="Contents"><div class="rail-progress"><i></i></div><a class="rail-top" href="#top">Block Diffusion Rooflines</a><ol></ol></nav>');
+  // The note is a short book (one page per chapter, described by #bdr-book); the rail lists every
+  // chapter and, under the current one, its sub-sections and figures.
+  let book = null;
+  try { book = JSON.parse(document.getElementById('bdr-book').textContent); } catch (e) { /* no book data */ }
+  const chapters = book ? book.chapters : [];
+  const here = book ? chapters.find((c) => c.slug === book.current) : null;
+  const labelOf = (c) => (c.num && c.slug ? `${c.num} · ${c.title}` : c.title);
+  const subs = [...page.querySelectorAll('section h3[id], .bdr-fig[id], .book-toc[id]')].filter((x) => !x.closest('.box')).map((x) => ({
+    id: x.id,
+    label: x.classList.contains('bdr-fig') ? x.querySelector('.fig-k').textContent.replace(/·.*$/, '').trim()
+      : x.classList.contains('book-toc') ? 'Contents' : x.textContent.replace('#', '').trim(),
+    fig: x.classList.contains('bdr-fig'),
+  }));
+  const rail = el(`<nav class="bdr-rail" aria-label="Contents"><div class="rail-progress"><i></i></div><a class="rail-top" href="${book ? book.home : '#top'}">${book ? book.title : 'Contents'}</a><ol></ol></nav>`);
   const ol = rail.querySelector('ol');
-  if (page.querySelector('#fig-quiz')) ol.appendChild(el('<li><a href="#fig-quiz" data-id="fig-quiz">Quiz</a></li>'));
-  if (page.querySelector('#fig-accounting')) ol.appendChild(el('<li><a href="#fig-accounting" data-id="fig-accounting">How the numbers are counted</a></li>'));
-  for (const s of sections) {
-    const li = el(`<li><a href="#${s.id}" data-id="${s.id}">${s.label}</a></li>`);
-    if (s.subs.length) {
+  for (const c of chapters) {
+    const cur = c === here;
+    const li = el(`<li${cur ? ' class="current"' : ''}><a href="${cur ? '#top' : c.url}"${cur ? ' class="active" aria-current="page"' : ''}>${labelOf(c)}</a></li>`);
+    if (cur && subs.length) {
       const sub = el('<ol class="sub"></ol>');
-      for (const x of s.subs) sub.appendChild(el(`<li><a href="#${x.id}" data-id="${x.id}" class="${x.fig ? 'fig' : ''}">${x.label}</a></li>`));
+      for (const x of subs) sub.appendChild(el(`<li><a href="#${x.id}" data-id="${x.id}" class="${x.fig ? 'fig' : ''}">${x.label}</a></li>`));
       li.appendChild(sub);
     }
     ol.appendChild(li);
   }
+  // A chapter page without the rail's switch on narrow screens still gets one under its title.
+  const partLine = page.querySelector('.book-part');
+  if (partLine) partLine.after(depthSwitch('depth-hero'));
   rail.appendChild(depthSwitch('depth-rail'));
   const fab = el('<button type="button" class="rail-fab" aria-expanded="false" aria-controls="bdr-contents">Contents <span></span></button>');
   const backdrop = el('<div class="rail-backdrop" hidden></div>');
@@ -95,15 +111,11 @@
     const h = document.documentElement.scrollHeight - innerHeight, done = h > 0 ? Math.min(100, (100 * scrollY) / h) : 0;
     bar.style.width = `${done}%`;
     fabPct.textContent = `${Math.round(done)}%`;
-    // current = last target whose top is above a line 30% down the window
+    // current = last sub-section whose top is above a line 30% down the window
     const line = innerHeight * 0.3;
-    let cur = null, curSub = null;
-    for (const [a, t] of targets) {
-      if (t.getBoundingClientRect().top > line) continue;
-      if (a.closest('ol.sub')) curSub = a; else { cur = a; curSub = null; }
-    }
-    for (const [a] of targets) a.classList.toggle('active', a === cur || a === curSub);
-    rail.querySelectorAll(':scope > ol > li').forEach((li) => li.classList.toggle('current', !!cur && li.contains(cur)));
+    let cur = null;
+    for (const [a, t] of targets) if (t.getBoundingClientRect().top <= line) cur = a;
+    for (const [a] of targets) a.classList.toggle('active', a === cur);
   }
   addEventListener('scroll', update, { passive: true });
   addEventListener('resize', update);

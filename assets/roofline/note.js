@@ -455,7 +455,8 @@
     w: { B: 1, P: 1024, G: 8192, b: 256, S: 14, r: 1, lambdaAR: 2, lambdaTD: 5 },
   };
 
-  const $ = (id) => document.getElementById(id);
+  const GHOST = {}; // stand-ins for elements that live on another page of the book
+  const $ = (id) => document.getElementById(id) || GHOST[id] || (GHOST[id] = document.createElement('div'));
   // Work per canvas in full-pass units: S decoder passes of relative cost r, plus the commit.
   const omega = (w) => w.S * (w.r ?? 1) + 1;
   const fmt = (x, d = 3) => (isFinite(x) ? String(+x.toPrecision(d)) : '–');
@@ -632,6 +633,7 @@
 
 
   function intensityMap(el, legendEl, st, which) {
+    if (!el.isConnected) return;
     const { hw, o, w } = st;
     const mdl = st.m || model;
     const Is = hw.peak / hw.bw;
@@ -724,6 +726,7 @@
 
 
   function lineChart(el, series, opts) {
+    if (!el.isConnected) return;
     const W = 520, H = 280, m = { l: 56, r: 16, t: 12, b: 34 };
     const xs = series[0].points.map((p) => p.x);
     const ys = series.flatMap((s) => s.points.map((p) => p.y)).concat(opts.refY ? [opts.refY] : []);
@@ -903,6 +906,7 @@
 
   // ---------------------------------------------------------------- exact gain map with exact contours
   function regimeMap(el, legendEl, st) {
+    if (!el.isConnected) return;
     const { hw, o, w } = st;
     const mdl = st.m || model;
     const W = 640, H = 420, mg = { l: 54, r: 14, t: 10, b: 44 };
@@ -989,6 +993,7 @@
 
   // ---------------------------------------------------------------- Proposition 2 figure: smallest compute-bound batch vs context
   function bstarChart(el, legendEl, st) {
+    if (!el.isConnected) return;
     const m0 = { ...model, V: 0, fSC: 0, selfCond: false };
     const ob = { ...st.o, ba: 0, bl: 0 };
     const series = [
@@ -1066,6 +1071,7 @@
 
   // ---------------------------------------------------------------- decoder ratio figure: exact gain against r
   function ratioChart(el) {
+    if (!el.isConnected) return;
     const rs = Array.from({ length: 21 }, (_, k) => 2 ** ((k - 12) / 4));
     const cases = [
       { color: '--bdr-td', label: 'batch 1, 1k context', B: 1, C: 1024 },
@@ -1085,6 +1091,7 @@
   // ---------------------------------------------------------------- sparse attention figures
   const SPARSE_REF = () => M.MODELS.dgemma_sparse.build();
   function ctxChart(el, legendEl) {
+    if (!el.isConnected) return;
     const ms = SPARSE_REF();
     const Cs = []; for (let k = 10; k <= 20; k += 0.25) Cs.push(2 ** k);
     const series = [
@@ -1100,6 +1107,7 @@
     legendEl.innerHTML = series.map((sr) => `<span><span class="swatch" style="background:var(${sr.color})"></span>${sr.label}</span>`).join('') + '<span class="muted">dashed: dense (the main note)</span>';
   }
   function etaChart(el, legendEl) {
+    if (!el.isConnected) return;
     const base = SPARSE_REF();
     const etas = []; for (let k = -8; k <= 0; k += 0.5) etas.push(2 ** k);
     const C = 2 ** 20;
@@ -1484,6 +1492,14 @@
   }
 
   function init() {
+    if (!document.getElementById('calc')) {
+      initTabs(); initAnchors(); staticFigures(); initPrint();
+      matchMedia('(prefers-color-scheme: dark)').addEventListener('change', staticFigures);
+      new MutationObserver(staticFigures).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+      const land = () => { const t = location.hash && document.getElementById(decodeURIComponent(location.hash.slice(1))); if (t) t.scrollIntoView({ behavior: 'instant' }); };
+      if (window.MathJax && MathJax.startup && MathJax.startup.promise) MathJax.startup.promise.then(() => setTimeout(land, 50));
+      return;
+    }
     let opts = '', open = false;
     for (const h of HW) {
       if (h.group) { opts += `${open ? '</optgroup>' : ''}<optgroup label="${h.group}">`; open = true; }

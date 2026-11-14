@@ -20,13 +20,21 @@ Every AR quantity in the math (I_{AR}, W_{AR}, F^{AR}_{...}, B^\\star_{AR}, ...)
 Generated (do not edit by hand; rerun this script):
   assets/roofline/note.css      the note's own CSS, scoped under .bdr, tokens renamed --bdr-*
   assets/roofline/note.js       the note's cost model, figures and calculator
-  notes/block-diffusion-rooflines-6f924020/index.html
+  notes/block-diffusion-rooflines-6f924020/index.html          the book's first page: introduction
+                                                               and contents
+  notes/block-diffusion-rooflines-6f924020/<chapter>/index.html one page per section of the note
 
-The page is unlisted: no link from the site, robots noindex (front matter `robots`), excluded
+The note is published as a short book: CHAPTERS below maps each section of the source to a page,
+with "Part N of" and previous / next links, a contents rail listing every chapter, and links
+between chapters rewritten to the right page. Old single-page links (#prop1, ?B=64) are
+forwarded by the first page to the chapter that now holds the anchor.
+
+Every page is unlisted: no link from the site, robots noindex (front matter `robots`), excluded
 from the sitemap (_config.yml defaults for notes/). Usage:
     python3 -I bin/build-roofline.py      (exit 1 if an anchor is missing)
 then preview, commit and push.
 """
+import json
 import re
 import sys
 from pathlib import Path
@@ -34,7 +42,22 @@ from pathlib import Path
 SRC = Path.home() / "code/diffusion-roofline/site/block-diffusion-rooflines.html"
 ROOT = Path(__file__).resolve().parent.parent
 SLUG = "block-diffusion-rooflines-6f924020"
-PAGE = ROOT / "notes" / SLUG / "index.html"
+BOOK = ROOT / "notes" / SLUG
+BASE = f"/notes/{SLUG}/"
+TITLE = "Block Diffusion Rooflines"
+# (page slug, part number, title, source element id, one-line description); "" is the first page.
+CHAPTERS = [
+    ("", "0", "Introduction", "top", "the question, a quiz, the headline numbers, and the contents."),
+    ("summary", "", "Summary", "tldr", "the symbols, what moves the gain, and the three regimes that matter in practice."),
+    ("setup", "1", "Setup", "setup", "notation, costs, intensities, penalties."),
+    ("gain", "2", "The gain", "gain", "Proposition 1, and the split of each intensity into a linear part and an attention part."),
+    ("linear", "3", "The linear part", "linear", "the MoE penalty, when the linear layers dominate, and the gain in that regime."),
+    ("attention", "4", "The attention part", "attention", "dense, windowed and sparse attention; the selection penalty as the twin of the MoE penalty; when attention dominates, and the gain there."),
+    ("whole", "5", "The whole picture", "whole", "when TD wins, the batch needed to saturate compute, the eight regimes, the exact maps."),
+    ("calculator", "6", "Calculator", "calc", "any accelerator, model, attention layout and decoding setup, with the exact accounting."),
+    ("examples", "7", "Worked examples", "examples", "a smaller canvas, a dense model, a low-ridge accelerator."),
+    ("appendix", "A", "Appendix", "appendix", "the exact accounting, a check against measurements, sources."),
+]
 ASSETS = ROOT / "assets/roofline"
 FIGS = ROOT / "_roofline/figures.html"
 CARDS = ROOT / "_roofline/cards.html"
@@ -222,6 +245,25 @@ def main():
     js = sub_once(js, "    rooflineIntuition($('roof-int'), REF.hw, REF.o, REF.w);\n", "", "Figure 1 call")
     js = sub_once(js, ".box[id] > .title, section.wide[id] > .col > h2", ".box[id] > .bdr-title, section.wide[id] > .bdr-col > h2", "anchor selector")
     js = sub_once(js, "  init();\n})();", "  window.BDR = { HW, HWBYID, REF, boe, omega, fmt, comma, kTok, css, model };\n  init();\n})();", "expose internals")
+    # Each page holds one chapter: a missing element is a detached stand-in, the maps and charts
+    # skip elements that are not on the page, and the calculator is wired only where it is.
+    js = sub_once(js, "  const $ = (id) => document.getElementById(id);\n",
+                  "  const GHOST = {}; // stand-ins for elements that live on another page of the book\n"
+                  "  const $ = (id) => document.getElementById(id) || GHOST[id] || (GHOST[id] = document.createElement('div'));\n", "$ helper")
+    for fn in ("intensityMap", "lineChart", "regimeMap", "bstarChart", "ratioChart", "ctxChart", "etaChart"):
+        js, n = re.subn(r"(  function " + fn + r"\(el\b[^)]*\) \{\n)", r"\1    if (!el.isConnected) return;\n", js)
+        if n != 1:
+            problems.append(f"chart function {fn}: found {n}")
+    js = sub_once(js, "  function init() {\n", """  function init() {
+    if (!document.getElementById('calc')) {
+      initTabs(); initAnchors(); staticFigures(); initPrint();
+      matchMedia('(prefers-color-scheme: dark)').addEventListener('change', staticFigures);
+      new MutationObserver(staticFigures).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+      const land = () => { const t = location.hash && document.getElementById(decodeURIComponent(location.hash.slice(1))); if (t) t.scrollIntoView({ behavior: 'instant' }); };
+      if (window.MathJax && MathJax.startup && MathJax.startup.promise) MathJax.startup.promise.then(() => setTimeout(land, 50));
+      return;
+    }
+""", "init guard")
     js = rename_class_attr(rename_tokens(js))
     (ASSETS / "note.js").write_text("// Generated by bin/build-roofline.py from the diffusion-roofline note. Do not edit.\n" + js)
 
@@ -229,33 +271,126 @@ def main():
         if leak in body:
             problems.append(f"page still contains {leak!r}")
 
-    front = f"""---
+    if problems:
+        for p in problems:
+            print("PROBLEM:", p)
+        return 1
+    pages = split_book(body)
+    if problems:
+        for p in problems:
+            print("PROBLEM:", p)
+        return 1
+    total = 0
+    for slug, text in pages.items():
+        path = BOOK / slug / "index.html" if slug else BOOK / "index.html"
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(text)
+        total += path.stat().st_size
+    print(f"wrote {len(pages)} pages under {BOOK.relative_to(ROOT)}/ ({total:,} bytes), assets/roofline/note.css, note.js")
+    return 0
+
+
+def url_of(slug):
+    return BASE + (slug + "/" if slug else "")
+
+
+def label_of(ch):
+    slug, num, title = ch[:3]
+    return f"{num} · {title}" if num and slug else title
+
+
+def split_book(body):
+    """Cut the note at its header and top-level sections, one page per entry of CHAPTERS."""
+    chunks = {}
+    m = re.search(r'<header class="bdr-col hero">.*?</header>', body, re.S)
+    if m:
+        chunks["top"] = m.group(0)
+    for m in re.finditer(r'<section class="[^"]*" id="([\w-]+)">.*?\n</section>', body, re.S):
+        chunks[m.group(1)] = m.group(0)
+    want = [c[3] for c in CHAPTERS]
+    if sorted(chunks) != sorted(want):
+        problems.append(f"sections {sorted(chunks)} do not match CHAPTERS {sorted(want)}")
+        return {}
+
+    # The first page: the header, its outline replaced by the book's contents.
+    contents = '  <nav class="book-toc" id="contents" aria-label="Contents">\n    <h2 class="book-toc-title">Contents</h2>\n    <ol>\n'
+    for ch in CHAPTERS[1:]:
+        slug, num, title, _, what = ch
+        part = f"Part {num}" if num.isdigit() else ("Appendix" if num else "Before Part 1")
+        contents += f'      <li><a href="{url_of(slug)}"><span class="toc-part">{part}</span><span class="toc-title">{title}</span><span class="toc-what">{what[0].upper() + what[1:]}</span></a></li>\n'
+    contents += "    </ol>\n  </nav>\n"
+    top = chunks["top"]
+    # The contents come right after the quiz, where the note had its outline at the end of the header.
+    top, n = re.subn(r'\s*<h2 class="outline-title" id="outline">.*?</ol>\n', "\n", top, count=1, flags=re.S)
+    if n != 1:
+        problems.append("outline not found")
+    top = sub_once(top, '  <div class="formula-card">', contents + '  <div class="formula-card">', "contents anchor")
+    chunks["top"] = top
+
+    # Which page holds each id; links to another page go there.
+    home = {}
+    for ch in CHAPTERS:
+        for i in re.findall(r'\bid="([\w-]+)"', chunks[ch[3]]):
+            home.setdefault(i, ch)
+        home[ch[3]] = ch
+    home["outline"] = CHAPTERS[0]
+    for ch in CHAPTERS:
+        src = ch[3]
+        def relink(m, ch=ch):
+            i = m.group(1)
+            t = home.get(i)
+            if t is None:
+                problems.append(f"link to #{i} from {ch[0] or 'first page'}: no such id")
+                return m.group(0)
+            if t is ch:
+                return m.group(0)
+            return f'href="{url_of(t[0])}' + ("" if i == t[3] else f"#{i}") + '"'
+        chunks[src] = re.sub(r'href="#([\w-]+)"', relink, chunks[src])
+
+    book = {"title": TITLE, "home": BASE, "chapters": [{"slug": c[0], "num": c[1], "title": c[2], "url": url_of(c[0])} for c in CHAPTERS]}
+    pages = {}
+    for k, ch in enumerate(CHAPTERS):
+        slug, num, title, src, what = ch
+        prev, nxt = (CHAPTERS[k - 1] if k else None), (CHAPTERS[k + 1] if k + 1 < len(CHAPTERS) else None)
+        text = chunks[src]
+        if slug:
+            # The page title replaces the section heading.
+            text = re.sub(r"\s*<h2>.*?</h2>", "", text, count=1, flags=re.S)
+            part = f"Part {num} of" if num.isdigit() else ("The appendix of" if num == "A" else "The summary of")
+            links = " | ".join(f'<a href="{url_of(c[0])}" rel="{r}">{w}: {label_of(c)}</a>' for c, r, w in ((prev, "prev", "Previous"), (nxt, "next", "Next")) if c)
+            head = f'<p class="book-part">{part} <a href="{BASE}">{TITLE}</a> <span class="book-links">({links})</span></p>\n'
+            foot = '<nav class="book-nav" aria-label="Chapters">' + "".join(
+                f'<a class="{r}" href="{url_of(c[0])}"><span>{w}</span>{label_of(c)}</a>' for c, r, w in ((prev, "prev", "Previous"), (nxt, "next", "Next")) if c) + "</nav>\n"
+            desc = what[0].upper() + what[1:]
+        else:
+            head = ""
+            foot = f'<nav class="book-nav" aria-label="Chapters"><a class="next" href="{url_of(nxt[0])}"><span>Start reading</span>{label_of(nxt)}</a></nav>\n'
+            desc = "when block text diffusion beats autoregressive decoding · a short book on its inference cost"
+        meta = dict(book, current=slug)
+        if not slug:  # forwards old single-page anchors and calculator links
+            meta["ids"] = {i: c[0] for i, c in home.items() if c[0]}
+        front = f"""---
 layout: page
-title: Block Diffusion Rooflines
-description: when block text diffusion beats autoregressive decoding · inference cost model
-permalink: /notes/{SLUG}/
+title: {title if slug else TITLE}
+description: "{desc.replace('"', "'")}"
+permalink: {url_of(slug)}
 robots: noindex, nofollow
 sitemap: false
 ---
 <!-- Generated by bin/build-roofline.py. Do not edit by hand. -->
 <link rel="stylesheet" href="/assets/roofline/note.css">
 <link rel="stylesheet" href="/assets/roofline/theme.css">
+<script type="application/json" id="bdr-book">{json.dumps(meta, separators=(",", ":"))}</script>
 <script defer src="/assets/roofline/mathjax.js"></script>
 <script defer src="/assets/roofline/note.js"></script>
 <script defer src="/assets/roofline/figures.js"></script>
 <script defer src="/assets/roofline/reading.js"></script>
 {{% raw %}}
-<div class="bdr" id="top">
+<div class="bdr{' book-chapter' if slug else ''}" id="top">
 <noscript><p>This page needs JavaScript for its equations, figures and calculator.</p></noscript>
 """
-    if problems:
-        for p in problems:
-            print("PROBLEM:", p)
-        return 1
-    PAGE.parent.mkdir(parents=True, exist_ok=True)
-    PAGE.write_text(front + body.strip() + "\n</div>\n{% endraw %}\n")
-    print(f"wrote {PAGE.relative_to(ROOT)} ({PAGE.stat().st_size:,} bytes), assets/roofline/note.css, note.js")
-    return 0
+        pages[slug] = front + head + text.strip() + "\n" + foot + "</div>\n{% endraw %}\n"
+    return pages
 
 
 if __name__ == "__main__":
