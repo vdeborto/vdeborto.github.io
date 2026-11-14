@@ -22,7 +22,8 @@
   
 </title>
 <meta name="author" content="Valentin De Bortoli">
-<meta name="description" content="The MoE penalty, when the linear layers dominate, and the gain in that regime.">
+<meta name="description" content="Research scientist at Google DeepMind, London. Diffusion models, sampling, optimal transport and Markov chain theory.
+">
 
   <meta name="keywords" content="diffusion models, generative modelling, optimal transport, Schrodinger bridge, sampling, Markov chain Monte Carlo, machine learning">
 
@@ -273,7 +274,7 @@
 <div class="post">
   <header class="post-header">
     <h1 class="post-title">The linear part</h1>
-    <p class="post-description">The MoE penalty, when the linear layers dominate, and the gain in that regime.</p>
+    <p class="post-description"></p>
   </header>
 
   <article>
@@ -290,6 +291,7 @@
 <noscript><p>This page needs JavaScript for its equations, figures and calculator.</p></noscript>
 <p class="book-part">Part 3 of <a href="/notes/block-diffusion-rooflines-6f924020/">Block Diffusion Rooflines</a> <span class="book-links">(<a href="/notes/block-diffusion-rooflines-6f924020/gain/" rel="prev">Previous: 2 · The gain</a> | <a href="/notes/block-diffusion-rooflines-6f924020/attention/" rel="next">Next: 4 · The attention part</a>)</span></p>
 <section class="bdr-col" id="linear">
+  <p class="chapter-intro">At short context a pass reads mostly weights, which the batch shares, so the batch \(B\) sets both intensities. This chapter computes the MoE penalty, the extra expert weights that a canvas reads (7.9 for DiffusionGemma at batch 1, falling to 1 as the batch grows), states up to which context the linear layers dominate, and derives the gain in that regime. In particular, the best batch is the one at which a TD pass just becomes compute-bound.</p>
   <p>At short context the attention terms are negligible and a pass costs what it reads of the weights: \(\class{mj-ar}{W_{AR}}(B)\) for an AR step, \(\class{mj-td}{W_{TD}}(B)\) for a TD pass, which uses every byte for \(b\) times more positions.</p>
 
   <p>The numbers behind the batch-1 headline, from the exact model at 1k context, written as a back-of-the-envelope calculation. Each column reads from the bytes per generated token to the share of the accelerator's peak that this rate of tokens uses; that share is \(I/I^\star\).</p>

@@ -51,8 +51,9 @@ html { scroll-behavior: smooth; }
 .bdr .hero { padding-top: 0; }
 .bdr p.small, .bdr .small { font-size: .92rem; }
 
-/* Wide elements leave the 44rem column symmetrically, up to 1000px. */
-.bdr .breakout, .bdr section.wide, .bdr .bdr-fig.wide {
+/* Wide tables and the calculator leave the 44rem column symmetrically, up to 1000px; the
+   interactive figures stay in the column, next to the contents rail. */
+.bdr .breakout, .bdr section.wide {
   width: var(--bdr-wide); max-width: none; position: relative; left: 0; transform: none;
   margin-left: calc(50% - var(--bdr-wide) / 2);
 }
@@ -306,3 +307,8 @@ html { scroll-behavior: smooth; }
 .bdr .book-nav a.next:only-child { flex: 0 1 50%; }
 @media (max-width: 560px) { .bdr .book-nav { flex-direction: column; } .bdr .book-nav a.next:only-child { flex-basis: auto; } }
 @media print { .bdr .book-nav, .bdr .book-part .book-links { display: none; } }
+
+/* ---------------------------------------------------------------- chapter introduction */
+.bdr .chapter-intro { font-size: 1.08rem; line-height: 1.65; color: var(--ink); }
+/* chapter pages have no subtitle: their introduction follows the title */
+.post-header .post-description:empty { display: none; }
