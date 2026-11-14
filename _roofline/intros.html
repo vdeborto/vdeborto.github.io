@@ -1,0 +1,18 @@
+<!-- Opening paragraph of each chapter page, inserted by bin/build-roofline.py under the "Part N of" line.
+     One <!-- intro:SLUG --> block per chapter; "examples" keeps the note's own first paragraph. -->
+<!-- intro:summary -->
+The later chapters derive the gain \(\Gamma\) of block text diffusion (TD) over autoregressive decoding (AR) one step at a time. This page states the results first, so that each chapter can be read as the proof of one of them: the symbols, the quantities that move \(\Gamma\), the three regimes that matter in practice, and what the roofline model leaves out.
+<!-- intro:setup -->
+Comparing two decoders on a roofline requires, for each, the FLOPs of a forward pass and the bytes it reads from memory. This chapter defines both for an AR step and for a TD pass over a canvas of \(b\) tokens. From them come the two quantities used in every later chapter: the arithmetic intensity of a pass, which decides whether it is compute- or memory-bound, and the penalty, the extra bytes per sequence that a TD pass reads because its \(b\) positions touch more experts and, in sparse layers, more cached tokens.
+<!-- intro:gain -->
+With the costs of Part 1, the roofline model bounds the time of each pass, and hence the throughput of each decoder. Proposition 1 gives their ratio: the FLOP rates the two decoders attain, divided by the \(\omega = Sr + 1\) passes that a canvas costs. Corollary 1 reads off which decoder wins, and Proposition 2 splits each intensity into a linear part and an attention part, which Parts 3 and 4 treat separately.
+<!-- intro:linear -->
+At short context a pass reads mostly weights, which the batch shares, so the batch \(B\) sets both intensities. This chapter computes the MoE penalty, the extra expert weights that a canvas reads (7.9 for DiffusionGemma at batch 1, falling to 1 as the batch grows), states up to which context the linear layers dominate, and derives the gain in that regime. In particular, the best batch is the one at which a TD pass just becomes compute-bound.
+<!-- intro:attention -->
+At long context a pass reads mostly the KV cache, and every sequence brings its own, so a larger batch no longer raises the intensity of either decoder. A canvas still does: its \(b\) queries share one read of the cache. This chapter gives the costs of dense, sliding-window and sparse attention layers, shows that the selection penalty of a sparse layer is the MoE penalty with the canvas in the role of the batch, and derives the gain when attention dominates.
+<!-- intro:whole -->
+Parts 3 and 4 treat the two extremes, a pass that reads only weights and one that reads only KV cache. This chapter covers every context in between: it states when TD wins (Proposition 7) and the batch it needs to saturate compute (Proposition 8), sorts the cases into eight regimes, compares accelerators and models, and shows the exact gain over batch and context.
+<!-- intro:calculator -->
+The propositions give closed forms under simplifying assumptions. The calculator instead evaluates every pass of a generation with the exact accounting of the appendix, for any accelerator, model, attention layout and decoding setup. It reports both throughputs, the AR batch that matches TD, the memory each decoder needs, and the maps of Part 5 for the chosen setting; the page address records the setting, so it can be shared.
+<!-- intro:appendix -->
+Every number in this book is a roofline bound computed from a cost model, not a measurement. This appendix describes the exact accounting behind the maps, the headline numbers and the calculator, compares its bounds with throughput measured in vLLM, and lists the sources of the model shapes and accelerator specifications.

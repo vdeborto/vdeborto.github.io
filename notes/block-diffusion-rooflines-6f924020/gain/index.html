@@ -1,7 +1,6 @@
 ---
 layout: page
 title: The gain
-description: "Proposition 1, and the split of each intensity into a linear part and an attention part."
 permalink: /notes/block-diffusion-rooflines-6f924020/gain/
 robots: noindex, nofollow
 sitemap: false
@@ -19,6 +18,7 @@ sitemap: false
 <noscript><p>This page needs JavaScript for its equations, figures and calculator.</p></noscript>
 <p class="book-part">Part 2 of <a href="/notes/block-diffusion-rooflines-6f924020/">Block Diffusion Rooflines</a> <span class="book-links">(<a href="/notes/block-diffusion-rooflines-6f924020/setup/" rel="prev">Previous: 1 · Setup</a> | <a href="/notes/block-diffusion-rooflines-6f924020/linear/" rel="next">Next: 3 · The linear part</a>)</span></p>
 <section class="bdr-col" id="gain">
+  <p class="chapter-intro">With the costs of Part 1, the roofline model bounds the time of each pass, and hence the throughput of each decoder. Proposition 1 gives their ratio: the FLOP rates the two decoders attain, divided by the \(\omega = Sr + 1\) passes that a canvas costs. Corollary 1 reads off which decoder wins, and Proposition 2 splits each intensity into a linear part and an attention part, which Parts 3 and 4 treat separately.</p>
   <div class="box prop" id="prop1">
     <div class="bdr-title"><span class="tag">Proposition 1</span>TD/AR throughput gain</div>
     <p class="gist"><span>In short.</span> The gain is the ratio of the two decoders' attainable FLOP rates, divided by the \(\omega\) passes a canvas costs.</p>

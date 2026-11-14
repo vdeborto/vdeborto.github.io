@@ -9,6 +9,7 @@ interactive figures kept in this repo:
   _roofline/figures.html        markup of the interactive figures, one <!-- fig:NAME --> block each
   _roofline/cards.html          "more" panels of the TL;DR cards, one <!-- card:TITLE PREFIX --> block each
   _roofline/gists.html          one-sentence summary of each definition and proposition box
+  _roofline/intros.html         opening paragraph of each chapter page
   assets/roofline/reading.js    contents rail, reading progress, and the intuition / full-math switch
 Every AR quantity in the math (I_{AR}, W_{AR}, F^{AR}_{...}, B^\\star_{AR}, ...) is wrapped in
 \\class{mj-ar}{...} and every TD quantity in \\class{mj-td}{...}, so that it takes the figures' colours.
@@ -62,6 +63,7 @@ ASSETS = ROOT / "assets/roofline"
 FIGS = ROOT / "_roofline/figures.html"
 CARDS = ROOT / "_roofline/cards.html"
 GISTS = ROOT / "_roofline/gists.html"
+INTROS = ROOT / "_roofline/intros.html"
 
 # Note tokens that do not exist on the site; --ink, --rule and --accent are the site's own.
 TOKENS = ["ink-2", "bg", "surface", "muted", "accent-soft", "ar", "td", "critical", "div-neg", "div-mid",
@@ -347,6 +349,12 @@ def split_book(body):
             return f'href="{url_of(t[0])}' + ("" if i == t[3] else f"#{i}") + '"'
         chunks[src] = re.sub(r'href="#([\w-]+)"', relink, chunks[src])
 
+    blocks = re.split(r"<!-- intro:([\w-]+) -->\n", INTROS.read_text())
+    intros = {blocks[i]: blocks[i + 1].strip() for i in range(1, len(blocks), 2)}
+    for slug in intros:
+        if slug not in [c[0] for c in CHAPTERS]:
+            problems.append(f"intro for unknown chapter {slug!r}")
+
     book = {"title": TITLE, "home": BASE, "chapters": [{"slug": c[0], "num": c[1], "title": c[2], "url": url_of(c[0])} for c in CHAPTERS]}
     pages = {}
     for k, ch in enumerate(CHAPTERS):
@@ -356,24 +364,31 @@ def split_book(body):
         if slug:
             # The page title replaces the section heading.
             text = re.sub(r"\s*<h2>.*?</h2>", "", text, count=1, flags=re.S)
+            if slug in intros:
+                text = re.sub(r"(<section[^>]*>(?:\s*<div class=\"bdr-col\">)?)", lambda m: m.group(1) + "\n  <p class=\"chapter-intro\">" + color_math(intros[slug]) + "</p>", text, count=1)
+            elif not re.search(r"<section[^>]*>\s*<p>", text):
+                problems.append(f"chapter {slug!r} has no intro and does not open with a paragraph")
+            else:
+                text = re.sub(r"(<section[^>]*>\s*)<p>", r'\1<p class="chapter-intro">', text, count=1)
             part = f"Part {num} of" if num.isdigit() else ("The appendix of" if num == "A" else "The summary of")
             links = " | ".join(f'<a href="{url_of(c[0])}" rel="{r}">{w}: {label_of(c)}</a>' for c, r, w in ((prev, "prev", "Previous"), (nxt, "next", "Next")) if c)
             head = f'<p class="book-part">{part} <a href="{BASE}">{TITLE}</a> <span class="book-links">({links})</span></p>\n'
             foot = '<nav class="book-nav" aria-label="Chapters">' + "".join(
                 f'<a class="{r}" href="{url_of(c[0])}"><span>{w}</span>{label_of(c)}</a>' for c, r, w in ((prev, "prev", "Previous"), (nxt, "next", "Next")) if c) + "</nav>\n"
-            desc = what[0].upper() + what[1:]
+            desc = ""
         else:
             head = ""
             foot = f'<nav class="book-nav" aria-label="Chapters"><a class="next" href="{url_of(nxt[0])}"><span>Start reading</span>{label_of(nxt)}</a></nav>\n'
             desc = "when block text diffusion beats autoregressive decoding · a short book on its inference cost"
+        # A chapter opens with its introduction, so the layout's subtitle would repeat it.
+        desc_line = "" if slug else f'description: "{desc}"\n'
         meta = dict(book, current=slug)
         if not slug:  # forwards old single-page anchors and calculator links
             meta["ids"] = {i: c[0] for i, c in home.items() if c[0]}
         front = f"""---
 layout: page
 title: {title if slug else TITLE}
-description: "{desc.replace('"', "'")}"
-permalink: {url_of(slug)}
+{desc_line}permalink: {url_of(slug)}
 robots: noindex, nofollow
 sitemap: false
 ---

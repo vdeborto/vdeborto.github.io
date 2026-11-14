@@ -1,7 +1,6 @@
 ---
 layout: page
 title: Setup
-description: "Notation, costs, intensities, penalties."
 permalink: /notes/block-diffusion-rooflines-6f924020/setup/
 robots: noindex, nofollow
 sitemap: false
@@ -19,6 +18,7 @@ sitemap: false
 <noscript><p>This page needs JavaScript for its equations, figures and calculator.</p></noscript>
 <p class="book-part">Part 1 of <a href="/notes/block-diffusion-rooflines-6f924020/">Block Diffusion Rooflines</a> <span class="book-links">(<a href="/notes/block-diffusion-rooflines-6f924020/summary/" rel="prev">Previous: Summary</a> | <a href="/notes/block-diffusion-rooflines-6f924020/gain/" rel="next">Next: 2 · The gain</a>)</span></p>
 <section class="bdr-col" id="setup">
+  <p class="chapter-intro">Comparing two decoders on a roofline requires, for each, the FLOPs of a forward pass and the bytes it reads from memory. This chapter defines both for an AR step and for a TD pass over a canvas of \(b\) tokens. From them come the two quantities used in every later chapter: the arithmetic intensity of a pass, which decides whether it is compute- or memory-bound, and the penalty, the extra bytes per sequence that a TD pass reads because its \(b\) positions touch more experts and, in sparse layers, more cached tokens.</p>
   <p>One forward pass advances a batch of \(B\) sequences, each with \(C\) tokens in its KV cache: by one token for AR, by a canvas of \(b\) tokens for TD, which takes \(S\) denoising passes and one commit pass.</p>
   <div class="bdr-fig" id="fig-reuse">
     <div class="fig-k">Figure 1 · interactive</div>

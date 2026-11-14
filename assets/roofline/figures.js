@@ -409,12 +409,15 @@
       s += `<line x1="${m.l}" x2="${W - m.r}" y1="${ys(Is)}" y2="${ys(Is)}" stroke="${c.ink}" stroke-width="1.5"/>`;
       s += `<text class="ink halo" x="${W - m.r - 4}" y="${ys(Is) - 6}" text-anchor="end">ridge I* = ${fmt(Is)}: compute-bound above</text>`;
       const op = [0.4, 0.6, 0.8, 1];
+      // AR curves start close together: lift each label at least 13px above the one of the batch below.
+      const arY = [];
+      curves.forEach((pts, k) => { const y = ys(pts[0].IAR) - 6; arY.push(k ? Math.min(y, arY[k - 1] - 13) : y); });
       curves.forEach((pts, k) => {
         s += dashedLine(pts, (p) => `${xs(p.C)},${ys(p.ITD)}`, ok, `stroke="${c.td}" stroke-opacity="${op[k]}" stroke-width="2.2"`);
         s += dashedLine(pts, (p) => `${xs(p.C)},${ys(p.IAR)}`, ok, `stroke="${c.ar}" stroke-opacity="${op[k]}" stroke-width="2.2"`);
         const yl = ys(pts[0].ITD) - 6, onRidge = Math.abs(yl - 4 - ys(Is)) < 9;
         s += `<text class="td halo" x="${xs(1024) + 6}" y="${onRidge ? yl + 20 : yl}" style="opacity:${0.55 + 0.45 * op[k]}">B = ${CBATCH[k]}</text>`;
-        s += `<text class="ar halo" x="${xs(1024) + 6}" y="${ys(pts[0].IAR) - 6}" style="opacity:${0.55 + 0.45 * op[k]}">B = ${CBATCH[k]}</text>`;
+        s += `<text class="ar halo" x="${xs(1024) + 6}" y="${arY[k]}" style="opacity:${0.55 + 0.45 * op[k]}">B = ${CBATCH[k]}</text>`;
       });
       const mid = CSCAN[18];
       s += `<text class="td halo" x="${xs(mid)}" y="${ys(curves[3][18].ITD) - 10}" text-anchor="middle">TD pass, ${sub('I', 'TD')}</text>`;

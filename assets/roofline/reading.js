@@ -65,29 +65,17 @@
   if (hero) hero.after(depthSwitch('depth-hero'));
 
   // ---------------------------------------------------------------- contents: rail or sheet
-  // The note is a short book (one page per chapter, described by #bdr-book); the rail lists every
-  // chapter and, under the current one, its sub-sections and figures.
+  // The note is a short book (one page per chapter, described by #bdr-book); the rail lists the chapters.
   let book = null;
   try { book = JSON.parse(document.getElementById('bdr-book').textContent); } catch (e) { /* no book data */ }
   const chapters = book ? book.chapters : [];
   const here = book ? chapters.find((c) => c.slug === book.current) : null;
   const labelOf = (c) => (c.num && c.slug ? `${c.num} · ${c.title}` : c.title);
-  const subs = [...page.querySelectorAll('section h3[id], .bdr-fig[id], .book-toc[id]')].filter((x) => !x.closest('.box')).map((x) => ({
-    id: x.id,
-    label: x.classList.contains('bdr-fig') ? x.querySelector('.fig-k').textContent.replace(/·.*$/, '').trim()
-      : x.classList.contains('book-toc') ? 'Contents' : x.textContent.replace('#', '').trim(),
-    fig: x.classList.contains('bdr-fig'),
-  }));
   const rail = el(`<nav class="bdr-rail" aria-label="Contents"><div class="rail-progress"><i></i></div><a class="rail-top" href="${book ? book.home : '#top'}">${book ? book.title : 'Contents'}</a><ol></ol></nav>`);
   const ol = rail.querySelector('ol');
   for (const c of chapters) {
     const cur = c === here;
     const li = el(`<li${cur ? ' class="current"' : ''}><a href="${cur ? '#top' : c.url}"${cur ? ' class="active" aria-current="page"' : ''}>${labelOf(c)}</a></li>`);
-    if (cur && subs.length) {
-      const sub = el('<ol class="sub"></ol>');
-      for (const x of subs) sub.appendChild(el(`<li><a href="#${x.id}" data-id="${x.id}" class="${x.fig ? 'fig' : ''}">${x.label}</a></li>`));
-      li.appendChild(sub);
-    }
     ol.appendChild(li);
   }
   // A chapter page without the rail's switch on narrow screens still gets one under its title.
@@ -105,17 +93,10 @@
   addEventListener('keydown', (ev) => { if (ev.key === 'Escape') { setSheet(false); closeKey(); } });
 
   const bar = rail.querySelector('.rail-progress i'), fabPct = fab.querySelector('span');
-  const links = [...rail.querySelectorAll('a[data-id]')];
-  const targets = links.map((a) => [a, document.getElementById(a.dataset.id)]).filter(([, t]) => t);
   function update() {
     const h = document.documentElement.scrollHeight - innerHeight, done = h > 0 ? Math.min(100, (100 * scrollY) / h) : 0;
     bar.style.width = `${done}%`;
     fabPct.textContent = `${Math.round(done)}%`;
-    // current = last sub-section whose top is above a line 30% down the window
-    const line = innerHeight * 0.3;
-    let cur = null;
-    for (const [a, t] of targets) if (t.getBoundingClientRect().top <= line) cur = a;
-    for (const [a] of targets) a.classList.toggle('active', a === cur);
   }
   addEventListener('scroll', update, { passive: true });
   addEventListener('resize', update);

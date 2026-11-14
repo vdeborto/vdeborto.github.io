@@ -1,7 +1,6 @@
 ---
 layout: page
 title: The whole picture
-description: "When TD wins, the batch needed to saturate compute, the eight regimes, the exact maps."
 permalink: /notes/block-diffusion-rooflines-6f924020/whole/
 robots: noindex, nofollow
 sitemap: false
@@ -19,6 +18,7 @@ sitemap: false
 <noscript><p>This page needs JavaScript for its equations, figures and calculator.</p></noscript>
 <p class="book-part">Part 5 of <a href="/notes/block-diffusion-rooflines-6f924020/">Block Diffusion Rooflines</a> <span class="book-links">(<a href="/notes/block-diffusion-rooflines-6f924020/attention/" rel="prev">Previous: 4 · The attention part</a> | <a href="/notes/block-diffusion-rooflines-6f924020/calculator/" rel="next">Next: 6 · Calculator</a>)</span></p>
 <section class="bdr-col" id="whole">
+  <p class="chapter-intro">Parts 3 and 4 treat the two extremes, a pass that reads only weights and one that reads only KV cache. This chapter covers every context in between: it states when TD wins (Proposition 7) and the batch it needs to saturate compute (Proposition 8), sorts the cases into eight regimes, compares accelerators and models, and shows the exact gain over batch and context.</p>
   <p>Proposition 2 makes each intensity a byte-weighted average of the two parts of §3 and §4. Putting them back into Proposition 1 gives the general answer.</p>
   <div class="box prop" id="prop7">
     <div class="bdr-title"><span class="tag">Proposition 7</span>When TD wins</div>

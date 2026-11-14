@@ -1,7 +1,6 @@
 ---
 layout: page
 title: The attention part
-description: "Dense, windowed and sparse attention; the selection penalty as the twin of the MoE penalty; when attention dominates, and the gain there."
 permalink: /notes/block-diffusion-rooflines-6f924020/attention/
 robots: noindex, nofollow
 sitemap: false
@@ -19,6 +18,7 @@ sitemap: false
 <noscript><p>This page needs JavaScript for its equations, figures and calculator.</p></noscript>
 <p class="book-part">Part 4 of <a href="/notes/block-diffusion-rooflines-6f924020/">Block Diffusion Rooflines</a> <span class="book-links">(<a href="/notes/block-diffusion-rooflines-6f924020/linear/" rel="prev">Previous: 3 · The linear part</a> | <a href="/notes/block-diffusion-rooflines-6f924020/whole/" rel="next">Next: 5 · The whole picture</a>)</span></p>
 <section class="bdr-col" id="attention">
+  <p class="chapter-intro">At long context a pass reads mostly the KV cache, and every sequence brings its own, so a larger batch no longer raises the intensity of either decoder. A canvas still does: its \(b\) queries share one read of the cache. This chapter gives the costs of dense, sliding-window and sparse attention layers, shows that the selection penalty of a sparse layer is the MoE penalty with the canvas in the role of the batch, and derives the gain when attention dominates.</p>
   <p>At long context the attention terms dominate: a pass costs what it reads of each sequence's KV cache. Three kinds of attention layer appear in current models: dense, sliding-window, and sparse in the style of DeepSeek Sparse Attention (DSA), summarised in the remark below. Table 4 gives, per sequence, what one query costs on each and what a canvas of \(b\) queries costs.</p>
   <details class="box remark" id="dsa">
     <summary><span class="tag">Remark</span>How DSA works</summary>
