@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="en">
+  <!-- Head -->
+  <head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <!-- Metadata, OpenGraph and Schema.org -->
+
+
+
+
+<!-- Standard metadata -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<title>
+  
+  
+    
+      Setup | Valentin De Bortoli
+    
+  
+</title>
+<meta name="author" content="Valentin De Bortoli">
+<meta name="description" content="Notation, costs, intensities, penalties.">
+
+  <meta name="keywords" content="diffusion models, generative modelling, optimal transport, Schrodinger bridge, sampling, Markov chain Monte Carlo, machine learning">
+
+
+
+
+
+
+
+
+
+
+<!-- Security: Content Security Policy -->
+<!-- Permissive CSP suitable for academic websites. Allows external images, videos, and common embed services. -->
+<!-- To customize for your needs, see: https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https:; style-src 'self' 'unsafe-inline' https:; img-src 'self' data: https:; font-src 'self' data: https:; media-src 'self' https:; frame-src 'self' https:; connect-src 'self' https:;">
+<style>
+  :root {
+    --max-content-width: 930px;
+  }
+</style>
+
+<!-- Tailwind-first core styles -->
+<link rel="stylesheet" href="/assets/css/tailwind.css?v=50c64c15cbb9fd1ce6056fdb8bcb4b62">
+
+
+
+
+
+
+
+<!-- Icons -->
+
+  
+<!-- Font Awesome -->
+<link defer rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.2.0/css/all.min.css" integrity="sha256-MVopmdyC2tYTiJ8wlktf0uh0v4NgT+vNdyVFepi7Q0c=" crossorigin="anonymous">
+
+<!-- Academicons -->
+<link defer rel="stylesheet" href="https://cdn.jsdelivr.net/npm/academicons@1.9.5/css/academicons.min.css" integrity="sha256-SzrCOBJbGVFMahewkgjwnApaV2+av1DwMAA+/QGLyZw=" crossorigin="anonymous">
+
+<!-- Scholar Icons -->
+<link defer rel="stylesheet" href="https://cdn.jsdelivr.net/npm/scholar-icons@1.0.3/css/scholar-icons.css" integrity="sha256-VY3hHVj/hNX3fYG6wtbA6TcKJQl7+FthzGSyIB64klY=" crossorigin="anonymous">
+
+
+
+<link defer rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Roboto+Slab:100,300,400,500,700|Material+Icons&amp;display=swap">
+
+<!-- Code Syntax Highlighting -->
+<link defer rel="stylesheet" href="/assets/css/jekyll-pygments-themes-github.css?v=591dab5a4e56573bf4ef7fd332894c99" media="" id="highlight_theme_light">
+
+<!-- Styles -->
+
+
+
+
+
+  <link rel="shortcut icon" href="data:image/svg+xml,&lt;svg%20xmlns=%22http://www.w3.org/2000/svg%22%20viewBox=%220%200%20100%20100%22&gt;&lt;text%20y=%22.9em%22%20font-size=%2290%22&gt;%F0%9F%8C%80&lt;/text&gt;&lt;/svg&gt;">
+
+
+
+
+<link rel="stylesheet" href="/assets/css/main.css?v=3116ba77db9ee1581d05bb3e86fbf7f1">
+
+<link rel="canonical" href="https://vdeborto.github.io/notes/block-diffusion-rooflines-6f924020/setup/">
+
+  <meta name="robots" content="noindex, nofollow">
+
+
+
+  <!-- Dark Mode -->
+  <script src="/assets/js/theme.js?v=5286c3e4c334d0ecb8fc0c40ff4fa7ec"></script>
+  <link defer rel="stylesheet" href="/assets/css/jekyll-pygments-themes-native.css?v=5847e5ed4a4568527aa6cfab446049ca" media="none" id="highlight_theme_dark">
+  <script>
+    initTheme();
+  </script>
+
+
+
+
+
+
+
+  <!-- Image Features -->
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+  <!-- Right-to-left support -->
+  
+
+
+
+
+
+
+
+
+<!-- Custom typography and theme overrides -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,300;8..60,400;8..60,600&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<link rel="stylesheet" href="/assets/css/custom.css">
+
+  </head>
+
+  <!-- Body -->
+  <body class="fixed-top-nav sticky-bottom-footer">
+    <!-- Header -->
+    <header>
+  <!-- Nav Bar -->
+  <nav id="navbar" class="navbar navbar-light navbar-expand-sm fixed-top" role="navigation">
+    <div class="container">
+      
+        <a class="navbar-brand title font-weight-lighter" href="/">
+          
+            
+              <span class="font-weight-bold">Valentin</span>
+            
+            
+            De Bortoli
+          
+        </a>
+      
+      <!-- Navbar Toggle -->
+      <button class="navbar-toggler collapsed navbar-toggler-main" type="button" data-nav-toggle="navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar top-bar"></span>
+        <span class="icon-bar middle-bar"></span>
+        <span class="icon-bar bottom-bar"></span>
+      </button>
+
+      <div class="collapse navbar-collapse navbar-collapse-main" id="navbarNav">
+        <ul class="navbar-nav navbar-menu-list flex-nowrap">
+          
+
+          <!-- About -->
+          <li class="nav-item ">
+            <a class="nav-link" href="/">about
+              
+            </a>
+          </li>
+
+          <!-- Other pages -->
+          
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+              
+                
+                <li class="nav-item ">
+                  <a class="nav-link" href="/publications/">publications
+                    
+                  </a>
+                </li>
+              
+            
+          
+            
+              
+                
+                <li class="nav-item ">
+                  <a class="nav-link" href="/teaching/">teaching
+                    
+                  </a>
+                </li>
+              
+            
+          
+          
+            <!-- Search -->
+            <li class="nav-item">
+              <button id="search-toggle" type="button" title="Search" aria-label="Open search">
+                <span class="nav-link">ctrl k <i class="fa-solid fa-magnifying-glass"></i></span>
+              </button>
+            </li>
+          
+          
+            <!-- Toogle theme mode -->
+            <li class="toggle-container">
+              <button id="light-toggle" type="button" title="Change theme" aria-label="Change color theme">
+                <i class="fa-half-sun-moon" id="light-toggle-system"></i>
+                <i class="fa-solid fa-moon" id="light-toggle-dark"></i>
+                <i class="fa-solid fa-sun" id="light-toggle-light"></i>
+              </button>
+            </li>
+          
+        </ul>
+      </div>
+    </div>
+  </nav>
+  
+    <!-- Scrolling Progress Bar -->
+    <progress id="progress" value="0">
+      <div class="progress-container">
+        <span class="progress-bar"></span>
+      </div>
+    </progress>
+  
+</header>
+
+
+    <!-- Content -->
+    <div class="container mt-5" role="main">
+      
+        
+
+<div class="post">
+  <header class="post-header">
+    <h1 class="post-title">Setup</h1>
+    <p class="post-description">Notation, costs, intensities, penalties.</p>
+  </header>
+
+  <article>
+    <!-- Generated by bin/build-roofline.py. Do not edit by hand. -->
+<link rel="stylesheet" href="/assets/roofline/note.css">
+<link rel="stylesheet" href="/assets/roofline/theme.css">
+<script type="application/json" id="bdr-book">{"title":"Block Diffusion Rooflines","home":"/notes/block-diffusion-rooflines-6f924020/","chapters":[{"slug":"","num":"0","title":"Introduction","url":"/notes/block-diffusion-rooflines-6f924020/"},{"slug":"summary","num":"","title":"Summary","url":"/notes/block-diffusion-rooflines-6f924020/summary/"},{"slug":"setup","num":"1","title":"Setup","url":"/notes/block-diffusion-rooflines-6f924020/setup/"},{"slug":"gain","num":"2","title":"The gain","url":"/notes/block-diffusion-rooflines-6f924020/gain/"},{"slug":"linear","num":"3","title":"The linear part","url":"/notes/block-diffusion-rooflines-6f924020/linear/"},{"slug":"attention","num":"4","title":"The attention part","url":"/notes/block-diffusion-rooflines-6f924020/attention/"},{"slug":"whole","num":"5","title":"The whole picture","url":"/notes/block-diffusion-rooflines-6f924020/whole/"},{"slug":"calculator","num":"6","title":"Calculator","url":"/notes/block-diffusion-rooflines-6f924020/calculator/"},{"slug":"examples","num":"7","title":"Worked examples","url":"/notes/block-diffusion-rooflines-6f924020/examples/"},{"slug":"appendix","num":"A","title":"Appendix","url":"/notes/block-diffusion-rooflines-6f924020/appendix/"}],"current":"setup"}</script>
+<script defer src="/assets/roofline/mathjax.js"></script>
+<script defer src="/assets/roofline/note.js"></script>
+<script defer src="/assets/roofline/figures.js"></script>
+<script defer src="/assets/roofline/reading.js"></script>
+
+<div class="bdr book-chapter" id="top">
+<noscript><p>This page needs JavaScript for its equations, figures and calculator.</p></noscript>
+<p class="book-part">Part 1 of <a href="/notes/block-diffusion-rooflines-6f924020/">Block Diffusion Rooflines</a> <span class="book-links">(<a href="/notes/block-diffusion-rooflines-6f924020/summary/" rel="prev">Previous: Summary</a> | <a href="/notes/block-diffusion-rooflines-6f924020/gain/" rel="next">Next: 2 · The gain</a>)</span></p>
+<section class="bdr-col" id="setup">
+  <p>One forward pass advances a batch of \(B\) sequences, each with \(C\) tokens in its KV cache: by one token for AR, by a canvas of \(b\) tokens for TD, which takes \(S\) denoising passes and one commit pass.</p>
+  <div class="bdr-fig" id="fig-reuse">
+    <div class="fig-k">Figure 1 · interactive</div>
+    <p class="fig-title">TD does more work per token, but reads each byte for more tokens.</p>
+    <p class="fig-lede">Each slot is one forward pass, and every pass reads the weights once. Press play, change the canvas length \(b\) and the number of denoising passes \(S\), then switch the model from dense to MoE.</p>
+    <div data-fig="reuse"></div>
+    <p class="fig-cap">One sequence, batch 1, short context, and both decoders assumed memory-bound, so that a pass takes the time to read its weights; this fails for a dense model once the canvas is longer than about \(I^\star\) positions, where Corollary 1 caps the gain. A canvas costs \(\omega = S + 1\) passes (here \(r = 1\)) and commits \(b\) tokens; in the same \(\omega\) passes AR commits \(\omega\) tokens. For a dense model both passes read the same weights, and per committed token TD reads \(\omega/b = 1/\mathrm{TPF}\) times the bytes of AR: \(\Gamma = \mathrm{TPF}\). For an MoE model a canvas touches more experts than one token does, a TD pass reads \(\Pi_{\mathrm{lin}}\) times the weights of an AR step (the two bars, Proposition 3), and \(\Gamma = \mathrm{TPF}/\Pi_{\mathrm{lin}}\).</p>
+  </div>
+  <div class="table-wrap"><table class="notation">
+    <thead><tr>
+<th class="l">Symbol</th>
+<th class="l">Meaning</th>
+<th>DiffusionGemma 26B-A4B</th>
+</tr></thead>
+    <tbody>
+      <tr class="grp"><td class="l" colspan="3">Model</td></tr>
+      <tr>
+<td>\(L,\ d,\ V\)</td>
+<td class="l">layers, hidden size, vocabulary</td>
+<td class="num">30, 2816, 262,144</td>
+</tr>
+      <tr>
+<td>\(\mathcal G,\ \mathcal W,\ w\)</td>
+<td class="l">global-attention layers; sliding-window layers, which see at most \(w\) earlier tokens</td>
+<td class="num">5; 25, \(w\) = 1023</td>
+</tr>
+      <tr>
+<td>\(n_q,\ n_{kv,\ell},\ h_\ell\)</td>
+<td class="l">query heads, KV heads, head dimension of layer \(\ell\); \(g = n_q/n_{kv}\)</td>
+<td class="num">16; 2 / 8; 512 / 256</td>
+</tr>
+      <tr>
+<td>\(E,\ k,\ W^e\)</td>
+<td class="l">experts per layer, experts per token, parameters per expert</td>
+<td class="num">128, 8, 5.95M</td>
+</tr>
+      <tr>
+<td>\(W_{\mathrm{ne}}\)</td>
+<td class="l">non-expert parameters of all layers</td>
+<td class="num">1.66B</td>
+</tr>
+      <tr>
+<td>\(N_{\mathrm{act}},\ W_{\mathrm{tot}}\)</td>
+<td class="l">active parameters per token, \(W_{\mathrm{ne}} + LkW^e\); all parameters, \(W_{\mathrm{ne}} + LEW^e\) (both without the vocabulary)</td>
+<td class="num">3.08B, 24.5B</td>
+</tr>
+      <tr>
+<td>\(m\)</td>
+<td class="l">tokens a query attends to in a sparse-attention layer (§4)</td>
+<td class="num">sparse variant: 2048</td>
+</tr>
+      <tr class="grp"><td class="l" colspan="3">Decoding</td></tr>
+      <tr>
+<td>\(B,\ C\)</td>
+<td class="l">batch, tokens already in each sequence's KV cache</td>
+<td class="num">–</td>
+</tr>
+      <tr>
+<td>\(b,\ S,\ r\)</td>
+<td class="l">canvas length, denoising passes per canvas, cost of a denoising pass as a fraction of a forward pass</td>
+<td class="num">256, 14, 1</td>
+</tr>
+      <tr>
+<td>\(\omega,\ \mathrm{TPF}\)</td>
+<td class="l">cost of a canvas in forward passes, \(Sr+1\); tokens per forward, \(b/\omega\)</td>
+<td class="num">15, 17.07</td>
+</tr>
+      <tr class="grp"><td class="l" colspan="3">Hardware and precision</td></tr>
+      <tr>
+<td>\(\pi,\ \beta\)</td>
+<td class="l">peak matmul FLOP/s, memory bandwidth</td>
+<td class="num">H200: 989 T, 4.8 TB/s</td>
+</tr>
+      <tr>
+<td>\(s_w,\ s_{kv},\ \kappa^c\)</td>
+<td class="l">bytes per weight, bytes per KV element, tensors cached per KV head (K and V)</td>
+<td class="num">2, 2, 2</td>
+</tr>
+    </tbody>
+  </table></div>
+
+  <div class="box def widebox" id="def1">
+    <div class="bdr-title">
+<span class="tag">Definition 1</span>Constants</div>
+    <p class="gist"><span>In short.</span> The sizes the costs depend on: active and total parameters, how many distinct experts a set of positions touches, and the attention FLOPs and KV bytes per cached token.</p>
+    <h4>Linear layers</h4>
+    <div class="table-wrap"><table class="defs">
+      <tbody>
+        <tr>
+<td>\(U_{n,k}(N) = n\bigl[1-(1-\tfrac{k}{n})^{N}\bigr]\)</td>
+<td class="l">expected number of distinct units touched by \(N\) independent selections of \(k\) units out of \(n\)</td>
+</tr>
+        <tr>
+<td>\(\class{mj-ar}{W_{AR}}(B) = W_{\mathrm{ne}} + L\,U_{E,k}(B)\,W^e\)</td>
+<td class="l">weights read by an AR step at batch \(B\), in parameters</td>
+</tr>
+        <tr>
+<td>\(\class{mj-td}{W_{TD}}(B) = W_{\mathrm{ne}} + L\,U_{E,k}(Bb)\,W^e\)</td>
+<td class="l">weights read by a TD pass at batch \(B\), whose \(Bb\) positions route independently</td>
+</tr>
+        <tr>
+<td>\(2N_{\mathrm{act}}\)</td>
+<td class="l">linear-layer FLOPs per position, whatever the context</td>
+</tr>
+      </tbody>
+    </table></div>
+    <h4>Attention</h4>
+    <div class="table-wrap"><table class="defs">
+      <tbody>
+        <tr>
+<td>\(\alpha_G = 4n_q\sum_{\ell\in\mathcal G}h_\ell\)</td>
+<td class="l">attention FLOPs per query and per cached token, global layers</td>
+</tr>
+        <tr>
+<td>\(\alpha_W = 4n_q\sum_{\ell\in\mathcal W}h_\ell\)</td>
+<td class="l">the same, sliding-window layers</td>
+</tr>
+        <tr>
+<td>\(\alpha_S\)</td>
+<td class="l">the same, sparse layers (\(4n_q\sum h_\ell\) over them)</td>
+</tr>
+        <tr>
+<td>\(\alpha_I\)</td>
+<td class="l">the same, for the scan that selects a sparse layer's tokens (§4)</td>
+</tr>
+        <tr>
+<td>\(\nu_G = s_{kv}\sum_{\ell\in\mathcal G}\kappa^cn_{kv,\ell}h_\ell\)</td>
+<td class="l">KV bytes per cached token, global layers</td>
+</tr>
+        <tr>
+<td>\(\nu_W = s_{kv}\sum_{\ell\in\mathcal W}\kappa^cn_{kv,\ell}h_\ell\)</td>
+<td class="l">the same, sliding-window layers</td>
+</tr>
+        <tr>
+<td>\(\nu_S\)</td>
+<td class="l">the same, sparse layers</td>
+</tr>
+        <tr>
+<td>\(\nu_I\)</td>
+<td class="l">bytes per cached token of the scan's own cache</td>
+</tr>
+        <tr>
+<td>\(U_{C,m}(n) = C\bigl[1-(1-\tfrac{m}{C})^{n}\bigr]\)</td>
+<td class="l">cached tokens that \(n\) queries of one sequence read together in a sparse layer (the coverage function above, with tokens as units); \(U_{C,m}(1) = m\)</td>
+</tr>
+      </tbody>
+    </table></div>
+  </div>
+
+  <div class="box def widebox" id="def2">
+    <div class="bdr-title">
+<span class="tag">Definition 2</span>FLOPs and bytes of a pass</div>
+    <p class="gist"><span>In short.</span> Per sequence, a TD pass does \(b\) times the FLOPs of an AR step; the weight bytes are shared by the batch and the cache bytes are not.</p>
+    <p>\(F\) denotes FLOPs and \(Q\) bytes, per sequence and per pass, for an AR step and for a TD pass, each split into a linear part and an attention part.</p>
+    <div class="eq eq-wide">\[ \begin{aligned}
+    \class{mj-ar}{F^{AR}_{\mathrm{lin}}} &amp;= 2N_{\mathrm{act}}, &amp; \class{mj-td}{F^{TD}_{\mathrm{lin}}} &amp;= 2b\,N_{\mathrm{act}},\\[2pt]
+    \class{mj-ar}{F^{AR}_{\mathrm{attn}}}(C) &amp;= \alpha_G C + \alpha_W\min(C,w) + \alpha_S\min(C,m) + \alpha_I C, &amp; \class{mj-td}{F^{TD}_{\mathrm{attn}}}(C) &amp;= b\,\class{mj-ar}{F^{AR}_{\mathrm{attn}}}(C),\\[2pt]
+    \class{mj-ar}{Q^{AR}_{\mathrm{lin}}}(B) &amp;= s_w\class{mj-ar}{W_{AR}}(B)/B, &amp; \class{mj-td}{Q^{TD}_{\mathrm{lin}}}(B) &amp;= s_w\class{mj-td}{W_{TD}}(B)/B,\\[2pt]
+    \class{mj-ar}{Q^{AR}_{\mathrm{attn}}}(C) &amp;= \nu_G C + \nu_W\min(C,w) + \nu_S\min(C,m) + \nu_I C, &amp; \class{mj-td}{Q^{TD}_{\mathrm{attn}}}(C) &amp;= \nu_G C + \nu_W\min(C,w) + \nu_S\,U_{C,m}(b) + \nu_I C.
+    \end{aligned} \]</div>
+    <div class="eq eq-narrow">\[ \begin{gathered}
+    \class{mj-ar}{F^{AR}_{\mathrm{lin}}} = 2N_{\mathrm{act}},\qquad \class{mj-td}{F^{TD}_{\mathrm{lin}}} = 2b\,N_{\mathrm{act}},\\[3pt]
+    \class{mj-ar}{F^{AR}_{\mathrm{attn}}}(C) = \alpha_G C + \alpha_W\min(C,w)\\ \qquad + \alpha_S\min(C,m) + \alpha_I C,\\[3pt]
+    \class{mj-td}{F^{TD}_{\mathrm{attn}}}(C) = b\,\class{mj-ar}{F^{AR}_{\mathrm{attn}}}(C),\\[3pt]
+    \class{mj-ar}{Q^{AR}_{\mathrm{lin}}}(B) = \frac{s_w\class{mj-ar}{W_{AR}}(B)}{B},\\[3pt] \class{mj-td}{Q^{TD}_{\mathrm{lin}}}(B) = \frac{s_w\class{mj-td}{W_{TD}}(B)}{B},\\[3pt]
+    \class{mj-ar}{Q^{AR}_{\mathrm{attn}}}(C) = \nu_G C + \nu_W\min(C,w)\\ \qquad + \nu_S\min(C,m) + \nu_I C,\\[3pt]
+    \class{mj-td}{Q^{TD}_{\mathrm{attn}}}(C) = \nu_G C + \nu_W\min(C,w)\\ \qquad + \nu_S\,U_{C,m}(b) + \nu_I C.
+    \end{gathered} \]</div>
+    <p>The totals are \(F^X = F^X_{\mathrm{lin}} + F^X_{\mathrm{attn}}\) and \(Q^X = Q^X_{\mathrm{lin}} + Q^X_{\mathrm{attn}}\) for \(X \in \{AR, TD\}\).</p>
+  </div>
+
+  <div class="box def widebox" id="def3">
+    <div class="bdr-title">
+<span class="tag">Definition 3</span>Arithmetic intensities, in FLOPs per byte read from memory</div>
+    <p class="gist"><span>In short.</span> Intensity is FLOPs per byte read from memory; a pass is compute-bound when its intensity reaches the ridge point \(I^\star = \pi/\beta\), 206 on an H200.</p>
+    <div class="table-wrap"><table class="defs ints">
+      <thead><tr>
+<th class="l">Intensity</th>
+<th class="l">Of what</th>
+<th>DiffusionGemma, H200<br>B = 1 · B = 64</th>
+</tr></thead>
+      <tbody>
+        <tr>
+<td>\(I^\star = \pi/\beta\)</td>
+<td class="l">the ridge point: a pass is compute-bound when its intensity is at least \(I^\star\)</td>
+<td class="num">206</td>
+</tr>
+        <tr>
+<td>\(\class{mj-ar}{I_{AR}}(B,C) = \dfrac{\class{mj-ar}{F^{AR}}(C)}{\class{mj-ar}{Q^{AR}}(B,C)}\)</td>
+<td class="l">one AR decode step at batch \(B\) and context \(C\)</td>
+<td class="num">1.0 · 8.2</td>
+</tr>
+        <tr>
+<td>\(\class{mj-td}{I_{TD}}(B,C) = \dfrac{\class{mj-td}{F^{TD}}(C)}{\class{mj-td}{Q^{TD}}(B,C)}\)</td>
+<td class="l">one TD pass at batch \(B\) and context \(C\), over a canvas of \(b\) positions per sequence</td>
+<td class="num">32 · 2.1k</td>
+</tr>
+        <tr>
+<td>\(I^{X}_{\mathrm{lin}}(B) = \dfrac{F^{X}_{\mathrm{lin}}}{Q^{X}_{\mathrm{lin}}(B)}\)</td>
+<td class="l">the linear part of the same passes, \(X \in \{AR, TD\}\): linear-layer FLOPs over weight bytes</td>
+<td class="num">AR 1.0 · 8.2, TD 32 · 2.1k</td>
+</tr>
+        <tr>
+<td>\(I^{X}_{\mathrm{attn}}(C) = \dfrac{F^{X}_{\mathrm{attn}}(C)}{Q^{X}_{\mathrm{attn}}(C)}\)</td>
+<td class="l">the attention part of the same passes: attention FLOPs over cache bytes; independent of \(B\)</td>
+<td class="num">AR 8, TD 2,048 (global layers)</td>
+</tr>
+        <tr>
+<td>\(I_{\mathrm{attn}} = \dfrac{\alpha_G}{\nu_G} = \dfrac{4g}{\kappa^cs_{kv}}\), \(I_{\mathrm{win}} = \dfrac{\alpha_W}{\nu_W}\), \(I_{\mathrm{idx}} = \dfrac{\alpha_I}{\nu_I}\)</td>
+<td class="l">attention FLOPs per cache byte for a single query, on a global layer, a window layer, an indexer; \(\class{mj-ar}{I^{AR}_{\mathrm{attn}}}\) is a byte-weighted mix of them and tends to \(I_{\mathrm{attn}}\) (or \(I_{\mathrm{idx}}\) with sparse layers) as \(C\) grows</td>
+<td class="num">8, 2, 2</td>
+</tr>
+      </tbody>
+    </table></div>
+    <p class="small">Linear values at zero context; the attention values are for the global layers alone.</p>
+  </div>
+
+  <div class="box def widebox" id="def4">
+    <div class="bdr-title">
+<span class="tag">Definition 4</span>Selected resources and the penalties</div>
+    <p class="gist"><span>In short.</span> A penalty is how many more bytes per sequence a TD pass reads than an AR step: \(\Pi_{\mathrm{lin}}\) from the experts its \(b\) positions touch, \(\Pi_{\mathrm{attn}}\) from the cached tokens that sparse layers select.</p>
+    <div class="table-wrap"><table class="defs ints">
+      <caption>Two resources are selected by each position rather than read in full. A pass reads the union of its positions' selections, \(U_{n,k}(N)\) units for \(N\) independent selections of \(k\) out of \(n\). The penalty of a resource is the ratio of what a TD pass reads to what an AR step reads.</caption>
+      <thead><tr>
+<th class="l">Resource</th>
+<th class="l">units \(n\)</th>
+<th class="l">picks \(k\)</th>
+<th class="l">shared by</th>
+<th class="l">\(N\) in an AR step</th>
+<th class="l">\(N\) in a TD pass</th>
+<th class="l">penalty</th>
+</tr></thead>
+      <tbody>
+        <tr>
+<td class="l">experts (per layer)</td>
+<td class="l">\(E\)</td>
+<td class="l">\(k\)</td>
+<td class="l">the whole batch</td>
+<td class="l">\(B\)</td>
+<td class="l">\(Bb\)</td>
+<td class="l">\(\Pi_E = \dfrac{U_{E,k}(Bb)}{U_{E,k}(B)}\)</td>
+</tr>
+        <tr>
+<td class="l">cached tokens (sparse layer)</td>
+<td class="l">\(C\)</td>
+<td class="l">\(m\)</td>
+<td class="l">one sequence</td>
+<td class="l">1</td>
+<td class="l">\(b\)</td>
+<td class="l">\(\Pi_{\mathrm{sel}} = \dfrac{U_{C,m}(b)}{U_{C,m}(1)} = \dfrac{U_{C,m}(b)}{m}\) (selected tokens alone)</td>
+</tr>
+      </tbody>
+    </table></div>
+    <p>The penalties on the linear layers, on attention, and overall compare the bytes a TD pass and an AR step read per sequence:</p>
+    <div class="eq eq-wide">\[ \Pi_{\mathrm{lin}}(B) = \frac{\class{mj-td}{Q^{TD}_{\mathrm{lin}}}(B)}{\class{mj-ar}{Q^{AR}_{\mathrm{lin}}}(B)} = \frac{\class{mj-td}{W_{TD}}(B)}{\class{mj-ar}{W_{AR}}(B)},\qquad \Pi_{\mathrm{attn}}(C) = \frac{\class{mj-td}{Q^{TD}_{\mathrm{attn}}}(C)}{\class{mj-ar}{Q^{AR}_{\mathrm{attn}}}(C)},\qquad \Pi(B,C) = \frac{\class{mj-td}{Q^{TD}}(B,C)}{\class{mj-ar}{Q^{AR}}(B,C)}, \]</div>
+    <div class="eq eq-narrow">\[ \begin{gathered} \Pi_{\mathrm{lin}} = \frac{\class{mj-td}{Q^{TD}_{\mathrm{lin}}}}{\class{mj-ar}{Q^{AR}_{\mathrm{lin}}}} = \frac{\class{mj-td}{W_{TD}}}{\class{mj-ar}{W_{AR}}},\\[4pt] \Pi_{\mathrm{attn}} = \frac{\class{mj-td}{Q^{TD}_{\mathrm{attn}}}}{\class{mj-ar}{Q^{AR}_{\mathrm{attn}}}},\qquad \Pi = \frac{\class{mj-td}{Q^{TD}}}{\class{mj-ar}{Q^{AR}}}, \end{gathered} \]</div>
+    <p>so that \(\class{mj-td}{I^{TD}_{\mathrm{lin}}} = b\,\class{mj-ar}{I^{AR}_{\mathrm{lin}}}/\Pi_{\mathrm{lin}}\), \(\class{mj-td}{I^{TD}_{\mathrm{attn}}} = b\,\class{mj-ar}{I^{AR}_{\mathrm{attn}}}/\Pi_{\mathrm{attn}}\) and \(\class{mj-td}{I_{TD}} = b\,\class{mj-ar}{I_{AR}}/\Pi\). For DiffusionGemma with dense attention, \(\Pi_{\mathrm{attn}} = 1\) and \(\Pi = \Pi_{\mathrm{lin}}\) at zero context: 7.9 at batch 1, 1.0 at batch 64.</p>
+  </div>
+
+  <div class="table-wrap"><table class="limits">
+    <caption>Table 1. Where the intensities go, DiffusionGemma on an H200 with dense attention (§3 and §4 prove the limits).</caption>
+    <thead><tr>
+<th class="l"></th>
+<th class="l">Short context, \(C \to 0\)</th>
+<th class="l">Long context, \(C \to \infty\)</th>
+</tr></thead>
+    <tbody>
+      <tr>
+<td class="l"><b>AR</b></td>
+<td class="l">\(\class{mj-ar}{I^{AR}_{\mathrm{lin}}}(B)\): 1.0 at batch 1, 8.2 at batch 64</td>
+<td class="l">\(I_{\mathrm{attn}}\): 8</td>
+</tr>
+      <tr>
+<td class="l"><b>TD</b></td>
+<td class="l">\(b\,\class{mj-ar}{I^{AR}_{\mathrm{lin}}}(B)/\Pi_{\mathrm{lin}}(B)\): 32 at batch 1, 2.1k at batch 64</td>
+<td class="l">\(b\,I_{\mathrm{attn}}\): 2,048</td>
+</tr>
+      <tr>
+<td class="l"><b>Penalty</b></td>
+<td class="l">\(\Pi_{\mathrm{lin}}(B)\): 7.9 at batch 1, 1.0 at batch 64</td>
+<td class="l">\(\Pi_{\mathrm{attn}}\): 1</td>
+</tr>
+    </tbody>
+  </table></div>
+</section>
+<nav class="book-nav" aria-label="Chapters"><a class="prev" href="/notes/block-diffusion-rooflines-6f924020/summary/"><span>Previous</span>Summary</a><a class="next" href="/notes/block-diffusion-rooflines-6f924020/gain/"><span>Next</span>2 · The gain</a></nav>
+</div>
+
+
+  </article>
+
+  
+
+  
+    
+
+
+  
+</div>
+
+      
+    </div>
+
+    <!-- Footer -->
+    
+
+
+  <footer class="sticky-bottom mt-5" role="contentinfo">
+    
+
+    <div class="container">
+      
+  © Copyright 2026
+  Valentin
+  
+  De Bortoli. Built with <a href="https://jekyllrb.com/" target="_blank" rel="external nofollow noopener">Jekyll</a> and the <a href="https://github.com/alshedivat/al-folio" rel="external nofollow noopener" target="_blank">al-folio</a> theme. Hosted on <a href="https://pages.github.com/" target="_blank" rel="external nofollow noopener">GitHub Pages</a>.
+
+  
+  
+    Last updated: November 14, 2026.
+  
+
+    </div>
+  </footer>
+
+
+
+    <!-- JavaScripts -->
+    <script>
+  window.alFolio = {
+    compatBootstrap: false
+  };
+</script>
+
+<!-- Core navigation/runtime scripts -->
+<script src="/assets/js/nav-toggle.js?v=141bd79a73ebc0f0b6ea58e440ae79fc"></script>
+
+
+
+  <!-- Masonry & imagesLoaded -->
+  <script defer src="https://cdn.jsdelivr.net/npm/masonry-layout@4.2.2/dist/masonry.pkgd.min.js" integrity="sha256-Nn1q/fx0H7SNLZMQ5Hw5JLaTRZp0yILA/FRexe19VdI=" crossorigin="anonymous"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/imagesloaded@5.0.0/imagesloaded.pkgd.min.js" integrity="sha256-htrLFfZJ6v5udOG+3kNLINIKh2gvoKqwEhHYfTTMICc=" crossorigin="anonymous"></script>
+  <script defer src="/assets/js/masonry.js?v=e49affc7bd2646f6acdad1dbe02c2359" type="text/javascript"></script>
+
+
+
+  <!-- Charts and Diagrams -->
+  
+
+
+
+
+
+
+
+  <!-- Math and Tikzjax -->
+  
+<script defer type="text/javascript" id="MathJax-script" src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-mml-chtml.js" integrity="sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI=" crossorigin="anonymous"></script>
+<script src="/assets/al_math/js/mathjax-setup.js"></script>
+
+
+
+
+
+<!-- Tooltips & popovers runtime -->
+<script src="/assets/js/tooltips-setup.js?v=fe487e99db6c43751e6e7bdb2d6a0611"></script>
+
+
+
+
+
+
+<!-- Load Common JS -->
+<script src="/assets/js/no_defer.js?v=53b1b1a645525975c963ce8bf8bfefcf"></script>
+<script defer src="/assets/js/common.js?v=87baac90f765f2f3362dcf6aaf312a8a"></script>
+<script defer src="/assets/js/copy_code.js?v=c8a01c11a92744d44b093fc3bda915df" type="text/javascript"></script>
+
+<!-- Jupyter Open External Links New Tab -->
+<script defer src="/assets/js/jupyter_new_tab.js?v=896d254890d9b47f0281f63bfccf0dee"></script>
+
+<!-- Badges -->
+
+  <script async src="https://d1bxh8uas1mnw7.cloudfront.net/assets/embed.js"></script>
+
+
+  <script async src="https://badge.dimensions.ai/badge.js"></script>
+
+
+
+
+  <!-- Analytics -->
+  
+
+
+
+
+
+  <!-- Image Features -->
+  
+<!-- Medium Zoom JS -->
+<script defer src="https://cdn.jsdelivr.net/npm/medium-zoom@1.1.0/dist/medium-zoom.min.js" integrity="sha256-ZgMyDAIYDYGxbcpJcfUnYwNevG/xi9OHKaR/8GK+jWc=" crossorigin="anonymous"></script>
+<script defer src="/assets/al_img_tools/js/zoom.js"></script>
+
+
+
+
+
+  <!-- Scrolling Progress Bar -->
+  <script defer src="/assets/js/progress-bar.js?v=499464c5c63ced6cf7ad62509f1e2610" type="text/javascript"></script>
+
+
+
+
+
+  <!-- Back to Top -->
+  
+  
+  
+    <script src="https://cdn.jsdelivr.net/npm/vanilla-back-to-top@7.2.1/dist/vanilla-back-to-top.min.js" integrity="sha256-uMJJ3EoTyfRBoTbR+lrfu1uRQ87RZG8AR3cVNuQVeFg=" crossorigin="anonymous"></script>
+  
+  <script>
+    addBackToTop();
+  </script>
+
+
+
+  <!-- Search -->
+  
+    
+<script type="module" src="/assets/al_search/js/search/ninja-keys.min.js"></script>
+<ninja-keys hidebreadcrumbs noautoloadmdicons placeholder="Type to start searching"></ninja-keys>
+<script src="/assets/al_search/js/search-setup.js"></script>
+<script>
+// get the ninja-keys element
+const ninja = document.querySelector('ninja-keys');
+
+// add the home and posts menu items
+ninja.data = [{
+    id: "nav-about",
+    title: "about",
+    section: "Navigation",
+    handler: () => {
+      window.location.href = "/";
+    },
+  },{id: "nav-publications",
+          title: "publications",
+          description: "Everything, newest first. Use the filter to search titles, authors and venues.",
+          section: "Navigation",
+          handler: () => {
+            window.location.href = "/publications/";
+          },
+        },{id: "nav-teaching",
+          title: "teaching",
+          description: "Course materials from teaching in Paris, 2015–2018.",
+          section: "Navigation",
+          handler: () => {
+            window.location.href = "/teaching/";
+          },
+        },{id: "news-distributional-diffusion-models-with-scoring-rules-accepted-at-icml-2025",
+          title: 'Distributional Diffusion Models with Scoring Rules accepted at ICML 2025.',
+          description: "",
+          section: "News",},{id: "news-three-papers-accepted-at-neurips-2025-on-inference-time-annealing-memorization-in-diffusion-models-and-proximal-mcmc-for-non-log-concave-sampling",
+          title: 'Three papers accepted at NeurIPS 2025, on inference-time annealing, memorization in diffusion models,...',
+          description: "",
+          section: "News",},{id: "news-the-diffusiongemma-technical-report-is-out",
+          title: 'The DiffusionGemma technical report is out.',
+          description: "",
+          section: "News",},{id: "news-simplex-diffusion-models-is-out-diffusion-on-the-probability-simplex-that-retains-uncertainty-during-discrete-denoising",
+          title: 'Simplex Diffusion Models is out — diffusion on the probability simplex that retains...',
+          description: "",
+          section: "News",},{
+        id: 'social-cv',
+        title: 'CV',
+        section: 'Socials',
+        handler: () => {
+          window.open("/assets/pdf/cv.pdf", "_blank");
+        },
+      },{
+        id: 'social-email',
+        title: 'email',
+        section: 'Socials',
+        handler: () => {
+          window.open("mailto:%76%61%6C%65%6E%74%69%6E.%64%65%62%6F%72%74%6F%6C%69@%67%6D%61%69%6C.%63%6F%6D", "_blank");
+        },
+      },{
+        id: 'social-github',
+        title: 'GitHub',
+        section: 'Socials',
+        handler: () => {
+          window.open("https://github.com/vdeborto", "_blank");
+        },
+      },{
+        id: 'social-scholar',
+        title: 'Google Scholar',
+        section: 'Socials',
+        handler: () => {
+          window.open("https://scholar.google.com/citations?user=dn_F9I4AAAAJ", "_blank");
+        },
+      },{
+        id: 'social-rss',
+        title: 'RSS Feed',
+        section: 'Socials',
+        handler: () => {
+          window.open("/feed.xml", "_blank");
+        },
+      },{
+      id: 'light-theme',
+      title: 'Change theme to light',
+      description: 'Change the theme of the site to Light',
+      section: 'Theme',
+      handler: () => {
+        setThemeSetting("light");
+      },
+    },
+    {
+      id: 'dark-theme',
+      title: 'Change theme to dark',
+      description: 'Change the theme of the site to Dark',
+      section: 'Theme',
+      handler: () => {
+        setThemeSetting("dark");
+      },
+    },
+    {
+      id: 'system-theme',
+      title: 'Use system default theme',
+      description: 'Change the theme of the site to System Default',
+      section: 'Theme',
+      handler: () => {
+        setThemeSetting("system");
+      },
+    },];
+
+</script>
+<script src="/assets/al_search/js/shortcut-key.js"></script>
+
+
+  
+
+
+
+
+
+
+
+
+  </body>
+</html>

@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="en">
+  <!-- Head -->
+  <head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <!-- Metadata, OpenGraph and Schema.org -->
+
+
+
+
+<!-- Standard metadata -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<title>
+  
+  
+    
+      Calculator | Valentin De Bortoli
+    
+  
+</title>
+<meta name="author" content="Valentin De Bortoli">
+<meta name="description" content="Any accelerator, model, attention layout and decoding setup, with the exact accounting.">
+
+  <meta name="keywords" content="diffusion models, generative modelling, optimal transport, Schrodinger bridge, sampling, Markov chain Monte Carlo, machine learning">
+
+
+
+
+
+
+
+
+
+
+<!-- Security: Content Security Policy -->
+<!-- Permissive CSP suitable for academic websites. Allows external images, videos, and common embed services. -->
+<!-- To customize for your needs, see: https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https:; style-src 'self' 'unsafe-inline' https:; img-src 'self' data: https:; font-src 'self' data: https:; media-src 'self' https:; frame-src 'self' https:; connect-src 'self' https:;">
+<style>
+  :root {
+    --max-content-width: 930px;
+  }
+</style>
+
+<!-- Tailwind-first core styles -->
+<link rel="stylesheet" href="/assets/css/tailwind.css?v=50c64c15cbb9fd1ce6056fdb8bcb4b62">
+
+
+
+
+
+
+
+<!-- Icons -->
+
+  
+<!-- Font Awesome -->
+<link defer rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.2.0/css/all.min.css" integrity="sha256-MVopmdyC2tYTiJ8wlktf0uh0v4NgT+vNdyVFepi7Q0c=" crossorigin="anonymous">
+
+<!-- Academicons -->
+<link defer rel="stylesheet" href="https://cdn.jsdelivr.net/npm/academicons@1.9.5/css/academicons.min.css" integrity="sha256-SzrCOBJbGVFMahewkgjwnApaV2+av1DwMAA+/QGLyZw=" crossorigin="anonymous">
+
+<!-- Scholar Icons -->
+<link defer rel="stylesheet" href="https://cdn.jsdelivr.net/npm/scholar-icons@1.0.3/css/scholar-icons.css" integrity="sha256-VY3hHVj/hNX3fYG6wtbA6TcKJQl7+FthzGSyIB64klY=" crossorigin="anonymous">
+
+
+
+<link defer rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Roboto+Slab:100,300,400,500,700|Material+Icons&amp;display=swap">
+
+<!-- Code Syntax Highlighting -->
+<link defer rel="stylesheet" href="/assets/css/jekyll-pygments-themes-github.css?v=591dab5a4e56573bf4ef7fd332894c99" media="" id="highlight_theme_light">
+
+<!-- Styles -->
+
+
+
+
+
+  <link rel="shortcut icon" href="data:image/svg+xml,&lt;svg%20xmlns=%22http://www.w3.org/2000/svg%22%20viewBox=%220%200%20100%20100%22&gt;&lt;text%20y=%22.9em%22%20font-size=%2290%22&gt;%F0%9F%8C%80&lt;/text&gt;&lt;/svg&gt;">
+
+
+
+
+<link rel="stylesheet" href="/assets/css/main.css?v=3116ba77db9ee1581d05bb3e86fbf7f1">
+
+<link rel="canonical" href="https://vdeborto.github.io/notes/block-diffusion-rooflines-6f924020/calculator/">
+
+  <meta name="robots" content="noindex, nofollow">
+
+
+
+  <!-- Dark Mode -->
+  <script src="/assets/js/theme.js?v=5286c3e4c334d0ecb8fc0c40ff4fa7ec"></script>
+  <link defer rel="stylesheet" href="/assets/css/jekyll-pygments-themes-native.css?v=5847e5ed4a4568527aa6cfab446049ca" media="none" id="highlight_theme_dark">
+  <script>
+    initTheme();
+  </script>
+
+
+
+
+
+
+
+  <!-- Image Features -->
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+  <!-- Right-to-left support -->
+  
+
+
+
+
+
+
+
+
+<!-- Custom typography and theme overrides -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,300;8..60,400;8..60,600&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<link rel="stylesheet" href="/assets/css/custom.css">
+
+  </head>
+
+  <!-- Body -->
+  <body class="fixed-top-nav sticky-bottom-footer">
+    <!-- Header -->
+    <header>
+  <!-- Nav Bar -->
+  <nav id="navbar" class="navbar navbar-light navbar-expand-sm fixed-top" role="navigation">
+    <div class="container">
+      
+        <a class="navbar-brand title font-weight-lighter" href="/">
+          
+            
+              <span class="font-weight-bold">Valentin</span>
+            
+            
+            De Bortoli
+          
+        </a>
+      
+      <!-- Navbar Toggle -->
+      <button class="navbar-toggler collapsed navbar-toggler-main" type="button" data-nav-toggle="navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar top-bar"></span>
+        <span class="icon-bar middle-bar"></span>
+        <span class="icon-bar bottom-bar"></span>
+      </button>
+
+      <div class="collapse navbar-collapse navbar-collapse-main" id="navbarNav">
+        <ul class="navbar-nav navbar-menu-list flex-nowrap">
+          
+
+          <!-- About -->
+          <li class="nav-item ">
+            <a class="nav-link" href="/">about
+              
+            </a>
+          </li>
+
+          <!-- Other pages -->
+          
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+              
+                
+                <li class="nav-item ">
+                  <a class="nav-link" href="/publications/">publications
+                    
+                  </a>
+                </li>
+              
+            
+          
+            
+              
+                
+                <li class="nav-item ">
+                  <a class="nav-link" href="/teaching/">teaching
+                    
+                  </a>
+                </li>
+              
+            
+          
+          
+            <!-- Search -->
+            <li class="nav-item">
+              <button id="search-toggle" type="button" title="Search" aria-label="Open search">
+                <span class="nav-link">ctrl k <i class="fa-solid fa-magnifying-glass"></i></span>
+              </button>
+            </li>
+          
+          
+            <!-- Toogle theme mode -->
+            <li class="toggle-container">
+              <button id="light-toggle" type="button" title="Change theme" aria-label="Change color theme">
+                <i class="fa-half-sun-moon" id="light-toggle-system"></i>
+                <i class="fa-solid fa-moon" id="light-toggle-dark"></i>
+                <i class="fa-solid fa-sun" id="light-toggle-light"></i>
+              </button>
+            </li>
+          
+        </ul>
+      </div>
+    </div>
+  </nav>
+  
+    <!-- Scrolling Progress Bar -->
+    <progress id="progress" value="0">
+      <div class="progress-container">
+        <span class="progress-bar"></span>
+      </div>
+    </progress>
+  
+</header>
+
+
+    <!-- Content -->
+    <div class="container mt-5" role="main">
+      
+        
+
+<div class="post">
+  <header class="post-header">
+    <h1 class="post-title">Calculator</h1>
+    <p class="post-description">Any accelerator, model, attention layout and decoding setup, with the exact accounting.</p>
+  </header>
+
+  <article>
+    <!-- Generated by bin/build-roofline.py. Do not edit by hand. -->
+<link rel="stylesheet" href="/assets/roofline/note.css">
+<link rel="stylesheet" href="/assets/roofline/theme.css">
+<script type="application/json" id="bdr-book">{"title":"Block Diffusion Rooflines","home":"/notes/block-diffusion-rooflines-6f924020/","chapters":[{"slug":"","num":"0","title":"Introduction","url":"/notes/block-diffusion-rooflines-6f924020/"},{"slug":"summary","num":"","title":"Summary","url":"/notes/block-diffusion-rooflines-6f924020/summary/"},{"slug":"setup","num":"1","title":"Setup","url":"/notes/block-diffusion-rooflines-6f924020/setup/"},{"slug":"gain","num":"2","title":"The gain","url":"/notes/block-diffusion-rooflines-6f924020/gain/"},{"slug":"linear","num":"3","title":"The linear part","url":"/notes/block-diffusion-rooflines-6f924020/linear/"},{"slug":"attention","num":"4","title":"The attention part","url":"/notes/block-diffusion-rooflines-6f924020/attention/"},{"slug":"whole","num":"5","title":"The whole picture","url":"/notes/block-diffusion-rooflines-6f924020/whole/"},{"slug":"calculator","num":"6","title":"Calculator","url":"/notes/block-diffusion-rooflines-6f924020/calculator/"},{"slug":"examples","num":"7","title":"Worked examples","url":"/notes/block-diffusion-rooflines-6f924020/examples/"},{"slug":"appendix","num":"A","title":"Appendix","url":"/notes/block-diffusion-rooflines-6f924020/appendix/"}],"current":"calculator"}</script>
+<script defer src="/assets/roofline/mathjax.js"></script>
+<script defer src="/assets/roofline/note.js"></script>
+<script defer src="/assets/roofline/figures.js"></script>
+<script defer src="/assets/roofline/reading.js"></script>
+
+<div class="bdr book-chapter" id="top">
+<noscript><p>This page needs JavaScript for its equations, figures and calculator.</p></noscript>
+<p class="book-part">Part 6 of <a href="/notes/block-diffusion-rooflines-6f924020/">Block Diffusion Rooflines</a> <span class="book-links">(<a href="/notes/block-diffusion-rooflines-6f924020/whole/" rel="prev">Previous: 5 · The whole picture</a> | <a href="/notes/block-diffusion-rooflines-6f924020/examples/" rel="next">Next: 7 · Worked examples</a>)</span></p>
+<section class="wide" id="calc">
+  <div class="bdr-col">
+</div>
+  <div class="calc">
+    <div class="calc-grid">
+      <div class="calc-controls">
+        <label for="c-hw"><span>Accelerator</span><select id="c-hw"></select></label>
+        <label for="c-kern"><span>Timing rule</span><select id="c-kern"><option value="whole">Whole pass (the propositions)</option>
+<option value="sum">Kernel by kernel (sum)</option></select></label>
+        <details class="specs"><summary>Accelerator specs</summary>
+          <label for="c-peak"><span>Peak BF16 (TFLOP/s)</span><input id="c-peak" type="number" min="1" step="any"></label>
+          <label for="c-bw"><span>Bandwidth (TB/s)</span><input id="c-bw" type="number" min="0.01" step="any"></label>
+          <label for="c-mem"><span>Memory (GB)</span><input id="c-mem" type="number" min="1" step="any"></label>
+          <label for="c-prec"><span>Linear-layer weights</span><select id="c-prec"><option value="bf16">BF16</option>
+<option value="fp8">FP8 (2× peak, 1 byte)</option></select></label>
+          <button type="button" class="reset" id="c-reset">Reset to preset</button>
+        </details>
+        <label for="c-model"><span>Model</span><select id="c-model"></select></label>
+        <details class="specs" id="c-mspecs"><summary>Model specs</summary>
+          <div class="spec-grid">
+<label for="m-L"><span>Layers</span><input id="m-L" type="number" min="1" step="1"></label><label for="m-d"><span>Hidden size</span><input id="m-d" type="number" min="1" step="1"></label><label for="m-V"><span>Vocabulary</span><input id="m-V" type="number" min="0" step="1"></label><label for="m-nq"><span>Query heads</span><input id="m-nq" type="number" min="1" step="1"></label><label for="m-period"><span>Global every</span><input id="m-period" type="number" min="1" step="1"></label><label for="m-win"><span>Window</span><input id="m-win" type="number" min="1" step="1"></label><label for="m-gkv"><span>Global KV heads</span><input id="m-gkv" type="number" min="1" step="1"></label><label for="m-gh"><span>Global head dim</span><input id="m-gh" type="number" min="1" step="1"></label><label for="m-skv"><span>Window KV heads</span><input id="m-skv" type="number" min="1" step="1"></label><label for="m-sh"><span>Window head dim</span><input id="m-sh" type="number" min="1" step="1"></label><label for="m-E"><span>Experts</span><input id="m-E" type="number" min="0" step="1"></label><label for="m-k"><span>Active experts</span><input id="m-k" type="number" min="0" step="1"></label><label for="m-fE"><span>Expert width</span><input id="m-fE" type="number" min="0" step="1"></label><label for="m-fD"><span>Dense MLP width</span><input id="m-fD" type="number" min="0" step="1"></label>
+</div>
+          <p class="hint">Layer \(i\) is global when \(i\) is a multiple of "Global every" (1: all global). "Window" is in tokens.</p>
+          <label class="check" for="m-kvs"><input id="m-kvs" type="checkbox">Global layers store K = V</label>
+          <label class="check" for="m-sc"><input id="m-sc" type="checkbox">Self-conditioning (TD)</label>
+          <label for="m-fSC" class="sc-width"><span>Self-conditioning MLP width</span><input id="m-fSC" type="number" min="1" step="1"></label>
+          <label class="check" for="m-tied"><input id="m-tied" type="checkbox">Tied embeddings</label>
+          <button type="button" class="reset" id="m-reset">Reset to preset</button>
+          <p class="spec-note" id="c-mspec"></p>
+        </details>
+        <details class="specs" id="c-sparse">
+          <summary>Sparse attention</summary>
+          <label class="check" for="s-on"><input id="s-on" type="checkbox">Global layers use DSA-style sparse attention</label>
+          <div class="spec-grid">
+            <label for="s-m"><span>Selected tokens \(m\)</span><input id="s-m" type="number" min="1" step="1" value="2048"></label>
+            <label for="s-beta"><span>Block size \(\beta\)</span><input id="s-beta" type="number" min="1" step="1" value="64"></label>
+            <label for="s-eta"><span>Overlap \(\eta\)</span><input id="s-eta" type="number" min="0.001" max="1" step="any" value="1"></label>
+            <label for="s-HI"><span>Indexer heads</span><input id="s-HI" type="number" min="1" step="1" value="8"></label>
+            <label for="s-hI"><span>Indexer head dim</span><input id="s-hI" type="number" min="1" step="1" value="128"></label>
+            <label for="s-sI"><span>Index bytes</span><select id="s-sI"><option value="1">1 (FP8)</option>
+<option value="2">2 (BF16)</option></select></label>
+          </div>
+          <p class="hint">\(\eta\) is the fraction of a canvas's selections that are independent; 1/\(b\) means every query selects the same blocks.</p>
+        </details>
+        <div class="pair">
+          <label for="c-P"><span>Prompt \(P\)</span><input id="c-P" type="number" min="1" step="1" value="1024"></label>
+          <label for="c-G"><span>Generated \(G\)</span><input id="c-G" type="number" min="1" step="1" value="8192"></label>
+        </div>
+        <p class="hint">Throughput and gain cover the whole generation, during which the context grows from \(P\) to \(P + G\). The regime label and the per-pass table use the context halfway through, \(P + G/2\).</p>
+        <label for="c-b"><span>Canvas \(b\)</span><input id="c-b" type="number" min="1" step="1" value="256"></label>
+        <label for="c-S"><span>Denoising passes \(S\)</span><input id="c-S" type="number" min="1" step="1" value="14"></label>
+        <label for="c-r"><span>Decoder ratio \(r\)</span><input id="c-r" type="number" min="0.01" step="any" value="1"></label>
+        <label for="c-B"><span>Batch \(B\)</span><input id="c-B" type="number" min="1" step="1" value="1"></label>
+        <details class="more">
+          <summary>More settings</summary>
+          <label for="c-lt"><span>Vocabulary passes per position, TD</span><input id="c-lt" type="number" min="0" step="1" value="5"></label>
+          <label for="c-la"><span>Vocabulary passes per position, AR</span><input id="c-la" type="number" min="0" step="1" value="2"></label>
+          <label for="c-bl"><span>Logit bytes</span><select id="c-bl"><option value="4">4 (FP32)</option>
+<option value="2">2 (BF16)</option></select></label>
+          <label for="c-rho"><span>KV reads per pass</span><input id="c-rho" type="number" min="1" step="any" value="1"></label>
+          <label class="check" for="c-actl2"><input id="c-actl2" type="checkbox" checked>Activations stay on-chip</label>
+          <label class="check" for="c-kvonce"><input id="c-kvonce" type="checkbox">Store K = V once (global layers)</label>
+          <label class="check" for="c-win"><input id="c-win" type="checkbox" checked>Windowed layers keep their window</label>
+        </details>
+      </div>
+      <div class="calc-results">
+        <div class="verdict" id="c-verdict"></div>
+        <pre class="envelope" id="c-env"></pre>
+        <div class="tiles" id="c-tiles"></div>
+        <div class="charts">
+          <figure>
+            <figcaption>Decode throughput vs batch</figcaption>
+            <div class="legend">
+<span><span class="swatch" style="background:var(--bdr-ar)"></span>AR</span><span><span class="swatch" style="background:var(--bdr-td)"></span>TD</span><span class="muted">hollow: exceeds memory</span>
+</div>
+            <div class="chart" id="ch-thr"></div>
+          </figure>
+          <figure>
+            <figcaption>Share of peak vs batch</figcaption>
+            <div class="legend">
+<span><span class="swatch" style="background:var(--bdr-ar)"></span>AR</span><span><span class="swatch" style="background:var(--bdr-td)"></span>TD</span><span class="muted">dashed: ω × AR; TD above it means Γ &gt; 1</span>
+</div>
+            <div class="chart" id="ch-util"></div>
+          </figure>
+          <figure>
+            <figcaption>Gain Γ vs batch</figcaption>
+            <div class="legend">
+<span><span class="swatch" style="background:var(--accent)"></span>Γ = TD / AR</span><span class="muted">dashed: parity</span>
+</div>
+            <div class="chart" id="ch-gain"></div>
+          </figure>
+        </div>
+        <div class="tabs" role="tablist" aria-label="Maps for these settings">
+          <button role="tab" aria-selected="true" data-tab="c-m-gain">Gain map</button>
+          <button role="tab" aria-selected="false" data-tab="c-m-ar">AR intensity</button>
+          <button role="tab" aria-selected="false" data-tab="c-m-td">TD intensity</button>
+        </div>
+        <figure class="mapfig tabpanel" id="c-m-gain">
+          <div class="maplegend" id="map-calc-legend"></div>
+          <div class="chart" id="map-calc"></div>
+        </figure>
+        <figure class="mapfig tabpanel" id="c-m-ar" hidden>
+          <div class="maplegend" id="imap-ar-calc-legend"></div>
+          <div class="chart" id="imap-ar-calc"></div>
+        </figure>
+        <figure class="mapfig tabpanel" id="c-m-td" hidden>
+          <div class="maplegend" id="imap-td-calc-legend"></div>
+          <div class="chart" id="imap-td-calc"></div>
+        </figure>
+        <details class="more">
+          <summary>Per-kernel detail</summary>
+          <div class="table-wrap"><table>
+            <caption>Compute time / memory time of each kernel class, in ms, at the mean context for the chosen batch. Green: memory-bound; purple: compute-bound.</caption>
+            <thead><tr>
+<th class="l">Class</th>
+<th>AR decode step</th>
+<th>TD denoising pass</th>
+</tr></thead>
+            <tbody id="c-kern-rows"></tbody>
+          </table></div>
+        </details>
+        <details class="more">
+          <summary>Per-pass detail</summary>
+          <div class="table-wrap"><table>
+            <caption id="c-pass-cap">Each pass at the mean context, for the chosen batch.</caption>
+            <thead><tr>
+<th class="l">Pass</th>
+<th>F (TFLOP)</th>
+<th>weights GB</th>
+<th>KV GB</th>
+<th>act. GB</th>
+<th>vocab GB</th>
+<th>Q GB</th>
+<th>\(I\)</th>
+<th>bound</th>
+<th>time</th>
+</tr></thead>
+            <tbody id="c-pass"></tbody>
+          </table></div>
+        </details>
+        <p class="note" id="c-note"></p>
+        <div class="share">
+<button type="button" id="c-share">Copy link to these settings</button><span id="c-share-msg" class="muted" aria-live="polite"></span>
+</div>
+      </div>
+    </div>
+  </div>
+</section>
+<nav class="book-nav" aria-label="Chapters"><a class="prev" href="/notes/block-diffusion-rooflines-6f924020/whole/"><span>Previous</span>5 · The whole picture</a><a class="next" href="/notes/block-diffusion-rooflines-6f924020/examples/"><span>Next</span>7 · Worked examples</a></nav>
+</div>
+
+
+  </article>
+
+  
+
+  
+    
+
+
+  
+</div>
+
+      
+    </div>
+
+    <!-- Footer -->
+    
+
+
+  <footer class="sticky-bottom mt-5" role="contentinfo">
+    
+
+    <div class="container">
+      
+  © Copyright 2026
+  Valentin
+  
+  De Bortoli. Built with <a href="https://jekyllrb.com/" target="_blank" rel="external nofollow noopener">Jekyll</a> and the <a href="https://github.com/alshedivat/al-folio" rel="external nofollow noopener" target="_blank">al-folio</a> theme. Hosted on <a href="https://pages.github.com/" target="_blank" rel="external nofollow noopener">GitHub Pages</a>.
+
+  
+  
+    Last updated: November 14, 2026.
+  
+
+    </div>
+  </footer>
+
+
+
+    <!-- JavaScripts -->
+    <script>
+  window.alFolio = {
+    compatBootstrap: false
+  };
+</script>
+
+<!-- Core navigation/runtime scripts -->
+<script src="/assets/js/nav-toggle.js?v=141bd79a73ebc0f0b6ea58e440ae79fc"></script>
+
+
+
+  <!-- Masonry & imagesLoaded -->
+  <script defer src="https://cdn.jsdelivr.net/npm/masonry-layout@4.2.2/dist/masonry.pkgd.min.js" integrity="sha256-Nn1q/fx0H7SNLZMQ5Hw5JLaTRZp0yILA/FRexe19VdI=" crossorigin="anonymous"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/imagesloaded@5.0.0/imagesloaded.pkgd.min.js" integrity="sha256-htrLFfZJ6v5udOG+3kNLINIKh2gvoKqwEhHYfTTMICc=" crossorigin="anonymous"></script>
+  <script defer src="/assets/js/masonry.js?v=e49affc7bd2646f6acdad1dbe02c2359" type="text/javascript"></script>
+
+
+
+  <!-- Charts and Diagrams -->
+  
+
+
+
+
+
+
+
+  <!-- Math and Tikzjax -->
+  
+<script defer type="text/javascript" id="MathJax-script" src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-mml-chtml.js" integrity="sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI=" crossorigin="anonymous"></script>
+<script src="/assets/al_math/js/mathjax-setup.js"></script>
+
+
+
+
+
+<!-- Tooltips & popovers runtime -->
+<script src="/assets/js/tooltips-setup.js?v=fe487e99db6c43751e6e7bdb2d6a0611"></script>
+
+
+
+
+
+
+<!-- Load Common JS -->
+<script src="/assets/js/no_defer.js?v=53b1b1a645525975c963ce8bf8bfefcf"></script>
+<script defer src="/assets/js/common.js?v=87baac90f765f2f3362dcf6aaf312a8a"></script>
+<script defer src="/assets/js/copy_code.js?v=c8a01c11a92744d44b093fc3bda915df" type="text/javascript"></script>
+
+<!-- Jupyter Open External Links New Tab -->
+<script defer src="/assets/js/jupyter_new_tab.js?v=896d254890d9b47f0281f63bfccf0dee"></script>
+
+<!-- Badges -->
+
+  <script async src="https://d1bxh8uas1mnw7.cloudfront.net/assets/embed.js"></script>
+
+
+  <script async src="https://badge.dimensions.ai/badge.js"></script>
+
+
+
+
+  <!-- Analytics -->
+  
+
+
+
+
+
+  <!-- Image Features -->
+  
+<!-- Medium Zoom JS -->
+<script defer src="https://cdn.jsdelivr.net/npm/medium-zoom@1.1.0/dist/medium-zoom.min.js" integrity="sha256-ZgMyDAIYDYGxbcpJcfUnYwNevG/xi9OHKaR/8GK+jWc=" crossorigin="anonymous"></script>
+<script defer src="/assets/al_img_tools/js/zoom.js"></script>
+
+
+
+
+
+  <!-- Scrolling Progress Bar -->
+  <script defer src="/assets/js/progress-bar.js?v=499464c5c63ced6cf7ad62509f1e2610" type="text/javascript"></script>
+
+
+
+
+
+  <!-- Back to Top -->
+  
+  
+  
+    <script src="https://cdn.jsdelivr.net/npm/vanilla-back-to-top@7.2.1/dist/vanilla-back-to-top.min.js" integrity="sha256-uMJJ3EoTyfRBoTbR+lrfu1uRQ87RZG8AR3cVNuQVeFg=" crossorigin="anonymous"></script>
+  
+  <script>
+    addBackToTop();
+  </script>
+
+
+
+  <!-- Search -->
+  
+    
+<script type="module" src="/assets/al_search/js/search/ninja-keys.min.js"></script>
+<ninja-keys hidebreadcrumbs noautoloadmdicons placeholder="Type to start searching"></ninja-keys>
+<script src="/assets/al_search/js/search-setup.js"></script>
+<script>
+// get the ninja-keys element
+const ninja = document.querySelector('ninja-keys');
+
+// add the home and posts menu items
+ninja.data = [{
+    id: "nav-about",
+    title: "about",
+    section: "Navigation",
+    handler: () => {
+      window.location.href = "/";
+    },
+  },{id: "nav-publications",
+          title: "publications",
+          description: "Everything, newest first. Use the filter to search titles, authors and venues.",
+          section: "Navigation",
+          handler: () => {
+            window.location.href = "/publications/";
+          },
+        },{id: "nav-teaching",
+          title: "teaching",
+          description: "Course materials from teaching in Paris, 2015–2018.",
+          section: "Navigation",
+          handler: () => {
+            window.location.href = "/teaching/";
+          },
+        },{id: "news-distributional-diffusion-models-with-scoring-rules-accepted-at-icml-2025",
+          title: 'Distributional Diffusion Models with Scoring Rules accepted at ICML 2025.',
+          description: "",
+          section: "News",},{id: "news-three-papers-accepted-at-neurips-2025-on-inference-time-annealing-memorization-in-diffusion-models-and-proximal-mcmc-for-non-log-concave-sampling",
+          title: 'Three papers accepted at NeurIPS 2025, on inference-time annealing, memorization in diffusion models,...',
+          description: "",
+          section: "News",},{id: "news-the-diffusiongemma-technical-report-is-out",
+          title: 'The DiffusionGemma technical report is out.',
+          description: "",
+          section: "News",},{id: "news-simplex-diffusion-models-is-out-diffusion-on-the-probability-simplex-that-retains-uncertainty-during-discrete-denoising",
+          title: 'Simplex Diffusion Models is out — diffusion on the probability simplex that retains...',
+          description: "",
+          section: "News",},{
+        id: 'social-cv',
+        title: 'CV',
+        section: 'Socials',
+        handler: () => {
+          window.open("/assets/pdf/cv.pdf", "_blank");
+        },
+      },{
+        id: 'social-email',
+        title: 'email',
+        section: 'Socials',
+        handler: () => {
+          window.open("mailto:%76%61%6C%65%6E%74%69%6E.%64%65%62%6F%72%74%6F%6C%69@%67%6D%61%69%6C.%63%6F%6D", "_blank");
+        },
+      },{
+        id: 'social-github',
+        title: 'GitHub',
+        section: 'Socials',
+        handler: () => {
+          window.open("https://github.com/vdeborto", "_blank");
+        },
+      },{
+        id: 'social-scholar',
+        title: 'Google Scholar',
+        section: 'Socials',
+        handler: () => {
+          window.open("https://scholar.google.com/citations?user=dn_F9I4AAAAJ", "_blank");
+        },
+      },{
+        id: 'social-rss',
+        title: 'RSS Feed',
+        section: 'Socials',
+        handler: () => {
+          window.open("/feed.xml", "_blank");
+        },
+      },{
+      id: 'light-theme',
+      title: 'Change theme to light',
+      description: 'Change the theme of the site to Light',
+      section: 'Theme',
+      handler: () => {
+        setThemeSetting("light");
+      },
+    },
+    {
+      id: 'dark-theme',
+      title: 'Change theme to dark',
+      description: 'Change the theme of the site to Dark',
+      section: 'Theme',
+      handler: () => {
+        setThemeSetting("dark");
+      },
+    },
+    {
+      id: 'system-theme',
+      title: 'Use system default theme',
+      description: 'Change the theme of the site to System Default',
+      section: 'Theme',
+      handler: () => {
+        setThemeSetting("system");
+      },
+    },];
+
+</script>
+<script src="/assets/al_search/js/shortcut-key.js"></script>
+
+
+  
+
+
+
+
+
+
+
+
+  </body>
+</html>

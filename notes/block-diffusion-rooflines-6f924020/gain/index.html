@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="en">
+  <!-- Head -->
+  <head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <!-- Metadata, OpenGraph and Schema.org -->
+
+
+
+
+<!-- Standard metadata -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<title>
+  
+  
+    
+      The gain | Valentin De Bortoli
+    
+  
+</title>
+<meta name="author" content="Valentin De Bortoli">
+<meta name="description" content="Proposition 1, and the split of each intensity into a linear part and an attention part.">
+
+  <meta name="keywords" content="diffusion models, generative modelling, optimal transport, Schrodinger bridge, sampling, Markov chain Monte Carlo, machine learning">
+
+
+
+
+
+
+
+
+
+
+<!-- Security: Content Security Policy -->
+<!-- Permissive CSP suitable for academic websites. Allows external images, videos, and common embed services. -->
+<!-- To customize for your needs, see: https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https:; style-src 'self' 'unsafe-inline' https:; img-src 'self' data: https:; font-src 'self' data: https:; media-src 'self' https:; frame-src 'self' https:; connect-src 'self' https:;">
+<style>
+  :root {
+    --max-content-width: 930px;
+  }
+</style>
+
+<!-- Tailwind-first core styles -->
+<link rel="stylesheet" href="/assets/css/tailwind.css?v=50c64c15cbb9fd1ce6056fdb8bcb4b62">
+
+
+
+
+
+
+
+<!-- Icons -->
+
+  
+<!-- Font Awesome -->
+<link defer rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.2.0/css/all.min.css" integrity="sha256-MVopmdyC2tYTiJ8wlktf0uh0v4NgT+vNdyVFepi7Q0c=" crossorigin="anonymous">
+
+<!-- Academicons -->
+<link defer rel="stylesheet" href="https://cdn.jsdelivr.net/npm/academicons@1.9.5/css/academicons.min.css" integrity="sha256-SzrCOBJbGVFMahewkgjwnApaV2+av1DwMAA+/QGLyZw=" crossorigin="anonymous">
+
+<!-- Scholar Icons -->
+<link defer rel="stylesheet" href="https://cdn.jsdelivr.net/npm/scholar-icons@1.0.3/css/scholar-icons.css" integrity="sha256-VY3hHVj/hNX3fYG6wtbA6TcKJQl7+FthzGSyIB64klY=" crossorigin="anonymous">
+
+
+
+<link defer rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Roboto+Slab:100,300,400,500,700|Material+Icons&amp;display=swap">
+
+<!-- Code Syntax Highlighting -->
+<link defer rel="stylesheet" href="/assets/css/jekyll-pygments-themes-github.css?v=591dab5a4e56573bf4ef7fd332894c99" media="" id="highlight_theme_light">
+
+<!-- Styles -->
+
+
+
+
+
+  <link rel="shortcut icon" href="data:image/svg+xml,&lt;svg%20xmlns=%22http://www.w3.org/2000/svg%22%20viewBox=%220%200%20100%20100%22&gt;&lt;text%20y=%22.9em%22%20font-size=%2290%22&gt;%F0%9F%8C%80&lt;/text&gt;&lt;/svg&gt;">
+
+
+
+
+<link rel="stylesheet" href="/assets/css/main.css?v=3116ba77db9ee1581d05bb3e86fbf7f1">
+
+<link rel="canonical" href="https://vdeborto.github.io/notes/block-diffusion-rooflines-6f924020/gain/">
+
+  <meta name="robots" content="noindex, nofollow">
+
+
+
+  <!-- Dark Mode -->
+  <script src="/assets/js/theme.js?v=5286c3e4c334d0ecb8fc0c40ff4fa7ec"></script>
+  <link defer rel="stylesheet" href="/assets/css/jekyll-pygments-themes-native.css?v=5847e5ed4a4568527aa6cfab446049ca" media="none" id="highlight_theme_dark">
+  <script>
+    initTheme();
+  </script>
+
+
+
+
+
+
+
+  <!-- Image Features -->
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+  <!-- Right-to-left support -->
+  
+
+
+
+
+
+
+
+
+<!-- Custom typography and theme overrides -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,300;8..60,400;8..60,600&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<link rel="stylesheet" href="/assets/css/custom.css">
+
+  </head>
+
+  <!-- Body -->
+  <body class="fixed-top-nav sticky-bottom-footer">
+    <!-- Header -->
+    <header>
+  <!-- Nav Bar -->
+  <nav id="navbar" class="navbar navbar-light navbar-expand-sm fixed-top" role="navigation">
+    <div class="container">
+      
+        <a class="navbar-brand title font-weight-lighter" href="/">
+          
+            
+              <span class="font-weight-bold">Valentin</span>
+            
+            
+            De Bortoli
+          
+        </a>
+      
+      <!-- Navbar Toggle -->
+      <button class="navbar-toggler collapsed navbar-toggler-main" type="button" data-nav-toggle="navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar top-bar"></span>
+        <span class="icon-bar middle-bar"></span>
+        <span class="icon-bar bottom-bar"></span>
+      </button>
+
+      <div class="collapse navbar-collapse navbar-collapse-main" id="navbarNav">
+        <ul class="navbar-nav navbar-menu-list flex-nowrap">
+          
+
+          <!-- About -->
+          <li class="nav-item ">
+            <a class="nav-link" href="/">about
+              
+            </a>
+          </li>
+
+          <!-- Other pages -->
+          
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+              
+                
+                <li class="nav-item ">
+                  <a class="nav-link" href="/publications/">publications
+                    
+                  </a>
+                </li>
+              
+            
+          
+            
+              
+                
+                <li class="nav-item ">
+                  <a class="nav-link" href="/teaching/">teaching
+                    
+                  </a>
+                </li>
+              
+            
+          
+          
+            <!-- Search -->
+            <li class="nav-item">
+              <button id="search-toggle" type="button" title="Search" aria-label="Open search">
+                <span class="nav-link">ctrl k <i class="fa-solid fa-magnifying-glass"></i></span>
+              </button>
+            </li>
+          
+          
+            <!-- Toogle theme mode -->
+            <li class="toggle-container">
+              <button id="light-toggle" type="button" title="Change theme" aria-label="Change color theme">
+                <i class="fa-half-sun-moon" id="light-toggle-system"></i>
+                <i class="fa-solid fa-moon" id="light-toggle-dark"></i>
+                <i class="fa-solid fa-sun" id="light-toggle-light"></i>
+              </button>
+            </li>
+          
+        </ul>
+      </div>
+    </div>
+  </nav>
+  
+    <!-- Scrolling Progress Bar -->
+    <progress id="progress" value="0">
+      <div class="progress-container">
+        <span class="progress-bar"></span>
+      </div>
+    </progress>
+  
+</header>
+
+
+    <!-- Content -->
+    <div class="container mt-5" role="main">
+      
+        
+
+<div class="post">
+  <header class="post-header">
+    <h1 class="post-title">The gain</h1>
+    <p class="post-description">Proposition 1, and the split of each intensity into a linear part and an attention part.</p>
+  </header>
+
+  <article>
+    <!-- Generated by bin/build-roofline.py. Do not edit by hand. -->
+<link rel="stylesheet" href="/assets/roofline/note.css">
+<link rel="stylesheet" href="/assets/roofline/theme.css">
+<script type="application/json" id="bdr-book">{"title":"Block Diffusion Rooflines","home":"/notes/block-diffusion-rooflines-6f924020/","chapters":[{"slug":"","num":"0","title":"Introduction","url":"/notes/block-diffusion-rooflines-6f924020/"},{"slug":"summary","num":"","title":"Summary","url":"/notes/block-diffusion-rooflines-6f924020/summary/"},{"slug":"setup","num":"1","title":"Setup","url":"/notes/block-diffusion-rooflines-6f924020/setup/"},{"slug":"gain","num":"2","title":"The gain","url":"/notes/block-diffusion-rooflines-6f924020/gain/"},{"slug":"linear","num":"3","title":"The linear part","url":"/notes/block-diffusion-rooflines-6f924020/linear/"},{"slug":"attention","num":"4","title":"The attention part","url":"/notes/block-diffusion-rooflines-6f924020/attention/"},{"slug":"whole","num":"5","title":"The whole picture","url":"/notes/block-diffusion-rooflines-6f924020/whole/"},{"slug":"calculator","num":"6","title":"Calculator","url":"/notes/block-diffusion-rooflines-6f924020/calculator/"},{"slug":"examples","num":"7","title":"Worked examples","url":"/notes/block-diffusion-rooflines-6f924020/examples/"},{"slug":"appendix","num":"A","title":"Appendix","url":"/notes/block-diffusion-rooflines-6f924020/appendix/"}],"current":"gain"}</script>
+<script defer src="/assets/roofline/mathjax.js"></script>
+<script defer src="/assets/roofline/note.js"></script>
+<script defer src="/assets/roofline/figures.js"></script>
+<script defer src="/assets/roofline/reading.js"></script>
+
+<div class="bdr book-chapter" id="top">
+<noscript><p>This page needs JavaScript for its equations, figures and calculator.</p></noscript>
+<p class="book-part">Part 2 of <a href="/notes/block-diffusion-rooflines-6f924020/">Block Diffusion Rooflines</a> <span class="book-links">(<a href="/notes/block-diffusion-rooflines-6f924020/setup/" rel="prev">Previous: 1 · Setup</a> | <a href="/notes/block-diffusion-rooflines-6f924020/linear/" rel="next">Next: 3 · The linear part</a>)</span></p>
+<section class="bdr-col" id="gain">
+  <div class="box prop" id="prop1">
+    <div class="bdr-title">
+<span class="tag">Proposition 1</span>TD/AR throughput gain</div>
+    <p class="gist"><span>In short.</span> The gain is the ratio of the two decoders' attainable FLOP rates, divided by the \(\omega\) passes a canvas costs.</p>
+    <dl class="assume">
+      <dt>A1 · Roofline</dt>
+<dd>A pass with \(F\) FLOPs and \(Q\) HBM bytes takes \(\max(F/\pi,\,Q/\beta)\).</dd>
+      <dt>A2 · Costs</dt>
+<dd>Per sequence, an AR step costs \(\class{mj-ar}{F^{AR}}\) FLOPs and \(\class{mj-ar}{Q^{AR}}\) bytes, and a TD pass \(\class{mj-td}{F^{TD}}\) and \(\class{mj-td}{Q^{TD}}\), as in Definition 2. Vocabulary, activations, KV writes and in-canvas keys are neglected. Expert routing and token selection are independent across positions.</dd>
+      <dt>A3 · Canvas</dt>
+<dd>A canvas commits \(b\) tokens per sequence after \(S\) denoising passes and one commit pass. A denoising pass costs \(r\) times a commit pass, in FLOPs and in bytes.</dd>
+      <dt>A4 · Lockstep</dt>
+<dd>\(B\) sequences share every pass, at a context \(C\) held fixed over a canvas.</dd>
+    </dl>
+    <p>Then TD's throughput over AR's is</p>
+    <div class="eq">\[
+    \boxed{\begin{gathered}\Gamma = \frac{1}{\omega}\cdot\frac{\min(\class{mj-td}{I_{TD}},\,I^\star)}{\min(\class{mj-ar}{I_{AR}},\,I^\star)},\\[4pt] \omega = S\,r+1,\qquad \class{mj-td}{I_{TD}} = \frac{b}{\Pi}\,\class{mj-ar}{I_{AR}}.\end{gathered}}
+    \]</div>
+    <details class="proof">
+      <summary>Proof</summary>
+      <ol>
+        <li>For a pass with \(I = F/Q\): \(\max(F/\pi,\,Q/\beta) = \dfrac{F}{\beta}\max\Bigl(\dfrac{1}{I^\star},\dfrac{1}{I}\Bigr) = \dfrac{F}{\beta\,\min(I, I^\star)}\).</li>
+        <li>
+<i>AR.</i> A step costs \(B\class{mj-ar}{F^{AR}}\) FLOPs at intensity \(\class{mj-ar}{I_{AR}}\) and yields \(B\) tokens: \(\class{mj-ar}{t_{AR}} = \class{mj-ar}{F^{AR}}\,/\,\bigl(\beta\min(\class{mj-ar}{I_{AR}}, I^\star)\bigr)\) per token.</li>
+        <li>
+<i>TD.</i> A commit pass costs \(B\class{mj-td}{F^{TD}} = Bb\class{mj-ar}{F^{AR}}\) FLOPs at intensity \(\class{mj-td}{I_{TD}}\). A denoising pass multiplies both \(\class{mj-td}{F^{TD}}\) and \(\class{mj-td}{Q^{TD}}\) by \(r\), so it has the same intensity and takes \(r\) times as long. A canvas therefore takes \(\omega\) times one commit pass and yields \(Bb\) tokens: \(\class{mj-td}{t_{TD}} = \omega \class{mj-ar}{F^{AR}}\,/\,\bigl(\beta\min(\class{mj-td}{I_{TD}}, I^\star)\bigr)\) per token.</li>
+        <li>\(\Gamma = \class{mj-ar}{t_{AR}}/\class{mj-td}{t_{TD}}\), and \(\class{mj-td}{I_{TD}} = \class{mj-td}{F^{TD}}/\class{mj-td}{Q^{TD}} = b\class{mj-ar}{F^{AR}}/(\Pi \class{mj-ar}{Q^{AR}}) = b\class{mj-ar}{I_{AR}}/\Pi\) by Definition 4. \(\blacksquare\)</li>
+      </ol>
+    </details>
+  </div>
+
+  <div class="bdr-fig wide" id="fig-roofline">
+    <div class="fig-k">Figure 2 · interactive</div>
+    <p class="fig-title">Proposition 1 on the roofline.</p>
+    <p class="fig-lede">Each dot sits at the arithmetic intensity of its pass, on the roofline of the accelerator. The bracket is how much faster TD's FLOPs run than AR's; dividing it by \(\omega\) gives \(\Gamma\). Move the batch and the context, or pick one of the three regimes.</p>
+    <div data-fig="roofline"></div>
+    <p class="fig-cap">The roofline is \(\min(\pi,\ I\beta)\), and the bracket is \(\min(\class{mj-td}{I_{TD}}, I^\star)/\min(\class{mj-ar}{I_{AR}}, I^\star)\). Intensities from Definition 3 without the vocabulary, as in (A2): DiffusionGemma, BF16, \(b = 256\), \(S = 14\), \(\omega = 15\). The exact accounting of the appendix, at the same fixed context, is given under the plot for comparison.</p>
+  </div>
+  <div class="box prop" id="cor1">
+    <div class="bdr-title">
+<span class="tag">Corollary 1</span>Which side wins</div>
+    <p class="gist"><span>In short.</span> If AR is compute-bound TD loses; otherwise the gain is the smaller of \(\mathrm{TPF}/\Pi\), set by bytes, and \(I^\star/(\omega \class{mj-ar}{I_{AR}})\), set by the compute AR leaves idle.</p>
+    <p>If AR is compute-bound (\(\class{mj-ar}{I_{AR}} \ge I^\star\)), then \(\Gamma \le 1/\omega\). Otherwise</p>
+    <div class="eq">\[ \Gamma = \min\Bigl(\frac{\mathrm{TPF}}{\Pi},\ \frac{I^\star}{\omega\,\class{mj-ar}{I_{AR}}}\Bigr),\quad \mathrm{TPF} = \frac{b}{\omega}. \]</div>
+    <details class="proof"><summary>Proof</summary><p>If \(\class{mj-ar}{I_{AR}} \ge I^\star\) the denominator of Proposition 1 is \(I^\star\) and the numerator at most \(I^\star\). Otherwise \(\min(b\class{mj-ar}{I_{AR}}/\Pi,\,I^\star)/\class{mj-ar}{I_{AR}} = \min(b/\Pi,\,I^\star/\class{mj-ar}{I_{AR}})\); divide by \(\omega\). \(\blacksquare\)</p></details>
+  </div>
+
+  <div class="box prop" id="prop2">
+    <div class="bdr-title">
+<span class="tag">Proposition 2</span>Each intensity is a byte-weighted average of its linear and attention parts</div>
+    <p class="gist"><span>In short.</span> Each intensity is the byte-weighted average of its linear and attention parts, so it lies between them, nearer to the part that carries more of the bytes.</p>
+    <p>Under (A2), for \(X \in \{AR, TD\}\), let \(\theta^X_{\mathrm{lin}} = Q^X_{\mathrm{lin}}/Q^X\) and \(\theta^X_{\mathrm{attn}} = Q^X_{\mathrm{attn}}/Q^X\) be the shares of the two parts in the bytes of Definition 2. Then</p>
+    <div class="eq eq-wide">\[ I_X = \theta^X_{\mathrm{lin}}\,I^X_{\mathrm{lin}} + \theta^X_{\mathrm{attn}}\,I^X_{\mathrm{attn}},\qquad \Pi - 1 = \class{mj-ar}{\theta^{AR}_{\mathrm{lin}}}(\Pi_{\mathrm{lin}} - 1) + \class{mj-ar}{\theta^{AR}_{\mathrm{attn}}}(\Pi_{\mathrm{attn}} - 1). \]</div>
+    <div class="eq eq-narrow">\[ \begin{gathered} I_X = \theta^X_{\mathrm{lin}}\,I^X_{\mathrm{lin}} + \theta^X_{\mathrm{attn}}\,I^X_{\mathrm{attn}},\\[4pt] \Pi - 1 = \class{mj-ar}{\theta^{AR}_{\mathrm{lin}}}(\Pi_{\mathrm{lin}} - 1)\\ \qquad + \class{mj-ar}{\theta^{AR}_{\mathrm{attn}}}(\Pi_{\mathrm{attn}} - 1). \end{gathered} \]</div>
+    <p>Consequently each intensity lies between its two parts, and \(\class{mj-td}{I_{TD}}/\class{mj-ar}{I_{AR}}\) lies between \(b/\Pi_{\mathrm{lin}}\) and \(b/\Pi_{\mathrm{attn}}\), nearer to whichever part carries more of the bytes.</p>
+    <details class="proof"><summary>Proof</summary><p>\(I_X = F^X/Q^X = \sum_c (Q^X_c/Q^X)(F^X_c/Q^X_c)\) over the two parts \(c\). For the penalty, \(\class{mj-td}{Q^{TD}_c} = \Pi_c\,\class{mj-ar}{Q^{AR}_c}\) by Definition 4, so \(\Pi - 1 = \sum_c (\class{mj-td}{Q^{TD}_c} - \class{mj-ar}{Q^{AR}_c})/\class{mj-ar}{Q^{AR}} = \sum_c \class{mj-ar}{\theta^{AR}_c}(\Pi_c - 1)\). A weighted average with positive weights lies between its terms; \(\class{mj-td}{I_{TD}} = (b/\Pi)\class{mj-ar}{I_{AR}}\) and \(\Pi\) lies between \(\Pi_{\mathrm{lin}}\) and \(\Pi_{\mathrm{attn}}\). \(\blacksquare\)</p></details>
+  </div>
+</section>
+<nav class="book-nav" aria-label="Chapters"><a class="prev" href="/notes/block-diffusion-rooflines-6f924020/setup/"><span>Previous</span>1 · Setup</a><a class="next" href="/notes/block-diffusion-rooflines-6f924020/linear/"><span>Next</span>3 · The linear part</a></nav>
+</div>
+
+
+  </article>
+
+  
+
+  
+    
+
+
+  
+</div>
+
+      
+    </div>
+
+    <!-- Footer -->
+    
+
+
+  <footer class="sticky-bottom mt-5" role="contentinfo">
+    
+
+    <div class="container">
+      
+  © Copyright 2026
+  Valentin
+  
+  De Bortoli. Built with <a href="https://jekyllrb.com/" target="_blank" rel="external nofollow noopener">Jekyll</a> and the <a href="https://github.com/alshedivat/al-folio" rel="external nofollow noopener" target="_blank">al-folio</a> theme. Hosted on <a href="https://pages.github.com/" target="_blank" rel="external nofollow noopener">GitHub Pages</a>.
+
+  
+  
+    Last updated: November 14, 2026.
+  
+
+    </div>
+  </footer>
+
+
+
+    <!-- JavaScripts -->
+    <script>
+  window.alFolio = {
+    compatBootstrap: false
+  };
+</script>
+
+<!-- Core navigation/runtime scripts -->
+<script src="/assets/js/nav-toggle.js?v=141bd79a73ebc0f0b6ea58e440ae79fc"></script>
+
+
+
+  <!-- Masonry & imagesLoaded -->
+  <script defer src="https://cdn.jsdelivr.net/npm/masonry-layout@4.2.2/dist/masonry.pkgd.min.js" integrity="sha256-Nn1q/fx0H7SNLZMQ5Hw5JLaTRZp0yILA/FRexe19VdI=" crossorigin="anonymous"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/imagesloaded@5.0.0/imagesloaded.pkgd.min.js" integrity="sha256-htrLFfZJ6v5udOG+3kNLINIKh2gvoKqwEhHYfTTMICc=" crossorigin="anonymous"></script>
+  <script defer src="/assets/js/masonry.js?v=e49affc7bd2646f6acdad1dbe02c2359" type="text/javascript"></script>
+
+
+
+  <!-- Charts and Diagrams -->
+  
+
+
+
+
+
+
+
+  <!-- Math and Tikzjax -->
+  
+<script defer type="text/javascript" id="MathJax-script" src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-mml-chtml.js" integrity="sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI=" crossorigin="anonymous"></script>
+<script src="/assets/al_math/js/mathjax-setup.js"></script>
+
+
+
+
+
+<!-- Tooltips & popovers runtime -->
+<script src="/assets/js/tooltips-setup.js?v=fe487e99db6c43751e6e7bdb2d6a0611"></script>
+
+
+
+
+
+
+<!-- Load Common JS -->
+<script src="/assets/js/no_defer.js?v=53b1b1a645525975c963ce8bf8bfefcf"></script>
+<script defer src="/assets/js/common.js?v=87baac90f765f2f3362dcf6aaf312a8a"></script>
+<script defer src="/assets/js/copy_code.js?v=c8a01c11a92744d44b093fc3bda915df" type="text/javascript"></script>
+
+<!-- Jupyter Open External Links New Tab -->
+<script defer src="/assets/js/jupyter_new_tab.js?v=896d254890d9b47f0281f63bfccf0dee"></script>
+
+<!-- Badges -->
+
+  <script async src="https://d1bxh8uas1mnw7.cloudfront.net/assets/embed.js"></script>
+
+
+  <script async src="https://badge.dimensions.ai/badge.js"></script>
+
+
+
+
+  <!-- Analytics -->
+  
+
+
+
+
+
+  <!-- Image Features -->
+  
+<!-- Medium Zoom JS -->
+<script defer src="https://cdn.jsdelivr.net/npm/medium-zoom@1.1.0/dist/medium-zoom.min.js" integrity="sha256-ZgMyDAIYDYGxbcpJcfUnYwNevG/xi9OHKaR/8GK+jWc=" crossorigin="anonymous"></script>
+<script defer src="/assets/al_img_tools/js/zoom.js"></script>
+
+
+
+
+
+  <!-- Scrolling Progress Bar -->
+  <script defer src="/assets/js/progress-bar.js?v=499464c5c63ced6cf7ad62509f1e2610" type="text/javascript"></script>
+
+
+
+
+
+  <!-- Back to Top -->
+  
+  
+  
+    <script src="https://cdn.jsdelivr.net/npm/vanilla-back-to-top@7.2.1/dist/vanilla-back-to-top.min.js" integrity="sha256-uMJJ3EoTyfRBoTbR+lrfu1uRQ87RZG8AR3cVNuQVeFg=" crossorigin="anonymous"></script>
+  
+  <script>
+    addBackToTop();
+  </script>
+
+
+
+  <!-- Search -->
+  
+    
+<script type="module" src="/assets/al_search/js/search/ninja-keys.min.js"></script>
+<ninja-keys hidebreadcrumbs noautoloadmdicons placeholder="Type to start searching"></ninja-keys>
+<script src="/assets/al_search/js/search-setup.js"></script>
+<script>
+// get the ninja-keys element
+const ninja = document.querySelector('ninja-keys');
+
+// add the home and posts menu items
+ninja.data = [{
+    id: "nav-about",
+    title: "about",
+    section: "Navigation",
+    handler: () => {
+      window.location.href = "/";
+    },
+  },{id: "nav-publications",
+          title: "publications",
+          description: "Everything, newest first. Use the filter to search titles, authors and venues.",
+          section: "Navigation",
+          handler: () => {
+            window.location.href = "/publications/";
+          },
+        },{id: "nav-teaching",
+          title: "teaching",
+          description: "Course materials from teaching in Paris, 2015–2018.",
+          section: "Navigation",
+          handler: () => {
+            window.location.href = "/teaching/";
+          },
+        },{id: "news-distributional-diffusion-models-with-scoring-rules-accepted-at-icml-2025",
+          title: 'Distributional Diffusion Models with Scoring Rules accepted at ICML 2025.',
+          description: "",
+          section: "News",},{id: "news-three-papers-accepted-at-neurips-2025-on-inference-time-annealing-memorization-in-diffusion-models-and-proximal-mcmc-for-non-log-concave-sampling",
+          title: 'Three papers accepted at NeurIPS 2025, on inference-time annealing, memorization in diffusion models,...',
+          description: "",
+          section: "News",},{id: "news-the-diffusiongemma-technical-report-is-out",
+          title: 'The DiffusionGemma technical report is out.',
+          description: "",
+          section: "News",},{id: "news-simplex-diffusion-models-is-out-diffusion-on-the-probability-simplex-that-retains-uncertainty-during-discrete-denoising",
+          title: 'Simplex Diffusion Models is out — diffusion on the probability simplex that retains...',
+          description: "",
+          section: "News",},{
+        id: 'social-cv',
+        title: 'CV',
+        section: 'Socials',
+        handler: () => {
+          window.open("/assets/pdf/cv.pdf", "_blank");
+        },
+      },{
+        id: 'social-email',
+        title: 'email',
+        section: 'Socials',
+        handler: () => {
+          window.open("mailto:%76%61%6C%65%6E%74%69%6E.%64%65%62%6F%72%74%6F%6C%69@%67%6D%61%69%6C.%63%6F%6D", "_blank");
+        },
+      },{
+        id: 'social-github',
+        title: 'GitHub',
+        section: 'Socials',
+        handler: () => {
+          window.open("https://github.com/vdeborto", "_blank");
+        },
+      },{
+        id: 'social-scholar',
+        title: 'Google Scholar',
+        section: 'Socials',
+        handler: () => {
+          window.open("https://scholar.google.com/citations?user=dn_F9I4AAAAJ", "_blank");
+        },
+      },{
+        id: 'social-rss',
+        title: 'RSS Feed',
+        section: 'Socials',
+        handler: () => {
+          window.open("/feed.xml", "_blank");
+        },
+      },{
+      id: 'light-theme',
+      title: 'Change theme to light',
+      description: 'Change the theme of the site to Light',
+      section: 'Theme',
+      handler: () => {
+        setThemeSetting("light");
+      },
+    },
+    {
+      id: 'dark-theme',
+      title: 'Change theme to dark',
+      description: 'Change the theme of the site to Dark',
+      section: 'Theme',
+      handler: () => {
+        setThemeSetting("dark");
+      },
+    },
+    {
+      id: 'system-theme',
+      title: 'Use system default theme',
+      description: 'Change the theme of the site to System Default',
+      section: 'Theme',
+      handler: () => {
+        setThemeSetting("system");
+      },
+    },];
+
+</script>
+<script src="/assets/al_search/js/shortcut-key.js"></script>
+
+
+  
+
+
+
+
+
+
+
+
+  </body>
+</html>
