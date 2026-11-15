@@ -326,3 +326,6 @@ html { scroll-behavior: smooth; }
   .bdr .pfig-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
   .bdr .bdr-fig svg.pfig-wide { min-width: 640px; }
 }
+/* a wide practice figure leaves the column symmetrically, like the wide tables (the .bdr-fig
+   margin shorthand above would otherwise reset the breakout's left margin) */
+.bdr .bdr-fig.breakout { margin-left: calc(50% - var(--bdr-wide) / 2); }
