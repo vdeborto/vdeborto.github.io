@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="en">
+  <!-- Head -->
+  <head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <!-- Metadata, OpenGraph and Schema.org -->
+
+
+
+
+<!-- Standard metadata -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<title>
+  
+  
+    
+      Kernels | Valentin De Bortoli
+    
+  
+</title>
+<meta name="author" content="Valentin De Bortoli">
+<meta name="description" content="Research scientist at Google DeepMind, London. Diffusion models, sampling, optimal transport and Markov chain theory.
+">
+
+  <meta name="keywords" content="diffusion models, generative modelling, optimal transport, Schrodinger bridge, sampling, Markov chain Monte Carlo, machine learning">
+
+
+
+
+
+
+
+
+
+
+<!-- Security: Content Security Policy -->
+<!-- Permissive CSP suitable for academic websites. Allows external images, videos, and common embed services. -->
+<!-- To customize for your needs, see: https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https:; style-src 'self' 'unsafe-inline' https:; img-src 'self' data: https:; font-src 'self' data: https:; media-src 'self' https:; frame-src 'self' https:; connect-src 'self' https:;">
+<style>
+  :root {
+    --max-content-width: 930px;
+  }
+</style>
+
+<!-- Tailwind-first core styles -->
+<link rel="stylesheet" href="/assets/css/tailwind.css?v=50c64c15cbb9fd1ce6056fdb8bcb4b62">
+
+
+
+
+
+
+
+<!-- Icons -->
+
+  
+<!-- Font Awesome -->
+<link defer rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.2.0/css/all.min.css" integrity="sha256-MVopmdyC2tYTiJ8wlktf0uh0v4NgT+vNdyVFepi7Q0c=" crossorigin="anonymous">
+
+<!-- Academicons -->
+<link defer rel="stylesheet" href="https://cdn.jsdelivr.net/npm/academicons@1.9.5/css/academicons.min.css" integrity="sha256-SzrCOBJbGVFMahewkgjwnApaV2+av1DwMAA+/QGLyZw=" crossorigin="anonymous">
+
+<!-- Scholar Icons -->
+<link defer rel="stylesheet" href="https://cdn.jsdelivr.net/npm/scholar-icons@1.0.3/css/scholar-icons.css" integrity="sha256-VY3hHVj/hNX3fYG6wtbA6TcKJQl7+FthzGSyIB64klY=" crossorigin="anonymous">
+
+
+
+<link defer rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Roboto+Slab:100,300,400,500,700|Material+Icons&amp;display=swap">
+
+<!-- Code Syntax Highlighting -->
+<link defer rel="stylesheet" href="/assets/css/jekyll-pygments-themes-github.css?v=591dab5a4e56573bf4ef7fd332894c99" media="" id="highlight_theme_light">
+
+<!-- Styles -->
+
+
+
+
+
+  <link rel="shortcut icon" href="data:image/svg+xml,&lt;svg%20xmlns=%22http://www.w3.org/2000/svg%22%20viewBox=%220%200%20100%20100%22&gt;&lt;text%20y=%22.9em%22%20font-size=%2290%22&gt;%F0%9F%8C%80&lt;/text&gt;&lt;/svg&gt;">
+
+
+
+
+<link rel="stylesheet" href="/assets/css/main.css?v=3116ba77db9ee1581d05bb3e86fbf7f1">
+
+<link rel="canonical" href="https://vdeborto.github.io/notes/block-diffusion-rooflines-6f924020/kernels/">
+
+  <meta name="robots" content="noindex, nofollow">
+
+
+
+  <!-- Dark Mode -->
+  <script src="/assets/js/theme.js?v=5286c3e4c334d0ecb8fc0c40ff4fa7ec"></script>
+  <link defer rel="stylesheet" href="/assets/css/jekyll-pygments-themes-native.css?v=5847e5ed4a4568527aa6cfab446049ca" media="none" id="highlight_theme_dark">
+  <script>
+    initTheme();
+  </script>
+
+
+
+
+
+
+
+  <!-- Image Features -->
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+  <!-- Right-to-left support -->
+  
+
+
+
+
+
+
+
+
+<!-- Custom typography and theme overrides -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,300;8..60,400;8..60,600&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<link rel="stylesheet" href="/assets/css/custom.css">
+
+  </head>
+
+  <!-- Body -->
+  <body class="fixed-top-nav sticky-bottom-footer">
+    <!-- Header -->
+    <header>
+  <!-- Nav Bar -->
+  <nav id="navbar" class="navbar navbar-light navbar-expand-sm fixed-top" role="navigation">
+    <div class="container">
+      
+        <a class="navbar-brand title font-weight-lighter" href="/">
+          
+            
+              <span class="font-weight-bold">Valentin</span>
+            
+            
+            De Bortoli
+          
+        </a>
+      
+      <!-- Navbar Toggle -->
+      <button class="navbar-toggler collapsed navbar-toggler-main" type="button" data-nav-toggle="navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar top-bar"></span>
+        <span class="icon-bar middle-bar"></span>
+        <span class="icon-bar bottom-bar"></span>
+      </button>
+
+      <div class="collapse navbar-collapse navbar-collapse-main" id="navbarNav">
+        <ul class="navbar-nav navbar-menu-list flex-nowrap">
+          
+
+          <!-- About -->
+          <li class="nav-item ">
+            <a class="nav-link" href="/">about
+              
+            </a>
+          </li>
+
+          <!-- Other pages -->
+          
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+              
+                
+                <li class="nav-item ">
+                  <a class="nav-link" href="/publications/">publications
+                    
+                  </a>
+                </li>
+              
+            
+          
+            
+              
+                
+                <li class="nav-item ">
+                  <a class="nav-link" href="/teaching/">teaching
+                    
+                  </a>
+                </li>
+              
+            
+          
+          
+            <!-- Search -->
+            <li class="nav-item">
+              <button id="search-toggle" type="button" title="Search" aria-label="Open search">
+                <span class="nav-link">ctrl k <i class="fa-solid fa-magnifying-glass"></i></span>
+              </button>
+            </li>
+          
+          
+            <!-- Toogle theme mode -->
+            <li class="toggle-container">
+              <button id="light-toggle" type="button" title="Change theme" aria-label="Change color theme">
+                <i class="fa-half-sun-moon" id="light-toggle-system"></i>
+                <i class="fa-solid fa-moon" id="light-toggle-dark"></i>
+                <i class="fa-solid fa-sun" id="light-toggle-light"></i>
+              </button>
+            </li>
+          
+        </ul>
+      </div>
+    </div>
+  </nav>
+  
+    <!-- Scrolling Progress Bar -->
+    <progress id="progress" value="0">
+      <div class="progress-container">
+        <span class="progress-bar"></span>
+      </div>
+    </progress>
+  
+</header>
+
+
+    <!-- Content -->
+    <div class="container mt-5" role="main">
+      
+        
+
+<div class="post">
+  <header class="post-header">
+    <h1 class="post-title">Kernels</h1>
+    <p class="post-description"></p>
+  </header>
+
+  <article>
+    <!-- Generated by bin/build-roofline.py. Do not edit by hand. -->
+<link rel="stylesheet" href="/assets/roofline/note.css">
+<link rel="stylesheet" href="/assets/roofline/theme.css">
+<script type="application/json" id="bdr-book">{"title":"Block Diffusion Rooflines","home":"/notes/block-diffusion-rooflines-6f924020/","chapters":[{"slug":"","num":"","title":"Front page","url":"/notes/block-diffusion-rooflines-6f924020/"},{"slug":"introduction","num":"0","title":"Introduction","url":"/notes/block-diffusion-rooflines-6f924020/introduction/"},{"slug":"summary","num":"","title":"Summary","url":"/notes/block-diffusion-rooflines-6f924020/summary/"},{"slug":"setup","num":"1","title":"Setup","url":"/notes/block-diffusion-rooflines-6f924020/setup/"},{"slug":"gain","num":"2","title":"The gain","url":"/notes/block-diffusion-rooflines-6f924020/gain/"},{"slug":"linear","num":"3","title":"The linear part","url":"/notes/block-diffusion-rooflines-6f924020/linear/"},{"slug":"attention","num":"4","title":"The attention part","url":"/notes/block-diffusion-rooflines-6f924020/attention/"},{"slug":"whole","num":"5","title":"The whole picture","url":"/notes/block-diffusion-rooflines-6f924020/whole/"},{"slug":"calculator","num":"6","title":"Calculator","url":"/notes/block-diffusion-rooflines-6f924020/calculator/"},{"slug":"examples","num":"7","title":"Worked examples","url":"/notes/block-diffusion-rooflines-6f924020/examples/"},{"slug":"effective","num":"8","title":"Effective rooflines","url":"/notes/block-diffusion-rooflines-6f924020/effective/"},{"slug":"stack","num":"9","title":"The measurement stack","url":"/notes/block-diffusion-rooflines-6f924020/stack/"},{"slug":"kernels","num":"10","title":"Kernels","url":"/notes/block-diffusion-rooflines-6f924020/kernels/"},{"slug":"conclusion","num":"11","title":"Conclusion","url":"/notes/block-diffusion-rooflines-6f924020/conclusion/"},{"slug":"appendix","num":"A","title":"Appendix","url":"/notes/block-diffusion-rooflines-6f924020/appendix/"}],"current":"kernels"}</script>
+<script defer src="/assets/roofline/mathjax.js"></script>
+<script defer src="/assets/roofline/note.js"></script>
+<script defer src="/assets/roofline/figures.js"></script>
+<script defer src="/assets/roofline/reading.js"></script>
+
+<div class="bdr book-chapter" id="top">
+<noscript><p>This page needs JavaScript for its equations, figures and calculator.</p></noscript>
+<p class="book-part">Part 10 of <a href="/notes/block-diffusion-rooflines-6f924020/">Block Diffusion Rooflines</a> <span class="book-links">(<a href="/notes/block-diffusion-rooflines-6f924020/stack/" rel="prev">Previous: 9 · The measurement stack</a> | <a href="/notes/block-diffusion-rooflines-6f924020/conclusion/" rel="next">Next: 11 · Conclusion</a>)</span></p>
+<section class="bdr-col" id="kernelwork">
+  <p class="chapter-intro">With the engine fixed, two components of TD's step remain far below their rooflines: the routed experts, and global attention at head dimension 512. This chapter explains why each loses time, rewrites both, and measures what the rewrites change in efficiency, throughput and quality. It defines every hardware term it uses.</p>
+  <h3 id="kern-terms">Terms</h3>
+  <p>The H200 is a Hopper GPU. The terms below are used throughout this chapter.</p>
+  <ul>
+    <li>
+<b>SM (streaming multiprocessor):</b> one of the 132 independent processors of the chip, each with its own tensor cores (the matrix-multiply units), registers and shared memory.</li>
+    <li>
+<b>CTA (thread block):</b> a group of threads that runs on one SM and shares its shared memory; a kernel launch is a grid of CTAs. A <b>cluster</b> is a group of CTAs, here two, that run at the same time on different SMs and can read and write each other's shared memory.</li>
+    <li>
+<b>Registers and shared memory:</b> 256 KB of registers and about 227 KB of shared memory per SM. Matrix-multiply accumulators live in registers; operand tiles are staged in shared memory before the tensor cores read them.</li>
+    <li>
+<b>Tile and pipeline stage:</b> a CTA computes one block of the output, its tile, and streams the operands it needs through shared memory in chunks. With two or more stages (buffers), the next chunk loads while the tensor cores work on the current one; with one, loading and computing alternate.</li>
+    <li>
+<b>TMA:</b> a copy engine on each SM that moves a whole rectangular tile from memory to shared memory with one instruction.</li>
+    <li>
+<b>FP8 scaling:</b> an FP8 number has a narrow range, so a block of values shares a scale \(s\), and \(x\) is stored as \(\mathrm{round}(x/s)\). The scale can be per tensor or per row ("per token").</li>
+  </ul>
+
+  <h3 id="kern-experts">The experts</h3>
+  <p>An MoE layer of DiffusionGemma has hidden size \(d = 2816\), \(E = 128\) experts of width \(f_E = 704\), and \(k = 8\) experts per token. For a token \(x_t\) routed to expert \(e\) with weight \(p_{t,e}\),</p>
+  <div class="eq">\[ h_{t,e} = \mathrm{gelu}\bigl(x_t W_{g,e}^{\top}\bigr) \odot \bigl(x_t W_{u,e}^{\top}\bigr), \qquad y_t = \sum_{e} p_{t,e}\, h_{t,e} W_{d,e}^{\top}: \]</div>
+  <p>a first GEMM with the gate and up matrices \(W_g, W_u\) and a second with the down matrix \(W_d\). For \(N\) tokens touching \(U\) experts, with \(\bar m = Nk/U\) rows per touched expert on average, the layer does \(F = 6Nk\,d f_E\) FLOPs and reads \(Q = 3U d f_E\) bytes of FP8 weights, so its intensity is \(F/Q = 2\bar m\). The empirical ridge point is 340 FLOP/byte, so the layer is compute-bound above about 170 rows per expert, which TD reaches from batch 8 on, and at batch 4 at long context.</p>
+  <p>vLLM's two expert GEMMs are not slow: profiled at batch 32, they take the same time as the replacement's. The time is lost between them, in passes that write intermediate tensors to memory and read them back.</p>
+  <div class="bdr-fig pfig breakout" id="fig-moe">
+    <div class="fig-k">Figure 15</div>
+    <p class="fig-title">The new expert path removes three passes over memory; its two GEMMs are as fast as vLLM's.</p>
+    <div class="pfig-scroll"><svg viewbox="0 0 780 402" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="vLLM's expert path runs seven passes and writes intermediate tensors to memory; the new path fuses three of them away" class="pfig-svg pfig-wide"><defs><marker id="pa6" viewbox="0 0 10 10" refx="9" refy="5" markerwidth="7" markerheight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"></path></marker></defs><text x="170" y="24" text-anchor="middle" style="font-weight:600;fill:var(--ink)">vLLM Triton path</text><text x="570" y="24" text-anchor="middle" style="font-weight:600;fill:var(--ink)">new path (moe_ws)</text><text x="170" y="44" text-anchor="middle" style="font-size:11.5px;fill:var(--bdr-muted)">kernel · bytes it writes to memory</text><text x="570" y="44" text-anchor="middle" style="font-size:11.5px;fill:var(--bdr-muted)">kernel · bytes it writes to memory</text><rect x="20" y="64" width="270" height="32" rx="4" fill="none" stroke="var(--bdr-muted)"></rect><text x="155" y="85" text-anchor="middle" style="font-size:12.5px;fill:var(--ink)">quantise x, per tensor (2 kernels)</text><rect x="420" y="64" width="290" height="32" rx="4" fill="none" stroke="var(--bdr-muted)" stroke-dasharray="4 4" opacity="0.5"></rect><text x="565" y="85" text-anchor="middle" style="font-size:12px;fill:var(--bdr-muted)">removed (fused)</text><rect x="20" y="110" width="270" height="32" rx="4" fill="none" stroke="var(--bdr-muted)"></rect><text x="155" y="131" text-anchor="middle" style="font-size:12.5px;fill:var(--ink)">sort rows by expert</text><rect x="420" y="110" width="290" height="32" rx="4" fill="none" stroke="var(--bdr-muted)"></rect><text x="565" y="131" text-anchor="middle" style="font-size:12.5px;fill:var(--ink)">sort rows by expert</text><line x1="155" y1="96" x2="155" y2="108" stroke="currentColor" marker-end="url(#pa6)"></line><line x1="565" y1="96" x2="565" y2="108" stroke="currentColor" marker-end="url(#pa6)"></line><rect x="20" y="156" width="270" height="32" rx="4" fill="none" stroke="var(--bdr-muted)"></rect><text x="155" y="177" text-anchor="middle" style="font-size:12.5px;fill:var(--ink)">GEMM 1 (gate, up)</text><text x="298" y="177" style="font-size:12px;fill:var(--bdr-td)">184 MB</text><rect x="420" y="156" width="290" height="32" rx="4" fill="none" stroke="var(--bdr-muted)"></rect><text x="565" y="177" text-anchor="middle" style="font-size:12.5px;fill:var(--ink)">GEMM 1 + quantise x + gelu(gate)·up</text><text x="718" y="177" style="font-size:12px;fill:var(--bdr-td)">100 MB</text><line x1="155" y1="142" x2="155" y2="154" stroke="currentColor" marker-end="url(#pa6)"></line><line x1="565" y1="142" x2="565" y2="154" stroke="currentColor" marker-end="url(#pa6)"></line><rect x="20" y="202" width="270" height="32" rx="4" fill="none" stroke="var(--bdr-muted)"></rect><text x="155" y="223" text-anchor="middle" style="font-size:12.5px;fill:var(--ink)">act_and_mul</text><text x="298" y="223" style="font-size:12px;fill:var(--bdr-td)">92 MB</text><rect x="420" y="202" width="290" height="32" rx="4" fill="none" stroke="var(--bdr-muted)" stroke-dasharray="4 4" opacity="0.5"></rect><text x="565" y="223" text-anchor="middle" style="font-size:12px;fill:var(--bdr-muted)">removed (fused)</text><line x1="155" y1="188" x2="155" y2="200" stroke="currentColor" marker-end="url(#pa6)"></line><line x1="565" y1="188" x2="565" y2="200" stroke="currentColor" marker-end="url(#pa6)"></line><rect x="20" y="248" width="270" height="32" rx="4" fill="none" stroke="var(--bdr-muted)"></rect><text x="155" y="269" text-anchor="middle" style="font-size:12.5px;fill:var(--ink)">quantise h, per tensor (2 kernels)</text><text x="298" y="269" style="font-size:12px;fill:var(--bdr-td)">46 MB</text><rect x="420" y="248" width="290" height="32" rx="4" fill="none" stroke="var(--bdr-muted)"></rect><text x="565" y="269" text-anchor="middle" style="font-size:12.5px;fill:var(--ink)">quantise h, per row (1 kernel)</text><text x="718" y="269" style="font-size:12px;fill:var(--bdr-td)">50 MB</text><line x1="155" y1="234" x2="155" y2="246" stroke="currentColor" marker-end="url(#pa6)"></line><line x1="565" y1="234" x2="565" y2="246" stroke="currentColor" marker-end="url(#pa6)"></line><rect x="20" y="294" width="270" height="32" rx="4" fill="none" stroke="var(--bdr-muted)"></rect><text x="155" y="315" text-anchor="middle" style="font-size:12.5px;fill:var(--ink)">GEMM 2, one row per (token, expert)</text><text x="298" y="315" style="font-size:12px;fill:var(--bdr-td)">369 MB</text><rect x="420" y="294" width="290" height="32" rx="4" fill="none" stroke="var(--bdr-muted)"></rect><text x="565" y="315" text-anchor="middle" style="font-size:12.5px;fill:var(--ink)">GEMM 2 + p·row, atomic add into y</text><text x="718" y="315" style="font-size:12px;fill:var(--bdr-td)">in L2</text><line x1="155" y1="280" x2="155" y2="292" stroke="currentColor" marker-end="url(#pa6)"></line><line x1="565" y1="280" x2="565" y2="292" stroke="currentColor" marker-end="url(#pa6)"></line><rect x="20" y="340" width="270" height="32" rx="4" fill="none" stroke="var(--bdr-muted)"></rect><text x="155" y="361" text-anchor="middle" style="font-size:12.5px;fill:var(--ink)">moe_sum (read 369 MB)</text><text x="298" y="361" style="font-size:12px;fill:var(--bdr-td)">46 MB</text><rect x="420" y="340" width="290" height="32" rx="4" fill="none" stroke="var(--bdr-muted)" stroke-dasharray="4 4" opacity="0.5"></rect><text x="565" y="361" text-anchor="middle" style="font-size:12px;fill:var(--bdr-muted)">removed (fused)</text><line x1="155" y1="326" x2="155" y2="338" stroke="currentColor" marker-end="url(#pa6)"></line><line x1="565" y1="326" x2="565" y2="338" stroke="currentColor" marker-end="url(#pa6)"></line></svg></div>
+    <p class="fig-cap">One MoE layer at TD batch 32 (\(Nk = 65{,}536\) rows, each a (token, expert) pair). Each box is one kernel, in order; the orange number is what it writes to memory, read back by the next kernel.</p>
+  </div>
+  <p>The replacement, <code>moe_ws</code>, makes four changes.</p>
+  <ul>
+    <li>
+<b>Weights rewritten once.</b> The gate and up matrices are padded with zero rows from 704 to 768 and interleaved in blocks of 128, and \(W_d\) is padded to 768 columns. The padding is exact: a padded column has gate and up equal to 0, so \(h = \mathrm{gelu}(0)\cdot 0 = 0\), which meets a zero column of \(W_d\). A tile of the first GEMM then holds 128 gate columns next to their 128 up columns, so the activation can be applied in registers.</li>
+    <li>
+<b>First GEMM with the activation.</b> Each CTA takes 128 rows of one expert, gathers the corresponding rows of \(x\) directly and quantises them to FP8 per token inside the kernel.</li>
+    <li>
+<b>One pass to quantise \(h\).</b> The FP8 scale of a row of \(h\) needs its maximum over all 768 columns, which no single tile sees, so a light kernel converts \(h\) to FP8 with one scale per row.</li>
+    <li>
+<b>Second GEMM with the reduction.</b> The epilogue multiplies each row by its routing weight and adds it into the token's output with atomic additions. A token's 8 contributions meet in the L2 cache, so the 369 MB of rows per (token, expert) pair at batch 32 never reach memory.</li>
+  </ul>
+  <div class="table-wrap"><table class="pt">
+    <caption>Table 17. The expert path per denoising pass in the engine, vLLM's kernel against the new one, and its efficiency against the empirical roofline at the measured routing. These are dedicated runs of the expert kernel (three per arm), separate from the grid of Parts 8–11, so their efficiencies differ slightly from Table 15's.</caption>
+    <thead><tr>
+<th class="l">TD point (B, C)</th>
+<th class="l">expert path per pass</th>
+<th class="l">fraction of empirical roofline</th>
+<th class="l">TD step</th>
+</tr></thead>
+    <tbody>
+<tr>
+<td class="l">(8, 1k)</td>
+<td class="l">15.03 → 12.23 ms (−19%)</td>
+<td class="l">0.27 → 0.33</td>
+<td class="l">43.56 → 40.07 ms (−8.0%)</td>
+</tr>
+<tr>
+<td class="l">(32, 1k)</td>
+<td class="l">46.60 → 34.26 ms (−26%)</td>
+<td class="l">0.34 → 0.47</td>
+<td class="l">158.75 → 147.81 ms (−6.9%)</td>
+</tr>
+<tr>
+<td class="l">(32, 16k)</td>
+<td class="l">45.59 → 33.37 ms (−27%)</td>
+<td class="l">0.35 → 0.48</td>
+<td class="l">227.44 → 217.54 ms (−4.4%)</td>
+</tr>
+<tr>
+<td class="l">(64, 1k)</td>
+<td class="l">85.78 → 61.61 ms (−28%)</td>
+<td class="l">0.37 → 0.52</td>
+<td class="l">326.30 → 299.23 ms (−8.3%)</td>
+</tr>
+</tbody>
+  </table></div>
+  <p>The expert path is 19–28% faster, and the TD step 4–8%. The patch applies to TD only: an AR step sends 1–64 tokens through a layer, and there the patch is 9% slower. GSM8K on 250 problems is 96.8% with and without it.</p>
+  <p>The best kernel available at the same shape is cuBLAS on one large GEMM with all \(Nk\) rows stacked, which needs no padding per expert. At batch 32 it runs the first GEMM at 0.96 of the FP8 ceiling and the second at 0.72, 0.81 of the empirical roofline together: a perfect grouped kernel would just reach 0.8. Nsight Compute, NVIDIA's kernel profiler, locates the rest of the gap inside the two Triton GEMMs. The first keeps the tensor cores busy 69% of the time, because with one CTA per SM nothing loads the next tile while a tile finishes. The second is bound by latency at 41%, with two CTAs per SM. What would close it is what cuBLAS has and Triton does not expose on Hopper: separate producer and consumer warps, TMA loads shared across a two-CTA cluster, and an epilogue that overlaps the next tile.</p>
+
+  <h3 id="kern-attention">Global attention at head dimension 512</h3>
+  <p>Five of the 30 layers attend globally, with 16 query heads, 2 key/value heads and head dimension \(d = 512\). In a denoising pass the \(L_q = 256\) canvas queries of a sequence attend to its \(L_k = C + 256\) keys, so</p>
+  <div class="eq">\[ F = 4\,L_q L_k\, d\, H_q, \qquad Q \approx 4\,L_k\, d\, H_{kv}, \qquad \frac{F}{Q} = \frac{L_q H_q}{H_{kv}} = 2048 \ \text{FLOP/byte}, \]</div>
+  <p>14 times the ridge point of the attention ceiling, \(\hat\pi_{\mathrm{attn}}/\hat\beta \approx 148\): the kernel should run at the attention ceiling. FlashAttention 4 runs at 296–357 TFLOP/s here, against 700–729 at head dimension 256 on the same rows. The head dimension is the cause. A CTA keeps its output rows in registers in FP32, \(4md\) bytes for \(m\) rows: 128 KB at \(m = 64\), half of the register file. In shared memory the query tile and one stage of keys and values take</p>
+  <div class="eq">\[ \underbrace{64 \cdot 512 \cdot 2}_{Q} + \underbrace{64 \cdot 512 \cdot 2}_{K} + \underbrace{64 \cdot 512 \cdot 2}_{V} + \underbrace{64 \cdot 64 \cdot 2}_{P} \ \text{bytes} = 200\ \text{KB}, \]</div>
+  <p>so a second stage does not fit in 227 KB, loading cannot overlap compute, and Nsight Compute finds the tensor cores busy 36% of the time.</p>
+  <p>The pair kernel, <code>attn512</code>, splits the head dimension across the two CTAs of a cluster. With \(Q = [Q_0\ Q_1]\), \(K = [K_0\ K_1]\), \(V = [V_0\ V_1]\) split at column 256,</p>
+  <div class="eq">\[ S = QK^{\top} = Q_0K_0^{\top} + Q_1K_1^{\top}, \qquad O_r = \mathrm{softmax}(S)\,V_r \quad (r = 0, 1). \]</div>
+  <div class="bdr-fig pfig" id="fig-pair">
+    <div class="fig-k">Figure 16</div>
+    <p class="fig-title">Each thread block of the pair holds half of the head dimension; the only traffic between the two SMs is the partial score tile.</p>
+    <div class="pfig-scroll"><svg viewbox="0 0 740 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Two thread blocks on two SMs each hold half of the head dimension and exchange their partial scores" class="pfig-svg pfig-wide"><defs><marker id="pa7" viewbox="0 0 10 10" refx="9" refy="5" markerwidth="7" markerheight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"></path></marker></defs><defs><marker id="pa8" viewbox="0 0 10 10" refx="9" refy="5" markerwidth="7" markerheight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="var(--bdr-td)"></path></marker></defs><rect x="20" y="16" width="280" height="264" rx="8" fill="none" stroke="var(--bdr-muted)"></rect><text x="160" y="40" text-anchor="middle" style="font-weight:600;font-size:12px;fill:var(--ink)">CTA 0, SM a: columns 0–255</text><text x="160" y="62" text-anchor="middle" style="font-size:11px;fill:var(--bdr-ink-2)">tiles Q<tspan baseline-shift="sub" font-size="0.75em">0</tspan>, K<tspan baseline-shift="sub" font-size="0.75em">0</tspan>, V<tspan baseline-shift="sub" font-size="0.75em">0</tspan> in shared memory</text><rect x="34" y="84" width="252" height="36" rx="4" fill="none" stroke="var(--bdr-muted)"></rect><text x="160" y="107" text-anchor="middle" style="font-size:11.5px;fill:var(--ink)">S<tspan baseline-shift="sub" font-size="0.75em">0</tspan> = Q<tspan baseline-shift="sub" font-size="0.75em">0</tspan> K<tspan baseline-shift="sub" font-size="0.75em">0</tspan>ᵀ</text><rect x="34" y="154" width="252" height="36" rx="4" fill="none" stroke="var(--bdr-muted)"></rect><text x="160" y="177" text-anchor="middle" style="font-size:11.5px;fill:var(--ink)">S = S<tspan baseline-shift="sub" font-size="0.75em">0</tspan> + S<tspan baseline-shift="sub" font-size="0.75em">1</tspan>, P = softmax(S)</text><line x1="160" y1="122" x2="160" y2="152" stroke="currentColor" marker-end="url(#pa7)"></line><rect x="34" y="224" width="252" height="36" rx="4" fill="none" stroke="var(--bdr-muted)"></rect><text x="160" y="247" text-anchor="middle" style="font-size:11.5px;fill:var(--ink)">O<tspan baseline-shift="sub" font-size="0.75em">0</tspan> += P V<tspan baseline-shift="sub" font-size="0.75em">0</tspan></text><line x1="160" y1="192" x2="160" y2="222" stroke="currentColor" marker-end="url(#pa7)"></line><rect x="440" y="16" width="280" height="264" rx="8" fill="none" stroke="var(--bdr-muted)"></rect><text x="580" y="40" text-anchor="middle" style="font-weight:600;font-size:12px;fill:var(--ink)">CTA 1, SM b: columns 256–511</text><text x="580" y="62" text-anchor="middle" style="font-size:11px;fill:var(--bdr-ink-2)">tiles Q<tspan baseline-shift="sub" font-size="0.75em">1</tspan>, K<tspan baseline-shift="sub" font-size="0.75em">1</tspan>, V<tspan baseline-shift="sub" font-size="0.75em">1</tspan> in shared memory</text><rect x="454" y="84" width="252" height="36" rx="4" fill="none" stroke="var(--bdr-muted)"></rect><text x="580" y="107" text-anchor="middle" style="font-size:11.5px;fill:var(--ink)">S<tspan baseline-shift="sub" font-size="0.75em">1</tspan> = Q<tspan baseline-shift="sub" font-size="0.75em">1</tspan> K<tspan baseline-shift="sub" font-size="0.75em">1</tspan>ᵀ</text><rect x="454" y="154" width="252" height="36" rx="4" fill="none" stroke="var(--bdr-muted)"></rect><text x="580" y="177" text-anchor="middle" style="font-size:11.5px;fill:var(--ink)">S = S<tspan baseline-shift="sub" font-size="0.75em">0</tspan> + S<tspan baseline-shift="sub" font-size="0.75em">1</tspan>, P = softmax(S)</text><line x1="580" y1="122" x2="580" y2="152" stroke="currentColor" marker-end="url(#pa7)"></line><rect x="454" y="224" width="252" height="36" rx="4" fill="none" stroke="var(--bdr-muted)"></rect><text x="580" y="247" text-anchor="middle" style="font-size:11.5px;fill:var(--ink)">O<tspan baseline-shift="sub" font-size="0.75em">1</tspan> += P V<tspan baseline-shift="sub" font-size="0.75em">1</tspan></text><line x1="580" y1="192" x2="580" y2="222" stroke="currentColor" marker-end="url(#pa7)"></line><line x1="268" y1="104" x2="452" y2="168" stroke="var(--bdr-td)" stroke-width="2" marker-end="url(#pa8)"></line><line x1="472" y1="104" x2="288" y2="168" stroke="var(--bdr-td)" stroke-width="2" marker-end="url(#pa8)"></line><text x="370" y="210" text-anchor="middle" style="font-size:11px;fill:var(--bdr-td)">partial scores</text><text x="370" y="225" text-anchor="middle" style="font-size:11px;fill:var(--bdr-td)">m × n, FP16, to</text><text x="370" y="240" text-anchor="middle" style="font-size:11px;fill:var(--bdr-td)">partner's memory</text></svg></div>
+    <p class="fig-cap">Both blocks process the same 128 query rows. The orange arrows are the exchange: each block writes its \(m \times n\) partial scores into the partner's shared memory and waits for the partner's before the softmax.</p>
+  </div>
+  <div class="bdr-fig pfig" id="fig-smem">
+    <div class="fig-k">Figure 17</div>
+    <p class="fig-title">Splitting the head dimension makes room for a second pipeline stage.</p>
+    <div class="pfig-scroll"><svg viewbox="0 0 780 150" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Shared memory per thread block: FA4 at head dimension 512 fits one pipeline stage; the pair kernel fits two stages and its exchange buffers" class="pfig-svg pfig-wide"><text x="160" y="41" text-anchor="end" style="font-size:12.5px;fill:var(--ink)">FA4, head dim. 512</text><rect x="170" y="20" width="145.2" height="32" rx="3" fill="var(--bdr-ar)" fill-opacity="0.8"></rect><text x="242.6" y="40" text-anchor="middle" style="fill:#fff;font-size:11.5px">Q</text><rect x="317.2" y="20" width="145.2" height="32" rx="3" fill="var(--bdr-s3)" fill-opacity="0.8"></rect><text x="389.79999999999995" y="40" text-anchor="middle" style="fill:#fff;font-size:11.5px">K</text><rect x="464.4" y="20" width="145.2" height="32" rx="3" fill="var(--bdr-s4)" fill-opacity="0.8"></rect><text x="537.0" y="40" text-anchor="middle" style="fill:#fff;font-size:11.5px">V</text><rect x="611.5999999999999" y="20" width="16.4" height="32" rx="3" fill="var(--bdr-muted)" fill-opacity="0.8"></rect><text x="702.0999999999999" y="41" style="font-size:12px;fill:var(--ink)">200 KB</text><text x="160" y="93" text-anchor="end" style="font-size:12.5px;fill:var(--ink)">pair kernel, per CTA</text><rect x="170" y="72" width="145.2" height="32" rx="3" fill="var(--bdr-ar)" fill-opacity="0.8"></rect><text x="242.6" y="92" text-anchor="middle" style="fill:#fff;font-size:11.5px">Q half</text><rect x="317.2" y="72" width="71.6" height="32" rx="3" fill="var(--bdr-s3)" fill-opacity="0.8"></rect><text x="353.0" y="92" text-anchor="middle" style="fill:#fff;font-size:11.5px">K st. 1</text><rect x="390.79999999999995" y="72" width="71.6" height="32" rx="3" fill="var(--bdr-s3)" fill-opacity="0.8"></rect><text x="426.59999999999997" y="92" text-anchor="middle" style="fill:#fff;font-size:11.5px">K st. 2</text><rect x="464.4" y="72" width="71.6" height="32" rx="3" fill="var(--bdr-s4)" fill-opacity="0.8"></rect><text x="500.2" y="92" text-anchor="middle" style="fill:#fff;font-size:11.5px">V st. 1</text><rect x="538.0" y="72" width="71.6" height="32" rx="3" fill="var(--bdr-s4)" fill-opacity="0.8"></rect><text x="573.8" y="92" text-anchor="middle" style="fill:#fff;font-size:11.5px">V st. 2</text><rect x="611.6" y="72" width="71.6" height="32" rx="3" fill="var(--bdr-td)" fill-opacity="0.8"></rect><text x="647.4" y="92" text-anchor="middle" style="fill:#fff;font-size:11.5px">scores ×2</text><text x="702.0999999999999" y="93" style="font-size:12px;fill:var(--ink)">224 KB</text><line x1="692.0999999999999" y1="10" x2="692.0999999999999" y2="122" stroke="var(--bdr-critical)" stroke-dasharray="5 4"></line><text x="692.0999999999999" y="140" text-anchor="middle" style="font-size:12px;fill:var(--bdr-critical)">227 KB per SM</text></svg></div>
+    <p class="fig-cap">Shared memory per thread block, in KB, against the 227 KB of one SM. FA4 at head dimension 512 holds full-width tiles and fits one stage; a block of the pair holds half-width tiles and fits two stages of 64 keys plus two exchange buffers. With 80-token KV pages the fastest configuration uses the room differently, for one stage of 80-key tiles loaded by TMA (Table 18).</p>
+  </div>
+  <p>Each CTA thus solves a head-dimension-256 problem, small enough for two stages or for larger tiles of keys, at the price of one exchange per tile of keys: it sends its partial scores into the partner's shared memory and waits for the partner's. Per tile a CTA does \(4mn\,(d/2)\) FLOPs and sends \(mn\) FP16 scores, 512 FLOPs per byte crossing between the SMs. Without the exchange (a diagnostic with wrong results) the pair would run at 711–723 TFLOP/s; with it, each tile waits about 0.5 µs for synchronisation and 0.67 µs for the transfer, against 1.5 µs of tensor work. The fastest of the fifteen exchange variants tried uses 16-byte asynchronous stores into two alternating buffers.</p>
+  <div class="table-wrap"><table class="pt">
+    <caption>Table 18. Global attention in the engine, TFLOP/s and fraction of the 638 TFLOP/s attention ceiling, one run each; the last column is the TD step with FA4 at 64-token pages against the pair kernel at 80-token pages.</caption>
+    <thead><tr>
+<th class="l">(B, C)</th>
+<th class="l">FA4, page 64</th>
+<th class="l">pair kernel, page 80</th>
+<th class="l">TD step</th>
+</tr></thead>
+    <tbody>
+<tr>
+<td class="l">(8, 16k)</td>
+<td class="l">335 (0.52)</td>
+<td class="l">455 (0.71)</td>
+<td class="l">58.05 → 53.27 ms (−8.2%)</td>
+</tr>
+<tr>
+<td class="l">(32, 16k)</td>
+<td class="l">320 (0.50)</td>
+<td class="l">436 (0.68)</td>
+<td class="l">222.37 → 208.24 ms (−6.4%)</td>
+</tr>
+<tr>
+<td class="l">(8, 64k)</td>
+<td class="l">330 (0.52)</td>
+<td class="l">453 (0.71)</td>
+<td class="l">107.92 → 88.47 ms (−18.0%)</td>
+</tr>
+</tbody>
+  </table></div>
+  <p>The KV cache is stored in pages of a fixed number of tokens. When a page equals the kernel's tile of keys, keys and values load by TMA, so TD uses pages of 80 tokens with the pair kernel, whose fastest configuration has one stage of 80-key tiles. Global attention then runs 1.36–1.37 times faster than FlashAttention 4 at its best page size. Timed alone on the engine's layout, the pair kernel reaches 0.71–0.74 of the attention ceiling (0.73 at the shapes of the grid), so the engine loses little beyond the kernel itself. At batch 1, where a pass holds fewer than 512 queries, the pair kernel is slower than FlashAttention 4, which keeps those calls.</p>
+
+  <h3 id="kern-consequences">What the two kernels change</h3>
+  <div class="table-wrap"><table class="pt">
+    <caption>Table 15. Efficiency against the empirical roofline, \(\eta_c = r_c/t_c\), at the 13 points with batch 8 and above that both sets of runs share. Campaign 2: the three engine fixes of Part 9 with vLLM's kernels; campaign 3: the same with the two kernels of this Part. AR's kernels are unchanged between the two.</caption>
+    <thead><tr>
+<th class="l">component</th>
+<th class="l">TD, stock kernels</th>
+<th class="l">TD, new kernels</th>
+<th class="l">AR</th>
+</tr></thead>
+    <tbody>
+<tr>
+<td class="l">experts</td>
+<td class="l">0.26–0.37</td>
+<td class="l">0.32–0.50</td>
+<td class="l">0.56–0.74</td>
+</tr>
+<tr>
+<td class="l">dense GEMMs and router</td>
+<td class="l">0.85–0.93</td>
+<td class="l">0.84–0.93</td>
+<td class="l">0.35–0.41</td>
+</tr>
+<tr>
+<td class="l">window attention</td>
+<td class="l">0.59–0.65</td>
+<td class="l">0.58–0.64</td>
+<td class="l">0.50–0.78</td>
+</tr>
+<tr>
+<td class="l">global attention</td>
+<td class="l">0.40–0.51</td>
+<td class="l">0.60–0.72</td>
+<td class="l">0.51–0.92</td>
+</tr>
+<tr>
+<td class="l">vocabulary head and sampler</td>
+<td class="l">0.58–0.63</td>
+<td class="l">0.58–0.62</td>
+<td class="l">0.47–0.76</td>
+</tr>
+<tr>
+<td class="l">whole step</td>
+<td class="l">0.39–0.47</td>
+<td class="l">0.44–0.61</td>
+<td class="l">0.42–0.69</td>
+</tr>
+</tbody>
+  </table></div>
+  <p>Both kernels raise their components' efficiency without reaching the 0.8 of the empirical roofline that was set as a target: global attention from 0.40–0.51 to 0.60–0.72 at the 13 points with batch 8 and above that both sets of runs share, the experts from 0.26–0.37 to 0.32–0.50. The whole TD step at batch 8 and above moves from 0.39–0.47 to 0.44–0.61 of its roofline, close to AR's.</p>
+  <div class="table-wrap"><table class="pt">
+    <caption>Table 16. Throughput with the new kernels (campaign 3) over throughput with vLLM's kernels (campaign 2), medians of three repeats per point. AR's kernels did not change, so its ratio measures the drift between the two days.</caption>
+    <thead><tr>
+<th class="l">context</th>
+<th class="l">TD, B = 1</th>
+<th class="l">TD, B = 2–64</th>
+<th class="l">AR, all B</th>
+</tr></thead>
+    <tbody>
+<tr>
+<td class="l">1k</td>
+<td class="l">1.03–1.03</td>
+<td class="l">0.97–1.12</td>
+<td class="l">0.97–1.01</td>
+</tr>
+<tr>
+<td class="l">4k</td>
+<td class="l">1.02–1.02</td>
+<td class="l">1.04–1.14</td>
+<td class="l">1.00–1.01</td>
+</tr>
+<tr>
+<td class="l">16k</td>
+<td class="l">0.97–0.97</td>
+<td class="l">1.13–1.21</td>
+<td class="l">0.98–1.00</td>
+</tr>
+<tr>
+<td class="l">64k</td>
+<td class="l">1.06–1.06</td>
+<td class="l">1.29–1.32</td>
+<td class="l">0.95–1.10</td>
+</tr>
+</tbody>
+  </table></div>
+  <p>The expert kernel saves about the same time per pass at every context, and the attention kernel's saving grows with the context. At batch 16 and context 4k, 10.5 ms of the step are saved, 5.9 in the experts and 4.3 in global attention; at 64k, 54.6 ms, 6.0 in the experts and 49.5 in global attention. With both kernels, GSM8K is 96.4% against 96.8%, and IFEval 60.8% strict and 78.4% loose against 60.0% and 78.0%, on 250 items each at sampling temperature 1.</p>
+  <div class="table-wrap"><table class="pt">
+    <caption>Table 19. The two largest recoverable shares of TD's step after the kernel work: measured time minus the time of the target kernel (the best standalone kernel at the same shape, else 0.8 of the empirical roofline), as a share of the step. Time outside the model and idle time count in full.</caption>
+    <thead><tr>
+<th class="l"></th>
+<th class="l">context 1k</th>
+<th class="l">context 64k</th>
+</tr></thead>
+    <tbody>
+<tr>
+<td class="l">B = 1</td>
+<td class="l">experts 29%; dense GEMMs and router 10%</td>
+<td class="l">global attention 17%; experts 10%</td>
+</tr>
+<tr>
+<td class="l">B = 2</td>
+<td class="l">experts 12%; outside the model 11%</td>
+<td class="l">experts 11%; outside the model 6%</td>
+</tr>
+<tr>
+<td class="l">B = 4</td>
+<td class="l">experts 23%; outside the model 12%</td>
+<td class="l">experts 9%; outside the model 6%</td>
+</tr>
+<tr>
+<td class="l">B = 8</td>
+<td class="l">experts 18%; outside the model 13%</td>
+<td class="l">experts 7%; outside the model 6%</td>
+</tr>
+<tr>
+<td class="l">B = 16</td>
+<td class="l">outside the model 14%; experts 14%</td>
+<td class="l">outside the model 6%; experts 5%</td>
+</tr>
+<tr>
+<td class="l">B = 32</td>
+<td class="l">outside the model 14%; experts 10%</td>
+<td class="l">–</td>
+</tr>
+<tr>
+<td class="l">B = 64</td>
+<td class="l">outside the model 14%; vocabulary head and sampler 9%</td>
+<td class="l">–</td>
+</tr>
+</tbody>
+  </table></div>
+  <p>The experts keep the most recoverable time up to batch 8, except at batch 1 and long context, where global attention still runs on FlashAttention 4. From batch 16 on, time outside the model comes first: norms, rotary embeddings, residual additions and activation quantisation, which no roofline covers.</p>
+</section>
+<nav class="book-nav" aria-label="Chapters"><a class="prev" href="/notes/block-diffusion-rooflines-6f924020/stack/"><span>Previous</span>9 · The measurement stack</a><a class="next" href="/notes/block-diffusion-rooflines-6f924020/conclusion/"><span>Next</span>11 · Conclusion</a></nav>
+</div>
+
+
+  </article>
+
+  
+
+  
+    
+
+
+  
+</div>
+
+      
+    </div>
+
+    <!-- Footer -->
+    
+
+
+  <footer class="sticky-bottom mt-5" role="contentinfo">
+    
+
+    <div class="container">
+      
+  © Copyright 2026
+  Valentin
+  
+  De Bortoli. Built with <a href="https://jekyllrb.com/" target="_blank" rel="external nofollow noopener">Jekyll</a> and the <a href="https://github.com/alshedivat/al-folio" rel="external nofollow noopener" target="_blank">al-folio</a> theme. Hosted on <a href="https://pages.github.com/" target="_blank" rel="external nofollow noopener">GitHub Pages</a>.
+
+  
+  
+    Last updated: November 15, 2026.
+  
+
+    </div>
+  </footer>
+
+
+
+    <!-- JavaScripts -->
+    <script>
+  window.alFolio = {
+    compatBootstrap: false
+  };
+</script>
+
+<!-- Core navigation/runtime scripts -->
+<script src="/assets/js/nav-toggle.js?v=141bd79a73ebc0f0b6ea58e440ae79fc"></script>
+
+
+
+  <!-- Masonry & imagesLoaded -->
+  <script defer src="https://cdn.jsdelivr.net/npm/masonry-layout@4.2.2/dist/masonry.pkgd.min.js" integrity="sha256-Nn1q/fx0H7SNLZMQ5Hw5JLaTRZp0yILA/FRexe19VdI=" crossorigin="anonymous"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/imagesloaded@5.0.0/imagesloaded.pkgd.min.js" integrity="sha256-htrLFfZJ6v5udOG+3kNLINIKh2gvoKqwEhHYfTTMICc=" crossorigin="anonymous"></script>
+  <script defer src="/assets/js/masonry.js?v=e49affc7bd2646f6acdad1dbe02c2359" type="text/javascript"></script>
+
+
+
+  <!-- Charts and Diagrams -->
+  
+
+
+
+
+
+
+
+  <!-- Math and Tikzjax -->
+  
+<script defer type="text/javascript" id="MathJax-script" src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-mml-chtml.js" integrity="sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI=" crossorigin="anonymous"></script>
+<script src="/assets/al_math/js/mathjax-setup.js"></script>
+
+
+
+
+
+<!-- Tooltips & popovers runtime -->
+<script src="/assets/js/tooltips-setup.js?v=fe487e99db6c43751e6e7bdb2d6a0611"></script>
+
+
+
+
+
+
+<!-- Load Common JS -->
+<script src="/assets/js/no_defer.js?v=53b1b1a645525975c963ce8bf8bfefcf"></script>
+<script defer src="/assets/js/common.js?v=87baac90f765f2f3362dcf6aaf312a8a"></script>
+<script defer src="/assets/js/copy_code.js?v=c8a01c11a92744d44b093fc3bda915df" type="text/javascript"></script>
+
+<!-- Jupyter Open External Links New Tab -->
+<script defer src="/assets/js/jupyter_new_tab.js?v=896d254890d9b47f0281f63bfccf0dee"></script>
+
+<!-- Badges -->
+
+  <script async src="https://d1bxh8uas1mnw7.cloudfront.net/assets/embed.js"></script>
+
+
+  <script async src="https://badge.dimensions.ai/badge.js"></script>
+
+
+
+
+  <!-- Analytics -->
+  
+
+
+
+
+
+  <!-- Image Features -->
+  
+<!-- Medium Zoom JS -->
+<script defer src="https://cdn.jsdelivr.net/npm/medium-zoom@1.1.0/dist/medium-zoom.min.js" integrity="sha256-ZgMyDAIYDYGxbcpJcfUnYwNevG/xi9OHKaR/8GK+jWc=" crossorigin="anonymous"></script>
+<script defer src="/assets/al_img_tools/js/zoom.js"></script>
+
+
+
+
+
+  <!-- Scrolling Progress Bar -->
+  <script defer src="/assets/js/progress-bar.js?v=499464c5c63ced6cf7ad62509f1e2610" type="text/javascript"></script>
+
+
+
+
+
+  <!-- Back to Top -->
+  
+  
+  
+    <script src="https://cdn.jsdelivr.net/npm/vanilla-back-to-top@7.2.1/dist/vanilla-back-to-top.min.js" integrity="sha256-uMJJ3EoTyfRBoTbR+lrfu1uRQ87RZG8AR3cVNuQVeFg=" crossorigin="anonymous"></script>
+  
+  <script>
+    addBackToTop();
+  </script>
+
+
+
+  <!-- Search -->
+  
+    
+<script type="module" src="/assets/al_search/js/search/ninja-keys.min.js"></script>
+<ninja-keys hidebreadcrumbs noautoloadmdicons placeholder="Type to start searching"></ninja-keys>
+<script src="/assets/al_search/js/search-setup.js"></script>
+<script>
+// get the ninja-keys element
+const ninja = document.querySelector('ninja-keys');
+
+// add the home and posts menu items
+ninja.data = [{
+    id: "nav-about",
+    title: "about",
+    section: "Navigation",
+    handler: () => {
+      window.location.href = "/";
+    },
+  },{id: "nav-publications",
+          title: "publications",
+          description: "Everything, newest first. Use the filter to search titles, authors and venues.",
+          section: "Navigation",
+          handler: () => {
+            window.location.href = "/publications/";
+          },
+        },{id: "nav-teaching",
+          title: "teaching",
+          description: "Course materials from teaching in Paris, 2015–2018.",
+          section: "Navigation",
+          handler: () => {
+            window.location.href = "/teaching/";
+          },
+        },{id: "news-distributional-diffusion-models-with-scoring-rules-accepted-at-icml-2025",
+          title: 'Distributional Diffusion Models with Scoring Rules accepted at ICML 2025.',
+          description: "",
+          section: "News",},{id: "news-three-papers-accepted-at-neurips-2025-on-inference-time-annealing-memorization-in-diffusion-models-and-proximal-mcmc-for-non-log-concave-sampling",
+          title: 'Three papers accepted at NeurIPS 2025, on inference-time annealing, memorization in diffusion models,...',
+          description: "",
+          section: "News",},{id: "news-the-diffusiongemma-technical-report-is-out",
+          title: 'The DiffusionGemma technical report is out.',
+          description: "",
+          section: "News",},{id: "news-simplex-diffusion-models-is-out-diffusion-on-the-probability-simplex-that-retains-uncertainty-during-discrete-denoising",
+          title: 'Simplex Diffusion Models is out — diffusion on the probability simplex that retains...',
+          description: "",
+          section: "News",},{
+        id: 'social-cv',
+        title: 'CV',
+        section: 'Socials',
+        handler: () => {
+          window.open("/assets/pdf/cv.pdf", "_blank");
+        },
+      },{
+        id: 'social-email',
+        title: 'email',
+        section: 'Socials',
+        handler: () => {
+          window.open("mailto:%76%61%6C%65%6E%74%69%6E.%64%65%62%6F%72%74%6F%6C%69@%67%6D%61%69%6C.%63%6F%6D", "_blank");
+        },
+      },{
+        id: 'social-github',
+        title: 'GitHub',
+        section: 'Socials',
+        handler: () => {
+          window.open("https://github.com/vdeborto", "_blank");
+        },
+      },{
+        id: 'social-scholar',
+        title: 'Google Scholar',
+        section: 'Socials',
+        handler: () => {
+          window.open("https://scholar.google.com/citations?user=dn_F9I4AAAAJ", "_blank");
+        },
+      },{
+        id: 'social-rss',
+        title: 'RSS Feed',
+        section: 'Socials',
+        handler: () => {
+          window.open("/feed.xml", "_blank");
+        },
+      },{
+      id: 'light-theme',
+      title: 'Change theme to light',
+      description: 'Change the theme of the site to Light',
+      section: 'Theme',
+      handler: () => {
+        setThemeSetting("light");
+      },
+    },
+    {
+      id: 'dark-theme',
+      title: 'Change theme to dark',
+      description: 'Change the theme of the site to Dark',
+      section: 'Theme',
+      handler: () => {
+        setThemeSetting("dark");
+      },
+    },
+    {
+      id: 'system-theme',
+      title: 'Use system default theme',
+      description: 'Change the theme of the site to System Default',
+      section: 'Theme',
+      handler: () => {
+        setThemeSetting("system");
+      },
+    },];
+
+</script>
+<script src="/assets/al_search/js/shortcut-key.js"></script>
+
+
+  
+
+
+
+
+
+
+
+
+  </body>
+</html>

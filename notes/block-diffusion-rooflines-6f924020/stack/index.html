@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="en">
+  <!-- Head -->
+  <head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <!-- Metadata, OpenGraph and Schema.org -->
+
+
+
+
+<!-- Standard metadata -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<title>
+  
+  
+    
+      The measurement stack | Valentin De Bortoli
+    
+  
+</title>
+<meta name="author" content="Valentin De Bortoli">
+<meta name="description" content="Research scientist at Google DeepMind, London. Diffusion models, sampling, optimal transport and Markov chain theory.
+">
+
+  <meta name="keywords" content="diffusion models, generative modelling, optimal transport, Schrodinger bridge, sampling, Markov chain Monte Carlo, machine learning">
+
+
+
+
+
+
+
+
+
+
+<!-- Security: Content Security Policy -->
+<!-- Permissive CSP suitable for academic websites. Allows external images, videos, and common embed services. -->
+<!-- To customize for your needs, see: https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https:; style-src 'self' 'unsafe-inline' https:; img-src 'self' data: https:; font-src 'self' data: https:; media-src 'self' https:; frame-src 'self' https:; connect-src 'self' https:;">
+<style>
+  :root {
+    --max-content-width: 930px;
+  }
+</style>
+
+<!-- Tailwind-first core styles -->
+<link rel="stylesheet" href="/assets/css/tailwind.css?v=50c64c15cbb9fd1ce6056fdb8bcb4b62">
+
+
+
+
+
+
+
+<!-- Icons -->
+
+  
+<!-- Font Awesome -->
+<link defer rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.2.0/css/all.min.css" integrity="sha256-MVopmdyC2tYTiJ8wlktf0uh0v4NgT+vNdyVFepi7Q0c=" crossorigin="anonymous">
+
+<!-- Academicons -->
+<link defer rel="stylesheet" href="https://cdn.jsdelivr.net/npm/academicons@1.9.5/css/academicons.min.css" integrity="sha256-SzrCOBJbGVFMahewkgjwnApaV2+av1DwMAA+/QGLyZw=" crossorigin="anonymous">
+
+<!-- Scholar Icons -->
+<link defer rel="stylesheet" href="https://cdn.jsdelivr.net/npm/scholar-icons@1.0.3/css/scholar-icons.css" integrity="sha256-VY3hHVj/hNX3fYG6wtbA6TcKJQl7+FthzGSyIB64klY=" crossorigin="anonymous">
+
+
+
+<link defer rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Roboto+Slab:100,300,400,500,700|Material+Icons&amp;display=swap">
+
+<!-- Code Syntax Highlighting -->
+<link defer rel="stylesheet" href="/assets/css/jekyll-pygments-themes-github.css?v=591dab5a4e56573bf4ef7fd332894c99" media="" id="highlight_theme_light">
+
+<!-- Styles -->
+
+
+
+
+
+  <link rel="shortcut icon" href="data:image/svg+xml,&lt;svg%20xmlns=%22http://www.w3.org/2000/svg%22%20viewBox=%220%200%20100%20100%22&gt;&lt;text%20y=%22.9em%22%20font-size=%2290%22&gt;%F0%9F%8C%80&lt;/text&gt;&lt;/svg&gt;">
+
+
+
+
+<link rel="stylesheet" href="/assets/css/main.css?v=3116ba77db9ee1581d05bb3e86fbf7f1">
+
+<link rel="canonical" href="https://vdeborto.github.io/notes/block-diffusion-rooflines-6f924020/stack/">
+
+  <meta name="robots" content="noindex, nofollow">
+
+
+
+  <!-- Dark Mode -->
+  <script src="/assets/js/theme.js?v=5286c3e4c334d0ecb8fc0c40ff4fa7ec"></script>
+  <link defer rel="stylesheet" href="/assets/css/jekyll-pygments-themes-native.css?v=5847e5ed4a4568527aa6cfab446049ca" media="none" id="highlight_theme_dark">
+  <script>
+    initTheme();
+  </script>
+
+
+
+
+
+
+
+  <!-- Image Features -->
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+  <!-- Right-to-left support -->
+  
+
+
+
+
+
+
+
+
+<!-- Custom typography and theme overrides -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,300;8..60,400;8..60,600&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<link rel="stylesheet" href="/assets/css/custom.css">
+
+  </head>
+
+  <!-- Body -->
+  <body class="fixed-top-nav sticky-bottom-footer">
+    <!-- Header -->
+    <header>
+  <!-- Nav Bar -->
+  <nav id="navbar" class="navbar navbar-light navbar-expand-sm fixed-top" role="navigation">
+    <div class="container">
+      
+        <a class="navbar-brand title font-weight-lighter" href="/">
+          
+            
+              <span class="font-weight-bold">Valentin</span>
+            
+            
+            De Bortoli
+          
+        </a>
+      
+      <!-- Navbar Toggle -->
+      <button class="navbar-toggler collapsed navbar-toggler-main" type="button" data-nav-toggle="navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar top-bar"></span>
+        <span class="icon-bar middle-bar"></span>
+        <span class="icon-bar bottom-bar"></span>
+      </button>
+
+      <div class="collapse navbar-collapse navbar-collapse-main" id="navbarNav">
+        <ul class="navbar-nav navbar-menu-list flex-nowrap">
+          
+
+          <!-- About -->
+          <li class="nav-item ">
+            <a class="nav-link" href="/">about
+              
+            </a>
+          </li>
+
+          <!-- Other pages -->
+          
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+              
+                
+                <li class="nav-item ">
+                  <a class="nav-link" href="/publications/">publications
+                    
+                  </a>
+                </li>
+              
+            
+          
+            
+              
+                
+                <li class="nav-item ">
+                  <a class="nav-link" href="/teaching/">teaching
+                    
+                  </a>
+                </li>
+              
+            
+          
+          
+            <!-- Search -->
+            <li class="nav-item">
+              <button id="search-toggle" type="button" title="Search" aria-label="Open search">
+                <span class="nav-link">ctrl k <i class="fa-solid fa-magnifying-glass"></i></span>
+              </button>
+            </li>
+          
+          
+            <!-- Toogle theme mode -->
+            <li class="toggle-container">
+              <button id="light-toggle" type="button" title="Change theme" aria-label="Change color theme">
+                <i class="fa-half-sun-moon" id="light-toggle-system"></i>
+                <i class="fa-solid fa-moon" id="light-toggle-dark"></i>
+                <i class="fa-solid fa-sun" id="light-toggle-light"></i>
+              </button>
+            </li>
+          
+        </ul>
+      </div>
+    </div>
+  </nav>
+  
+    <!-- Scrolling Progress Bar -->
+    <progress id="progress" value="0">
+      <div class="progress-container">
+        <span class="progress-bar"></span>
+      </div>
+    </progress>
+  
+</header>
+
+
+    <!-- Content -->
+    <div class="container mt-5" role="main">
+      
+        
+
+<div class="post">
+  <header class="post-header">
+    <h1 class="post-title">The measurement stack</h1>
+    <p class="post-description"></p>
+  </header>
+
+  <article>
+    <!-- Generated by bin/build-roofline.py. Do not edit by hand. -->
+<link rel="stylesheet" href="/assets/roofline/note.css">
+<link rel="stylesheet" href="/assets/roofline/theme.css">
+<script type="application/json" id="bdr-book">{"title":"Block Diffusion Rooflines","home":"/notes/block-diffusion-rooflines-6f924020/","chapters":[{"slug":"","num":"","title":"Front page","url":"/notes/block-diffusion-rooflines-6f924020/"},{"slug":"introduction","num":"0","title":"Introduction","url":"/notes/block-diffusion-rooflines-6f924020/introduction/"},{"slug":"summary","num":"","title":"Summary","url":"/notes/block-diffusion-rooflines-6f924020/summary/"},{"slug":"setup","num":"1","title":"Setup","url":"/notes/block-diffusion-rooflines-6f924020/setup/"},{"slug":"gain","num":"2","title":"The gain","url":"/notes/block-diffusion-rooflines-6f924020/gain/"},{"slug":"linear","num":"3","title":"The linear part","url":"/notes/block-diffusion-rooflines-6f924020/linear/"},{"slug":"attention","num":"4","title":"The attention part","url":"/notes/block-diffusion-rooflines-6f924020/attention/"},{"slug":"whole","num":"5","title":"The whole picture","url":"/notes/block-diffusion-rooflines-6f924020/whole/"},{"slug":"calculator","num":"6","title":"Calculator","url":"/notes/block-diffusion-rooflines-6f924020/calculator/"},{"slug":"examples","num":"7","title":"Worked examples","url":"/notes/block-diffusion-rooflines-6f924020/examples/"},{"slug":"effective","num":"8","title":"Effective rooflines","url":"/notes/block-diffusion-rooflines-6f924020/effective/"},{"slug":"stack","num":"9","title":"The measurement stack","url":"/notes/block-diffusion-rooflines-6f924020/stack/"},{"slug":"kernels","num":"10","title":"Kernels","url":"/notes/block-diffusion-rooflines-6f924020/kernels/"},{"slug":"conclusion","num":"11","title":"Conclusion","url":"/notes/block-diffusion-rooflines-6f924020/conclusion/"},{"slug":"appendix","num":"A","title":"Appendix","url":"/notes/block-diffusion-rooflines-6f924020/appendix/"}],"current":"stack"}</script>
+<script defer src="/assets/roofline/mathjax.js"></script>
+<script defer src="/assets/roofline/note.js"></script>
+<script defer src="/assets/roofline/figures.js"></script>
+<script defer src="/assets/roofline/reading.js"></script>
+
+<div class="bdr book-chapter" id="top">
+<noscript><p>This page needs JavaScript for its equations, figures and calculator.</p></noscript>
+<p class="book-part">Part 9 of <a href="/notes/block-diffusion-rooflines-6f924020/">Block Diffusion Rooflines</a> <span class="book-links">(<a href="/notes/block-diffusion-rooflines-6f924020/effective/" rel="prev">Previous: 8 · Effective rooflines</a> | <a href="/notes/block-diffusion-rooflines-6f924020/kernels/" rel="next">Next: 10 · Kernels</a>)</span></p>
+<section class="bdr-col" id="stack">
+  <p class="chapter-intro">A bound is tested only by measured times that are attributed to the same components as the bound. This chapter describes how every kernel of a step is timed in vLLM, assigned to a component and compared with its empirical roofline, and the three defects of the stock engine that this exposed.</p>
+  <h3 id="stack-terms">Terms</h3>
+  <p>The measurements below use four notions from GPU programming.</p>
+  <ul>
+    <li>
+<b>Kernel:</b> one function launched on the GPU, such as a matrix product or an attention computation. One forward pass of the model launches a few hundred kernels.</li>
+    <li>
+<b>Eager mode:</b> the CPU launches the kernels of a pass one by one, from Python. Each launch costs a few microseconds of CPU time, which at small batch is comparable to the kernel itself.</li>
+    <li>
+<b>CUDA graph:</b> the sequence of kernels of one pass, recorded once ("capture") together with the memory addresses of their inputs and outputs, and then replayed with a single launch. Replay removes the per-kernel launch cost; a replayed graph reads and writes exactly the addresses recorded at capture.</li>
+    <li>
+<b>Profiler trace:</b> the GPU's record of every kernel that ran, with its start time and duration.</li>
+  </ul>
+
+  <h3 id="stack-pipeline">From an engine run to an efficiency per component</h3>
+  <p>A bound is tested only by times attributed to the same components as the bound. Each measured point, a decoder at a batch size \(B\) and a context \(C\), therefore goes through the same pipeline, implemented in the harness <i>roofscope</i>.</p>
+  <div class="bdr-fig pfig breakout" id="fig-pipeline">
+    <div class="fig-k">Figure 13</div>
+    <p class="fig-title">Every number in Parts 8–11 goes through one pipeline, from an engine run to an efficiency per component.</p>
+    <div class="pfig-scroll"><svg viewbox="0 0 900 340" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="The measurement stack: a graph run gives step times, a kernel trace and routing; an eager run labels the kernels; the accounting divides roofline by measured time per component" class="pfig-svg pfig-wide"><defs><marker id="pa3" viewbox="0 0 10 10" refx="9" refy="5" markerwidth="7" markerheight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"></path></marker></defs><rect x="14" y="20" width="200" height="92" rx="6" fill="var(--bdr-surface)" stroke="var(--bdr-td)" stroke-width="1.4"></rect><text x="24" y="38" style="font-size:12.5px;font-weight:600;fill:var(--ink)">graph run</text><text x="24" y="55" style="font-size:11px;fill:var(--bdr-ink-2)">vLLM with CUDA graphs,</text><text x="24" y="70" style="font-size:11px;fill:var(--bdr-ink-2)">B sequences, stepped</text><text x="24" y="85" style="font-size:11px;fill:var(--bdr-ink-2)">one pass at a time</text><rect x="14" y="250" width="200" height="76" rx="6" fill="var(--bdr-surface)" stroke="var(--bdr-muted)" stroke-width="1.4"></rect><text x="24" y="268" style="font-size:12.5px;font-weight:600;fill:var(--ink)">eager run</text><text x="24" y="285" style="font-size:11px;fill:var(--bdr-ink-2)">same point, no graphs:</text><text x="24" y="300" style="font-size:11px;fill:var(--bdr-ink-2)">the kernels have names</text><rect x="262" y="20" width="200" height="62" rx="6" fill="var(--bdr-surface)" stroke="var(--bdr-muted)" stroke-width="1.4"></rect><text x="272" y="38" style="font-size:12.5px;font-weight:600;fill:var(--ink)">timed window</text><text x="272" y="55" style="font-size:11px;fill:var(--bdr-ink-2)">wall clock: step time t</text><rect x="262" y="110" width="200" height="62" rx="6" fill="var(--bdr-surface)" stroke="var(--bdr-muted)" stroke-width="1.4"></rect><text x="272" y="128" style="font-size:12.5px;font-weight:600;fill:var(--ink)">profiled window</text><text x="272" y="145" style="font-size:11px;fill:var(--bdr-ink-2)">kernel start, duration</text><rect x="262" y="200" width="200" height="62" rx="6" fill="var(--bdr-surface)" stroke="var(--bdr-muted)" stroke-width="1.4"></rect><text x="272" y="218" style="font-size:12.5px;font-weight:600;fill:var(--ink)">routing counts</text><text x="272" y="235" style="font-size:11px;fill:var(--bdr-ink-2)">tokens per expert</text><rect x="510" y="100" width="200" height="82" rx="6" fill="var(--bdr-surface)" stroke="var(--bdr-muted)" stroke-width="1.4"></rect><text x="520" y="118" style="font-size:12.5px;font-weight:600;fill:var(--ink)">attribution</text><text x="520" y="135" style="font-size:11px;fill:var(--bdr-ink-2)">kernel time t<tspan baseline-shift="sub" font-size="0.75em">c</tspan> per</text><text x="520" y="150" style="font-size:11px;fill:var(--bdr-ink-2)">component, plus outside</text><text x="520" y="165" style="font-size:11px;fill:var(--bdr-ink-2)">the model and idle</text><rect x="510" y="212" width="200" height="62" rx="6" fill="var(--bdr-surface)" stroke="var(--bdr-muted)" stroke-width="1.4"></rect><text x="520" y="230" style="font-size:12.5px;font-weight:600;fill:var(--ink)">cost model</text><text x="520" y="247" style="font-size:11px;fill:var(--bdr-ink-2)">F<tspan baseline-shift="sub" font-size="0.75em">c</tspan>, Q<tspan baseline-shift="sub" font-size="0.75em">c</tspan> at measured U</text><rect x="744" y="150" width="146" height="92" rx="6" fill="var(--bdr-surface)" stroke="var(--bdr-td)" stroke-width="1.4"></rect><text x="754" y="168" style="font-size:12.5px;font-weight:600;fill:var(--ink)">accounting</text><text x="754" y="185" style="font-size:11px;fill:var(--bdr-ink-2)">r<tspan baseline-shift="sub" font-size="0.75em">c</tspan>: Definition 5</text><text x="754" y="200" style="font-size:11px;fill:var(--bdr-ink-2)">η<tspan baseline-shift="sub" font-size="0.75em">c</tspan> = r<tspan baseline-shift="sub" font-size="0.75em">c</tspan>/t<tspan baseline-shift="sub" font-size="0.75em">c</tspan></text><text x="754" y="215" style="font-size:11px;fill:var(--bdr-ink-2)">recoverable time</text><line x1="214" y1="46" x2="260" y2="51" stroke="currentColor" stroke-width="1.1" marker-end="url(#pa3)"></line><line x1="214" y1="70" x2="260" y2="141" stroke="currentColor" stroke-width="1.1" marker-end="url(#pa3)"></line><line x1="214" y1="94" x2="260" y2="228" stroke="currentColor" stroke-width="1.1" marker-end="url(#pa3)"></line><line x1="462" y1="141" x2="508" y2="141" stroke="currentColor" stroke-width="1.1" marker-end="url(#pa3)"></line><line x1="462" y1="231" x2="508" y2="243" stroke="currentColor" stroke-width="1.1" marker-end="url(#pa3)"></line><path d="M214,300 H486 V160 H508" fill="none" stroke="currentColor" stroke-width="1.1" marker-end="url(#pa3)"></path><path d="M462,51 H726 V176 H742" fill="none" stroke="currentColor" stroke-width="1.1" marker-end="url(#pa3)"></path><line x1="710" y1="150" x2="742" y2="190" stroke="currentColor" stroke-width="1.1" marker-end="url(#pa3)"></line><line x1="710" y1="243" x2="742" y2="220" stroke="currentColor" stroke-width="1.1" marker-end="url(#pa3)"></line><text x="350.0" y="293" text-anchor="middle" style="font-size:11px;fill:var(--bdr-muted)">labels by kernel order</text><text x="594.0" y="44" text-anchor="middle" style="font-size:11px;fill:var(--bdr-muted)">step time t</text><text x="472" y="230" style="font-size:11px;fill:var(--bdr-muted)">U</text></svg></div>
+    <p class="fig-cap">Each point (decoder, \(B\), \(C\)) is run three times with CUDA graphs and once without (eager), from the same prompts. The eager run's kernels carry readable names and come in the same order as the graph run's, which is how each kernel of the graph run is assigned to a component.</p>
+  </div>
+  <ul>
+    <li>
+<b>Run.</b> vLLM is driven one pass at a time, with CUDA graphs as in serving, on \(B\) prompts of exactly \(C\) tokens. After a warm-up, one window of passes is timed by wall clock and the next is traced by the profiler; the profiler's own overhead is removed by using the untraced window for the step time \(t\). A hook in each MoE layer counts the tokens routed to each expert in every pass.</li>
+    <li>
+<b>Attribution.</b> Kernels replayed from a graph carry no readable names. The same point is run once more in eager mode, whose kernels do, and the two sequences of kernels are matched in order; each kernel is assigned to a component: experts, dense GEMMs and router, window attention, global attention, and vocabulary head with sampler. Kernels outside these (norms, rotary embeddings, residual additions, activation quantisation, bookkeeping) form the component "outside the model", and the step time minus the summed kernel time, floored at zero, is "idle".</li>
+    <li>
+<b>Accounting.</b> The cost model gives each component's FLOPs \(F_c\) and bytes \(Q_c\) at the measured routing, and Part 8 its empirical roofline \(r_c\).</li>
+  </ul>
+  <div class="box def" id="def7">
+    <div class="bdr-title">
+<span class="tag">Definition 7</span>Efficiency and recoverable time</div>
+    <p class="gist"><span>In short.</span> A component's efficiency is its empirical roofline over its measured time; its recoverable time is what remains above the time of the best kernel available at its shape.</p>
+    <p>With \(t_c\) the measured time of component \(c\) per step and \(t\) the step time, the efficiency of the component and of the step are</p>
+    <div class="eq">\[ \eta_c = \frac{r_c}{t_c}, \qquad \eta = \frac{r}{t} = \frac{\sum_c r_c}{t}, \]</div>
+    <p>where time outside the model and idle time count in \(t\) but have no roofline. The target efficiency \(\eta^\star_c\) is that of the best kernel available at the same shape, timed alone: for TD's experts 0.81 (cuBLAS on all rows stacked, Part 10), for AR's experts 0.58 (the best kernel measured at its shapes), for global attention 0.73 (the pair kernel of Part 10 alone, at the engine's layout); for the other components it is 0.8. The recoverable time of a component is \(\Delta t_c = \max(0,\ t_c - r_c/\eta^\star_c)\), and the recoverable time of the components outside the model is their whole time.</p>
+  </div>
+  <p>Four checks guard the numbers:</p>
+  <ul>
+    <li>
+<b>Attribution:</b> at most 0.7% of kernel time is left without a component.</li>
+    <li>
+<b>Full batches:</b> a point at which the engine could not keep all \(B\) sequences in memory is excluded.</li>
+    <li>
+<b>Drift:</b> the two sets of runs compared in Part 10 ran on different days; AR, whose kernels did not change, is within 0.97–1.01 of its earlier throughput at 25 of 27 points.</li>
+    <li>
+<b>Quality:</b> every change to the engine is checked on GSM8K and IFEval, since a faster kernel that changes the output measures nothing.</li>
+  </ul>
+
+  <h3 id="stack-defects">Three defects of the stock engine</h3>
+  <p>The first runs of DiffusionGemma in stock vLLM 0.28.0 left TD far below its roofline. Following the largest components down to their kernels found three defects, which the measurements of Parts 8–11 have fixed.</p>
+  <h4>Stale causal flags under CUDA graphs</h4>
+  <p>A TD pass is bidirectional while it denoises a canvas and causal when it commits it, so DiffusionGemma passes the attention kernel one flag per sequence. vLLM 0.28.0 kept these flags in a boolean buffer and converted it to 32-bit integers at every step; the conversion creates a new tensor, at a new address.</p>
+  <div class="bdr-fig pfig breakout" id="fig-flags">
+    <div class="fig-k">Figure 14</div>
+    <p class="fig-title">A replayed CUDA graph reads the memory it saw at capture, so a tensor recreated at every step is never read.</p>
+    <div class="pfig-scroll"><svg viewbox="0 0 900 290" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="A replayed CUDA graph reads the address recorded at capture, so a flag tensor recreated at every step is never read" class="pfig-svg pfig-wide"><defs><marker id="pa4" viewbox="0 0 10 10" refx="9" refy="5" markerwidth="7" markerheight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"></path></marker></defs><defs><marker id="pa5" viewbox="0 0 10 10" refx="9" refy="5" markerwidth="7" markerheight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="var(--bdr-td)"></path></marker></defs><text x="20" y="22" style="font-size:12.5px;font-weight:600;fill:var(--ink)">vLLM 0.28: converted at every step</text><text x="480" y="22" style="font-size:12.5px;font-weight:600;fill:var(--ink)">fix: one persistent int32 buffer</text><rect x="20" y="44" width="200" height="34" rx="4" fill="none" stroke="var(--bdr-muted)" stroke-dasharray=""></rect><text x="120.0" y="66" text-anchor="middle" style="font-size:11.5px;fill:var(--ink)">bool buffer, live flags</text><rect x="20" y="150" width="190" height="34" rx="4" fill="none" stroke="var(--bdr-muted)" stroke-dasharray=""></rect><text x="115.0" y="172" text-anchor="middle" style="font-size:11.5px;fill:var(--ink)">int32 copy, capture</text><rect x="240" y="150" width="190" height="34" rx="4" fill="none" stroke="var(--bdr-critical)" stroke-dasharray="5 3"></rect><text x="335.0" y="172" text-anchor="middle" style="font-size:11.5px;fill:var(--ink)">int32 copy, step n</text><line x1="60" y1="78" x2="60" y2="148" stroke="currentColor" marker-end="url(#pa4)"></line><text x="68" y="110" style="font-size:11px;fill:var(--bdr-muted)">.to(int32)</text><text x="68" y="124" style="font-size:11px;fill:var(--bdr-muted)">at capture</text><line x1="190" y1="78" x2="320" y2="148" stroke="currentColor" marker-end="url(#pa4)"></line><text x="282" y="96" style="font-size:11px;fill:var(--bdr-muted)">.to(int32)</text><text x="282" y="110" style="font-size:11px;fill:var(--bdr-muted)">every step</text><rect x="20" y="238" width="410" height="34" rx="4" fill="none" stroke="var(--bdr-td)" stroke-dasharray=""></rect><text x="225.0" y="260" text-anchor="middle" style="font-size:11.5px;fill:var(--ink)">replayed graph reads the captured address</text><line x1="60" y1="184" x2="60" y2="236" stroke="var(--bdr-td)" stroke-width="2" marker-end="url(#pa5)"></line><text x="68" y="215" style="font-size:11px;fill:var(--bdr-td)">reads the capture-time flags</text><text x="335" y="205" text-anchor="middle" style="font-size:11px;fill:var(--bdr-critical)">never read</text><rect x="480" y="150" width="260" height="34" rx="4" fill="none" stroke="var(--bdr-muted)" stroke-dasharray=""></rect><text x="610.0" y="172" text-anchor="middle" style="font-size:11.5px;fill:var(--ink)">int32 buffer, written in place</text><text x="610" y="134" text-anchor="middle" style="font-size:11px;fill:var(--bdr-muted)">same address at every step</text><rect x="480" y="238" width="410" height="34" rx="4" fill="none" stroke="var(--bdr-td)" stroke-dasharray=""></rect><text x="685.0" y="260" text-anchor="middle" style="font-size:11.5px;fill:var(--ink)">replayed graph reads the same address</text><line x1="520" y1="184" x2="520" y2="236" stroke="var(--bdr-td)" stroke-width="2" marker-end="url(#pa5)"></line><text x="528" y="215" style="font-size:11px;fill:var(--bdr-td)">reads this step's flags</text></svg></div>
+    <p class="fig-cap">DiffusionGemma passes a causal flag per sequence to the attention kernel: 0 for a bidirectional denoising pass, 1 for the causal commit pass. In vLLM 0.28 the flags lived in a bool buffer converted to int32 at every step; under CUDA graphs the attention kernels kept reading the copy made at capture.</p>
+  </div>
+  <p class="excerpt-src">vllm/model_executor/models/diffusion_gemma.py, the fix</p>
+<pre class="excerpt">self._causal_buf = torch.zeros(
+    self.max_num_reqs, dtype=torch.int32, device=device   <span class="c"># was dtype=torch.bool</span>
+)</pre>
+  <p>With the flags of the capture step, commit passes ran bidirectionally and wrote wrong keys and values into the cache. A probe inside the graph found up to 14 of 15 passes reading a wrong flag, and GSM8K accuracy under CUDA graphs was 34%, against 96% with the fix. Timings were also wrong, since a bidirectional pass costs more than a causal one. vLLM 0.32.0 allocates the buffer as int32 upstream.</p>
+  <h4>Window attention over the whole cache</h4>
+  <p>25 of DiffusionGemma's 30 layers attend to a sliding window of the last 1,023 tokens. FlashAttention 4, the attention kernel vLLM uses here, accepts a causal flag per sequence; for a bidirectional sequence it reset the range of key blocks to the whole sequence, discarding the window, and then masked the blocks outside the window. A window layer therefore read the whole cache in every denoising pass, at a cost that grows with the context instead of staying constant.</p>
+  <p class="excerpt-src">vllm_flash_attn/cute/flash_fwd_sm90.py, both sites (producer and consumer)</p>
+<pre class="excerpt"><span class="c"># before: if const_expr(self._mDynamicCausal is not None):</span>
+if const_expr(self._mDynamicCausal is not None and not self.is_local):
+    <span class="c"># per-sequence causal flag; for a bidirectional sequence the kernel</span>
+    <span class="c"># resets the key-block range to the whole sequence</span></pre>
+  <p>At batch 16 and context 16k, window attention fell from 52.2 to 5.1 ms per pass. The override is still in the FlashAttention commit that vLLM 0.33.0 ships.</p>
+  <h4>A sampler that reads the logits many times</h4>
+  <p>Each denoising pass samples every one of the 256 canvas positions from 262,144 logits, after a soft cap. The stock sampler applied the soft cap and then made a separate pass over the logits for each of the maximum, the sum, the entropy, the argmax, the inverse-CDF sample and the probabilities kept for self-conditioning. One Triton kernel now does it in one pass: the soft cap bounds the logits, which replaces the running maximum, and partial sums per block of the vocabulary serve both the normalisation and the inverse CDF. At batch 16 the sampler fell from 21 to 7 ms per pass, and a \(\chi^2\) test of its samples against the reference gives \(p = 0.53\).</p>
+  <p>A fourth defect was in the harness itself. The vLLM wheel ships compiled bytecode that Python does not revalidate against the source, so a patched source file can silently keep running the old code; every patch now deletes the bytecode of the file it edits and checks its effect at run time.</p>
+
+  <h3 id="stack-stock">Where the stock kernels stand</h3>
+  <p>With the three fixes, the components of TD's step can be compared with their empirical rooflines.</p>
+  <div class="table-wrap"><table class="pt">
+    <caption>Table 14. TD with the three engine fixes and vLLM's own kernels (campaign 2): efficiency of each component against its empirical roofline, at batch 1–4 and at batch 8–64, over all contexts.</caption>
+    <thead><tr>
+<th class="l">component</th>
+<th class="l">B = 1–4</th>
+<th class="l">B = 8–64</th>
+</tr></thead>
+    <tbody>
+<tr>
+<td class="l">experts</td>
+<td class="l">0.24–0.42</td>
+<td class="l">0.26–0.38</td>
+</tr>
+<tr>
+<td class="l">dense GEMMs and router</td>
+<td class="l">0.33–0.72</td>
+<td class="l">0.85–0.94</td>
+</tr>
+<tr>
+<td class="l">window attention</td>
+<td class="l">0.26–0.59</td>
+<td class="l">0.59–0.67</td>
+</tr>
+<tr>
+<td class="l">global attention</td>
+<td class="l">0.44–0.53</td>
+<td class="l">0.38–0.51</td>
+</tr>
+<tr>
+<td class="l">vocabulary head and sampler</td>
+<td class="l">0.62–0.63</td>
+<td class="l">0.58–0.63</td>
+</tr>
+</tbody>
+  </table></div>
+  <p>From batch 8 on, two components lag behind the others: the experts and global attention. At batch 1–4 the dense GEMMs and window attention are also low, being bound by latency at these sizes. Global attention is half or more of TD's step at 64k, and the experts a fifth to two fifths of it at 1k, so these are the two kernels that Part 10 rewrites.</p>
+</section>
+<nav class="book-nav" aria-label="Chapters"><a class="prev" href="/notes/block-diffusion-rooflines-6f924020/effective/"><span>Previous</span>8 · Effective rooflines</a><a class="next" href="/notes/block-diffusion-rooflines-6f924020/kernels/"><span>Next</span>10 · Kernels</a></nav>
+</div>
+
+
+  </article>
+
+  
+
+  
+    
+
+
+  
+</div>
+
+      
+    </div>
+
+    <!-- Footer -->
+    
+
+
+  <footer class="sticky-bottom mt-5" role="contentinfo">
+    
+
+    <div class="container">
+      
+  © Copyright 2026
+  Valentin
+  
+  De Bortoli. Built with <a href="https://jekyllrb.com/" target="_blank" rel="external nofollow noopener">Jekyll</a> and the <a href="https://github.com/alshedivat/al-folio" rel="external nofollow noopener" target="_blank">al-folio</a> theme. Hosted on <a href="https://pages.github.com/" target="_blank" rel="external nofollow noopener">GitHub Pages</a>.
+
+  
+  
+    Last updated: November 15, 2026.
+  
+
+    </div>
+  </footer>
+
+
+
+    <!-- JavaScripts -->
+    <script>
+  window.alFolio = {
+    compatBootstrap: false
+  };
+</script>
+
+<!-- Core navigation/runtime scripts -->
+<script src="/assets/js/nav-toggle.js?v=141bd79a73ebc0f0b6ea58e440ae79fc"></script>
+
+
+
+  <!-- Masonry & imagesLoaded -->
+  <script defer src="https://cdn.jsdelivr.net/npm/masonry-layout@4.2.2/dist/masonry.pkgd.min.js" integrity="sha256-Nn1q/fx0H7SNLZMQ5Hw5JLaTRZp0yILA/FRexe19VdI=" crossorigin="anonymous"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/imagesloaded@5.0.0/imagesloaded.pkgd.min.js" integrity="sha256-htrLFfZJ6v5udOG+3kNLINIKh2gvoKqwEhHYfTTMICc=" crossorigin="anonymous"></script>
+  <script defer src="/assets/js/masonry.js?v=e49affc7bd2646f6acdad1dbe02c2359" type="text/javascript"></script>
+
+
+
+  <!-- Charts and Diagrams -->
+  
+
+
+
+
+
+
+
+  <!-- Math and Tikzjax -->
+  
+<script defer type="text/javascript" id="MathJax-script" src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-mml-chtml.js" integrity="sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI=" crossorigin="anonymous"></script>
+<script src="/assets/al_math/js/mathjax-setup.js"></script>
+
+
+
+
+
+<!-- Tooltips & popovers runtime -->
+<script src="/assets/js/tooltips-setup.js?v=fe487e99db6c43751e6e7bdb2d6a0611"></script>
+
+
+
+
+
+
+<!-- Load Common JS -->
+<script src="/assets/js/no_defer.js?v=53b1b1a645525975c963ce8bf8bfefcf"></script>
+<script defer src="/assets/js/common.js?v=87baac90f765f2f3362dcf6aaf312a8a"></script>
+<script defer src="/assets/js/copy_code.js?v=c8a01c11a92744d44b093fc3bda915df" type="text/javascript"></script>
+
+<!-- Jupyter Open External Links New Tab -->
+<script defer src="/assets/js/jupyter_new_tab.js?v=896d254890d9b47f0281f63bfccf0dee"></script>
+
+<!-- Badges -->
+
+  <script async src="https://d1bxh8uas1mnw7.cloudfront.net/assets/embed.js"></script>
+
+
+  <script async src="https://badge.dimensions.ai/badge.js"></script>
+
+
+
+
+  <!-- Analytics -->
+  
+
+
+
+
+
+  <!-- Image Features -->
+  
+<!-- Medium Zoom JS -->
+<script defer src="https://cdn.jsdelivr.net/npm/medium-zoom@1.1.0/dist/medium-zoom.min.js" integrity="sha256-ZgMyDAIYDYGxbcpJcfUnYwNevG/xi9OHKaR/8GK+jWc=" crossorigin="anonymous"></script>
+<script defer src="/assets/al_img_tools/js/zoom.js"></script>
+
+
+
+
+
+  <!-- Scrolling Progress Bar -->
+  <script defer src="/assets/js/progress-bar.js?v=499464c5c63ced6cf7ad62509f1e2610" type="text/javascript"></script>
+
+
+
+
+
+  <!-- Back to Top -->
+  
+  
+  
+    <script src="https://cdn.jsdelivr.net/npm/vanilla-back-to-top@7.2.1/dist/vanilla-back-to-top.min.js" integrity="sha256-uMJJ3EoTyfRBoTbR+lrfu1uRQ87RZG8AR3cVNuQVeFg=" crossorigin="anonymous"></script>
+  
+  <script>
+    addBackToTop();
+  </script>
+
+
+
+  <!-- Search -->
+  
+    
+<script type="module" src="/assets/al_search/js/search/ninja-keys.min.js"></script>
+<ninja-keys hidebreadcrumbs noautoloadmdicons placeholder="Type to start searching"></ninja-keys>
+<script src="/assets/al_search/js/search-setup.js"></script>
+<script>
+// get the ninja-keys element
+const ninja = document.querySelector('ninja-keys');
+
+// add the home and posts menu items
+ninja.data = [{
+    id: "nav-about",
+    title: "about",
+    section: "Navigation",
+    handler: () => {
+      window.location.href = "/";
+    },
+  },{id: "nav-publications",
+          title: "publications",
+          description: "Everything, newest first. Use the filter to search titles, authors and venues.",
+          section: "Navigation",
+          handler: () => {
+            window.location.href = "/publications/";
+          },
+        },{id: "nav-teaching",
+          title: "teaching",
+          description: "Course materials from teaching in Paris, 2015–2018.",
+          section: "Navigation",
+          handler: () => {
+            window.location.href = "/teaching/";
+          },
+        },{id: "news-distributional-diffusion-models-with-scoring-rules-accepted-at-icml-2025",
+          title: 'Distributional Diffusion Models with Scoring Rules accepted at ICML 2025.',
+          description: "",
+          section: "News",},{id: "news-three-papers-accepted-at-neurips-2025-on-inference-time-annealing-memorization-in-diffusion-models-and-proximal-mcmc-for-non-log-concave-sampling",
+          title: 'Three papers accepted at NeurIPS 2025, on inference-time annealing, memorization in diffusion models,...',
+          description: "",
+          section: "News",},{id: "news-the-diffusiongemma-technical-report-is-out",
+          title: 'The DiffusionGemma technical report is out.',
+          description: "",
+          section: "News",},{id: "news-simplex-diffusion-models-is-out-diffusion-on-the-probability-simplex-that-retains-uncertainty-during-discrete-denoising",
+          title: 'Simplex Diffusion Models is out — diffusion on the probability simplex that retains...',
+          description: "",
+          section: "News",},{
+        id: 'social-cv',
+        title: 'CV',
+        section: 'Socials',
+        handler: () => {
+          window.open("/assets/pdf/cv.pdf", "_blank");
+        },
+      },{
+        id: 'social-email',
+        title: 'email',
+        section: 'Socials',
+        handler: () => {
+          window.open("mailto:%76%61%6C%65%6E%74%69%6E.%64%65%62%6F%72%74%6F%6C%69@%67%6D%61%69%6C.%63%6F%6D", "_blank");
+        },
+      },{
+        id: 'social-github',
+        title: 'GitHub',
+        section: 'Socials',
+        handler: () => {
+          window.open("https://github.com/vdeborto", "_blank");
+        },
+      },{
+        id: 'social-scholar',
+        title: 'Google Scholar',
+        section: 'Socials',
+        handler: () => {
+          window.open("https://scholar.google.com/citations?user=dn_F9I4AAAAJ", "_blank");
+        },
+      },{
+        id: 'social-rss',
+        title: 'RSS Feed',
+        section: 'Socials',
+        handler: () => {
+          window.open("/feed.xml", "_blank");
+        },
+      },{
+      id: 'light-theme',
+      title: 'Change theme to light',
+      description: 'Change the theme of the site to Light',
+      section: 'Theme',
+      handler: () => {
+        setThemeSetting("light");
+      },
+    },
+    {
+      id: 'dark-theme',
+      title: 'Change theme to dark',
+      description: 'Change the theme of the site to Dark',
+      section: 'Theme',
+      handler: () => {
+        setThemeSetting("dark");
+      },
+    },
+    {
+      id: 'system-theme',
+      title: 'Use system default theme',
+      description: 'Change the theme of the site to System Default',
+      section: 'Theme',
+      handler: () => {
+        setThemeSetting("system");
+      },
+    },];
+
+</script>
+<script src="/assets/al_search/js/shortcut-key.js"></script>
+
+
+  
+
+
+
+
+
+
+
+
+  </body>
+</html>

@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="en">
+  <!-- Head -->
+  <head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <!-- Metadata, OpenGraph and Schema.org -->
+
+
+
+
+<!-- Standard metadata -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<title>
+  
+  
+    
+      Effective rooflines | Valentin De Bortoli
+    
+  
+</title>
+<meta name="author" content="Valentin De Bortoli">
+<meta name="description" content="Research scientist at Google DeepMind, London. Diffusion models, sampling, optimal transport and Markov chain theory.
+">
+
+  <meta name="keywords" content="diffusion models, generative modelling, optimal transport, Schrodinger bridge, sampling, Markov chain Monte Carlo, machine learning">
+
+
+
+
+
+
+
+
+
+
+<!-- Security: Content Security Policy -->
+<!-- Permissive CSP suitable for academic websites. Allows external images, videos, and common embed services. -->
+<!-- To customize for your needs, see: https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https:; style-src 'self' 'unsafe-inline' https:; img-src 'self' data: https:; font-src 'self' data: https:; media-src 'self' https:; frame-src 'self' https:; connect-src 'self' https:;">
+<style>
+  :root {
+    --max-content-width: 930px;
+  }
+</style>
+
+<!-- Tailwind-first core styles -->
+<link rel="stylesheet" href="/assets/css/tailwind.css?v=50c64c15cbb9fd1ce6056fdb8bcb4b62">
+
+
+
+
+
+
+
+<!-- Icons -->
+
+  
+<!-- Font Awesome -->
+<link defer rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.2.0/css/all.min.css" integrity="sha256-MVopmdyC2tYTiJ8wlktf0uh0v4NgT+vNdyVFepi7Q0c=" crossorigin="anonymous">
+
+<!-- Academicons -->
+<link defer rel="stylesheet" href="https://cdn.jsdelivr.net/npm/academicons@1.9.5/css/academicons.min.css" integrity="sha256-SzrCOBJbGVFMahewkgjwnApaV2+av1DwMAA+/QGLyZw=" crossorigin="anonymous">
+
+<!-- Scholar Icons -->
+<link defer rel="stylesheet" href="https://cdn.jsdelivr.net/npm/scholar-icons@1.0.3/css/scholar-icons.css" integrity="sha256-VY3hHVj/hNX3fYG6wtbA6TcKJQl7+FthzGSyIB64klY=" crossorigin="anonymous">
+
+
+
+<link defer rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Roboto+Slab:100,300,400,500,700|Material+Icons&amp;display=swap">
+
+<!-- Code Syntax Highlighting -->
+<link defer rel="stylesheet" href="/assets/css/jekyll-pygments-themes-github.css?v=591dab5a4e56573bf4ef7fd332894c99" media="" id="highlight_theme_light">
+
+<!-- Styles -->
+
+
+
+
+
+  <link rel="shortcut icon" href="data:image/svg+xml,&lt;svg%20xmlns=%22http://www.w3.org/2000/svg%22%20viewBox=%220%200%20100%20100%22&gt;&lt;text%20y=%22.9em%22%20font-size=%2290%22&gt;%F0%9F%8C%80&lt;/text&gt;&lt;/svg&gt;">
+
+
+
+
+<link rel="stylesheet" href="/assets/css/main.css?v=3116ba77db9ee1581d05bb3e86fbf7f1">
+
+<link rel="canonical" href="https://vdeborto.github.io/notes/block-diffusion-rooflines-6f924020/effective/">
+
+  <meta name="robots" content="noindex, nofollow">
+
+
+
+  <!-- Dark Mode -->
+  <script src="/assets/js/theme.js?v=5286c3e4c334d0ecb8fc0c40ff4fa7ec"></script>
+  <link defer rel="stylesheet" href="/assets/css/jekyll-pygments-themes-native.css?v=5847e5ed4a4568527aa6cfab446049ca" media="none" id="highlight_theme_dark">
+  <script>
+    initTheme();
+  </script>
+
+
+
+
+
+
+
+  <!-- Image Features -->
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+  <!-- Right-to-left support -->
+  
+
+
+
+
+
+
+
+
+<!-- Custom typography and theme overrides -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,300;8..60,400;8..60,600&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<link rel="stylesheet" href="/assets/css/custom.css">
+
+  </head>
+
+  <!-- Body -->
+  <body class="fixed-top-nav sticky-bottom-footer">
+    <!-- Header -->
+    <header>
+  <!-- Nav Bar -->
+  <nav id="navbar" class="navbar navbar-light navbar-expand-sm fixed-top" role="navigation">
+    <div class="container">
+      
+        <a class="navbar-brand title font-weight-lighter" href="/">
+          
+            
+              <span class="font-weight-bold">Valentin</span>
+            
+            
+            De Bortoli
+          
+        </a>
+      
+      <!-- Navbar Toggle -->
+      <button class="navbar-toggler collapsed navbar-toggler-main" type="button" data-nav-toggle="navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar top-bar"></span>
+        <span class="icon-bar middle-bar"></span>
+        <span class="icon-bar bottom-bar"></span>
+      </button>
+
+      <div class="collapse navbar-collapse navbar-collapse-main" id="navbarNav">
+        <ul class="navbar-nav navbar-menu-list flex-nowrap">
+          
+
+          <!-- About -->
+          <li class="nav-item ">
+            <a class="nav-link" href="/">about
+              
+            </a>
+          </li>
+
+          <!-- Other pages -->
+          
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+              
+                
+                <li class="nav-item ">
+                  <a class="nav-link" href="/publications/">publications
+                    
+                  </a>
+                </li>
+              
+            
+          
+            
+              
+                
+                <li class="nav-item ">
+                  <a class="nav-link" href="/teaching/">teaching
+                    
+                  </a>
+                </li>
+              
+            
+          
+          
+            <!-- Search -->
+            <li class="nav-item">
+              <button id="search-toggle" type="button" title="Search" aria-label="Open search">
+                <span class="nav-link">ctrl k <i class="fa-solid fa-magnifying-glass"></i></span>
+              </button>
+            </li>
+          
+          
+            <!-- Toogle theme mode -->
+            <li class="toggle-container">
+              <button id="light-toggle" type="button" title="Change theme" aria-label="Change color theme">
+                <i class="fa-half-sun-moon" id="light-toggle-system"></i>
+                <i class="fa-solid fa-moon" id="light-toggle-dark"></i>
+                <i class="fa-solid fa-sun" id="light-toggle-light"></i>
+              </button>
+            </li>
+          
+        </ul>
+      </div>
+    </div>
+  </nav>
+  
+    <!-- Scrolling Progress Bar -->
+    <progress id="progress" value="0">
+      <div class="progress-container">
+        <span class="progress-bar"></span>
+      </div>
+    </progress>
+  
+</header>
+
+
+    <!-- Content -->
+    <div class="container mt-5" role="main">
+      
+        
+
+<div class="post">
+  <header class="post-header">
+    <h1 class="post-title">Effective rooflines</h1>
+    <p class="post-description"></p>
+  </header>
+
+  <article>
+    <!-- Generated by bin/build-roofline.py. Do not edit by hand. -->
+<link rel="stylesheet" href="/assets/roofline/note.css">
+<link rel="stylesheet" href="/assets/roofline/theme.css">
+<script type="application/json" id="bdr-book">{"title":"Block Diffusion Rooflines","home":"/notes/block-diffusion-rooflines-6f924020/","chapters":[{"slug":"","num":"","title":"Front page","url":"/notes/block-diffusion-rooflines-6f924020/"},{"slug":"introduction","num":"0","title":"Introduction","url":"/notes/block-diffusion-rooflines-6f924020/introduction/"},{"slug":"summary","num":"","title":"Summary","url":"/notes/block-diffusion-rooflines-6f924020/summary/"},{"slug":"setup","num":"1","title":"Setup","url":"/notes/block-diffusion-rooflines-6f924020/setup/"},{"slug":"gain","num":"2","title":"The gain","url":"/notes/block-diffusion-rooflines-6f924020/gain/"},{"slug":"linear","num":"3","title":"The linear part","url":"/notes/block-diffusion-rooflines-6f924020/linear/"},{"slug":"attention","num":"4","title":"The attention part","url":"/notes/block-diffusion-rooflines-6f924020/attention/"},{"slug":"whole","num":"5","title":"The whole picture","url":"/notes/block-diffusion-rooflines-6f924020/whole/"},{"slug":"calculator","num":"6","title":"Calculator","url":"/notes/block-diffusion-rooflines-6f924020/calculator/"},{"slug":"examples","num":"7","title":"Worked examples","url":"/notes/block-diffusion-rooflines-6f924020/examples/"},{"slug":"effective","num":"8","title":"Effective rooflines","url":"/notes/block-diffusion-rooflines-6f924020/effective/"},{"slug":"stack","num":"9","title":"The measurement stack","url":"/notes/block-diffusion-rooflines-6f924020/stack/"},{"slug":"kernels","num":"10","title":"Kernels","url":"/notes/block-diffusion-rooflines-6f924020/kernels/"},{"slug":"conclusion","num":"11","title":"Conclusion","url":"/notes/block-diffusion-rooflines-6f924020/conclusion/"},{"slug":"appendix","num":"A","title":"Appendix","url":"/notes/block-diffusion-rooflines-6f924020/appendix/"}],"current":"effective"}</script>
+<script defer src="/assets/roofline/mathjax.js"></script>
+<script defer src="/assets/roofline/note.js"></script>
+<script defer src="/assets/roofline/figures.js"></script>
+<script defer src="/assets/roofline/reading.js"></script>
+
+<div class="bdr book-chapter" id="top">
+<noscript><p>This page needs JavaScript for its equations, figures and calculator.</p></noscript>
+<p class="book-part">Part 8 of <a href="/notes/block-diffusion-rooflines-6f924020/">Block Diffusion Rooflines</a> <span class="book-links">(<a href="/notes/block-diffusion-rooflines-6f924020/examples/" rel="prev">Previous: 7 · Worked examples</a> | <a href="/notes/block-diffusion-rooflines-6f924020/stack/" rel="next">Next: 9 · The measurement stack</a>)</span></p>
+<section class="bdr-col" id="effective">
+  <p class="chapter-intro">Proposition 1 takes two kinds of input that Parts 1–7 do not measure: the rates of the accelerator, taken from its datasheet, and the experts each pass touches, taken from the assumption that tokens route independently (A2). This chapter measures both on one H200, for DiffusionGemma and Gemma 4, and shows that routing is the input that moves the bound most, in opposite directions at small and at large batch.</p>
+  <h3 id="eff-ceilings">What one H200 sustains</h3>
+  <p>The datasheet rates of an H200 (989 TFLOP/s in BF16, 1,979 in FP8, 4.8 TB/s) assume its 1,980 MHz boost clock and say nothing about attention. A kernel that keeps the tensor cores busy draws power until it reaches the 700 W cap, and the GPU then lowers its clock. The rates a kernel can reach are therefore measured, in the manner of the Empirical Roofline Toolkit: one benchmark per rate, with the clock and the power logged during each.</p>
+  <div class="box def" id="def5">
+    <div class="bdr-title">
+<span class="tag">Definition 5</span>Empirical ceilings and empirical roofline</div>
+    <p class="gist"><span>In short.</span> The empirical ceiling of a rate is the highest value measured on this GPU; the empirical roofline of a component is \(\max(F_c/\hat\pi_c,\ Q_c/\hat\beta)\) at those ceilings.</p>
+    <p>The empirical ceiling of a rate is the highest value that its benchmarks reach on random data:</p>
+    <ul>
+      <li>\(\hat\pi_{\mathrm{fp8}}\), \(\hat\pi_{\mathrm{bf16}}\): GEMMs of 11 shapes from \(2048^3\) to \(32768 \times 4096 \times 4096\), each run for 0.5 s, a short burst of an \(8192^3\) GEMM, and the model's own projections at 1 to 16,384 tokens, replayed from CUDA graphs in bursts of about 2 ms;</li>
+      <li>\(\hat\pi_{\mathrm{attn}}\): FlashAttention 3 at head dimension 128 on long square sequences, sustained for 0.5 s. Attention kernels at other shapes can exceed it in short bursts (up to 729 TFLOP/s for FlashAttention 4 at head dimension 256 on TD's rows), so for attention the ceiling is a sustained reference rate rather than a maximum;</li>
+      <li>\(\hat\beta\): reads and copies of 0.25–8 GB buffers.</li>
+    </ul>
+    <p>A component \(c\) of a pass (experts, dense GEMMs, window attention, global attention, vocabulary head) with \(F_c\) FLOPs and \(Q_c\) bytes of memory traffic has the empirical roofline</p>
+    <div class="eq">\[ r_c = \max\Bigl(\frac{F_c}{\hat\pi_c},\ \frac{Q_c}{\hat\beta}\Bigr), \]</div>
+    <p>with \(\hat\pi_c\) the ceiling of its kind: FP8 GEMM for dense layers and experts, attention for attention, BF16 GEMM for the vocabulary head. The empirical roofline of a pass is \(r = \sum_c r_c\), the kernel-by-kernel rule of Part 5.</p>
+  </div>
+  <div class="table-wrap"><table class="pt">
+    <caption>Table 11. Datasheet and empirical ceilings of one H200 SXM. The empirical ceiling is the highest rate any measurement reached on random data; the ridge point for FP8 linear layers moves from 412 to 340 FLOP/byte.</caption>
+    <thead><tr>
+<th class="l">rate</th>
+<th class="l">datasheet</th>
+<th class="l">empirical</th>
+<th class="l">ratio</th>
+<th class="l">measured on</th>
+</tr></thead>
+    <tbody>
+<tr>
+<td class="l">FP8 GEMM (TFLOP/s)</td>
+<td class="l">1,979</td>
+<td class="l">1,468</td>
+<td class="l">0.74</td>
+<td class="l">the model's own projections, CUDA-graph bursts of 2 ms</td>
+</tr>
+<tr>
+<td class="l">BF16 GEMM (TFLOP/s)</td>
+<td class="l">989</td>
+<td class="l">781</td>
+<td class="l">0.79</td>
+<td class="l">8,192³, short burst</td>
+</tr>
+<tr>
+<td class="l">attention (TFLOP/s)</td>
+<td class="l">989</td>
+<td class="l">638</td>
+<td class="l">0.64</td>
+<td class="l">FlashAttention 3, head dim. 128, 2 × 16k tokens, sustained</td>
+</tr>
+<tr>
+<td class="l">HBM bandwidth (TB/s)</td>
+<td class="l">4.80</td>
+<td class="l">4.32</td>
+<td class="l">0.90</td>
+<td class="l">read of a 4 GB buffer, sustained</td>
+</tr>
+</tbody>
+  </table></div>
+  <div class="bdr-fig pfig" id="fig-eff-roofline">
+    <div class="fig-k">Figure 10</div>
+    <p class="fig-title">The measured roofline sits below the datasheet's, more in compute than in bandwidth.</p>
+    <div class="pfig-scroll"><svg viewbox="0 0 720 380" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="The empirical FP8 roofline lies below the datasheet one, more in compute than in bandwidth, so its ridge point moves left" class="pfig-svg pfig-wide"><line x1="70.0" y1="24" x2="70.0" y2="330" stroke="var(--rule)"></line><text x="70.0" y="348" text-anchor="middle" style="font-size:12px;fill:var(--bdr-muted)">10</text><line x1="230.0" y1="24" x2="230.0" y2="330" stroke="var(--rule)"></line><text x="230.0" y="348" text-anchor="middle" style="font-size:12px;fill:var(--bdr-muted)">100</text><line x1="390.0" y1="24" x2="390.0" y2="330" stroke="var(--rule)"></line><text x="390.0" y="348" text-anchor="middle" style="font-size:12px;fill:var(--bdr-muted)">1,000</text><line x1="550.0" y1="24" x2="550.0" y2="330" stroke="var(--rule)"></line><text x="550.0" y="348" text-anchor="middle" style="font-size:12px;fill:var(--bdr-muted)">10,000</text><line x1="70" y1="314.1848026198222" x2="550" y2="314.1848026198222" stroke="var(--rule)"></line><text x="62" y="318.1848026198222" text-anchor="end" style="font-size:12px;fill:var(--bdr-muted)">50</text><line x1="70" y1="265.05831247701167" x2="550" y2="265.05831247701167" stroke="var(--rule)"></line><text x="62" y="269.05831247701167" text-anchor="end" style="font-size:12px;fill:var(--bdr-muted)">100</text><line x1="70" y1="215.93182233420112" x2="550" y2="215.93182233420112" stroke="var(--rule)"></line><text x="62" y="219.93182233420112" text-anchor="end" style="font-size:12px;fill:var(--bdr-muted)">200</text><line x1="70" y1="150.9901348112128" x2="550" y2="150.9901348112128" stroke="var(--rule)"></line><text x="62" y="154.9901348112128" text-anchor="end" style="font-size:12px;fill:var(--bdr-muted)">500</text><line x1="70" y1="101.86364466840226" x2="550" y2="101.86364466840226" stroke="var(--rule)"></line><text x="62" y="105.86364466840226" text-anchor="end" style="font-size:12px;fill:var(--bdr-muted)">1,000</text><line x1="70" y1="52.737154525591706" x2="550" y2="52.737154525591706" stroke="var(--rule)"></line><text x="62" y="56.737154525591706" text-anchor="end" style="font-size:12px;fill:var(--bdr-muted)">2,000</text><text x="310.0" y="370" text-anchor="middle" style="font-size:12px;fill:var(--bdr-muted)">arithmetic intensity I (FLOP per byte of HBM traffic)</text><text x="10" y="14" style="font-size:12px;fill:var(--bdr-muted)">attainable TFLOP/s</text><polyline points="70.0,317.0780428545861 328.43272909292943,53.485271759630066 550.0,53.485271759630066" fill="none" stroke="var(--bdr-muted)" stroke-width="2.2" stroke-dasharray="6 4"></polyline><circle cx="328.43272909292943" cy="53.485271759630066" r="3.5" fill="var(--bdr-muted)"></circle><text x="334.43272909292943" y="43.485271759630066" style="font-size:11.5px;fill:var(--bdr-muted)">ridge 412</text><text x="558" y="51.485271759630066" style="font-size:11.5px;fill:var(--bdr-muted)">datasheet FP8 1,979</text><polyline points="70.0,324.5518298686446 315.01981521525374,74.63978392751835 550.0,74.63978392751835" fill="none" stroke="var(--bdr-td)" stroke-width="2.2" stroke-dasharray=""></polyline><circle cx="315.01981521525374" cy="74.63978392751835" r="3.5" fill="var(--bdr-td)"></circle><text x="321.01981521525374" y="94.63978392751835" style="font-size:11.5px;fill:var(--bdr-td)">ridge 340</text><text x="558" y="84.63978392751835" style="font-size:11.5px;fill:var(--bdr-td)">empirical FP8 1,468</text><line x1="257.0511542711677" y1="133.7658862155185" x2="550" y2="133.7658862155185" stroke="var(--bdr-ar)" stroke-width="2"></line><text x="558" y="137.7658862155185" style="font-size:11.5px;fill:var(--bdr-ar)">attention 638</text><text x="76.62282962531603" y="73.12649014281055" style="font-size:11.5px;fill:var(--bdr-muted)">slope: bandwidth, 4.80 TB/s</text><text x="76.62282962531603" y="89.12649014281055" style="font-size:11.5px;fill:var(--bdr-muted)">datasheet, 4.32 empirical</text></svg></div>
+    <p class="fig-cap">Attainable throughput \(\min(\pi, I\beta)\) against arithmetic intensity, log–log, for FP8 linear layers. Dashed: datasheet (1,979 TFLOP/s, 4.8 TB/s). Solid orange: empirical ceilings of Table 11. Blue: the attention ceiling, which applies to attention kernels whatever their intensity. The ridge point, where a kernel turns compute-bound, moves from 412 to 340 FLOP/byte.</p>
+  </div>
+  <p>Three findings set how the ceilings are used.</p>
+  <ul>
+    <li>
+<b>Power, not the tensor cores, limits sustained compute.</b> On random data, GEMMs that run for half a second hold 1,300–1,500 MHz at 690 W: 700 TFLOP/s in BF16 and 1,336 in FP8. Per clock cycle the BF16 rate is 0.93 of the datasheet's, so the kernels are close to ideal and the shortfall is the clock. On constant inputs, whose bits do not toggle, the same GEMMs draw about 450 W and run 20% faster. Kernels inside the engine run for milliseconds between memory-bound kernels and see higher clocks, which is why the ceiling is the highest rate measured, including the 2 ms bursts.</li>
+    <li>
+<b>Attention has its own ceiling.</b> FlashAttention 3 sustains 638 TFLOP/s, 13% below a BF16 GEMM at the same clock: the softmax between its two matrix products costs that much.</li>
+    <li>
+<b>Small GEMMs are bound by latency.</b> With 64 tokens or fewer, the model's projections take 5–12 µs whatever their size and stream their weights at 1–3 TB/s, below \(\hat\beta\). This is the floor of an AR step at small batch, and no kernel library does better at these shapes.</li>
+  </ul>
+  <p>In particular, the empirical ceilings lower compute (0.74 of the datasheet in FP8) more than bandwidth (0.90). They therefore barely change \(\Gamma\) where both decoders are memory-bound, and lower it where TD is compute-bound and AR is not.</p>
+
+  <h3 id="eff-routing">Which experts a pass touches</h3>
+  <p>The expert weights a pass reads, and hence the MoE penalty of Part 3, depend on how many distinct experts its tokens select. Assumption A2 of Proposition 1 takes the tokens to choose independently and uniformly, so that \(N\) tokens touch \(U_{E,k}(N) = E\,[1 - (1 - k/E)^N]\) of the \(E = 128\) experts of a layer, each token selecting \(k = 8\). A canvas of 256 positions then touches all 128 experts even at batch 1. The router's choices can be counted directly: the engine records, for every pass and MoE layer, how many tokens went to each expert.</p>
+  <div class="box def" id="def6">
+    <div class="bdr-title">
+<span class="tag">Definition 6</span>Measured routing</div>
+    <p class="gist"><span>In short.</span> \(U^{\mathrm{meas}}\) counts the experts a pass actually touches; \(U^{\mathrm{freq}}\) is what independent tokens with the measured popularity would touch; \(N^{\mathrm{eff}}\) is the number of uniformly routed tokens that would touch \(U^{\mathrm{meas}}\).</p>
+    <p>A pass holds \(N\) tokens: \(N = B\) for an AR step and \(N = Bb\) for a TD pass. For a decoder at batch \(B\) and context \(C\):</p>
+    <ul>
+      <li>\(U^{\mathrm{meas}}\) is the number of distinct experts a pass touches in one MoE layer, averaged over the 30 layers and the timed passes; across the three repeats of a point, its median.</li>
+      <li>\(\pi_e\) is the probability that a token selects expert \(e\), estimated per layer from all passes of a run, and \(U^{\mathrm{freq}} = \sum_{e=1}^{E} \bigl[1 - (1 - \pi_e)^N\bigr]\) is the count that \(N\) independent tokens with these frequencies would touch. The term \((1 - \pi_e)^N\) is estimated without bias from the run's counts.</li>
+      <li>\(N^{\mathrm{eff}}\), the effective number of independent tokens, solves \(U_{E,k}(N^{\mathrm{eff}}) = U^{\mathrm{meas}}\): the number of tokens that, routed independently and uniformly, would touch as many experts as the pass does.</li>
+    </ul>
+    <p>Then \(U^{\mathrm{freq}}/U_{E,k}(N)\) measures the effect of uneven expert popularity, and \(U^{\mathrm{meas}}/U^{\mathrm{freq}}\) the effect of dependence between the tokens of a pass.</p>
+  </div>
+  <div class="bdr-fig pfig breakout" id="fig-eff-routing">
+    <div class="fig-k">Figure 11</div>
+    <p class="fig-title">Both decoders touch fewer experts than independent routing predicts, for different reasons.</p>
+    <div class="pfig-pair">
+<div><svg viewbox="0 0 400 330" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="TD: 256 positions per sequence: distinct experts per layer against batch, measured and predicted for independent tokens" class="pfig-svg"><text x="4" y="16" style="font-size:12.5px;font-weight:600;fill:var(--bdr-td)">TD: 256 positions per sequence</text><text x="4" y="34" style="font-size:11px;fill:var(--bdr-muted)">distinct experts per layer and pass, U</text><line x1="44" y1="286.0" x2="288" y2="286.0" stroke="var(--rule)"></line><text x="38" y="290.0" text-anchor="end" style="font-size:11px;fill:var(--bdr-muted)">0</text><line x1="44" y1="252.2857142857143" x2="288" y2="252.2857142857143" stroke="var(--rule)"></line><text x="38" y="256.28571428571433" text-anchor="end" style="font-size:11px;fill:var(--bdr-muted)">20</text><line x1="44" y1="218.57142857142858" x2="288" y2="218.57142857142858" stroke="var(--rule)"></line><text x="38" y="222.57142857142858" text-anchor="end" style="font-size:11px;fill:var(--bdr-muted)">40</text><line x1="44" y1="184.85714285714286" x2="288" y2="184.85714285714286" stroke="var(--rule)"></line><text x="38" y="188.85714285714286" text-anchor="end" style="font-size:11px;fill:var(--bdr-muted)">60</text><line x1="44" y1="151.14285714285717" x2="288" y2="151.14285714285717" stroke="var(--rule)"></line><text x="38" y="155.14285714285717" text-anchor="end" style="font-size:11px;fill:var(--bdr-muted)">80</text><line x1="44" y1="117.42857142857143" x2="288" y2="117.42857142857143" stroke="var(--rule)"></line><text x="38" y="121.42857142857143" text-anchor="end" style="font-size:11px;fill:var(--bdr-muted)">100</text><line x1="44" y1="83.71428571428572" x2="288" y2="83.71428571428572" stroke="var(--rule)"></line><text x="38" y="87.71428571428572" text-anchor="end" style="font-size:11px;fill:var(--bdr-muted)">120</text><line x1="44" y1="50.0" x2="288" y2="50.0" stroke="var(--rule)"></line><text x="38" y="54.0" text-anchor="end" style="font-size:11px;fill:var(--bdr-muted)">140</text><text x="44.0" y="302" text-anchor="middle" style="font-size:11px;fill:var(--bdr-muted)">1</text><text x="84.66666666666666" y="302" text-anchor="middle" style="font-size:11px;fill:var(--bdr-muted)">2</text><text x="125.33333333333333" y="302" text-anchor="middle" style="font-size:11px;fill:var(--bdr-muted)">4</text><text x="166.0" y="302" text-anchor="middle" style="font-size:11px;fill:var(--bdr-muted)">8</text><text x="206.66666666666666" y="302" text-anchor="middle" style="font-size:11px;fill:var(--bdr-muted)">16</text><text x="247.33333333333334" y="302" text-anchor="middle" style="font-size:11px;fill:var(--bdr-muted)">32</text><text x="288.0" y="302" text-anchor="middle" style="font-size:11px;fill:var(--bdr-muted)">64</text><text x="166.0" y="322" text-anchor="middle" style="font-size:11px;fill:var(--bdr-muted)">batch B</text><polygon points="44.0,173.27815873015874 84.66666666666666,150.0515132275132 125.33333333333333,184.45257142857142 166.0,115.33703703703708 206.66666666666666,104.70205291005291 247.33333333333334,88.61409523809525 288.0,80.4327619047619 288.0,86.42766137566137 247.33333333333334,97.86804232804235 206.66666666666666,119.70615873015873 166.0,165.33532275132276 125.33333333333333,206.16831746031747 84.66666666666666,221.49707936507937 44.0,247.884126984127" fill="var(--bdr-td)" fill-opacity="0.15"></polygon><polyline points="44.0,70.22858583779882 84.66666666666666,70.22857142857238 125.33333333333333,70.22857142857143 166.0,70.22857142857143 206.66666666666666,70.22857142857143 247.33333333333334,70.22857142857143 288.0,70.22857142857143" fill="none" stroke="var(--bdr-muted)" stroke-width="1.8" stroke-dasharray="2 4"></polyline><text x="296.0" y="74.22857142857143" style="font-size:11px;fill:var(--bdr-muted)">uniform</text><polyline points="44.0,170.92603287896134 84.66666666666666,134.0521965122678 125.33333333333333,130.22594150178173 166.0,96.95999169803012 206.66666666666666,83.78429231954306 247.33333333333334,77.0181188983206 288.0,74.93254549027617" fill="none" stroke="var(--bdr-muted)" stroke-width="1.8" stroke-dasharray="7 4"></polyline><text x="296.0" y="89.22857142857143" style="font-size:11px;fill:var(--bdr-muted)">popularity</text><polyline points="44.0,235.9193015873016 84.66666666666666,153.49037037037039 125.33333333333333,204.32526984126983 166.0,134.54668783068783 206.66666666666666,107.72260317460317 247.33333333333334,90.07379894179893 288.0,84.66203174603174" fill="none" stroke="var(--bdr-td)" stroke-width="2.4" stroke-dasharray=""></polyline><circle cx="44.0" cy="235.9193015873016" r="3" fill="var(--bdr-td)"><title>B = 1: U = 29.7 (repeats 23–67)</title></circle><circle cx="84.66666666666666" cy="153.49037037037039" r="3" fill="var(--bdr-td)"><title>B = 2: U = 78.6 (repeats 38–81)</title></circle><circle cx="125.33333333333333" cy="204.32526984126983" r="3" fill="var(--bdr-td)"><title>B = 4: U = 48.5 (repeats 47–60)</title></circle><circle cx="166.0" cy="134.54668783068783" r="3" fill="var(--bdr-td)"><title>B = 8: U = 89.8 (repeats 72–101)</title></circle><circle cx="206.66666666666666" cy="107.72260317460317" r="3" fill="var(--bdr-td)"><title>B = 16: U = 105.8 (repeats 99–108)</title></circle><circle cx="247.33333333333334" cy="90.07379894179893" r="3" fill="var(--bdr-td)"><title>B = 32: U = 116.2 (repeats 112–117)</title></circle><circle cx="288.0" cy="84.66203174603174" r="3" fill="var(--bdr-td)"><title>B = 64: U = 119.4 (repeats 118–122)</title></circle><text x="296.0" y="104.22857142857143" style="font-size:11px;fill:var(--bdr-td)">measured</text></svg></div>
+<div><svg viewbox="0 0 400 330" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="AR: one token per sequence: distinct experts per layer against batch, measured and predicted for independent tokens" class="pfig-svg"><text x="4" y="16" style="font-size:12.5px;font-weight:600;fill:var(--bdr-ar)">AR: one token per sequence</text><text x="4" y="34" style="font-size:11px;fill:var(--bdr-muted)">distinct experts per layer and pass, U</text><line x1="44" y1="286.0" x2="288" y2="286.0" stroke="var(--rule)"></line><text x="38" y="290.0" text-anchor="end" style="font-size:11px;fill:var(--bdr-muted)">0</text><line x1="44" y1="252.2857142857143" x2="288" y2="252.2857142857143" stroke="var(--rule)"></line><text x="38" y="256.28571428571433" text-anchor="end" style="font-size:11px;fill:var(--bdr-muted)">20</text><line x1="44" y1="218.57142857142858" x2="288" y2="218.57142857142858" stroke="var(--rule)"></line><text x="38" y="222.57142857142858" text-anchor="end" style="font-size:11px;fill:var(--bdr-muted)">40</text><line x1="44" y1="184.85714285714286" x2="288" y2="184.85714285714286" stroke="var(--rule)"></line><text x="38" y="188.85714285714286" text-anchor="end" style="font-size:11px;fill:var(--bdr-muted)">60</text><line x1="44" y1="151.14285714285717" x2="288" y2="151.14285714285717" stroke="var(--rule)"></line><text x="38" y="155.14285714285717" text-anchor="end" style="font-size:11px;fill:var(--bdr-muted)">80</text><line x1="44" y1="117.42857142857143" x2="288" y2="117.42857142857143" stroke="var(--rule)"></line><text x="38" y="121.42857142857143" text-anchor="end" style="font-size:11px;fill:var(--bdr-muted)">100</text><line x1="44" y1="83.71428571428572" x2="288" y2="83.71428571428572" stroke="var(--rule)"></line><text x="38" y="87.71428571428572" text-anchor="end" style="font-size:11px;fill:var(--bdr-muted)">120</text><line x1="44" y1="50.0" x2="288" y2="50.0" stroke="var(--rule)"></line><text x="38" y="54.0" text-anchor="end" style="font-size:11px;fill:var(--bdr-muted)">140</text><text x="44.0" y="302" text-anchor="middle" style="font-size:11px;fill:var(--bdr-muted)">1</text><text x="84.66666666666666" y="302" text-anchor="middle" style="font-size:11px;fill:var(--bdr-muted)">2</text><text x="125.33333333333333" y="302" text-anchor="middle" style="font-size:11px;fill:var(--bdr-muted)">4</text><text x="166.0" y="302" text-anchor="middle" style="font-size:11px;fill:var(--bdr-muted)">8</text><text x="206.66666666666666" y="302" text-anchor="middle" style="font-size:11px;fill:var(--bdr-muted)">16</text><text x="247.33333333333334" y="302" text-anchor="middle" style="font-size:11px;fill:var(--bdr-muted)">32</text><text x="288.0" y="302" text-anchor="middle" style="font-size:11px;fill:var(--bdr-muted)">64</text><text x="166.0" y="322" text-anchor="middle" style="font-size:11px;fill:var(--bdr-muted)">batch B</text><polygon points="44.0,272.51428571428573 84.66666666666666,263.3798214285714 125.33333333333333,248.9400396825397 166.0,234.6629761904762 206.66666666666666,210.23299603174604 247.33333333333334,188.24144841269845 288.0,165.72194444444446 288.0,167.40063492063493 247.33333333333334,196.47335317460318 206.66666666666666,215.02791666666667 166.0,242.0414880952381 125.33333333333333,250.35533730158733 84.66666666666666,264.9871031746032 44.0,272.51428571428573" fill="var(--bdr-ar)" fill-opacity="0.15"></polygon><polyline points="44.0,272.51428571428573 84.66666666666666,259.87142857142857 125.33333333333333,236.9068638392857 166.0,198.9835847539561 206.66666666666666,147.05919523348396 247.33333333333334,97.58596899197445 288.0,73.69718266406841" fill="none" stroke="var(--bdr-muted)" stroke-width="1.8" stroke-dasharray="2 4"></polyline><text x="296.0" y="77.69718266406841" style="font-size:11px;fill:var(--bdr-muted)">uniform</text><polyline points="44.0,272.51428571428517 84.66666666666666,264.52542049295687 125.33333333333333,251.32732260060558 166.0,239.12148865875037 206.66666666666666,215.87040520524624 247.33333333333334,192.67298428342582 288.0,168.5637876346646" fill="none" stroke="var(--bdr-muted)" stroke-width="1.8" stroke-dasharray="7 4"></polyline><text x="296.0" y="186.015496031746" style="font-size:11px;fill:var(--bdr-muted)">popularity</text><polyline points="44.0,272.51428571428573 84.66666666666666,263.72281746031746 125.33333333333333,250.00180555555556 166.0,235.93194444444444 206.66666666666666,213.09285714285713 247.33333333333334,188.35382936507935 288.0,167.015496031746" fill="none" stroke="var(--bdr-ar)" stroke-width="2.4" stroke-dasharray=""></polyline><circle cx="44.0" cy="272.51428571428573" r="3" fill="var(--bdr-ar)"><title>B = 1: U = 8.0 (repeats 8–8)</title></circle><circle cx="84.66666666666666" cy="263.72281746031746" r="3" fill="var(--bdr-ar)"><title>B = 2: U = 13.2 (repeats 12–13)</title></circle><circle cx="125.33333333333333" cy="250.00180555555556" r="3" fill="var(--bdr-ar)"><title>B = 4: U = 21.4 (repeats 21–22)</title></circle><circle cx="166.0" cy="235.93194444444444" r="3" fill="var(--bdr-ar)"><title>B = 8: U = 29.7 (repeats 26–30)</title></circle><circle cx="206.66666666666666" cy="213.09285714285713" r="3" fill="var(--bdr-ar)"><title>B = 16: U = 43.2 (repeats 42–45)</title></circle><circle cx="247.33333333333334" cy="188.35382936507935" r="3" fill="var(--bdr-ar)"><title>B = 32: U = 57.9 (repeats 53–58)</title></circle><circle cx="288.0" cy="167.015496031746" r="3" fill="var(--bdr-ar)"><title>B = 64: U = 70.6 (repeats 70–71)</title></circle><text x="296.0" y="171.015496031746" style="font-size:11px;fill:var(--bdr-ar)">measured</text></svg></div>
+</div>
+    <p class="fig-cap">Distinct experts per MoE layer and forward pass \(U\), averaged over the 30 layers and the timed passes, against batch size at context 1k: the median of three repeats with different prompts, and the band spanning them. Dotted: independent tokens with uniform routing, \(U_{E,k}(N)\) of Definition 1. Dashed: independent tokens with each expert's measured popularity (Definition 6). AR follows the dashed curve; TD lies below it.</p>
+  </div>
+  <p>The two decoders depart from A2 in different ways.</p>
+  <ul>
+    <li>
+<b>AR is independent once popularity is counted.</b> \(U^{\mathrm{meas}}/U^{\mathrm{freq}}\) is 0.95–1.10 at every point, while popularity alone removes 36–56% of the experts that uniform routing predicts at batch 8 and above: at batch 64 and context 4k, independent tokens with the measured popularity touch 77 experts, the measured count is 79, and uniform routing predicts 126. The excess over \(U^{\mathrm{freq}}\) at most points is consistent with a pass holding exactly one token from each sequence, which spreads over more experts than independent draws if sequences prefer different experts; the counts are per pass, not per sequence, so this is not checked here.</li>
+    <li>
+<b>The positions of a canvas are dependent.</b> TD touches fewer experts than independent tokens with the measured popularity would: \(U^{\mathrm{meas}}/U^{\mathrm{freq}}\) is 0.44–0.53 at batch 1 and rises towards 1 as the batch grows and both counts approach 128. Per layer, averaged over the repeats, the dependence is strongest in the first five MoE layers, which hold the lowest ratio at 21 of 25 points.</li>
+    <li>
+<b>TD's count falls with context.</b> At batch 16, \(U^{\mathrm{meas}}\) is 106 at 1k and 68 at 64k. Every pass of these runs holds the full batch and the prompts do not overlap, and the earlier set of runs with vLLM's own kernels shows the same decrease, so this is how the model routes on this text.</li>
+  </ul>
+  <div class="table-wrap"><table class="pt">
+    <caption>Table 12. Effective number of independent tokens per pass, \(N^{\mathrm{eff}}\), the number of uniformly routed independent tokens that would touch the measured \(U\) (Definition 6). A TD pass holds \(256B\) positions, an AR step \(B\).</caption>
+    <thead><tr>
+<th class="l"></th>
+<th class="l">TD, 1k</th>
+<th class="l">TD, 64k</th>
+<th class="l">AR, 1k</th>
+<th class="l">AR, 64k</th>
+</tr></thead>
+    <tbody>
+<tr>
+<td class="l">B = 1</td>
+<td class="l">4.1</td>
+<td class="l">3.3</td>
+<td class="l">1.0</td>
+<td class="l">1.0</td>
+</tr>
+<tr>
+<td class="l">B = 2</td>
+<td class="l">14.8</td>
+<td class="l">3.9</td>
+<td class="l">1.7</td>
+<td class="l">1.7</td>
+</tr>
+<tr>
+<td class="l">B = 4</td>
+<td class="l">7.4</td>
+<td class="l">6.0</td>
+<td class="l">2.8</td>
+<td class="l">2.1</td>
+</tr>
+<tr>
+<td class="l">B = 8</td>
+<td class="l">18.8</td>
+<td class="l">11.2</td>
+<td class="l">4.1</td>
+<td class="l">3.6</td>
+</tr>
+<tr>
+<td class="l">B = 16</td>
+<td class="l">27.1</td>
+<td class="l">11.7</td>
+<td class="l">6.4</td>
+<td class="l">5.5</td>
+</tr>
+<tr>
+<td class="l">B = 32</td>
+<td class="l">37.0</td>
+<td class="l">–</td>
+<td class="l">9.3</td>
+<td class="l">–</td>
+</tr>
+<tr>
+<td class="l">B = 64</td>
+<td class="l">41.9</td>
+<td class="l">–</td>
+<td class="l">12.4</td>
+<td class="l">–</td>
+</tr>
+</tbody>
+  </table></div>
+  <p>In particular, at batch 1 a canvas of 256 positions touches as many experts as 3 to 5 independent tokens, and at batch 64 its 16,384 positions as many as 42. An AR step at batch 64 touches as many as 12–15 independent tokens: its sequences are independent, but the popular experts take most of the selections.</p>
+  <div class="box prop" id="rem-neff">
+    <div class="bdr-title">
+<span class="tag">Remark</span>Proposition 1 at measured routing</div>
+    <p class="gist"><span>In short.</span> Measured routing enters Proposition 1 only through the expert penalty, which becomes \(U^{\mathrm{meas}}_{TD}/U^{\mathrm{meas}}_{AR}\).</p>
+    <p>Proposition 1 depends on routing only through the expert weights that a pass reads, \(L\,U\,W^e\) bytes for \(L\) MoE layers of \(W^e\) parameters per expert. Replacing A2 by the measured counts therefore amounts to replacing \(N\) by \(N^{\mathrm{eff}}\) in the expert penalty of Proposition 3:</p>
+    <div class="eq">\[ \Pi_E = \frac{U_{E,k}(N^{\mathrm{eff}}_{TD})}{U_{E,k}(N^{\mathrm{eff}}_{AR})} = \frac{U^{\mathrm{meas}}_{TD}}{U^{\mathrm{meas}}_{AR}}, \]</div>
+    <p>and every other term of Propositions 1–8 is unchanged.</p>
+  </div>
+  <div class="table-wrap"><table class="pt">
+    <caption>Table 13. Proposition 1 at independent and at measured routing, against the measured gain; DiffusionGemma against Gemma 4 26B-A4B on one H200, FP8 weights, empirical ceilings, context 1k. Proposition 1 leaves out the vocabulary head, activations and kernel efficiency.</caption>
+    <thead><tr>
+<th class="l"></th>
+<th class="l">\(\Pi_{\mathrm{lin}}\), independent</th>
+<th class="l">\(\Pi_{\mathrm{lin}}\), measured</th>
+<th class="l">\(\Gamma\), Prop. 1, independent</th>
+<th class="l">\(\Gamma\), Prop. 1, measured routing</th>
+<th class="l">\(\Gamma\), measured</th>
+</tr></thead>
+    <tbody>
+<tr>
+<td class="l">B = 1</td>
+<td class="l">7.92</td>
+<td class="l">2.25</td>
+<td class="l">2.29</td>
+<td class="l">7.88</td>
+<td class="l">6.95</td>
+</tr>
+<tr>
+<td class="l">B = 2</td>
+<td class="l">5.53</td>
+<td class="l">3.90</td>
+<td class="l">3.35</td>
+<td class="l">4.74</td>
+<td class="l">5.58</td>
+</tr>
+<tr>
+<td class="l">B = 4</td>
+<td class="l">3.57</td>
+<td class="l">1.88</td>
+<td class="l">5.23</td>
+<td class="l">5.37</td>
+<td class="l">4.09</td>
+</tr>
+<tr>
+<td class="l">B = 8</td>
+<td class="l">2.25</td>
+<td class="l">2.54</td>
+<td class="l">5.33</td>
+<td class="l">3.69</td>
+<td class="l">2.34</td>
+</tr>
+<tr>
+<td class="l">B = 16</td>
+<td class="l">1.50</td>
+<td class="l">2.19</td>
+<td class="l">4.21</td>
+<td class="l">2.74</td>
+<td class="l">1.54</td>
+</tr>
+<tr>
+<td class="l">B = 32</td>
+<td class="l">1.13</td>
+<td class="l">1.87</td>
+<td class="l">3.04</td>
+<td class="l">2.03</td>
+<td class="l">1.05</td>
+</tr>
+<tr>
+<td class="l">B = 64</td>
+<td class="l">1.02</td>
+<td class="l">1.61</td>
+<td class="l">2.04</td>
+<td class="l">1.52</td>
+<td class="l">0.72</td>
+</tr>
+</tbody>
+  </table></div>
+  <p>At batch 1 and context 1k the measured routing lowers the linear penalty from 7.9 to 2.3, and Proposition 1 then gives \(\Gamma = 7.9\), against 2.3 under A2 and 6.95 measured. At contexts of 1k and 4k and from batch 8 on, the measured penalty is higher than under A2 (1.9 against 1.1 at batch 32 and 1k), because AR's count (30–79 experts) falls further below A2's prediction than TD's (90–120). Proposition 1 still overestimates the gain there (2.0 against a measured 1.05 at batch 32): it leaves out the vocabulary head, which TD evaluates at all 256 positions of every pass and which takes 24–33% of TD's step at contexts of 1k–4k from batch 4 on.</p>
+
+  <h3 id="eff-bound">The bound at measured inputs</h3>
+  <p>The exact accounting includes the vocabulary head, activations and the KV cache. Evaluated pass by pass at each measured point, with the kernel-by-kernel rule, it gives the bound at the book's assumptions and at each measured input in turn.</p>
+  <div class="bdr-fig pfig breakout" id="fig-eff-maps">
+    <div class="fig-k">Figure 12</div>
+    <p class="fig-title">The gain bound moves with each measured input, and routing moves it most.</p>
+    <div class="pfig-grid">
+<div><svg viewbox="0 0 314 282" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="(a) datasheet, independent routing" class="pfig-svg"><text x="58" y="16" style="font-size:12.5px;font-weight:600;fill:var(--ink)">(a) datasheet, independent routing</text><text x="89.0" y="34" text-anchor="middle" style="font-size:11.5px;fill:var(--bdr-muted)">1k</text><text x="151.0" y="34" text-anchor="middle" style="font-size:11.5px;fill:var(--bdr-muted)">4k</text><text x="213.0" y="34" text-anchor="middle" style="font-size:11.5px;fill:var(--bdr-muted)">16k</text><text x="275.0" y="34" text-anchor="middle" style="font-size:11.5px;fill:var(--bdr-muted)">64k</text><text x="50" y="61.0" text-anchor="end" style="font-size:11.5px;fill:var(--bdr-muted)">B = 64</text><rect x="59" y="43" width="60" height="28" rx="2" fill="var(--bdr-td)" fill-opacity="0.16"><title>B = 64, C = 1k: 1.36</title></rect><text x="89.0" y="61.0" text-anchor="middle" style="fill:var(--ink);font-weight:400;font-size:11.5px">1.36</text><rect x="121" y="43" width="60" height="28" rx="2" fill="var(--bdr-td)" fill-opacity="0.17"><title>B = 64, C = 4k: 1.39</title></rect><text x="151.0" y="61.0" text-anchor="middle" style="fill:var(--ink);font-weight:400;font-size:11.5px">1.39</text><rect x="183" y="43" width="60" height="28" rx="2" fill="var(--rule)" fill-opacity="0.5"></rect><text x="213.0" y="61.0" text-anchor="middle" style="font-size:11.5px;fill:var(--bdr-muted)">–</text><rect x="245" y="43" width="60" height="28" rx="2" fill="var(--rule)" fill-opacity="0.5"></rect><text x="275.0" y="61.0" text-anchor="middle" style="font-size:11.5px;fill:var(--bdr-muted)">–</text><text x="50" y="91.0" text-anchor="end" style="font-size:11.5px;fill:var(--bdr-muted)">B = 32</text><rect x="59" y="73" width="60" height="28" rx="2" fill="var(--bdr-td)" fill-opacity="0.36"><title>B = 32, C = 1k: 2.02</title></rect><text x="89.0" y="91.0" text-anchor="middle" style="fill:var(--ink);font-weight:400;font-size:11.5px">2.02</text><rect x="121" y="73" width="60" height="28" rx="2" fill="var(--bdr-td)" fill-opacity="0.36"><title>B = 32, C = 4k: 2.00</title></rect><text x="151.0" y="91.0" text-anchor="middle" style="fill:var(--ink);font-weight:400;font-size:11.5px">2.00</text><rect x="183" y="73" width="60" height="28" rx="2" fill="var(--bdr-td)" fill-opacity="0.34"><title>B = 32, C = 16k: 1.94</title></rect><text x="213.0" y="91.0" text-anchor="middle" style="fill:var(--ink);font-weight:400;font-size:11.5px">1.94</text><rect x="245" y="73" width="60" height="28" rx="2" fill="var(--rule)" fill-opacity="0.5"></rect><text x="275.0" y="91.0" text-anchor="middle" style="font-size:11.5px;fill:var(--bdr-muted)">–</text><text x="50" y="121.0" text-anchor="end" style="font-size:11.5px;fill:var(--bdr-muted)">B = 16</text><rect x="59" y="103" width="60" height="28" rx="2" fill="var(--bdr-td)" fill-opacity="0.53"><title>B = 16, C = 1k: 2.83</title></rect><text x="89.0" y="121.0" text-anchor="middle" style="fill:var(--ink);font-weight:400;font-size:11.5px">2.83</text><rect x="121" y="103" width="60" height="28" rx="2" fill="var(--bdr-td)" fill-opacity="0.52"><title>B = 16, C = 4k: 2.75</title></rect><text x="151.0" y="121.0" text-anchor="middle" style="fill:var(--ink);font-weight:400;font-size:11.5px">2.75</text><rect x="183" y="103" width="60" height="28" rx="2" fill="var(--bdr-td)" fill-opacity="0.48"><title>B = 16, C = 16k: 2.53</title></rect><text x="213.0" y="121.0" text-anchor="middle" style="fill:var(--ink);font-weight:400;font-size:11.5px">2.53</text><rect x="245" y="103" width="60" height="28" rx="2" fill="var(--bdr-td)" fill-opacity="0.39"><title>B = 16, C = 64k: 2.15</title></rect><text x="275.0" y="121.0" text-anchor="middle" style="fill:var(--ink);font-weight:400;font-size:11.5px">2.15</text><text x="50" y="151.0" text-anchor="end" style="font-size:11.5px;fill:var(--bdr-muted)">B = 8</text><rect x="59" y="133" width="60" height="28" rx="2" fill="var(--bdr-td)" fill-opacity="0.61"><title>B = 8, C = 1k: 3.28</title></rect><text x="89.0" y="151.0" text-anchor="middle" style="fill:#fff;font-weight:600;font-size:11.5px">3.28</text><rect x="121" y="133" width="60" height="28" rx="2" fill="var(--bdr-td)" fill-opacity="0.59"><title>B = 8, C = 4k: 3.18</title></rect><text x="151.0" y="151.0" text-anchor="middle" style="fill:#fff;font-weight:600;font-size:11.5px">3.18</text><rect x="183" y="133" width="60" height="28" rx="2" fill="var(--bdr-td)" fill-opacity="0.54"><title>B = 8, C = 16k: 2.89</title></rect><text x="213.0" y="151.0" text-anchor="middle" style="fill:var(--ink);font-weight:400;font-size:11.5px">2.89</text><rect x="245" y="133" width="60" height="28" rx="2" fill="var(--bdr-td)" fill-opacity="0.44"><title>B = 8, C = 64k: 2.37</title></rect><text x="275.0" y="151.0" text-anchor="middle" style="fill:var(--ink);font-weight:400;font-size:11.5px">2.37</text><text x="50" y="181.0" text-anchor="end" style="font-size:11.5px;fill:var(--bdr-muted)">B = 4</text><rect x="59" y="163" width="60" height="28" rx="2" fill="var(--bdr-td)" fill-opacity="0.61"><title>B = 4, C = 1k: 3.27</title></rect><text x="89.0" y="181.0" text-anchor="middle" style="fill:#fff;font-weight:600;font-size:11.5px">3.27</text><rect x="121" y="163" width="60" height="28" rx="2" fill="var(--bdr-td)" fill-opacity="0.60"><title>B = 4, C = 4k: 3.19</title></rect><text x="151.0" y="181.0" text-anchor="middle" style="fill:#fff;font-weight:600;font-size:11.5px">3.19</text><rect x="183" y="163" width="60" height="28" rx="2" fill="var(--bdr-td)" fill-opacity="0.56"><title>B = 4, C = 16k: 2.95</title></rect><text x="213.0" y="181.0" text-anchor="middle" style="fill:#fff;font-weight:600;font-size:11.5px">2.95</text><rect x="245" y="163" width="60" height="28" rx="2" fill="var(--bdr-td)" fill-opacity="0.46"><title>B = 4, C = 64k: 2.47</title></rect><text x="275.0" y="181.0" text-anchor="middle" style="fill:var(--ink);font-weight:400;font-size:11.5px">2.47</text><text x="50" y="211.0" text-anchor="end" style="font-size:11.5px;fill:var(--bdr-muted)">B = 2</text><rect x="59" y="193" width="60" height="28" rx="2" fill="var(--bdr-td)" fill-opacity="0.57"><title>B = 2, C = 1k: 3.06</title></rect><text x="89.0" y="211.0" text-anchor="middle" style="fill:#fff;font-weight:600;font-size:11.5px">3.06</text><rect x="121" y="193" width="60" height="28" rx="2" fill="var(--bdr-td)" fill-opacity="0.57"><title>B = 2, C = 4k: 3.01</title></rect><text x="151.0" y="211.0" text-anchor="middle" style="fill:#fff;font-weight:600;font-size:11.5px">3.01</text><rect x="183" y="193" width="60" height="28" rx="2" fill="var(--bdr-td)" fill-opacity="0.54"><title>B = 2, C = 16k: 2.86</title></rect><text x="213.0" y="211.0" text-anchor="middle" style="fill:var(--ink);font-weight:400;font-size:11.5px">2.86</text><rect x="245" y="193" width="60" height="28" rx="2" fill="var(--bdr-td)" fill-opacity="0.47"><title>B = 2, C = 64k: 2.49</title></rect><text x="275.0" y="211.0" text-anchor="middle" style="fill:var(--ink);font-weight:400;font-size:11.5px">2.49</text><text x="50" y="241.0" text-anchor="end" style="font-size:11.5px;fill:var(--bdr-muted)">B = 1</text><rect x="59" y="223" width="60" height="28" rx="2" fill="var(--bdr-td)" fill-opacity="0.52"><title>B = 1, C = 1k: 2.75</title></rect><text x="89.0" y="241.0" text-anchor="middle" style="fill:var(--ink);font-weight:400;font-size:11.5px">2.75</text><rect x="121" y="223" width="60" height="28" rx="2" fill="var(--bdr-td)" fill-opacity="0.52"><title>B = 1, C = 4k: 2.73</title></rect><text x="151.0" y="241.0" text-anchor="middle" style="fill:var(--ink);font-weight:400;font-size:11.5px">2.73</text><rect x="183" y="223" width="60" height="28" rx="2" fill="var(--bdr-td)" fill-opacity="0.50"><title>B = 1, C = 16k: 2.65</title></rect><text x="213.0" y="241.0" text-anchor="middle" style="fill:var(--ink);font-weight:400;font-size:11.5px">2.65</text><rect x="245" y="223" width="60" height="28" rx="2" fill="var(--bdr-td)" fill-opacity="0.46"><title>B = 1, C = 64k: 2.44</title></rect><text x="275.0" y="241.0" text-anchor="middle" style="fill:var(--ink);font-weight:400;font-size:11.5px">2.44</text><text x="182.0" y="276" text-anchor="middle" style="font-size:11.5px;fill:var(--bdr-muted)">context C</text></svg></div>
+<div><svg viewbox="0 0 314 282" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="(b) empirical ceilings" class="pfig-svg"><text x="58" y="16" style="font-size:12.5px;font-weight:600;fill:var(--ink)">(b) empirical ceilings</text><text x="89.0" y="34" text-anchor="middle" style="font-size:11.5px;fill:var(--bdr-muted)">1k</text><text x="151.0" y="34" text-anchor="middle" style="font-size:11.5px;fill:var(--bdr-muted)">4k</text><text x="213.0" y="34" text-anchor="middle" style="font-size:11.5px;fill:var(--bdr-muted)">16k</text><text x="275.0" y="34" text-anchor="middle" style="font-size:11.5px;fill:var(--bdr-muted)">64k</text><text x="50" y="61.0" text-anchor="end" style="font-size:11.5px;fill:var(--bdr-muted)">B = 64</text><rect x="59" y="43" width="60" height="28" rx="2" fill="var(--bdr-td)" fill-opacity="0.06"><title>B = 64, C = 1k: 1.13</title></rect><text x="89.0" y="61.0" text-anchor="middle" style="fill:var(--ink);font-weight:400;font-size:11.5px">1.13</text><rect x="121" y="43" width="60" height="28" rx="2" fill="var(--bdr-td)" fill-opacity="0.06"><title>B = 64, C = 4k: 1.14</title></rect><text x="151.0" y="61.0" text-anchor="middle" style="fill:var(--ink);font-weight:400;font-size:11.5px">1.14</text><rect x="183" y="43" width="60" height="28" rx="2" fill="var(--rule)" fill-opacity="0.5"></rect><text x="213.0" y="61.0" text-anchor="middle" style="font-size:11.5px;fill:var(--bdr-muted)">–</text><rect x="245" y="43" width="60" height="28" rx="2" fill="var(--rule)" fill-opacity="0.5"></rect><text x="275.0" y="61.0" text-anchor="middle" style="font-size:11.5px;fill:var(--bdr-muted)">–</text><text x="50" y="91.0" text-anchor="end" style="font-size:11.5px;fill:var(--bdr-muted)">B = 32</text><rect x="59" y="73" width="60" height="28" rx="2" fill="var(--bdr-td)" fill-opacity="0.26"><title>B = 32, C = 1k: 1.67</title></rect><text x="89.0" y="91.0" text-anchor="middle" style="fill:var(--ink);font-weight:400;font-size:11.5px">1.67</text><rect x="121" y="73" width="60" height="28" rx="2" fill="var(--bdr-td)" fill-opacity="0.25"><title>B = 32, C = 4k: 1.64</title></rect><text x="151.0" y="91.0" text-anchor="middle" style="fill:var(--ink);font-weight:400;font-size:11.5px">1.64</text><rect x="183" y="73" width="60" height="28" rx="2" fill="var(--bdr-td)" fill-opacity="0.22"><title>B = 32, C = 16k: 1.54</title></rect><text x="213.0" y="91.0" text-anchor="middle" style="fill:var(--ink);font-weight:400;font-size:11.5px">1.54</text><rect x="245" y="73" width="60" height="28" rx="2" fill="var(--rule)" fill-opacity="0.5"></rect><text x="275.0" y="91.0" text-anchor="middle" style="font-size:11.5px;fill:var(--bdr-muted)">–</text><text x="50" y="121.0" text-anchor="end" style="font-size:11.5px;fill:var(--bdr-muted)">B = 16</text><rect x="59" y="103" width="60" height="28" rx="2" fill="var(--bdr-td)" fill-opacity="0.44"><title>B = 16, C = 1k: 2.34</title></rect><text x="89.0" y="121.0" text-anchor="middle" style="fill:var(--ink);font-weight:400;font-size:11.5px">2.34</text><rect x="121" y="103" width="60" height="28" rx="2" fill="var(--bdr-td)" fill-opacity="0.42"><title>B = 16, C = 4k: 2.25</title></rect><text x="151.0" y="121.0" text-anchor="middle" style="fill:var(--ink);font-weight:400;font-size:11.5px">2.25</text><rect x="183" y="103" width="60" height="28" rx="2" fill="var(--bdr-td)" fill-opacity="0.36"><title>B = 16, C = 16k: 2.00</title></rect><text x="213.0" y="121.0" text-anchor="middle" style="fill:var(--ink);font-weight:400;font-size:11.5px">2.00</text><rect x="245" y="103" width="60" height="28" rx="2" fill="var(--bdr-td)" fill-opacity="0.25"><title>B = 16, C = 64k: 1.62</title></rect><text x="275.0" y="121.0" text-anchor="middle" style="fill:var(--ink);font-weight:400;font-size:11.5px">1.62</text><text x="50" y="151.0" text-anchor="end" style="font-size:11.5px;fill:var(--bdr-muted)">B = 8</text><rect x="59" y="133" width="60" height="28" rx="2" fill="var(--bdr-td)" fill-opacity="0.54"><title>B = 8, C = 1k: 2.87</title></rect><text x="89.0" y="151.0" text-anchor="middle" style="fill:var(--ink);font-weight:400;font-size:11.5px">2.87</text><rect x="121" y="133" width="60" height="28" rx="2" fill="var(--bdr-td)" fill-opacity="0.52"><title>B = 8, C = 4k: 2.74</title></rect><text x="151.0" y="151.0" text-anchor="middle" style="fill:var(--ink);font-weight:400;font-size:11.5px">2.74</text><rect x="183" y="133" width="60" height="28" rx="2" fill="var(--bdr-td)" fill-opacity="0.45"><title>B = 8, C = 16k: 2.39</title></rect><text x="213.0" y="151.0" text-anchor="middle" style="fill:var(--ink);font-weight:400;font-size:11.5px">2.39</text><rect x="245" y="133" width="60" height="28" rx="2" fill="var(--bdr-td)" fill-opacity="0.31"><title>B = 8, C = 64k: 1.84</title></rect><text x="275.0" y="151.0" text-anchor="middle" style="fill:var(--ink);font-weight:400;font-size:11.5px">1.84</text><text x="50" y="181.0" text-anchor="end" style="font-size:11.5px;fill:var(--bdr-muted)">B = 4</text><rect x="59" y="163" width="60" height="28" rx="2" fill="var(--bdr-td)" fill-opacity="0.55"><title>B = 4, C = 1k: 2.94</title></rect><text x="89.0" y="181.0" text-anchor="middle" style="fill:#fff;font-weight:600;font-size:11.5px">2.94</text><rect x="121" y="163" width="60" height="28" rx="2" fill="var(--bdr-td)" fill-opacity="0.54"><title>B = 4, C = 4k: 2.84</title></rect><text x="151.0" y="181.0" text-anchor="middle" style="fill:var(--ink);font-weight:400;font-size:11.5px">2.84</text><rect x="183" y="163" width="60" height="28" rx="2" fill="var(--bdr-td)" fill-opacity="0.48"><title>B = 4, C = 16k: 2.53</title></rect><text x="213.0" y="181.0" text-anchor="middle" style="fill:var(--ink);font-weight:400;font-size:11.5px">2.53</text><rect x="245" y="163" width="60" height="28" rx="2" fill="var(--bdr-td)" fill-opacity="0.35"><title>B = 4, C = 64k: 1.96</title></rect><text x="275.0" y="181.0" text-anchor="middle" style="fill:var(--ink);font-weight:400;font-size:11.5px">1.96</text><text x="50" y="211.0" text-anchor="end" style="font-size:11.5px;fill:var(--bdr-muted)">B = 2</text><rect x="59" y="193" width="60" height="28" rx="2" fill="var(--bdr-td)" fill-opacity="0.54"><title>B = 2, C = 1k: 2.84</title></rect><text x="89.0" y="211.0" text-anchor="middle" style="fill:var(--ink);font-weight:400;font-size:11.5px">2.84</text><rect x="121" y="193" width="60" height="28" rx="2" fill="var(--bdr-td)" fill-opacity="0.52"><title>B = 2, C = 4k: 2.77</title></rect><text x="151.0" y="211.0" text-anchor="middle" style="fill:var(--ink);font-weight:400;font-size:11.5px">2.77</text><rect x="183" y="193" width="60" height="28" rx="2" fill="var(--bdr-td)" fill-opacity="0.48"><title>B = 2, C = 16k: 2.55</title></rect><text x="213.0" y="211.0" text-anchor="middle" style="fill:var(--ink);font-weight:400;font-size:11.5px">2.55</text><rect x="245" y="193" width="60" height="28" rx="2" fill="var(--bdr-td)" fill-opacity="0.37"><title>B = 2, C = 64k: 2.06</title></rect><text x="275.0" y="211.0" text-anchor="middle" style="fill:var(--ink);font-weight:400;font-size:11.5px">2.06</text><text x="50" y="241.0" text-anchor="end" style="font-size:11.5px;fill:var(--bdr-muted)">B = 1</text><rect x="59" y="223" width="60" height="28" rx="2" fill="var(--bdr-td)" fill-opacity="0.50"><title>B = 1, C = 1k: 2.67</title></rect><text x="89.0" y="241.0" text-anchor="middle" style="fill:var(--ink);font-weight:400;font-size:11.5px">2.67</text><rect x="121" y="223" width="60" height="28" rx="2" fill="var(--bdr-td)" fill-opacity="0.50"><title>B = 1, C = 4k: 2.63</title></rect><text x="151.0" y="241.0" text-anchor="middle" style="fill:var(--ink);font-weight:400;font-size:11.5px">2.63</text><rect x="183" y="223" width="60" height="28" rx="2" fill="var(--bdr-td)" fill-opacity="0.47"><title>B = 1, C = 16k: 2.49</title></rect><text x="213.0" y="241.0" text-anchor="middle" style="fill:var(--ink);font-weight:400;font-size:11.5px">2.49</text><rect x="245" y="223" width="60" height="28" rx="2" fill="var(--bdr-td)" fill-opacity="0.39"><title>B = 1, C = 64k: 2.14</title></rect><text x="275.0" y="241.0" text-anchor="middle" style="fill:var(--ink);font-weight:400;font-size:11.5px">2.14</text><text x="182.0" y="276" text-anchor="middle" style="font-size:11.5px;fill:var(--bdr-muted)">context C</text></svg></div>
+<div><svg viewbox="0 0 314 282" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="(c) and measured routing" class="pfig-svg"><text x="58" y="16" style="font-size:12.5px;font-weight:600;fill:var(--ink)">(c) and measured routing</text><text x="89.0" y="34" text-anchor="middle" style="font-size:11.5px;fill:var(--bdr-muted)">1k</text><text x="151.0" y="34" text-anchor="middle" style="font-size:11.5px;fill:var(--bdr-muted)">4k</text><text x="213.0" y="34" text-anchor="middle" style="font-size:11.5px;fill:var(--bdr-muted)">16k</text><text x="275.0" y="34" text-anchor="middle" style="font-size:11.5px;fill:var(--bdr-muted)">64k</text><text x="50" y="61.0" text-anchor="end" style="font-size:11.5px;fill:var(--bdr-muted)">B = 64</text><rect x="59" y="43" width="60" height="28" rx="2" fill="var(--bdr-ar)" fill-opacity="0.07"><title>B = 64, C = 1k: 0.87</title></rect><text x="89.0" y="61.0" text-anchor="middle" style="fill:var(--ink);font-weight:400;font-size:11.5px">0.87</text><rect x="121" y="43" width="60" height="28" rx="2" fill="var(--bdr-ar)" fill-opacity="0.06"><title>B = 64, C = 4k: 0.93</title></rect><text x="151.0" y="61.0" text-anchor="middle" style="fill:var(--ink);font-weight:400;font-size:11.5px">0.93</text><rect x="183" y="43" width="60" height="28" rx="2" fill="var(--rule)" fill-opacity="0.5"></rect><text x="213.0" y="61.0" text-anchor="middle" style="font-size:11.5px;fill:var(--bdr-muted)">–</text><rect x="245" y="43" width="60" height="28" rx="2" fill="var(--rule)" fill-opacity="0.5"></rect><text x="275.0" y="61.0" text-anchor="middle" style="font-size:11.5px;fill:var(--bdr-muted)">–</text><text x="50" y="91.0" text-anchor="end" style="font-size:11.5px;fill:var(--bdr-muted)">B = 32</text><rect x="59" y="73" width="60" height="28" rx="2" fill="var(--bdr-td)" fill-opacity="0.08"><title>B = 32, C = 1k: 1.16</title></rect><text x="89.0" y="91.0" text-anchor="middle" style="fill:var(--ink);font-weight:400;font-size:11.5px">1.16</text><rect x="121" y="73" width="60" height="28" rx="2" fill="var(--bdr-td)" fill-opacity="0.10"><title>B = 32, C = 4k: 1.21</title></rect><text x="151.0" y="91.0" text-anchor="middle" style="fill:var(--ink);font-weight:400;font-size:11.5px">1.21</text><rect x="183" y="73" width="60" height="28" rx="2" fill="var(--bdr-td)" fill-opacity="0.09"><title>B = 32, C = 16k: 1.19</title></rect><text x="213.0" y="91.0" text-anchor="middle" style="fill:var(--ink);font-weight:400;font-size:11.5px">1.19</text><rect x="245" y="73" width="60" height="28" rx="2" fill="var(--rule)" fill-opacity="0.5"></rect><text x="275.0" y="91.0" text-anchor="middle" style="font-size:11.5px;fill:var(--bdr-muted)">–</text><text x="50" y="121.0" text-anchor="end" style="font-size:11.5px;fill:var(--bdr-muted)">B = 16</text><rect x="59" y="103" width="60" height="28" rx="2" fill="var(--bdr-td)" fill-opacity="0.24"><title>B = 16, C = 1k: 1.60</title></rect><text x="89.0" y="121.0" text-anchor="middle" style="fill:var(--ink);font-weight:400;font-size:11.5px">1.60</text><rect x="121" y="103" width="60" height="28" rx="2" fill="var(--bdr-td)" fill-opacity="0.25"><title>B = 16, C = 4k: 1.62</title></rect><text x="151.0" y="121.0" text-anchor="middle" style="fill:var(--ink);font-weight:400;font-size:11.5px">1.62</text><rect x="183" y="103" width="60" height="28" rx="2" fill="var(--bdr-td)" fill-opacity="0.22"><title>B = 16, C = 16k: 1.54</title></rect><text x="213.0" y="121.0" text-anchor="middle" style="fill:var(--ink);font-weight:400;font-size:11.5px">1.54</text><rect x="245" y="103" width="60" height="28" rx="2" fill="var(--bdr-td)" fill-opacity="0.14"><title>B = 16, C = 64k: 1.33</title></rect><text x="275.0" y="121.0" text-anchor="middle" style="fill:var(--ink);font-weight:400;font-size:11.5px">1.33</text><text x="50" y="151.0" text-anchor="end" style="font-size:11.5px;fill:var(--bdr-muted)">B = 8</text><rect x="59" y="133" width="60" height="28" rx="2" fill="var(--bdr-td)" fill-opacity="0.41"><title>B = 8, C = 1k: 2.24</title></rect><text x="89.0" y="151.0" text-anchor="middle" style="fill:var(--ink);font-weight:400;font-size:11.5px">2.24</text><rect x="121" y="133" width="60" height="28" rx="2" fill="var(--bdr-td)" fill-opacity="0.42"><title>B = 8, C = 4k: 2.29</title></rect><text x="151.0" y="151.0" text-anchor="middle" style="fill:var(--ink);font-weight:400;font-size:11.5px">2.29</text><rect x="183" y="133" width="60" height="28" rx="2" fill="var(--bdr-td)" fill-opacity="0.37"><title>B = 8, C = 16k: 2.07</title></rect><text x="213.0" y="151.0" text-anchor="middle" style="fill:var(--ink);font-weight:400;font-size:11.5px">2.07</text><rect x="245" y="133" width="60" height="28" rx="2" fill="var(--bdr-td)" fill-opacity="0.22"><title>B = 8, C = 64k: 1.55</title></rect><text x="275.0" y="151.0" text-anchor="middle" style="fill:var(--ink);font-weight:400;font-size:11.5px">1.55</text><text x="50" y="181.0" text-anchor="end" style="font-size:11.5px;fill:var(--bdr-muted)">B = 4</text><rect x="59" y="163" width="60" height="28" rx="2" fill="var(--bdr-td)" fill-opacity="0.63"><title>B = 4, C = 1k: 3.39</title></rect><text x="89.0" y="181.0" text-anchor="middle" style="fill:#fff;font-weight:600;font-size:11.5px">3.39</text><rect x="121" y="163" width="60" height="28" rx="2" fill="var(--bdr-td)" fill-opacity="0.58"><title>B = 4, C = 4k: 3.12</title></rect><text x="151.0" y="181.0" text-anchor="middle" style="fill:#fff;font-weight:600;font-size:11.5px">3.12</text><rect x="183" y="163" width="60" height="28" rx="2" fill="var(--bdr-td)" fill-opacity="0.52"><title>B = 4, C = 16k: 2.73</title></rect><text x="213.0" y="181.0" text-anchor="middle" style="fill:var(--ink);font-weight:400;font-size:11.5px">2.73</text><rect x="245" y="163" width="60" height="28" rx="2" fill="var(--bdr-td)" fill-opacity="0.32"><title>B = 4, C = 64k: 1.86</title></rect><text x="275.0" y="181.0" text-anchor="middle" style="fill:var(--ink);font-weight:400;font-size:11.5px">1.86</text><text x="50" y="211.0" text-anchor="end" style="font-size:11.5px;fill:var(--bdr-muted)">B = 2</text><rect x="59" y="193" width="60" height="28" rx="2" fill="var(--bdr-td)" fill-opacity="0.63"><title>B = 2, C = 1k: 3.45</title></rect><text x="89.0" y="211.0" text-anchor="middle" style="fill:#fff;font-weight:600;font-size:11.5px">3.45</text><rect x="121" y="193" width="60" height="28" rx="2" fill="var(--bdr-td)" fill-opacity="0.65"><title>B = 2, C = 4k: 3.54</title></rect><text x="151.0" y="211.0" text-anchor="middle" style="fill:#fff;font-weight:600;font-size:11.5px">3.54</text><rect x="183" y="193" width="60" height="28" rx="2" fill="var(--bdr-td)" fill-opacity="0.66"><title>B = 2, C = 16k: 3.60</title></rect><text x="213.0" y="211.0" text-anchor="middle" style="fill:#fff;font-weight:600;font-size:11.5px">3.60</text><rect x="245" y="193" width="60" height="28" rx="2" fill="var(--bdr-td)" fill-opacity="0.49"><title>B = 2, C = 64k: 2.59</title></rect><text x="275.0" y="211.0" text-anchor="middle" style="fill:var(--ink);font-weight:400;font-size:11.5px">2.59</text><text x="50" y="241.0" text-anchor="end" style="font-size:11.5px;fill:var(--bdr-muted)">B = 1</text><rect x="59" y="223" width="60" height="28" rx="2" fill="var(--bdr-td)" fill-opacity="0.93"><title>B = 1, C = 1k: 6.18</title></rect><text x="89.0" y="241.0" text-anchor="middle" style="fill:#fff;font-weight:600;font-size:11.5px">6.18</text><rect x="121" y="223" width="60" height="28" rx="2" fill="var(--bdr-td)" fill-opacity="0.91"><title>B = 1, C = 4k: 5.85</title></rect><text x="151.0" y="241.0" text-anchor="middle" style="fill:#fff;font-weight:600;font-size:11.5px">5.85</text><rect x="183" y="223" width="60" height="28" rx="2" fill="var(--bdr-td)" fill-opacity="0.79"><title>B = 1, C = 16k: 4.67</title></rect><text x="213.0" y="241.0" text-anchor="middle" style="fill:#fff;font-weight:600;font-size:11.5px">4.67</text><rect x="245" y="223" width="60" height="28" rx="2" fill="var(--bdr-td)" fill-opacity="0.63"><title>B = 1, C = 64k: 3.42</title></rect><text x="275.0" y="241.0" text-anchor="middle" style="fill:#fff;font-weight:600;font-size:11.5px">3.42</text><text x="182.0" y="276" text-anchor="middle" style="font-size:11.5px;fill:var(--bdr-muted)">context C</text></svg></div>
+</div>
+    <p class="fig-cap">Roofline bound on \(\Gamma\) over batch \(B\) and context \(C\), with FP8 weights. Each map changes one input of the previous one. Orange: TD faster; blue: AR faster; the shade grows with \(|\log\Gamma|\) on one scale shared by Figures 12 and 18. Missing cells did not fit in memory.</p>
+  </div>
+  <ul>
+    <li>
+<b>Ceilings, (a) to (b).</b> At batch 1 the gain bound keeps 0.88–0.97 of its value, lowest at 64k. From batch 8 on, where TD is compute-bound and AR is not, it keeps 0.76–0.87.</li>
+    <li>
+<b>Routing, (b) to (c).</b> At batch 1 the bound rises by a factor 1.6–2.3; from batch 32 on it falls to 0.70–0.82 of (b). The batch at which AR overtakes TD moves from beyond 64 to between 32 and 64.</li>
+  </ul>
+  <p>Routing is therefore the input that moves the bound most, and it moves it in both directions: the dependence between canvas positions favours TD at small batch, and the uneven popularity of experts favours AR at large batch. Part 11 compares the bound (c) with the measured gain.</p>
+</section>
+<nav class="book-nav" aria-label="Chapters"><a class="prev" href="/notes/block-diffusion-rooflines-6f924020/examples/"><span>Previous</span>7 · Worked examples</a><a class="next" href="/notes/block-diffusion-rooflines-6f924020/stack/"><span>Next</span>9 · The measurement stack</a></nav>
+</div>
+
+
+  </article>
+
+  
+
+  
+    
+
+
+  
+</div>
+
+      
+    </div>
+
+    <!-- Footer -->
+    
+
+
+  <footer class="sticky-bottom mt-5" role="contentinfo">
+    
+
+    <div class="container">
+      
+  © Copyright 2026
+  Valentin
+  
+  De Bortoli. Built with <a href="https://jekyllrb.com/" target="_blank" rel="external nofollow noopener">Jekyll</a> and the <a href="https://github.com/alshedivat/al-folio" rel="external nofollow noopener" target="_blank">al-folio</a> theme. Hosted on <a href="https://pages.github.com/" target="_blank" rel="external nofollow noopener">GitHub Pages</a>.
+
+  
+  
+    Last updated: November 15, 2026.
+  
+
+    </div>
+  </footer>
+
+
+
+    <!-- JavaScripts -->
+    <script>
+  window.alFolio = {
+    compatBootstrap: false
+  };
+</script>
+
+<!-- Core navigation/runtime scripts -->
+<script src="/assets/js/nav-toggle.js?v=141bd79a73ebc0f0b6ea58e440ae79fc"></script>
+
+
+
+  <!-- Masonry & imagesLoaded -->
+  <script defer src="https://cdn.jsdelivr.net/npm/masonry-layout@4.2.2/dist/masonry.pkgd.min.js" integrity="sha256-Nn1q/fx0H7SNLZMQ5Hw5JLaTRZp0yILA/FRexe19VdI=" crossorigin="anonymous"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/imagesloaded@5.0.0/imagesloaded.pkgd.min.js" integrity="sha256-htrLFfZJ6v5udOG+3kNLINIKh2gvoKqwEhHYfTTMICc=" crossorigin="anonymous"></script>
+  <script defer src="/assets/js/masonry.js?v=e49affc7bd2646f6acdad1dbe02c2359" type="text/javascript"></script>
+
+
+
+  <!-- Charts and Diagrams -->
+  
+
+
+
+
+
+
+
+  <!-- Math and Tikzjax -->
+  
+<script defer type="text/javascript" id="MathJax-script" src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-mml-chtml.js" integrity="sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI=" crossorigin="anonymous"></script>
+<script src="/assets/al_math/js/mathjax-setup.js"></script>
+
+
+
+
+
+<!-- Tooltips & popovers runtime -->
+<script src="/assets/js/tooltips-setup.js?v=fe487e99db6c43751e6e7bdb2d6a0611"></script>
+
+
+
+
+
+
+<!-- Load Common JS -->
+<script src="/assets/js/no_defer.js?v=53b1b1a645525975c963ce8bf8bfefcf"></script>
+<script defer src="/assets/js/common.js?v=87baac90f765f2f3362dcf6aaf312a8a"></script>
+<script defer src="/assets/js/copy_code.js?v=c8a01c11a92744d44b093fc3bda915df" type="text/javascript"></script>
+
+<!-- Jupyter Open External Links New Tab -->
+<script defer src="/assets/js/jupyter_new_tab.js?v=896d254890d9b47f0281f63bfccf0dee"></script>
+
+<!-- Badges -->
+
+  <script async src="https://d1bxh8uas1mnw7.cloudfront.net/assets/embed.js"></script>
+
+
+  <script async src="https://badge.dimensions.ai/badge.js"></script>
+
+
+
+
+  <!-- Analytics -->
+  
+
+
+
+
+
+  <!-- Image Features -->
+  
+<!-- Medium Zoom JS -->
+<script defer src="https://cdn.jsdelivr.net/npm/medium-zoom@1.1.0/dist/medium-zoom.min.js" integrity="sha256-ZgMyDAIYDYGxbcpJcfUnYwNevG/xi9OHKaR/8GK+jWc=" crossorigin="anonymous"></script>
+<script defer src="/assets/al_img_tools/js/zoom.js"></script>
+
+
+
+
+
+  <!-- Scrolling Progress Bar -->
+  <script defer src="/assets/js/progress-bar.js?v=499464c5c63ced6cf7ad62509f1e2610" type="text/javascript"></script>
+
+
+
+
+
+  <!-- Back to Top -->
+  
+  
+  
+    <script src="https://cdn.jsdelivr.net/npm/vanilla-back-to-top@7.2.1/dist/vanilla-back-to-top.min.js" integrity="sha256-uMJJ3EoTyfRBoTbR+lrfu1uRQ87RZG8AR3cVNuQVeFg=" crossorigin="anonymous"></script>
+  
+  <script>
+    addBackToTop();
+  </script>
+
+
+
+  <!-- Search -->
+  
+    
+<script type="module" src="/assets/al_search/js/search/ninja-keys.min.js"></script>
+<ninja-keys hidebreadcrumbs noautoloadmdicons placeholder="Type to start searching"></ninja-keys>
+<script src="/assets/al_search/js/search-setup.js"></script>
+<script>
+// get the ninja-keys element
+const ninja = document.querySelector('ninja-keys');
+
+// add the home and posts menu items
+ninja.data = [{
+    id: "nav-about",
+    title: "about",
+    section: "Navigation",
+    handler: () => {
+      window.location.href = "/";
+    },
+  },{id: "nav-publications",
+          title: "publications",
+          description: "Everything, newest first. Use the filter to search titles, authors and venues.",
+          section: "Navigation",
+          handler: () => {
+            window.location.href = "/publications/";
+          },
+        },{id: "nav-teaching",
+          title: "teaching",
+          description: "Course materials from teaching in Paris, 2015–2018.",
+          section: "Navigation",
+          handler: () => {
+            window.location.href = "/teaching/";
+          },
+        },{id: "news-distributional-diffusion-models-with-scoring-rules-accepted-at-icml-2025",
+          title: 'Distributional Diffusion Models with Scoring Rules accepted at ICML 2025.',
+          description: "",
+          section: "News",},{id: "news-three-papers-accepted-at-neurips-2025-on-inference-time-annealing-memorization-in-diffusion-models-and-proximal-mcmc-for-non-log-concave-sampling",
+          title: 'Three papers accepted at NeurIPS 2025, on inference-time annealing, memorization in diffusion models,...',
+          description: "",
+          section: "News",},{id: "news-the-diffusiongemma-technical-report-is-out",
+          title: 'The DiffusionGemma technical report is out.',
+          description: "",
+          section: "News",},{id: "news-simplex-diffusion-models-is-out-diffusion-on-the-probability-simplex-that-retains-uncertainty-during-discrete-denoising",
+          title: 'Simplex Diffusion Models is out — diffusion on the probability simplex that retains...',
+          description: "",
+          section: "News",},{
+        id: 'social-cv',
+        title: 'CV',
+        section: 'Socials',
+        handler: () => {
+          window.open("/assets/pdf/cv.pdf", "_blank");
+        },
+      },{
+        id: 'social-email',
+        title: 'email',
+        section: 'Socials',
+        handler: () => {
+          window.open("mailto:%76%61%6C%65%6E%74%69%6E.%64%65%62%6F%72%74%6F%6C%69@%67%6D%61%69%6C.%63%6F%6D", "_blank");
+        },
+      },{
+        id: 'social-github',
+        title: 'GitHub',
+        section: 'Socials',
+        handler: () => {
+          window.open("https://github.com/vdeborto", "_blank");
+        },
+      },{
+        id: 'social-scholar',
+        title: 'Google Scholar',
+        section: 'Socials',
+        handler: () => {
+          window.open("https://scholar.google.com/citations?user=dn_F9I4AAAAJ", "_blank");
+        },
+      },{
+        id: 'social-rss',
+        title: 'RSS Feed',
+        section: 'Socials',
+        handler: () => {
+          window.open("/feed.xml", "_blank");
+        },
+      },{
+      id: 'light-theme',
+      title: 'Change theme to light',
+      description: 'Change the theme of the site to Light',
+      section: 'Theme',
+      handler: () => {
+        setThemeSetting("light");
+      },
+    },
+    {
+      id: 'dark-theme',
+      title: 'Change theme to dark',
+      description: 'Change the theme of the site to Dark',
+      section: 'Theme',
+      handler: () => {
+        setThemeSetting("dark");
+      },
+    },
+    {
+      id: 'system-theme',
+      title: 'Use system default theme',
+      description: 'Change the theme of the site to System Default',
+      section: 'Theme',
+      handler: () => {
+        setThemeSetting("system");
+      },
+    },];
+
+</script>
+<script src="/assets/al_search/js/shortcut-key.js"></script>
+
+
+  
+
+
+
+
+
+
+
+
+  </body>
+</html>
