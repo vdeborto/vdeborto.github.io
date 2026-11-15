@@ -292,6 +292,7 @@
 <link rel="stylesheet" href="/assets/roofline/note.css">
 <link rel="stylesheet" href="/assets/roofline/theme.css">
 <script type="application/json" id="bdr-book">{"title":"Block Diffusion Rooflines","home":"/notes/block-diffusion-rooflines-6f924020/","chapters":[{"slug":"","num":"0","title":"Introduction","url":"/notes/block-diffusion-rooflines-6f924020/"},{"slug":"summary","num":"","title":"Summary","url":"/notes/block-diffusion-rooflines-6f924020/summary/"},{"slug":"setup","num":"1","title":"Setup","url":"/notes/block-diffusion-rooflines-6f924020/setup/"},{"slug":"gain","num":"2","title":"The gain","url":"/notes/block-diffusion-rooflines-6f924020/gain/"},{"slug":"linear","num":"3","title":"The linear part","url":"/notes/block-diffusion-rooflines-6f924020/linear/"},{"slug":"attention","num":"4","title":"The attention part","url":"/notes/block-diffusion-rooflines-6f924020/attention/"},{"slug":"whole","num":"5","title":"The whole picture","url":"/notes/block-diffusion-rooflines-6f924020/whole/"},{"slug":"calculator","num":"6","title":"Calculator","url":"/notes/block-diffusion-rooflines-6f924020/calculator/"},{"slug":"examples","num":"7","title":"Worked examples","url":"/notes/block-diffusion-rooflines-6f924020/examples/"},{"slug":"effective","num":"8","title":"Effective rooflines","url":"/notes/block-diffusion-rooflines-6f924020/effective/"},{"slug":"stack","num":"9","title":"The measurement stack","url":"/notes/block-diffusion-rooflines-6f924020/stack/"},{"slug":"kernels","num":"10","title":"Kernels","url":"/notes/block-diffusion-rooflines-6f924020/kernels/"},{"slug":"conclusion","num":"11","title":"Conclusion","url":"/notes/block-diffusion-rooflines-6f924020/conclusion/"},{"slug":"appendix","num":"A","title":"Appendix","url":"/notes/block-diffusion-rooflines-6f924020/appendix/"}],"current":"summary"}</script>
+<script type="application/json" id="bdr-meas">{"1,1024":[7.02,4.24],"2,1024":[5.4,3.45],"4,1024":[3.91,2.94],"8,1024":[2.54,2.4],"16,1024":[1.57,1.67],"32,1024":[1.04,1.15],"64,1024":[0.71,0.86],"1,4096":[6.52,3.78],"2,4096":[6.27,3.34],"4,4096":[3.84,2.84],"8,4096":[2.42,2.28],"16,4096":[1.54,1.65],"32,4096":[1.03,1.17],"64,4096":[0.71,0.88],"1,16384":[5.86,3.52],"2,16384":[4.79,3.1],"4,16384":[3.41,2.53],"8,16384":[2.2,2.06],"16,16384":[1.44,1.55],"32,16384":[1.03,1.2],"1,65536":[4.47,3.36],"2,65536":[3.52,2.43],"4,65536":[2.48,2.02],"8,65536":[1.67,1.64],"16,65536":[1.22,1.39]}</script>
 <script defer src="/assets/roofline/mathjax.js"></script>
 <script defer src="/assets/roofline/note.js"></script>
 <script defer src="/assets/roofline/figures.js"></script>
@@ -301,7 +302,7 @@
 <noscript><p>This page needs JavaScript for its equations, figures and calculator.</p></noscript>
 <p class="book-part">The summary of <a href="/notes/block-diffusion-rooflines-6f924020/">Block Diffusion Rooflines</a><span class="book-links"><span class="bl-row">Previous: <a href="/notes/block-diffusion-rooflines-6f924020/" rel="prev">Introduction</a></span><span class="bl-row">Next: <a href="/notes/block-diffusion-rooflines-6f924020/setup/" rel="next">1 · Setup</a></span></span></p>
 <section class="bdr-col" id="tldr">
-  <p class="chapter-intro">The later chapters derive the gain \(\Gamma\) of block text diffusion (TD) over autoregressive decoding (AR) one step at a time. This page states the results first, so that each chapter can be read as the proof of one of them: the symbols, the quantities that move \(\Gamma\), the three regimes that matter in practice, and what the roofline model leaves out.</p>
+  <p class="chapter-intro">The later chapters derive the gain \(\Gamma\) of block text diffusion (TD) over autoregressive decoding (AR) one step at a time. This chapter states the results first, so that each chapter can be read as the proof of one of them: the symbols, the quantities that move \(\Gamma\), the three regimes that matter in practice, and what the roofline model leaves out.</p>
   <div class="bdr-fig" id="fig-quiz">
     <div class="fig-k">Before reading on</div>
     <p class="fig-title">Which decoder does the roofline model make faster?</p>
@@ -312,7 +313,7 @@
     <div class="eq">\[
     \Gamma \;=\; \frac{1}{\omega}\cdot\frac{\min\bigl(\class{mj-td}{I_{TD}},\,I^\star\bigr)}{\min\bigl(\class{mj-ar}{I_{AR}},\,I^\star\bigr)},\qquad \omega = S\,r + 1
     \]</div>
-    <p class="small">\(\Gamma\) is the multiplicative throughput gain of TD over AR. \(\omega = Sr + 1\) is the cost of one canvas in forward passes: \(S\) denoising passes at \(r\) forward passes each, plus one commit pass. \(\class{mj-ar}{I_{AR}}\) and \(\class{mj-td}{I_{TD}}\) are the arithmetic intensities of an AR step and of a TD pass, in FLOPs per byte read from memory. \(I^\star\) is the accelerator's ridge point, its peak FLOP/s divided by its memory bandwidth.</p>
+    <p class="small">Proposition 1, the result of Part 2, with the symbols defined in the table below.</p>
   </div>
   <p class="math-key">In the equations, <span class="q-ar">AR quantities are in blue</span> and <span class="q-td">TD quantities in orange</span>, as in the figures. Select any formula to see what its symbols mean.</p>
   <div class="tiles hero-tiles">
@@ -333,33 +334,33 @@
 </div>
     <div class="tile">
 <div class="k">Long context</div>
-<div class="v">1.7×</div>
-<div class="s">at 1M context and batch 64; 4.3× with sparse attention</div>
+<div class="v">2.2×</div>
+<div class="s">at 1M context and batch 1; 2.4× with sparse attention, where the weights still dominate</div>
 </div>
   </div>
   <p class="small muted">DiffusionGemma (\(r = 1\)) on one H200, exact accounting with vocabulary; prompt 1024, 8192 generated, canvas 256, \(S = 14\), BF16.</p>
 
   <div class="bdr-fig" id="fig-accounting">
     <div class="fig-k">How the numbers are counted</div>
-    <p class="fig-title">Every gain on this page is a ratio of roofline bounds, counted in one of three ways.</p>
+    <p class="fig-title">Every gain in Parts 1–7 is a ratio of roofline bounds, counted in one of three ways.</p>
     <p class="fig-lede">A roofline time is a lower bound on the time of a pass, so each throughput is an upper bound, and \(\Gamma\) is the ratio of two such bounds, not a measurement. Part 11 compares these bounds with throughput measured in vLLM. The three accountings below differ in what they include, and each number on the page says which one it uses. For DiffusionGemma on an H200:</p>
     <div data-fig="accounting"></div>
-    <p class="fig-cap">In the interactive figures and the cards, the intensities \(\class{mj-ar}{I_{AR}}\) and \(\class{mj-td}{I_{TD}}\) are always those of Definition 3, without the vocabulary; next to an exact gain, the regime of a pass is given instead as the share of the peak compute that it uses. The cards quote the closed-form values of the propositions, at zero context where §3 does, unless a readout says exact. A fourth variant, the kernel-by-kernel timing rule of §5, can be switched on in Figure 3 and in the calculator.</p>
+    <p class="fig-cap">In the interactive figures and the cards, the intensities \(\class{mj-ar}{I_{AR}}\) and \(\class{mj-td}{I_{TD}}\) are always those of Definition 3, without the vocabulary; next to an exact gain, the regime of a pass is given instead as the share of the peak compute that it uses. The cards quote the closed-form values of the propositions, at zero context where Part 3 does, unless a readout says exact. A fourth variant, the kernel-by-kernel timing rule of Part 5, can be switched on in Figure 6 and in the calculator.</p>
   </div>
   <div class="takeaways">
     <div class="takeaways-title">Four things to remember</div>
     <ol>
       <li>
-<b>TD trades work for reuse.</b> A canvas of \(b\) tokens costs \(\omega\) forward passes instead of one, so TD does \(\omega\) times more FLOPs per token than AR. In return, every byte it reads from memory serves \(b\) positions instead of one. <a class="tk-fig" href="/notes/block-diffusion-rooflines-6f924020/setup/#fig-reuse">Try it in Figure 1</a>
+<b>TD trades work for reuse.</b> A canvas of \(b\) tokens costs \(\omega\) forward passes instead of one, so TD does \(\omega\) times more FLOPs per token than AR. In return, every byte it reads from memory serves \(b\) positions instead of one. <a class="tk-fig" href="/notes/block-diffusion-rooflines-6f924020/setup/#fig-reuse">Try it in Figure 4</a>
 </li>
       <li>
-<b>The best batch is the one at which a TD pass just becomes compute-bound.</b> At smaller batches TD is still memory-bound, and the gain grows as a larger batch dilutes the MoE penalty. At larger batches TD already runs at peak while AR keeps speeding up, so the gain falls like \(1/B\). <a class="tk-fig" href="/notes/block-diffusion-rooflines-6f924020/linear/#fig-bestbatch">Try it in Figure 3</a>
+<b>The best batch is the one at which a TD pass just becomes compute-bound.</b> At smaller batches TD is still memory-bound, and the gain grows as a larger batch dilutes the MoE penalty. At larger batches TD already runs at peak while AR keeps speeding up, so the gain falls, like \(1/B\) once AR touches every expert. <a class="tk-fig" href="/notes/block-diffusion-rooflines-6f924020/linear/#fig-bestbatch">Try it in Figure 6</a>
 </li>
       <li>
-<b>At long context the batch stops mattering.</b> Both decoders are then reading the KV cache, which belongs to one sequence, so no batch can share it. What still separates them is when they become compute-bound: an AR step reads the cache for one query and never reaches the ridge, while a TD pass reads it once for \(b\) queries and does. <a class="tk-fig" href="/notes/block-diffusion-rooflines-6f924020/attention/#fig-context">Try it in Figure 4</a>
+<b>At long context the batch stops mattering.</b> Both decoders are then reading the KV cache, which belongs to one sequence, so no batch can share it. What still separates them is when they become compute-bound: an AR step reads the cache for one query and never reaches the ridge, while a TD pass reads it once for \(b\) queries and does. <a class="tk-fig" href="/notes/block-diffusion-rooflines-6f924020/attention/#fig-context">Try it in Figure 7</a>
 </li>
       <li>
-<b>A higher ridge point means more to gain.</b> Whenever TD is compute-bound and AR is not, the gain scales with \(I^\star\), because \(I^\star\) measures the compute AR leaves idle. The price is that TD needs more to reach the ridge: a larger batch at short context, and a canvas longer than \(I^\star/I_{\mathrm{attn}}\) at long context. On a DGX Spark, 273 GB/s against a model that reads 3 GB per token caps AR at 90 tokens per second and 0.1% of the chip's compute; the other 99.9% is what TD spends. <a class="tk-fig" href="/notes/block-diffusion-rooflines-6f924020/whole/#fig-accel">Try it in Figure 6</a>
+<b>A higher ridge point means more to gain.</b> Whenever TD is compute-bound and AR is not, the gain scales with \(I^\star\), because \(I^\star\) measures the compute AR leaves idle. The price is that TD needs more to reach the ridge: a larger batch at short context, and a canvas longer than \(I^\star/I_{\mathrm{attn}}\) at long context. On a DGX Spark, 273 GB/s against the 7.9 GB that an AR step of DiffusionGemma reads per token in BF16 caps AR at about 35 tokens per second and 0.2% of the chip's BF16 compute; the rest is what TD can spend. <a class="tk-fig" href="/notes/block-diffusion-rooflines-6f924020/whole/#fig-accel">Try it in Figure 9</a>
 </li>
     </ol>
   </div>
@@ -423,14 +424,44 @@
 <td class="l">FLOPs per byte</td>
 </tr>
       <tr>
-<td>\(I_{\mathrm{lin}},\ I_{\mathrm{attn}}\)</td>
-<td class="l">intensity of the linear part and of the attention part of a pass, for either decoder</td>
+<td>\(I^X_{\mathrm{lin}},\ I^X_{\mathrm{attn}}\)</td>
+<td class="l">intensity of the linear part and of the attention part of a pass of decoder \(X\); \(I_{\mathrm{lin}}\) is AR's linear part</td>
+<td class="l">FLOPs per byte</td>
+</tr>
+      <tr>
+<td>\(I_{\mathrm{attn}}\)</td>
+<td class="l">attention FLOPs per cache byte for one query on a global layer (8 for DiffusionGemma), the limit of \(\class{mj-ar}{I^{AR}_{\mathrm{attn}}}\) at long context</td>
 <td class="l">FLOPs per byte</td>
 </tr>
       <tr>
 <td>\(\Pi_{\mathrm{lin}},\ \Pi_{\mathrm{attn}},\ \Pi\)</td>
 <td class="l">penalties: how many more bytes a TD pass reads per sequence than an AR step, on the linear layers, on attention, overall</td>
 <td class="l">none</td>
+</tr>
+      <tr>
+<td>\(\hat\pi,\ \hat\beta\)</td>
+<td class="l">empirical ceilings: the highest FLOP rate and bandwidth measured on the H200 of Parts 8–11</td>
+<td class="l">FLOP/s, bytes/s</td>
+</tr>
+      <tr>
+<td>\(\tau_X,\ t_X\)</td>
+<td class="l">roofline time of a step of decoder \(X\) at the empirical ceilings and measured routing, and its measured time</td>
+<td class="l">seconds</td>
+</tr>
+      <tr>
+<td>\(\eta_X = \tau_X/t_X\)</td>
+<td class="l">efficiency of decoder \(X\): the share of its roofline that it achieves</td>
+<td class="l">none</td>
+</tr>
+      <tr>
+<td>\(\Gamma_{\mathrm{meas}},\ \Gamma_{\mathrm{roof}}\)</td>
+<td class="l">measured gain, and the roofline gain at the measured inputs (Proposition 9)</td>
+<td class="l">none</td>
+</tr>
+      <tr>
+<td>\(U^{\mathrm{meas}},\ N^{\mathrm{eff}}\)</td>
+<td class="l">distinct experts per layer that a pass touches, measured, and the number of independent tokens that would touch as many</td>
+<td class="l">experts, tokens</td>
 </tr>
     </tbody>
   </table></div>
@@ -444,7 +475,7 @@
   <div class="eq">\[ \begin{gathered} \omega = S\,r + 1,\\[4pt] \Gamma = \frac{1}{\omega}\cdot\frac{\min(\class{mj-td}{I_{TD}},\,I^\star)}{\min(\class{mj-ar}{I_{AR}},\,I^\star)}. \end{gathered} \]</div>
   <p>\(S\) denoising passes, each costing \(r\) forward passes (\(r \lt 1\) for a smaller denoiser), and one commit pass that writes the canvas to the KV cache. The intensity of a pass does not depend on \(S\), so under Proposition 1 the gain is exactly proportional to \(1/\omega\): halving \(S\) from 14 to 7 takes \(\omega\) from 15 to 8 and multiplies \(\Gamma\) by \(15/8\) in every regime, whatever it costs in quality.</p>
   <div data-micro="omega"></div>
-  <p class="card-link"><a href="/notes/block-diffusion-rooflines-6f924020/gain/#prop1">Proposition 1</a> · <a href="/notes/block-diffusion-rooflines-6f924020/setup/#fig-reuse">Figure 1</a></p>
+  <p class="card-link"><a href="/notes/block-diffusion-rooflines-6f924020/gain/#prop1">Proposition 1</a> · <a href="/notes/block-diffusion-rooflines-6f924020/setup/#fig-reuse">Figure 4</a></p>
 </div>
 </div>
     <div class="bdr-card">
@@ -454,7 +485,7 @@
   <div class="eq">\[ \begin{gathered} \mathrm{TPF} = \frac{b}{\omega},\qquad \class{mj-td}{I_{TD}} = \frac{b}{\Pi}\,\class{mj-ar}{I_{AR}},\\[4pt] \class{mj-td}{B^\star_{TD}} \approx \frac{I^\star s_w\class{mj-td}{W_{TD}}}{2b\,N_{\mathrm{act}}}. \end{gathered} \]</div>
   <p>While a TD pass is memory-bound, \(\Gamma = \mathrm{TPF}/\Pi\) grows with \(b\). Once it is compute-bound, \(\Gamma = I^\star/(\omega \class{mj-ar}{I_{AR}})\) no longer depends on \(b\): a longer canvas reaches that regime at a smaller batch, and so raises the best gain, which sits at \(\class{mj-td}{B^\star_{TD}}\) or one batch below it.</p>
   <div data-micro="canvas"></div>
-  <p class="card-link"><a href="/notes/block-diffusion-rooflines-6f924020/linear/#lin-gain">The gain when the linear layers dominate</a> · <a href="/notes/block-diffusion-rooflines-6f924020/linear/#fig-bestbatch">Figure 3</a></p>
+  <p class="card-link"><a href="/notes/block-diffusion-rooflines-6f924020/linear/#lin-gain">The gain when the linear layers dominate</a> · <a href="/notes/block-diffusion-rooflines-6f924020/linear/#fig-bestbatch">Figure 6</a></p>
 </div>
 </div>
     <div class="bdr-card">
@@ -484,7 +515,7 @@
   <div class="eq">\[ Q^{X}(B, C) = \underbrace{\frac{s_wW_X(B)}{B}}_{\text{weights}} + \underbrace{Q^{X}_{\mathrm{attn}}(C)}_{\text{cache}}. \]</div>
   <p>For \(X \in \{AR, TD\}\), the weights are shared by the batch and each sequence brings its own cache. A larger batch divides the weight bytes per sequence and leaves the cache bytes unchanged, so it raises both intensities at short context. At first it helps TD more, because \(\Pi_{\mathrm{lin}}\) falls; once a TD pass is compute-bound it only raises \(\class{mj-ar}{I_{AR}}\), and \(\Gamma = I^\star/(\omega \class{mj-ar}{I_{AR}})\) falls, down to parity near batch 109.</p>
   <div data-micro="batch"></div>
-  <p class="card-link"><a href="/notes/block-diffusion-rooflines-6f924020/linear/#prop4">Proposition 4</a> · <a href="/notes/block-diffusion-rooflines-6f924020/linear/#fig-bestbatch">Figure 3</a></p>
+  <p class="card-link"><a href="/notes/block-diffusion-rooflines-6f924020/linear/#prop4">Proposition 4</a> · <a href="/notes/block-diffusion-rooflines-6f924020/linear/#fig-bestbatch">Figure 6</a></p>
 </div>
 </div>
     <div class="bdr-card">
@@ -494,7 +525,7 @@
   <div class="eq">\[ \begin{gathered} I_X = \theta^X_{\mathrm{lin}}\,I^X_{\mathrm{lin}} + \theta^X_{\mathrm{attn}}\,I^X_{\mathrm{attn}},\\[4pt] \theta^X_{\mathrm{attn}} = \frac{Q^X_{\mathrm{attn}}}{Q^X}. \end{gathered} \]</div>
   <p>Each intensity is the byte-weighted average of its two parts (Proposition 2). As \(C\) grows, the cache's share \(\theta_{\mathrm{attn}}\) goes to 1 and the intensities go to their attention values: \(\class{mj-ar}{I_{AR}} \to I_{\mathrm{attn}} = 8\) on DiffusionGemma's global layers, far below every ridge, and \(\class{mj-td}{I_{TD}} \to b\,I_{\mathrm{attn}} = 2{,}048\), above every ridge in this note.</p>
   <div data-micro="context"></div>
-  <p class="card-link"><a href="/notes/block-diffusion-rooflines-6f924020/gain/#prop2">Proposition 2</a> · <a href="/notes/block-diffusion-rooflines-6f924020/attention/#fig-context">Figure 4</a></p>
+  <p class="card-link"><a href="/notes/block-diffusion-rooflines-6f924020/gain/#prop2">Proposition 2</a> · <a href="/notes/block-diffusion-rooflines-6f924020/attention/#fig-context">Figure 7</a></p>
 </div>
 </div>
   </div>
@@ -520,17 +551,17 @@
   <p>Time is bytes. Per sequence, an AR step reads \(\class{mj-ar}{Q^{AR}}\) for one token; a canvas reads \(\omega\) times \(\class{mj-td}{Q^{TD}} = \Pi\,\class{mj-ar}{Q^{AR}}\) for \(b\) tokens. Hence</p>
   <div class="eq">\[ \Gamma = \frac{\class{mj-ar}{Q^{AR}}}{\omega\,\Pi\,\class{mj-ar}{Q^{AR}}/b} = \frac{\mathrm{TPF}}{\Pi}. \]</div>
   <p>TD's extra FLOPs are hidden under the memory time. At batch 1, \(\mathrm{TPF} = 256/15 = 17.1\) and \(\Pi \approx \Pi_{\mathrm{lin}}(1) = 7.9\), so \(\Gamma \approx 2.2\); the exact accounting gives 2.53.</p>
-  <p class="card-link"><a href="/notes/block-diffusion-rooflines-6f924020/gain/#cor1">Corollary 1</a> · <a href="/notes/block-diffusion-rooflines-6f924020/setup/#fig-reuse">Figure 1</a></p>
+  <p class="card-link"><a href="/notes/block-diffusion-rooflines-6f924020/gain/#cor1">Corollary 1</a> · <a href="/notes/block-diffusion-rooflines-6f924020/setup/#fig-reuse">Figure 4</a></p>
 </div>
 </div>
     <div class="bdr-card regime best">
 <div class="card-k">AR memory-, TD compute-bound</div>
 <div class="card-v">\(\Gamma = \dfrac{I^\star}{\omega\,\class{mj-ar}{I_{AR}}}\)</div>
-<p>TD uses the compute that AR leaves idle. At short context this falls like \(1/B\); at long context it tends to \(I^\star/(\omega I_{\mathrm{attn}})\), 1.72 on an H200, at any batch.</p>
+<p>TD uses the compute that AR leaves idle. At short context this falls with the batch, like \(1/B\) once AR touches every expert; at long context it tends to \(I^\star/(\omega I_{\mathrm{attn}})\), 1.72 on an H200, at any batch.</p>
 <div class="card-more" hidden>
   <p>TD runs at the peak \(\pi\) and AR at \(\class{mj-ar}{I_{AR}}\,\beta\), so TD's FLOPs run \(I^\star/\class{mj-ar}{I_{AR}}\) times faster and it does \(\omega\) times as many. The gain is the compute that AR leaves idle, divided by TD's extra work. At short context \(\class{mj-ar}{I_{AR}}\) grows with the batch and \(\Gamma\) reaches 1 near batch 109. At long context \(\class{mj-ar}{I_{AR}} \to I_{\mathrm{attn}}\), and at any batch</p>
   <div class="eq">\[ \Gamma \to \frac{I^\star}{\omega\,I_{\mathrm{attn}}} = \frac{206}{15 \times 8} = 1.72. \]</div>
-  <p class="card-link"><a href="/notes/block-diffusion-rooflines-6f924020/whole/#prop7">Proposition 7</a> · <a href="/notes/block-diffusion-rooflines-6f924020/whole/#fig-accel">Figure 6</a></p>
+  <p class="card-link"><a href="/notes/block-diffusion-rooflines-6f924020/whole/#prop7">Proposition 7</a> · <a href="/notes/block-diffusion-rooflines-6f924020/whole/#fig-accel">Figure 9</a></p>
 </div>
 </div>
   </div>
@@ -541,7 +572,7 @@
     <li>
 <b>Vocabulary and self-conditioning.</b> Per token, TD runs \(2S-1\) vocabulary-sized matmuls against AR's one, and a smaller decoder does not shrink them. The maps and the calculator include them.</li>
     <li>
-<b>Kernels run one after another.</b> Assumption (A1) gives a pass the time of a single kernel in which all of its compute and all of its memory traffic overlap. Adding up the roofline times of its kernels instead is never faster and at most twice slower, and it moves DiffusionGemma's best batch from 5 to 9 (§5). The calculator offers both.</li>
+<b>Kernels run one after another.</b> Assumption (A1) gives a pass the time of a single kernel in which all of its compute and all of its memory traffic overlap. Adding up the roofline times of its kernels instead is never faster and at most twice slower, and it moves DiffusionGemma's best batch from 5 to 9 (Part 5). The calculator offers both.</li>
     <li>
 <b>Small effects.</b> Activations (they stay on-chip once kernels are fused), KV writes, and the at most \(b\) keys inside the canvas.</li>
     <li>

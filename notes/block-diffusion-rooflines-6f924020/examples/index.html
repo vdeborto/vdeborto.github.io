@@ -292,6 +292,7 @@
 <link rel="stylesheet" href="/assets/roofline/note.css">
 <link rel="stylesheet" href="/assets/roofline/theme.css">
 <script type="application/json" id="bdr-book">{"title":"Block Diffusion Rooflines","home":"/notes/block-diffusion-rooflines-6f924020/","chapters":[{"slug":"","num":"0","title":"Introduction","url":"/notes/block-diffusion-rooflines-6f924020/"},{"slug":"summary","num":"","title":"Summary","url":"/notes/block-diffusion-rooflines-6f924020/summary/"},{"slug":"setup","num":"1","title":"Setup","url":"/notes/block-diffusion-rooflines-6f924020/setup/"},{"slug":"gain","num":"2","title":"The gain","url":"/notes/block-diffusion-rooflines-6f924020/gain/"},{"slug":"linear","num":"3","title":"The linear part","url":"/notes/block-diffusion-rooflines-6f924020/linear/"},{"slug":"attention","num":"4","title":"The attention part","url":"/notes/block-diffusion-rooflines-6f924020/attention/"},{"slug":"whole","num":"5","title":"The whole picture","url":"/notes/block-diffusion-rooflines-6f924020/whole/"},{"slug":"calculator","num":"6","title":"Calculator","url":"/notes/block-diffusion-rooflines-6f924020/calculator/"},{"slug":"examples","num":"7","title":"Worked examples","url":"/notes/block-diffusion-rooflines-6f924020/examples/"},{"slug":"effective","num":"8","title":"Effective rooflines","url":"/notes/block-diffusion-rooflines-6f924020/effective/"},{"slug":"stack","num":"9","title":"The measurement stack","url":"/notes/block-diffusion-rooflines-6f924020/stack/"},{"slug":"kernels","num":"10","title":"Kernels","url":"/notes/block-diffusion-rooflines-6f924020/kernels/"},{"slug":"conclusion","num":"11","title":"Conclusion","url":"/notes/block-diffusion-rooflines-6f924020/conclusion/"},{"slug":"appendix","num":"A","title":"Appendix","url":"/notes/block-diffusion-rooflines-6f924020/appendix/"}],"current":"examples"}</script>
+<script type="application/json" id="bdr-meas">{"1,1024":[7.02,4.24],"2,1024":[5.4,3.45],"4,1024":[3.91,2.94],"8,1024":[2.54,2.4],"16,1024":[1.57,1.67],"32,1024":[1.04,1.15],"64,1024":[0.71,0.86],"1,4096":[6.52,3.78],"2,4096":[6.27,3.34],"4,4096":[3.84,2.84],"8,4096":[2.42,2.28],"16,4096":[1.54,1.65],"32,4096":[1.03,1.17],"64,4096":[0.71,0.88],"1,16384":[5.86,3.52],"2,16384":[4.79,3.1],"4,16384":[3.41,2.53],"8,16384":[2.2,2.06],"16,16384":[1.44,1.55],"32,16384":[1.03,1.2],"1,65536":[4.47,3.36],"2,65536":[3.52,2.43],"4,65536":[2.48,2.02],"8,65536":[1.67,1.64],"16,65536":[1.22,1.39]}</script>
 <script defer src="/assets/roofline/mathjax.js"></script>
 <script defer src="/assets/roofline/note.js"></script>
 <script defer src="/assets/roofline/figures.js"></script>
@@ -305,7 +306,7 @@
   <h3 id="exercise">7.1 A smaller canvas</h3>
   <p>Keep DiffusionGemma, the H200, \(S = 14\) and \(r = 1\) (so \(\omega = 15\)), but shrink the canvas from 256 to <b>\(b = 32\)</b>. The exact map below changes completely. Predict each feature from the propositions before opening its answer; every answer says where to look on the map.</p>
   <figure class="mapfig">
-    <figcaption>Exact TD/AR gain with a 32-token canvas · DiffusionGemma, H200, BF16, S = 14</figcaption>
+    <figcaption>Figure 11. Exact TD/AR gain with a 32-token canvas · DiffusionGemma, H200, BF16, S = 14</figcaption>
     <div class="maplegend" id="map-ex-legend"></div>
     <div class="chart" id="map-ex"></div>
   </figure>
@@ -352,7 +353,7 @@
   <h3 id="ex-dense">7.2 A dense model</h3>
   <p>Now take a dense model, Llama 3.1 8B, on the same H200 with the same canvas (\(b = 256\), \(S = 14\), \(r = 1\)), and pair it with a TD twin that has no self-conditioning. A dense model has no MoE penalty, \(\Pi = 1\), and in BF16 its linear intensity is simply the batch: \(I_{\mathrm{lin}}(B) = 2BN/(2N) = B\).</p>
   <figure class="mapfig">
-    <figcaption>Exact TD/AR gain · Llama 3.1 8B and its TD twin, H200, BF16, b = 256, S = 14</figcaption>
+    <figcaption>Figure 12. Exact TD/AR gain · Llama 3.1 8B and its TD twin, H200, BF16, b = 256, S = 14</figcaption>
     <div class="maplegend" id="map-ex2-legend"></div>
     <div class="chart" id="map-ex2"></div>
   </figure>
@@ -370,19 +371,19 @@
     <li>
 <p><b>Does AR ever become compute-bound at 1k context?</b></p>
       <details class="answer"><summary>Answer</summary>
-        <p>Without a cache it would at \(I_{\mathrm{lin}}(B) = I^\star\), batch 206. But Llama's cache holds 128 KiB per token (32 layers, 8 KV heads, head dimension 128, K and V, 2 bytes), and with \(I_{\mathrm{attn}} = 4\) Proposition 4 says no batch makes an AR step compute-bound once the context exceeds about 530 tokens. So AR stays memory-bound, and the gain keeps falling instead: 0.17 at batch 256.</p></details>
+        <p>Without a cache it would at \(I_{\mathrm{lin}}(B) = I^\star\), batch 206. But Llama's cache holds 128 KiB per token (32 layers, 8 KV heads, head dimension 128, K and V, 2 bytes), and with \(I_{\mathrm{attn}} = 4\) Proposition 8 says no batch makes an AR step compute-bound once the context exceeds about 530 tokens. So AR stays memory-bound, and the gain keeps falling instead: 0.17 at batch 256.</p></details>
 </li>
     <li>
 <p><b>Long context.</b> What gain, and which contexts actually fit?</p>
       <details class="answer"><summary>Answer</summary>
-        <p>\(b\,I_{\mathrm{attn}} = 1024 \gt I^\star\), so this is R6 with \(\Gamma = 206/(15 \times 4) = 3.4\), twice DiffusionGemma's 1.7 because Llama has half as many query heads per KV head. Memory decides which of these contexts exist: next to 16 GB of weights, one sequence fits up to about 950k tokens and a batch of 64 only up to 14k. At batch 1 and 930k tokens the exact gain is 3.7, a little above the limit because the weights are still 12% of AR's bytes and hold its intensity below 4. On the map: the large grey region in the top right.</p></details>
+        <p>\(b\,I_{\mathrm{attn}} = 1024 \gt I^\star\), so this is R6 with \(\Gamma = 206/(15 \times 4) = 3.4\), twice DiffusionGemma's 1.7 because Llama has half as many query heads per KV head. Memory decides which of these contexts exist: next to 16 GB of weights, one sequence fits up to about 950k tokens and a batch of 64 only up to 14k. At batch 1 and 930k tokens the exact gain is 3.7, a little above the limit because the weights are still 11% of AR's bytes and hold its intensity below 4. On the map: the large grey region in the top right.</p></details>
 </li>
   </ol>
 
   <h3 id="ex-h20">7.3 A low-ridge accelerator</h3>
   <p>Back to DiffusionGemma with \(b = 256\) and \(S = 14\), but on an H20: 148 TFLOP/s of BF16, 4.0 TB/s and 96 GB. Its ridge point is \(I^\star = 148/4.0 = 37\), against 206 on the H200.</p>
   <figure class="mapfig">
-    <figcaption>Exact TD/AR gain · DiffusionGemma, H20, BF16, b = 256, S = 14</figcaption>
+    <figcaption>Figure 13. Exact TD/AR gain · DiffusionGemma, H20, BF16, b = 256, S = 14</figcaption>
     <div class="maplegend" id="map-ex3-legend"></div>
     <div class="chart" id="map-ex3"></div>
   </figure>
