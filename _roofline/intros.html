@@ -21,7 +21,7 @@ This book asks when block text diffusion produces more tokens per second than au
 <!-- intro:effective -->
 Proposition 1 takes two kinds of input that Parts 1–7 do not measure: the rates of the accelerator, taken from its datasheet, and the experts each pass touches, taken from the assumption that tokens route independently (A2). This chapter measures both on one H200, for DiffusionGemma and Gemma 4, and shows that routing is the input that moves the bound most, in opposite directions at small and at large batch.
 <!-- intro:stack -->
-A bound is tested only by measured times that are attributed to the same components as the bound. This chapter describes how every kernel of a step is timed in vLLM, assigned to a component and compared with its empirical roofline, and the three defects of the stock engine that this exposed.
+Part 8 gives a roofline time for each component of a forward pass. This chapter describes how the measured time of a pass in vLLM is split into the same components, so that the two can be compared, and the three defects of the stock engine that these measurements exposed.
 <!-- intro:kernels -->
 With the engine fixed, two components of TD's step remain far below their rooflines: the routed experts, and global attention at head dimension 512. This chapter explains why each loses time, rewrites both, and measures what the rewrites change in efficiency, throughput and quality. It defines every hardware term it uses.
 <!-- intro:conclusion -->

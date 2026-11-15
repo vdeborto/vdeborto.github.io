@@ -363,30 +363,6 @@ def fig_eff_routing(d, C=1024):
     return '<div class="pfig-pair">' + "".join(f"<div>{o}</div>" for o in out) + "</div>"
 
 
-def fig_pipeline():
-    W, H = 900, 340
-    s = [arrow_defs(3)]
-    A, Bx, Cx, Dx = 14, 262, 510, 744
-    s.append(tbox(A, 20, 200, 92, ["vLLM with CUDA graphs,", "B sequences, stepped", "one pass at a time"], TD, "graph run", None, "pipeline"))
-    s.append(tbox(A, 250, 200, 76, ["same point, no graphs:", "the kernels have names"], MUT, "eager run", None, "pipeline"))
-    s.append(tbox(Bx, 20, 200, 62, ["wall clock: step time t"], MUT, "timed window", None, "pipeline"))
-    s.append(tbox(Bx, 110, 200, 62, ["kernel start, duration"], MUT, "profiled window", None, "pipeline"))
-    s.append(tbox(Bx, 200, 200, 62, ["tokens per expert"], MUT, "routing counts", None, "pipeline"))
-    s.append(tbox(Cx, 100, 200, 82, [f"kernel time {sub('t', 'c')} per", "component, plus outside", "the model and idle"], MUT, "attribution", None, "pipeline"))
-    s.append(tbox(Cx, 212, 200, 62, [f"{sub('F', 'c')}, {sub('Q', 'c')} at measured U"], MUT, "cost model", None, "pipeline"))
-    s.append(tbox(Dx, 150, 146, 92, [f"{sub('r', 'c')}: Definition 5", f"{sub('η', 'c')} = {sub('r', 'c')}/{sub('t', 'c')}", "recoverable time"], TD, "accounting", None, "pipeline"))
-    L = lambda x1, y1, x2, y2: f'<line x1="{x1}" y1="{y1}" x2="{x2}" y2="{y2}" stroke="currentColor" stroke-width="1.1" marker-end="url(#pa3)"/>'
-    P = lambda d_: f'<path d="{d_}" fill="none" stroke="currentColor" stroke-width="1.1" marker-end="url(#pa3)"/>'
-    s += [L(214, 46, Bx - 2, 51), L(214, 70, Bx - 2, 141), L(214, 94, Bx - 2, 228),
-          L(Bx + 200, 141, Cx - 2, 141), L(Bx + 200, 231, Cx - 2, 243),
-          P(f"M214,300 H{Cx - 24} V160 H{Cx - 2}"),
-          P(f"M{Bx + 200},51 H{Dx - 18} V176 H{Dx - 2}"),
-          L(Cx + 200, 150, Dx - 2, 190), L(Cx + 200, 243, Dx - 2, 220)]
-    s.append(f'<text x="{(214 + Cx - 24) / 2}" y="293" text-anchor="middle" font-size="11" fill="{MUT}">labels by kernel order</text>')
-    s.append(f'<text x="{(Bx + 200 + Dx - 18) / 2}" y="44" text-anchor="middle" font-size="11" fill="{MUT}">step time t</text>')
-    s.append(f'<text x="{Bx + 210}" y="230" font-size="11" fill="{MUT}">U</text>')
-    return svg(W, H, "The measurement stack: a graph run gives step times, a kernel trace and routing; an eager run labels the kernels; the accounting divides roofline by measured time per component", "".join(s))
-
 
 def fig_flags():
     W, H = 900, 290
@@ -432,6 +408,83 @@ def fig_pair():
     for k, t in enumerate(("partial scores", "m × n, FP16, to", "partner's memory")):
         s.append(f'<text x="370" y="{210 + 15 * k}" text-anchor="middle" font-size="11" fill="{TD}">{t}</text>')
     return svg(740, 300, "Two thread blocks on two SMs each hold half of the head dimension and exchange their partial scores", "".join(s))
+
+
+
+
+
+
+def fig_eager():
+    """Eager mode against CUDA-graph replay: CPU and GPU lanes, same structure for both."""
+    W, H, x0, L, nx = 660, 290, 70, 58, 392
+    s = [arrow_defs(9)]
+    def row(y0, title, launches, kernels, notes):
+        r = [f'<text x="10" y="{y0}" font-size="12.5" font-weight="600" fill="{INK}">{title}</text>',
+             f'<text x="{x0 - 10}" y="{y0 + 31}" text-anchor="end" font-size="11.5" fill="{MUT}">CPU</text>',
+             f'<text x="{x0 - 10}" y="{y0 + 71}" text-anchor="end" font-size="11.5" fill="{MUT}">GPU</text>']
+        for x, t in launches:
+            r.append(f'<rect x="{x}" y="{y0 + 14}" width="{L}" height="26" rx="3" fill="none" stroke="{MUT}"/>'
+                     f'<text x="{x + L / 2}" y="{y0 + 31}" text-anchor="middle" font-size="11.5" fill="{INK}">{t}</text>')
+        for x, t in kernels:
+            r.append(f'<rect x="{x}" y="{y0 + 54}" width="38" height="26" rx="3" fill="{MUT}" fill-opacity="0.35"/>'
+                     f'<text x="{x + 19}" y="{y0 + 71}" text-anchor="middle" font-size="11.5" fill="{INK}">{t}</text>')
+        for k, t in enumerate(notes):
+            r.append(f'<text x="{nx}" y="{y0 + 31 + 40 * k}" font-size="11.5" fill="{MUT}">{fits(t, 11.5, W - nx - 4, "eager")}</text>')
+        return "".join(r)
+    s.append(row(16, "eager mode", [(x0 + i * (L + 4), "launch") for i in range(4)],
+                 [(x0 + L + i * (L + 4), f"k{i + 1}") for i in range(4)], ["one launch per kernel", "GPU idle between launches"]))
+    s.append(row(140, "CUDA graph", [(x0, "replay")], [(x0 + L + i * 40, f"k{i + 1}") for i in range(4)],
+                 ["one launch for the pass", "kernels back to back"]))
+    s.append(f'<line x1="{x0}" y1="256" x2="{W - 10}" y2="256" stroke="currentColor" marker-end="url(#pa9)"/>')
+    s.append(f'<text x="{(x0 + W) / 2}" y="280" text-anchor="middle" font-size="11.5" fill="{MUT}">time</text>')
+    return svg(W, H, "In eager mode the CPU launches each kernel separately and the GPU waits between short kernels; a CUDA graph is launched once and its kernels run back to back", "".join(s))
+
+
+def fig_run():
+    """One measured point: windows of passes in time order, and the eager run of the same point."""
+    W, H = 720, 330
+    s = [arrow_defs(10)]
+    segs = [(10, 156, "prefill", ["the C context", "tokens"]),
+            (174, 150, "warm-up", ["2 canvases,", "30 passes"]),
+            (332, 186, "profiled window", ["45 passes, profiler on:", "kernels, durations"]),
+            (526, 186, "timed window", ["45 passes, profiler off:", "step time t"])]
+    s.append(f'<text x="10" y="28" font-size="12.5" font-weight="600" fill="{INK}">graph run (three repeats, different prompts)</text>')
+    for x, w, t, lines in segs:
+        s.append(tbox(x, 42, w, 78, lines, MUT, t, None, "run"))
+    s.append(f'<text x="332" y="142" font-size="11" fill="{MUT}">counter in every MoE layer</text>')
+    s.append(tbox(332, 150, 380, 34, ["tokens per expert, per layer and pass"], MUT, None, None, "run"))
+    s.append(f'<line x1="10" y1="208" x2="{W - 8}" y2="208" stroke="currentColor" marker-end="url(#pa10)"/>')
+    s.append(f'<text x="10" y="228" font-size="11" fill="{MUT}">passes in time order</text>')
+    s.append(f'<text x="10" y="264" font-size="12.5" font-weight="600" fill="{INK}">eager run (once)</text>')
+    s.append(tbox(10, 274, 420, 34, ["same point; each kernel launched from its module"], MUT, None, None, "run"))
+    return svg(W, H, "One measured point: after prefill and warm-up, a profiled window records every kernel, then a timed window without the profiler gives the step time; an expert counter covers both windows; one eager run of the same point follows", "".join(s))
+
+
+def fig_attrib():
+    """Kernel labelling: the eager trace gives each kernel its module; graph kernels take the label
+    of the eager kernel with the same name and launch shape, in order of occurrence."""
+    W, H, x0, bw, gap = 790, 270, 136, 98, 11
+    ks = ["norm", "gemm_fp8", "attn_fwd", "gemm_fp8", "moe_gemm1", "moe_gemm2"]
+    mods = ["norm", "qkv proj.", "attention", "out proj.", "experts", "experts"]
+    comps = ["outside", "dense", "attention", "dense", "experts", "experts"]
+    X = lambda i: x0 + i * (bw + gap)
+    s = [arrow_defs(11)]
+    left = [(62, "eager run", 12.5, 600, INK), (78, "name, module", 11, 400, MUT),
+            (112, "match: same", 11, 400, MUT), (126, "name and shape,", 11, 400, MUT), (140, "in order", 11, 400, MUT),
+            (184, "graph run", 12.5, 600, INK), (200, "name only", 11, 400, MUT), (240, "component", 11, 400, MUT)]
+    for y, t, fs, fw, col in left:
+        s.append(f'<text x="10" y="{y}" font-size="{fs}" font-weight="{fw}" fill="{col}">{fits(t, fs, x0 - 16, "attrib")}</text>')
+    for i, (k, m, c) in enumerate(zip(ks, mods, comps)):
+        x = X(i)
+        s.append(f'<text x="{x + bw / 2}" y="28" text-anchor="middle" font-size="11" fill="{MUT}">{fits(m, 11, bw + gap - 4, "attrib")}</text>')
+        s.append(f'<path d="M{x + 2},40 v-5 h{bw - 4} v5" fill="none" stroke="{MUT}"/>')
+        s.append(f'<rect x="{x}" y="46" width="{bw}" height="36" rx="4" fill="var(--bdr-surface)" stroke="{MUT}"/>'
+                 f'<text x="{x + bw / 2}" y="68" text-anchor="middle" font-size="12" fill="{INK}">{fits(k, 12, bw - 8, "attrib")}</text>')
+        s.append(f'<line x1="{x + bw / 2}" y1="84" x2="{x + bw / 2}" y2="164" stroke="{MUT}" stroke-dasharray="3 3" marker-end="url(#pa11)"/>')
+        s.append(f'<rect x="{x}" y="168" width="{bw}" height="36" rx="4" fill="var(--bdr-surface)" stroke="{MUT}"/>'
+                 f'<text x="{x + bw / 2}" y="190" text-anchor="middle" font-size="12" fill="{INK}">{k}</text>')
+        s.append(f'<text x="{x + bw / 2}" y="240" text-anchor="middle" font-size="12" font-weight="600" fill="{INK}">{c}</text>')
+    return svg(W, H, "Graph-run kernels carry their names but not their modules; each takes the module of the eager kernel with the same name and launch shape, in order", "".join(s))
 
 
 # ---------------------------------------------------------------- tables
@@ -568,21 +621,25 @@ def blocks():
                        "Distinct experts per MoE layer and forward pass \\(U\\), averaged over the 30 layers and the timed passes, against batch size at context 1k: the median of three repeats with different prompts, and the band spanning them. Dotted: independent tokens with uniform routing, \\(U_{E,k}(N)\\) of Definition 1. Dashed: independent tokens with each expert's measured popularity (Definition 6). AR follows the dashed curve; TD lies below it.", wide=True),
         "maps_abc": fig("fig-eff-maps", "Figure 12", "The gain bound moves with each measured input, and routing moves it most.", "",
                         m4([("roof_ind_ds", "(a) datasheet, independent routing"), ("roof_ind", "(b) empirical ceilings"), ("roof", "(c) and measured routing")]),
-                        "Roofline bound on \\(\\Gamma\\) over batch \\(B\\) and context \\(C\\), with FP8 weights. Each map changes one input of the previous one. Orange: TD faster; blue: AR faster; the shade grows with \\(|\\log\\Gamma|\\) on one scale shared by Figures 12 and 18. Missing cells did not fit in memory.", wide=True),
-        "pipeline": fig("fig-pipeline", "Figure 13", "Every number in Parts 8–11 goes through one pipeline, from an engine run to an efficiency per component.", "", fig_pipeline(),
-                        "Each point (decoder, \\(B\\), \\(C\\)) is run three times with CUDA graphs and once without (eager), from the same prompts. The eager run's kernels carry readable names and come in the same order as the graph run's, which is how each kernel of the graph run is assigned to a component.", wide=True),
-        "flags": fig("fig-flags", "Figure 14", "A replayed CUDA graph reads the memory it saw at capture, so a tensor recreated at every step is never read.", "", fig_flags(),
+                        "Roofline bound on \\(\\Gamma\\) over batch \\(B\\) and context \\(C\\), with FP8 weights. Each map changes one input of the previous one. Orange: TD faster; blue: AR faster; the shade grows with \\(|\\log\\Gamma|\\) on one scale shared by Figures 12 and 20. Missing cells did not fit in memory.", wide=True),
+        "eager": fig("fig-eager", "Figure 13", "In eager mode the GPU waits for each launch; a CUDA graph runs the kernels of a pass back to back.", "", fig_eager(),
+                     "Four kernels of one forward pass, as in Part 8's small GEMMs: launching a kernel costs the CPU a few µs, and with 64 tokens or fewer a projection runs for 5–12 µs, so in eager mode the GPU waits a large share of the time. A CUDA graph replays the recorded sequence of kernels with one launch."),
+        "run": fig("fig-run", "Figure 14", "One measured point: a profiled window for the kernels, a timed window for the step time.", "", fig_run(),
+                   "TD at one batch size \\(B\\) and context \\(C\\). The profiler slows the passes down, so the step time comes from the second window, where it is off. For AR the windows are 48 steps each, after 1,488 warm-up steps, which put AR's context at the middle of the windows at TD's.", wide=True),
+        "attrib": fig("fig-attrib", "Figure 15", "Each kernel of the graph run takes its module from the eager run.", "", fig_attrib(),
+                      "A stretch of one layer, with simplified kernel names. In the eager run each kernel is recorded inside the profiler range of the module that launched it; in the graph run only inside the range of the whole pass. The same kernel can serve several modules, as the FP8 GEMM does here, so the match counts occurrences. Each module then belongs to one component.", wide=True),
+        "flags": fig("fig-flags", "Figure 16", "A replayed CUDA graph reads the memory it saw at capture, so a tensor recreated at every step is never read.", "", fig_flags(),
                      "DiffusionGemma passes a causal flag per sequence to the attention kernel: 0 for a bidirectional denoising pass, 1 for the causal commit pass. In vLLM 0.28 the flags lived in a bool buffer converted to int32 at every step; under CUDA graphs the attention kernels kept reading the copy made at capture.", wide=True),
-        "moe": fig("fig-moe", "Figure 15", "The new expert path removes three passes over memory; its two GEMMs are as fast as vLLM's.", "", fig_moe(),
+        "moe": fig("fig-moe", "Figure 17", "The new expert path removes three passes over memory; its two GEMMs are as fast as vLLM's.", "", fig_moe(),
                    "One MoE layer at TD batch 32 (\\(Nk = 65{,}536\\) rows, each a (token, expert) pair). Each box is one kernel, in order; the orange number is what it writes to memory, read back by the next kernel.", wide=True),
-        "pair": fig("fig-pair", "Figure 16", "Each thread block of the pair holds half of the head dimension; the only traffic between the two SMs is the partial score tile.", "", fig_pair(),
+        "pair": fig("fig-pair", "Figure 18", "Each thread block of the pair holds half of the head dimension; the only traffic between the two SMs is the partial score tile.", "", fig_pair(),
                     "Both blocks process the same 128 query rows. The orange arrows are the exchange: each block writes its \\(m \\times n\\) partial scores into the partner's shared memory and waits for the partner's before the softmax."),
-        "smem": fig("fig-smem", "Figure 17", "Splitting the head dimension makes room for a second pipeline stage.", "", fig_smem(),
+        "smem": fig("fig-smem", "Figure 19", "Splitting the head dimension makes room for a second pipeline stage.", "", fig_smem(),
                     "Shared memory per thread block, in KB, against the 227 KB of one SM. FA4 at head dimension 512 holds full-width tiles and fits one stage; a block of the pair holds half-width tiles and fits two stages of 64 keys plus two exchange buffers. With 80-token KV pages the fastest configuration uses the room differently, for one stage of 80-key tiles loaded by TMA (Table 18)."),
-        "maps_cd": fig("fig-conc-maps", "Figure 18", "The measured gain against the bound at measured routing and empirical ceilings.", "",
+        "maps_cd": fig("fig-conc-maps", "Figure 20", "The measured gain against the bound at measured routing and empirical ceilings.", "",
                        m4([("roof", "(c) bound, measured inputs"), ("measured", "(d) measured")]),
                        "Same scale as Figure 12. Medians of three repeats; the measured gain is TD's tokens per second over AR's at equal \\(B\\) and \\(C\\).", wide=True),
-        "dev": fig("fig-conc-dev", "Figure 19", "The bound is conservative up to batch 8 and optimistic from batch 16 on.", "", f'<div class="pfig-grid"><div>{dev}</div></div>',
+        "dev": fig("fig-conc-dev", "Figure 21", "The bound is conservative up to batch 8 and optimistic from batch 16 on.", "", f'<div class="pfig-grid"><div>{dev}</div></div>',
                    "Measured gain over the bound (c), which equals \\(\\eta_{TD}/\\eta_{AR}\\) by Proposition 9. Orange where the measured gain exceeds the bound, blue where it falls short; the shade grows with the distance from 1 on its own log scale."),
         "t_ceil": t_ceilings(d), "t_neff": t_neff(d), "t_prop1": t_prop1(d), "t_stock": t_stock(d), "t_eta": t_eta(d), "t_vs2": t_vs2(d),
         "t_moe": t_moe(), "t_attn": t_attn(), "t_recover": t_recover(d),
