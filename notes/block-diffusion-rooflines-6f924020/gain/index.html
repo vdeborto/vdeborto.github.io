@@ -309,7 +309,7 @@
     <p class="gist"><span>In short.</span> The gain is the ratio of the two decoders' attainable FLOP rates, divided by the \(\omega\) passes a canvas costs.</p>
     <dl class="assume">
       <dt>A1 · Roofline</dt>
-<dd>A pass with \(F\) FLOPs and \(Q\) HBM bytes takes \(\max(F/\pi,\,Q/\beta)\).</dd>
+<dd>A pass with \(F\) FLOPs and \(Q\) bytes read from memory takes \(\max(F/\pi,\,Q/\beta)\).</dd>
       <dt>A2 · Costs</dt>
 <dd>Per sequence, an AR step costs \(\class{mj-ar}{F^{AR}}\) FLOPs and \(\class{mj-ar}{Q^{AR}}\) bytes, and a TD pass \(\class{mj-td}{F^{TD}}\) and \(\class{mj-td}{Q^{TD}}\), as in Definition 2. Vocabulary, activations, KV writes and in-canvas keys are neglected. Expert routing and token selection are independent across positions and uniform: each token picks its \(k\) experts uniformly among the \(E\), and each query its \(m\) tokens uniformly among the \(C\). (<a href="/notes/block-diffusion-rooflines-6f924020/effective/">Part 8</a> measures the routing: it is not independent, and <a href="/notes/block-diffusion-rooflines-6f924020/effective/#rem-neff">Remark 3</a> there gives Proposition 1 at the measured routing.)</dd>
       <dt>A3 · Canvas</dt>
@@ -326,10 +326,10 @@
       <ol>
         <li>For a pass with \(I = F/Q\): \(\max(F/\pi,\,Q/\beta) = \dfrac{F}{\beta}\max\Bigl(\dfrac{1}{I^\star},\dfrac{1}{I}\Bigr) = \dfrac{F}{\beta\,\min(I, I^\star)}\).</li>
         <li>
-<i>AR.</i> A step costs \(B\class{mj-ar}{F^{AR}}\) FLOPs at intensity \(\class{mj-ar}{I_{AR}}\) and yields \(B\) tokens: \(\class{mj-ar}{t_{AR}} = \class{mj-ar}{F^{AR}}\,/\,\bigl(\beta\min(\class{mj-ar}{I_{AR}}, I^\star)\bigr)\) per token.</li>
+<i>AR.</i> A step costs \(B\class{mj-ar}{F^{AR}}\) FLOPs at intensity \(\class{mj-ar}{I_{AR}}\) and yields \(B\) tokens: \(\class{mj-ar}{T_{AR}} = \class{mj-ar}{F^{AR}}\,/\,\bigl(\beta\min(\class{mj-ar}{I_{AR}}, I^\star)\bigr)\) per token.</li>
         <li>
-<i>TD.</i> A commit pass costs \(B\class{mj-td}{F^{TD}} = Bb\class{mj-ar}{F^{AR}}\) FLOPs at intensity \(\class{mj-td}{I_{TD}}\). A denoising pass multiplies both \(\class{mj-td}{F^{TD}}\) and \(\class{mj-td}{Q^{TD}}\) by \(r\), so it has the same intensity and takes \(r\) times as long. A canvas therefore takes \(\omega\) times one commit pass and yields \(Bb\) tokens: \(\class{mj-td}{t_{TD}} = \omega \class{mj-ar}{F^{AR}}\,/\,\bigl(\beta\min(\class{mj-td}{I_{TD}}, I^\star)\bigr)\) per token.</li>
-        <li>\(\Gamma = \class{mj-ar}{t_{AR}}/\class{mj-td}{t_{TD}}\), and \(\class{mj-td}{I_{TD}} = \class{mj-td}{F^{TD}}/\class{mj-td}{Q^{TD}} = b\class{mj-ar}{F^{AR}}/(\Pi \class{mj-ar}{Q^{AR}}) = b\class{mj-ar}{I_{AR}}/\Pi\) by Definition 4. \(\blacksquare\)</li>
+<i>TD.</i> A commit pass costs \(B\class{mj-td}{F^{TD}} = Bb\class{mj-ar}{F^{AR}}\) FLOPs at intensity \(\class{mj-td}{I_{TD}}\). A denoising pass multiplies both \(\class{mj-td}{F^{TD}}\) and \(\class{mj-td}{Q^{TD}}\) by \(r\), so it has the same intensity and takes \(r\) times as long. A canvas therefore takes \(\omega\) times one commit pass and yields \(Bb\) tokens: \(\class{mj-td}{T_{TD}} = \omega \class{mj-ar}{F^{AR}}\,/\,\bigl(\beta\min(\class{mj-td}{I_{TD}}, I^\star)\bigr)\) per token.</li>
+        <li>\(\Gamma = \class{mj-ar}{T_{AR}}/\class{mj-td}{T_{TD}}\), and \(\class{mj-td}{I_{TD}} = \class{mj-td}{F^{TD}}/\class{mj-td}{Q^{TD}} = b\class{mj-ar}{F^{AR}}/(\Pi \class{mj-ar}{Q^{AR}}) = b\class{mj-ar}{I_{AR}}/\Pi\) by Definition 4. \(\blacksquare\)</li>
       </ol>
     </details>
   </div>
@@ -337,7 +337,7 @@
   <div class="bdr-fig wide" id="fig-roofline">
     <div class="fig-k">Figure 5 · interactive</div>
     <p class="fig-title">Proposition 1 on the roofline.</p>
-    <p class="fig-lede">Each dot sits at the arithmetic intensity of its pass, on the roofline of the accelerator. The bracket is how much faster TD's FLOPs run than AR's; dividing it by \(\omega\) gives \(\Gamma\). Move the batch and the context, or pick one of the three regimes.</p>
+    <p class="fig-lede">Each dot sits at the arithmetic intensity of its pass, on the roofline of the accelerator. The bracket is how much faster TD's FLOPs run than AR's; dividing it by \(\omega\) gives \(\Gamma\). Move the batch and the context, or pick one of three settings: batch 1 and batch 8 at context 1k, and batch 4 at context 1M.</p>
     <div data-fig="roofline"></div>
     <p class="fig-cap">The roofline is \(\min(\pi,\ I\beta)\), and the bracket is \(\min(\class{mj-td}{I_{TD}}, I^\star)/\min(\class{mj-ar}{I_{AR}}, I^\star)\). Intensities from Definition 3 without the vocabulary, as in (A2): DiffusionGemma, BF16, \(b = 256\), \(S = 14\), \(\omega = 15\). The exact accounting of the appendix, at the same fixed context, is given under the plot for comparison.</p>
   </div>
@@ -345,7 +345,7 @@
     <div class="bdr-title">
 <span class="tag">Corollary 1</span>Which side wins</div>
     <p class="gist"><span>In short.</span> If AR is compute-bound TD loses; otherwise the gain is the smaller of \(\mathrm{TPF}/\Pi\), set by bytes, and \(I^\star/(\omega \class{mj-ar}{I_{AR}})\), set by the compute AR leaves idle.</p>
-    <p>If AR is compute-bound (\(\class{mj-ar}{I_{AR}} \ge I^\star\)), then \(\Gamma \le 1/\omega\). Otherwise</p>
+    <p>If AR is compute-bound (\(\class{mj-ar}{I_{AR}} \ge I^\star\)), then \(\Gamma \le 1/\omega\), with equality whenever \(\Pi \le b\), which holds under (A2) (Propositions 3 and 5) and gives \(\class{mj-td}{I_{TD}} \ge \class{mj-ar}{I_{AR}}\). Otherwise</p>
     <div class="eq">\[ \Gamma = \min\Bigl(\frac{\mathrm{TPF}}{\Pi},\ \frac{I^\star}{\omega\,\class{mj-ar}{I_{AR}}}\Bigr),\quad \mathrm{TPF} = \frac{b}{\omega}. \]</div>
     <details class="proof"><summary>Proof</summary><p>If \(\class{mj-ar}{I_{AR}} \ge I^\star\) the denominator of Proposition 1 is \(I^\star\) and the numerator at most \(I^\star\). Otherwise \(\min(b\class{mj-ar}{I_{AR}}/\Pi,\,I^\star)/\class{mj-ar}{I_{AR}} = \min(b/\Pi,\,I^\star/\class{mj-ar}{I_{AR}})\); divide by \(\omega\). \(\blacksquare\)</p></details>
   </div>
@@ -357,11 +357,17 @@
     <p>Under (A2), for \(X \in \{AR, TD\}\), let \(\theta^X_{\mathrm{lin}} = Q^X_{\mathrm{lin}}/Q^X\) and \(\theta^X_{\mathrm{attn}} = Q^X_{\mathrm{attn}}/Q^X\) be the shares of the two parts in the bytes of Definition 2. Then</p>
     <div class="eq eq-wide">\[ I_X = \theta^X_{\mathrm{lin}}\,I^X_{\mathrm{lin}} + \theta^X_{\mathrm{attn}}\,I^X_{\mathrm{attn}},\qquad \Pi - 1 = \class{mj-ar}{\theta^{AR}_{\mathrm{lin}}}(\Pi_{\mathrm{lin}} - 1) + \class{mj-ar}{\theta^{AR}_{\mathrm{attn}}}(\Pi_{\mathrm{attn}} - 1). \]</div>
     <div class="eq eq-narrow">\[ \begin{gathered} I_X = \theta^X_{\mathrm{lin}}\,I^X_{\mathrm{lin}} + \theta^X_{\mathrm{attn}}\,I^X_{\mathrm{attn}},\\[4pt] \Pi - 1 = \class{mj-ar}{\theta^{AR}_{\mathrm{lin}}}(\Pi_{\mathrm{lin}} - 1)\\ \qquad + \class{mj-ar}{\theta^{AR}_{\mathrm{attn}}}(\Pi_{\mathrm{attn}} - 1). \end{gathered} \]</div>
-    <p>Consequently each intensity lies between its two parts, and \(\class{mj-td}{I_{TD}}/\class{mj-ar}{I_{AR}}\) lies between \(b/\Pi_{\mathrm{lin}}\) and \(b/\Pi_{\mathrm{attn}}\), nearer to whichever part carries more of the bytes.</p>
+    <p>Consequently each intensity lies between its two parts, nearer to the part that carries more of that pass's bytes. Moreover \(1/\Pi = \class{mj-td}{\theta^{TD}_{\mathrm{lin}}}/\Pi_{\mathrm{lin}} + \class{mj-td}{\theta^{TD}_{\mathrm{attn}}}/\Pi_{\mathrm{attn}}\), so \(\class{mj-td}{I_{TD}}/\class{mj-ar}{I_{AR}} = b/\Pi\) lies between \(b/\Pi_{\mathrm{lin}}\) and \(b/\Pi_{\mathrm{attn}}\), nearer to the part that carries more of the TD pass's bytes.</p>
     <details class="proof"><summary>Proof</summary><p>\(I_X = F^X/Q^X = \sum_c (Q^X_c/Q^X)(F^X_c/Q^X_c)\) over the two parts \(c\). For the penalty, \(\class{mj-td}{Q^{TD}_c} = \Pi_c\,\class{mj-ar}{Q^{AR}_c}\) by Definition 4, so \(\Pi - 1 = \sum_c (\class{mj-td}{Q^{TD}_c} - \class{mj-ar}{Q^{AR}_c})/\class{mj-ar}{Q^{AR}} = \sum_c \class{mj-ar}{\theta^{AR}_c}(\Pi_c - 1)\). A weighted average with positive weights lies between its terms; \(\class{mj-td}{I_{TD}} = (b/\Pi)\class{mj-ar}{I_{AR}}\) and \(\Pi\) lies between \(\Pi_{\mathrm{lin}}\) and \(\Pi_{\mathrm{attn}}\). \(\blacksquare\)</p></details>
   </div>
 </section>
 <nav class="book-nav" aria-label="Chapters"><a class="prev" href="/notes/block-diffusion-rooflines-6f924020/setup/"><span>Previous</span>1 · Setup</a><a class="next" href="/notes/block-diffusion-rooflines-6f924020/linear/"><span>Next</span>3 · The linear part</a></nav>
+<section class="book-comments" id="bdr-comments" data-repo="vdeborto/vdeborto.github.io" data-repo-id="MDEwOlJlcG9zaXRvcnkxMTY1OTk1ODA=" data-category="Announcements" data-category-id="DIC_kwDOBvMrHM4DLMnm" data-term="Block Diffusion Rooflines · Part 2 · The gain">
+  <h3>Comments</h3>
+  <p class="small">Questions and corrections on this chapter are welcome below. The thread is a GitHub Discussion of this site's repository, so posting needs a GitHub account. To cite the book, see the <a href="/notes/block-diffusion-rooflines-6f924020/#cite">citation</a> on its first page.</p>
+  <div class="comments-frame"></div>
+  <noscript><p class="small">The comment thread needs JavaScript.</p></noscript>
+</section>
 </div>
 
 

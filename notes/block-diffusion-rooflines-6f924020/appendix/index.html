@@ -302,7 +302,7 @@
 <noscript><p>This page needs JavaScript for its equations, figures and calculator.</p></noscript>
 <p class="book-part">The appendix of <a href="/notes/block-diffusion-rooflines-6f924020/">Block Diffusion Rooflines</a><span class="book-links"><span class="bl-row">Previous: <a href="/notes/block-diffusion-rooflines-6f924020/conclusion/" rel="prev">11 · Conclusion</a></span></span></p>
 <section class="bdr-col" id="appendix">
-  <p class="chapter-intro">Every number in Parts 1–7 is a roofline bound computed from a cost model, not a measurement; Parts 8–11 give the measurements. This appendix describes the exact accounting behind the maps, the headline numbers and the calculator, compares its bounds with throughput measured in vLLM, and lists the sources of the model shapes and accelerator specifications.</p>
+  <p class="chapter-intro">Every number in Parts 1–7 is a roofline bound computed from a cost model, not a measurement; Parts 8–11 give the measurements. This appendix describes the exact accounting behind the maps, the headline numbers and the calculator, points to the measurements that check it, and lists the sources of the model shapes and accelerator specifications.</p>
   <h3>Exact accounting</h3>
   <p>The maps, headline numbers and calculator do not use Proposition 1. They evaluate every pass of a generation: AR prefill and \(G-1\) decode steps; TD encoder prefill, then per canvas \(S\) bidirectional denoising passes and one causal commit. Each pass counts:</p>
   <ul>
@@ -319,7 +319,7 @@
   <h3>Check against measurement</h3>
   <p><a href="/notes/block-diffusion-rooflines-6f924020/effective/">Parts 8–11</a> compare these bounds with throughput measured in vLLM 0.28.0 on one H200, with every kernel attributed to a component. An earlier check in this appendix (84% of the bound at batch 1, 34% at batch 64) used stock vLLM, whose CUDA graphs read stale causal flags (<a href="/notes/block-diffusion-rooflines-6f924020/stack/#stack-defects">Part 9</a>), against bounds under independent routing; it is superseded by <a href="/notes/block-diffusion-rooflines-6f924020/conclusion/">Part 11</a>.</p>
   <h3>Source and updates</h3>
-  <p class="small">The page is self-contained: the cost model is the <code>BDModel</code> script embedded in it (view the page source), and the page has no other dependency. Last updated 15 November 2026: an introduction; Parts 8–11 on measurements in vLLM on one H200; the sparse-attention index cache corrected to one key per token.</p>
+  <p class="small">The cost model is the <code>BDModel</code> script in <code>/assets/roofline/note.js</code>, which every chapter loads. Last updated 15 November 2026: an introduction; Parts 8–11 on measurements in vLLM on one H200; the sparse-attention index cache corrected to one key per token.</p>
   <h3>Sources</h3>
   <p class="small">
     Models: <a href="https://huggingface.co/google/diffusiongemma-26B-A4B-it" rel="external nofollow noopener" target="_blank">google/diffusiongemma-26B-A4B-it</a> (config and safetensors headers) and the <code>config.json</code> of each preset on Hugging Face.
@@ -332,6 +332,12 @@
   </p>
 </section>
 <nav class="book-nav" aria-label="Chapters"><a class="prev" href="/notes/block-diffusion-rooflines-6f924020/conclusion/"><span>Previous</span>11 · Conclusion</a></nav>
+<section class="book-comments" id="bdr-comments" data-repo="vdeborto/vdeborto.github.io" data-repo-id="MDEwOlJlcG9zaXRvcnkxMTY1OTk1ODA=" data-category="Announcements" data-category-id="DIC_kwDOBvMrHM4DLMnm" data-term="Block Diffusion Rooflines · Appendix">
+  <h3>Comments</h3>
+  <p class="small">Questions and corrections on this chapter are welcome below. The thread is a GitHub Discussion of this site's repository, so posting needs a GitHub account. To cite the book, see the <a href="/notes/block-diffusion-rooflines-6f924020/#cite">citation</a> on its first page.</p>
+  <div class="comments-frame"></div>
+  <noscript><p class="small">The comment thread needs JavaScript.</p></noscript>
+</section>
 </div>
 
 

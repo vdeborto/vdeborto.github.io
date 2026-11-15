@@ -303,7 +303,7 @@
 <p class="book-part">Part 1 of <a href="/notes/block-diffusion-rooflines-6f924020/">Block Diffusion Rooflines</a><span class="book-links"><span class="bl-row">Previous: <a href="/notes/block-diffusion-rooflines-6f924020/summary/" rel="prev">Summary</a></span><span class="bl-row">Next: <a href="/notes/block-diffusion-rooflines-6f924020/gain/" rel="next">2 · The gain</a></span></span></p>
 <section class="bdr-col" id="setup">
   <p class="chapter-intro">Comparing two decoders on a roofline requires, for each, the FLOPs of a forward pass and the bytes it reads from memory. This chapter defines both for an AR step and for a TD pass over a canvas of \(b\) tokens. From them come the two quantities used in every later chapter: the arithmetic intensity of a pass, which decides whether it is compute- or memory-bound, and the penalty, the extra bytes per sequence that a TD pass reads because its \(b\) positions touch more experts and, in sparse layers, more cached tokens.</p>
-  <p>One forward pass advances a batch of \(B\) sequences, each with \(C\) tokens in its KV cache: by one token for AR, by a canvas of \(b\) tokens for TD, which takes \(S\) denoising passes and one commit pass. This is block diffusion (<a href="https://arxiv.org/abs/2503.09573" rel="external nofollow noopener" target="_blank">Arriola et al., 2025</a>) with a KV cache over committed canvases. The running example is DiffusionGemma 26B-A4B (<a href="https://arxiv.org/abs/2608.00146" rel="external nofollow noopener" target="_blank">DiffusionGemma technical report</a>, 2026).</p>
+  <p>A batch holds \(B\) sequences, each with \(C\) tokens in its KV cache. An AR step is one forward pass and advances each sequence by one token. TD advances each sequence by a canvas of \(b\) tokens, in \(S\) denoising passes and one commit pass. This is block diffusion (<a href="https://arxiv.org/abs/2503.09573" rel="external nofollow noopener" target="_blank">Arriola et al., 2025</a>) with a KV cache over committed canvases. The running example is DiffusionGemma 26B-A4B (<a href="https://arxiv.org/abs/2608.00146" rel="external nofollow noopener" target="_blank">DiffusionGemma technical report</a>, 2026).</p>
   <div class="bdr-fig" id="fig-reuse">
     <div class="fig-k">Figure 4 · interactive</div>
     <p class="fig-title">TD does more work per token, but reads each byte for more tokens.</p>
@@ -332,7 +332,7 @@
       <tr>
 <td>\(n_q,\ n_{kv,\ell},\ h_\ell\)</td>
 <td class="l">query heads, KV heads, head dimension of layer \(\ell\); \(g = n_q/n_{kv}\)</td>
-<td class="num">16; 2 / 8; 512 / 256</td>
+<td class="num">16; 2 / 8; 512 / 256 (global / window layers)</td>
 </tr>
       <tr>
 <td>\(E,\ k,\ W^e\)</td>
@@ -374,11 +374,11 @@
       <tr>
 <td>\(\pi,\ \beta\)</td>
 <td class="l">peak matmul FLOP/s, memory bandwidth</td>
-<td class="num">H200: 989 T, 4.8 TB/s</td>
+<td class="num">H200: 989 TFLOP/s, 4.8 TB/s</td>
 </tr>
       <tr>
 <td>\(s_w,\ s_{kv},\ \kappa^c\)</td>
-<td class="l">bytes per weight, bytes per KV element, tensors cached per KV head (K and V)</td>
+<td class="l">bytes per weight (2 in BF16, 16-bit floats; 1 in FP8, 8-bit floats), bytes per KV element, tensors cached per KV head (K and V)</td>
 <td class="num">2, 2, 2</td>
 </tr>
     </tbody>
@@ -393,7 +393,7 @@
       <tbody>
         <tr>
 <td>\(U_{n,k}(N) = n\bigl[1-(1-\tfrac{k}{n})^{N}\bigr]\)</td>
-<td class="l">expected number of distinct units touched by \(N\) independent selections of \(k\) units out of \(n\)</td>
+<td class="l">expected number of distinct units touched by \(N\) independent, uniformly random selections of \(k\) units out of \(n\)</td>
 </tr>
         <tr>
 <td>\(\class{mj-ar}{W_{AR}}(B) = W_{\mathrm{ne}} + L\,U_{E,k}(B)\,W^e\)</td>
@@ -426,7 +426,7 @@
 </tr>
         <tr>
 <td>\(\alpha_I\)</td>
-<td class="l">the same, for the scan that selects a sparse layer's tokens (Part 4)</td>
+<td class="l">the same, for the indexer, the scan that selects a sparse layer's tokens (Part 4)</td>
 </tr>
         <tr>
 <td>\(\nu_G = s_{kv}\sum_{\ell\in\mathcal G}\kappa^cn_{kv,\ell}h_\ell\)</td>
@@ -445,8 +445,8 @@
 <td class="l">bytes per cached token of the scan's own cache</td>
 </tr>
         <tr>
-<td>\(U_{C,m}(n) = C\bigl[1-(1-\tfrac{m}{C})^{n}\bigr]\) for \(C \ge m\), and \(C\) for \(C \le m\)</td>
-<td class="l">cached tokens that \(n\) queries of one sequence read together in a sparse layer (the coverage function above, with tokens as units); \(U_{C,m}(1) = \min(C, m)\)</td>
+<td>\(U_{C,m}(N) = C\bigl[1-(1-\tfrac{m}{C})^{N}\bigr]\) for \(C \ge m\), and \(C\) for \(C \le m\)</td>
+<td class="l">cached tokens that \(N\) queries of one sequence read together in a sparse layer (the coverage function above, with tokens as units); \(U_{C,m}(1) = \min(C, m)\)</td>
 </tr>
       </tbody>
     </table></div>
@@ -513,7 +513,7 @@
         <tr>
 <td>\(I_{\mathrm{attn}} = \dfrac{\alpha_G}{\nu_G} = \dfrac{4g}{\kappa^cs_{kv}}\), \(I_{\mathrm{win}} = \dfrac{\alpha_W}{\nu_W}\), \(I_{\mathrm{idx}} = \dfrac{\alpha_I}{\nu_I}\)</td>
 <td class="l">attention FLOPs per cache byte for a single query, on a global layer, a window layer, an indexer; \(\class{mj-ar}{I^{AR}_{\mathrm{attn}}}\) is a byte-weighted mix of them and tends to \(I_{\mathrm{attn}}\) (or \(I_{\mathrm{idx}}\) with sparse layers) as \(C\) grows</td>
-<td class="num">8, 2, 2</td>
+<td class="num">8, 2, 16</td>
 </tr>
       </tbody>
     </table></div>
@@ -552,7 +552,7 @@
 <td class="l">one sequence</td>
 <td class="l">1</td>
 <td class="l">\(b\)</td>
-<td class="l">\(\Pi_{\mathrm{sel}} = \dfrac{U_{C,m}(b)}{U_{C,m}(1)} = \dfrac{U_{C,m}(b)}{m}\) (selected tokens alone)</td>
+<td class="l">\(\Pi_{\mathrm{sel}} = \dfrac{U_{C,m}(b)}{U_{C,m}(1)}\), equal to \(\dfrac{U_{C,m}(b)}{m}\) for \(C \ge m\) (selected tokens alone)</td>
 </tr>
       </tbody>
     </table></div>
@@ -589,6 +589,12 @@
   </table></div>
 </section>
 <nav class="book-nav" aria-label="Chapters"><a class="prev" href="/notes/block-diffusion-rooflines-6f924020/summary/"><span>Previous</span>Summary</a><a class="next" href="/notes/block-diffusion-rooflines-6f924020/gain/"><span>Next</span>2 · The gain</a></nav>
+<section class="book-comments" id="bdr-comments" data-repo="vdeborto/vdeborto.github.io" data-repo-id="MDEwOlJlcG9zaXRvcnkxMTY1OTk1ODA=" data-category="Announcements" data-category-id="DIC_kwDOBvMrHM4DLMnm" data-term="Block Diffusion Rooflines · Part 1 · Setup">
+  <h3>Comments</h3>
+  <p class="small">Questions and corrections on this chapter are welcome below. The thread is a GitHub Discussion of this site's repository, so posting needs a GitHub account. To cite the book, see the <a href="/notes/block-diffusion-rooflines-6f924020/#cite">citation</a> on its first page.</p>
+  <div class="comments-frame"></div>
+  <noscript><p class="small">The comment thread needs JavaScript.</p></noscript>
+</section>
 </div>
 
 
