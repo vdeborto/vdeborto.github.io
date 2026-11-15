@@ -399,8 +399,9 @@ def split_book(body):
             else:
                 text = re.sub(r"(<section[^>]*>\s*)<p>", r'\1<p class="chapter-intro">', text, count=1)
             part = f"Part {num} of" if num.isdigit() else ("The appendix of" if num == "A" else "The summary of")
-            links = " | ".join(f'<a href="{url_of(c[0])}" rel="{r}">{w}: {label_of(c)}</a>' for c, r, w in ((prev, "prev", "Previous"), (nxt, "next", "Next")) if c)
-            head = f'<p class="book-part">{part} <a href="{BASE}">{TITLE}</a> <span class="book-links">({links})</span></p>\n'
+            # one line for the book, one for the previous chapter, one for the next
+            links = "".join(f'<span class="bl-row">{w}: <a href="{url_of(c[0])}" rel="{r}">{label_of(c)}</a></span>' for c, r, w in ((prev, "prev", "Previous"), (nxt, "next", "Next")) if c)
+            head = f'<p class="book-part">{part} <a href="{BASE}">{TITLE}</a><span class="book-links">{links}</span></p>\n'
             foot = '<nav class="book-nav" aria-label="Chapters">' + "".join(
                 f'<a class="{r}" href="{url_of(c[0])}"><span>{w}</span>{label_of(c)}</a>' for c, r, w in ((prev, "prev", "Previous"), (nxt, "next", "Next")) if c) + "</nav>\n"
             desc = ""
