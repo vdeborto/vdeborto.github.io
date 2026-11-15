@@ -50,9 +50,8 @@ BASE = f"/notes/{SLUG}/"
 TITLE = "Block Diffusion Rooflines"
 # (page slug, part number, title, source element id, one-line description); "" is the first page.
 CHAPTERS = [
-    ("", "", "Front page", "top", "the question, a quiz, the headline numbers, and the contents."),
-    ("introduction", "0", "Introduction", "intro", "what the book does, how it is organised, and how to read it."),
-    ("summary", "", "Summary", "tldr", "the symbols, what moves the gain, and the three regimes that matter in practice."),
+    ("", "0", "Introduction", "intro", "what the book does, how it is organised, and how to read it."),
+    ("summary", "", "Summary", "tldr", "a quiz, the headline numbers, the symbols, what moves the gain, and the three regimes that matter in practice."),
     ("setup", "1", "Setup", "setup", "notation, costs, intensities, penalties."),
     ("gain", "2", "The gain", "gain", "Proposition 1, and the split of each intensity into a linear part and an attention part."),
     ("linear", "3", "The linear part", "linear", "the MoE penalty, when the linear layers dominate, and the gain in that regime."),
@@ -337,25 +336,21 @@ def split_book(body):
         chunks["top"] = m.group(0)
     for m in re.finditer(r'<section class="[^"]*" id="([\w-]+)">.*?\n</section>', body, re.S):
         chunks[m.group(1)] = m.group(0)
-    want = [c[3] for c in CHAPTERS]
+    want = [c[3] for c in CHAPTERS] + ["top"]
     if sorted(chunks) != sorted(want):
         problems.append(f"sections {sorted(chunks)} do not match CHAPTERS {sorted(want)}")
         return {}
 
-    # The first page: the header, its outline replaced by the book's contents.
-    contents = '  <nav class="book-toc" id="contents" aria-label="Contents">\n    <h2 class="book-toc-title">Contents</h2>\n    <ol>\n'
-    for ch in CHAPTERS[1:]:
-        slug, num, title, _, what = ch
-        part = f"Part {num}" if num.isdigit() else ("Appendix" if num else "Before Part 1")
-        contents += f'      <li><a href="{url_of(slug)}"><span class="toc-part">{part}</span><span class="toc-title">{title}</span><span class="toc-what">{what[0].upper() + what[1:]}</span></a></li>\n'
-    contents += "    </ol>\n  </nav>\n"
-    top = chunks["top"]
-    # The contents come right after the quiz, where the note had its outline at the end of the header.
+    # The book opens on the Introduction; the note's header (quiz, formula, headline numbers,
+    # accounting, takeaways) leads the Summary, which states the results first.
+    top = chunks.pop("top")
     top, n = re.subn(r'\s*<h2 class="outline-title" id="outline">.*?</ol>\n', "\n", top, count=1, flags=re.S)
     if n != 1:
         problems.append("outline not found")
-    top = sub_once(top, '  <div class="formula-card">', contents + '  <div class="formula-card">', "contents anchor")
-    chunks["top"] = top
+    top = re.sub(r'\s*<div class="jump">.*?</div>', "", top, count=1, flags=re.S)
+    top = re.sub(r'\s*<p class="lede">.*?</p>', "", top, count=1, flags=re.S)
+    inner = re.sub(r'^<header[^>]*>|</header>$', "", top.strip()).strip("\n")
+    chunks["tldr"] = sub_once(chunks["tldr"], "</h2>", "</h2>\n" + inner + "\n", "summary heading")
 
     # Which page holds each id; links to another page go there.
     home = {}
@@ -379,6 +374,7 @@ def split_book(body):
 
     blocks = re.split(r"<!-- intro:([\w-]+) -->\n", INTROS.read_text())
     intros = {blocks[i]: blocks[i + 1].strip() for i in range(1, len(blocks), 2)}
+    intros[""] = intros.pop("introduction", "")  # the Introduction is the first page
     for slug in intros:
         if slug not in [c[0] for c in CHAPTERS]:
             problems.append(f"intro for unknown chapter {slug!r}")
@@ -389,26 +385,25 @@ def split_book(body):
         slug, num, title, src, what = ch
         prev, nxt = (CHAPTERS[k - 1] if k else None), (CHAPTERS[k + 1] if k + 1 < len(CHAPTERS) else None)
         text = chunks[src]
+        # The page title replaces the section heading.
+        text = re.sub(r"\s*<h2>.*?</h2>", "", text, count=1, flags=re.S)
+        if intros.get(slug):
+            text = re.sub(r"(<section[^>]*>(?:\s*<div class=\"bdr-col\">)?)", lambda m: m.group(1) + "\n  <p class=\"chapter-intro\">" + color_math(intros[slug]) + "</p>", text, count=1)
+        elif not re.search(r"<section[^>]*>\s*<p>", text):
+            problems.append(f"chapter {slug!r} has no intro and does not open with a paragraph")
+        else:
+            text = re.sub(r"(<section[^>]*>\s*)<p>", r'\1<p class="chapter-intro">', text, count=1)
+        # one line for the book, one for the previous chapter, one for the next
+        links = "".join(f'<span class="bl-row">{w}: <a href="{url_of(c[0])}" rel="{r}">{label_of(c)}</a></span>' for c, r, w in ((prev, "prev", "Previous"), (nxt, "next", "Next")) if c)
         if slug:
-            # The page title replaces the section heading.
-            text = re.sub(r"\s*<h2>.*?</h2>", "", text, count=1, flags=re.S)
-            if slug in intros:
-                text = re.sub(r"(<section[^>]*>(?:\s*<div class=\"bdr-col\">)?)", lambda m: m.group(1) + "\n  <p class=\"chapter-intro\">" + color_math(intros[slug]) + "</p>", text, count=1)
-            elif not re.search(r"<section[^>]*>\s*<p>", text):
-                problems.append(f"chapter {slug!r} has no intro and does not open with a paragraph")
-            else:
-                text = re.sub(r"(<section[^>]*>\s*)<p>", r'\1<p class="chapter-intro">', text, count=1)
             part = f"Part {num} of" if num.isdigit() else ("The appendix of" if num == "A" else "The summary of")
-            # one line for the book, one for the previous chapter, one for the next
-            links = "".join(f'<span class="bl-row">{w}: <a href="{url_of(c[0])}" rel="{r}">{label_of(c)}</a></span>' for c, r, w in ((prev, "prev", "Previous"), (nxt, "next", "Next")) if c)
             head = f'<p class="book-part">{part} <a href="{BASE}">{TITLE}</a><span class="book-links">{links}</span></p>\n'
-            foot = '<nav class="book-nav" aria-label="Chapters">' + "".join(
-                f'<a class="{r}" href="{url_of(c[0])}"><span>{w}</span>{label_of(c)}</a>' for c, r, w in ((prev, "prev", "Previous"), (nxt, "next", "Next")) if c) + "</nav>\n"
             desc = ""
         else:
-            head = ""
-            foot = f'<nav class="book-nav" aria-label="Chapters"><a class="next" href="{url_of(nxt[0])}"><span>Start reading</span>{label_of(nxt)}</a></nav>\n'
+            head = f'<p class="book-part">Part 0 · Introduction<span class="book-links">{links}</span></p>\n'
             desc = "when block text diffusion beats autoregressive decoding · a short book on its inference cost"
+        foot = '<nav class="book-nav" aria-label="Chapters">' + "".join(
+            f'<a class="{r}" href="{url_of(c[0])}"><span>{w}</span>{label_of(c)}</a>' for c, r, w in ((prev, "prev", "Previous"), (nxt, "next", "Next")) if c) + "</nav>\n"
         # A chapter opens with its introduction, so the layout's subtitle would repeat it.
         desc_line = "" if slug else f'description: "{desc}"\n'
         meta = dict(book, current=slug)
@@ -430,10 +425,17 @@ sitemap: false
 <script defer src="/assets/roofline/figures.js"></script>
 <script defer src="/assets/roofline/reading.js"></script>
 {{% raw %}}
-<div class="bdr{' book-chapter' if slug else ''}" id="top">
+<div class="bdr book-chapter" id="top">
 <noscript><p>This page needs JavaScript for its equations, figures and calculator.</p></noscript>
 """
         pages[slug] = front + head + text.strip() + "\n" + foot + "</div>\n{% endraw %}\n"
+    pages["introduction"] = f"""---
+layout: null
+permalink: {url_of("introduction")}
+sitemap: false
+---
+<!doctype html><html><head><meta charset="utf-8"><meta name="robots" content="noindex, nofollow"><link rel="canonical" href="{BASE}"><meta http-equiv="refresh" content="0; url={BASE}"></head><body><a href="{BASE}">{TITLE}</a></body></html>
+"""
     return pages
 
 
