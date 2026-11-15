@@ -49,9 +49,9 @@ def _inline(m):
 def svg(w, h, label, body, extra=""):
     body = _TEXT.sub(_inline, body)
     out = (f'<svg viewBox="0 0 {w} {h}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="{label}" '
-           f'class="pfig-svg{" pfig-wide" if w >= 700 else ""}" style="max-width:{w}px"{extra}>' + body + "</svg>")
+           f'class="pfig-svg{" pfig-wide" if w >= 560 else ""}" style="max-width:{w}px"{extra}>' + body + "</svg>")
     # wide diagrams keep a readable size on phones and scroll sideways instead of shrinking
-    return f'<div class="pfig-scroll">{out}</div>' if w >= 700 else out
+    return f'<div class="pfig-scroll">{out}</div>' if w >= 560 else out
 
 
 def arrow_defs(i, color="currentColor"):
@@ -79,31 +79,6 @@ def rng(xs, n=2):
 
 
 # ---------------------------------------------------------------- Part 0: diagrams
-def fig_decoders():
-    W, H, x0, sw, gap = 760, 250, 120, 36, 4
-    n = 15
-    s = [arrow_defs(0)]
-    s.append(f'<text x="{x0}" y="22" fill="{MUT}" font-size="12">forward passes, in time order; every pass reads the weights once</text>')
-    for row, (name, col, y) in enumerate((("AR", AR, 44), ("TD", TD, 134))):
-        s.append(f'<text x="{x0 - 14}" y="{y + 26}" text-anchor="end" font-weight="600" fill="{col}">{name}</text>')
-        for i in range(n):
-            x = x0 + i * (sw + gap)
-            if row == 0:
-                s.append(f'<rect x="{x}" y="{y}" width="{sw}" height="40" rx="3" fill="{col}" fill-opacity="0.85"/>')
-                s.append(f'<text x="{x + sw / 2}" y="{y + 25}" text-anchor="middle" font-size="11" fill="var(--bdr-surface)">1</text>')
-            else:
-                commit = i == n - 1
-                s.append(f'<rect x="{x}" y="{y}" width="{sw}" height="40" rx="3" fill="{col}" fill-opacity="{0.85 if commit else 0.28}"/>')
-        s.append(f'<text x="{x0 + n * (sw + gap) + 8}" y="{y + 18}" font-size="12.5" fill="{INK}">{"15 tokens" if row == 0 else "256 tokens"}</text>')
-        s.append(f'<text x="{x0 + n * (sw + gap) + 8}" y="{y + 34}" font-size="11.5" fill="{MUT}">{"one per pass" if row == 0 else "one canvas"}</text>')
-    xt = x0 + 7 * (sw + gap)
-    s.append(f'<text x="{x0}" y="{94 + 6}" font-size="11.5" fill="{MUT}">each pass commits one token per sequence</text>')
-    s.append(f'<path d="M{x0},{184} v8 h{14 * (sw + gap) - gap} v-8" fill="none" stroke="{TD}" stroke-width="1.2"/>')
-    s.append(f'<text x="{x0 + 7 * (sw + gap) - gap}" y="{208}" text-anchor="middle" font-size="12" fill="{INK}">S = 14 denoising passes over the 256 positions of the canvas</text>')
-    xc = x0 + 14 * (sw + gap) + sw / 2
-    s.append(f'<line x1="{xc}" y1="{226}" x2="{xc}" y2="{180}" stroke="{TD}" marker-end="url(#pa0)"/>')
-    s.append(f'<text x="{xc}" y="{242}" text-anchor="middle" font-size="12" fill="{INK}">commit pass</text>')
-    return svg(W, H, "In the same 15 passes AR commits 15 tokens and TD commits a canvas of 256", "".join(s))
 
 
 # ---------------------------------------------------------------- Part 8
@@ -148,55 +123,9 @@ def maps(d, specs):
 
 # ---------------------------------------------------------------- Part 9: diagrams
 # ---------------------------------------------------------------- Part 10: diagrams (from the kernel note)
-MOE_ROWS = [("quantise x, per tensor (2 kernels)", "", None, ""), ("sort rows by expert", "", "sort rows by expert", ""),
-            ("GEMM 1 (gate, up)", "184 MB", "GEMM 1 + quantise x + gelu(gate)·up", "100 MB"), ("act_and_mul", "92 MB", None, ""),
-            ("quantise h, per tensor (2 kernels)", "46 MB", "quantise h, per row (1 kernel)", "50 MB"),
-            ("GEMM 2, one row per (token, expert)", "369 MB", "GEMM 2 + p·row, atomic add into y", "in L2"), ("moe_sum (read 369 MB)", "46 MB", None, "")]
 
 
-def fig_moe():
-    W, rh, top = 780, 46, 64
-    H = top + rh * len(MOE_ROWS) + 16
-    s = [arrow_defs(6), f'<text x="170" y="24" text-anchor="middle" font-weight="600" fill="{INK}">vLLM Triton path</text>',
-         f'<text x="570" y="24" text-anchor="middle" font-weight="600" fill="{INK}">new path (moe_ws)</text>',
-         f'<text x="170" y="44" text-anchor="middle" font-size="11.5" fill="{MUT}">kernel · bytes it writes to memory</text>',
-         f'<text x="570" y="44" text-anchor="middle" font-size="11.5" fill="{MUT}">kernel · bytes it writes to memory</text>']
-    for i, (lb, lw, rb, rw) in enumerate(MOE_ROWS):
-        y = top + i * rh
-        s.append(f'<rect x="20" y="{y}" width="270" height="32" rx="4" fill="none" stroke="{MUT}"/><text x="155" y="{y + 21}" text-anchor="middle" font-size="12.5" fill="{INK}">{lb}</text>')
-        if lw:
-            s.append(f'<text x="298" y="{y + 21}" font-size="12" fill="{TD}">{lw}</text>')
-        if rb:
-            s.append(f'<rect x="420" y="{y}" width="290" height="32" rx="4" fill="none" stroke="{MUT}"/><text x="565" y="{y + 21}" text-anchor="middle" font-size="12.5" fill="{INK}">{rb}</text>')
-            if rw:
-                s.append(f'<text x="718" y="{y + 21}" font-size="12" fill="{TD}">{rw}</text>')
-        else:
-            s.append(f'<rect x="420" y="{y}" width="290" height="32" rx="4" fill="none" stroke="{MUT}" stroke-dasharray="4 4" opacity="0.5"/><text x="565" y="{y + 21}" text-anchor="middle" font-size="12" fill="{MUT}">removed (fused)</text>')
-        if i:
-            s.append(f'<line x1="155" y1="{y - 14}" x2="155" y2="{y - 2}" stroke="currentColor" marker-end="url(#pa6)"/><line x1="565" y1="{y - 14}" x2="565" y2="{y - 2}" stroke="currentColor" marker-end="url(#pa6)"/>')
-    return svg(W, H, "vLLM's expert path runs seven passes and writes intermediate tensors to memory; the new path fuses three of them away", "".join(s))
 
-
-def fig_smem():
-    W, x0, sc = 780, 170, 2.3
-    rows = [("FA4, head dim. 512", [("Q", 64, AR), ("K", 64, GREEN), ("V", 64, AMBER), ("P", 8, MUT)]),
-            ("pair kernel, per CTA", [("Q half", 64, AR), ("K st. 1", 32, GREEN), ("K st. 2", 32, GREEN), ("V st. 1", 32, AMBER), ("V st. 2", 32, AMBER), ("scores ×2", 32, TD)])]
-    s = []
-    for i, (lab, segs) in enumerate(rows):
-        y = 20 + i * 52
-        s.append(f'<text x="{x0 - 10}" y="{y + 21}" text-anchor="end" font-size="12.5" fill="{INK}">{lab}</text>')
-        x = x0
-        for name, kb, col in segs:
-            w = kb * sc
-            s.append(f'<rect x="{x}" y="{y}" width="{w - 2}" height="32" rx="3" fill="{col}" fill-opacity="0.8"/>')
-            if w > 40:
-                s.append(f'<text x="{x + w / 2 - 1}" y="{y + 20}" text-anchor="middle" font-size="11.5" style="fill:#fff">{name}</text>')
-            x += w
-        s.append(f'<text x="{x0 + 227 * sc + 10}" y="{y + 21}" font-size="12" fill="{INK}">{sum(k for _, k, _ in segs)} KB</text>')
-    lx = x0 + 227 * sc
-    s += [f'<line x1="{lx}" y1="10" x2="{lx}" y2="122" stroke="{CRIT}" stroke-dasharray="5 4"/>',
-          f'<text x="{lx}" y="140" text-anchor="middle" font-size="12" fill="{CRIT}">227 KB per SM</text>']
-    return svg(W, 150, "Shared memory per thread block: FA4 at head dimension 512 fits one pipeline stage; the pair kernel fits two stages and its exchange buffers", "".join(s))
 
 
 CHW = 0.61  # IBM Plex Mono advance width, in em
@@ -232,67 +161,11 @@ def tbox(x, y, w, h, lines, col=MUT, title=None, part=None, where=""):
     return "".join(r)
 
 
-def fig_map():
-    W, H, cw, gap, x0 = 924, 360, 168, 16, 10
-    X = lambda i: x0 + i * (cw + gap)
-    y1, y2, h = 44, 236, 92
-    s = [arrow_defs(1)]
-    s.append(f'<text x="{x0}" y="26" font-size="11.5" font-weight="600" letter-spacing=".08em" fill="{MUT}">ON PAPER · PARTS 1–7</text>')
-    s.append(f'<text x="{x0}" y="{y2 + 30}" font-size="11.5" font-weight="600" letter-spacing=".08em" fill="{MUT}">ON AN H200</text>')
-    s.append(f'<text x="{x0}" y="{y2 + 47}" font-size="11.5" font-weight="600" letter-spacing=".08em" fill="{MUT}">PARTS 8–11</text>')
-    top = [("PART 1", "Setup", ["costs F and Q,", "intensities, penalties"]),
-           ("PART 2", "The gain", ["Proposition 1: Γ", "from two intensities"]),
-           ("PARTS 3 · 4", "Linear, attention", ["Γ when the weights or", "the KV cache dominate"]),
-           ("PART 5", "Whole picture", ["regimes and exact", "maps of Γ"]),
-           ("PARTS 6 · 7", "Calculator", ["and three worked", "examples"])]
-    bot = [("PART 8", "Effective rooflines", ["measured π, β and", "expert counts U"]),
-           ("PART 9", "Measurement stack", ["the time of every", "kernel, by component"]),
-           ("PART 10", "Kernels", ["two rewrites raise", "their efficiency"]),
-           ("PART 11", "Conclusion", ["measured Γ against", "the bound"])]
-    for i, (p, t, l) in enumerate(top):
-        s.append(tbox(X(i), y1, cw, h, l, MUT, t, p, "map"))
-        if i:
-            s.append(f'<line x1="{X(i) - gap + 2}" y1="{y1 + h / 2}" x2="{X(i) - 2}" y2="{y1 + h / 2}" stroke="currentColor" marker-end="url(#pa1)"/>')
-    for i, (p, t, l) in enumerate(bot, start=1):
-        s.append(tbox(X(i), y2, cw, h, l, TD, t, p, "map"))
-        if i > 1:
-            s.append(f'<line x1="{X(i) - gap + 2}" y1="{y2 + h / 2}" x2="{X(i) - 2}" y2="{y2 + h / 2}" stroke="currentColor" marker-end="url(#pa1)"/>')
-    cx1 = X(1) + cw / 2
-    s.append(f'<line x1="{cx1}" y1="{y1 + h + 2}" x2="{cx1}" y2="{y2 - 3}" stroke="currentColor" marker-end="url(#pa1)"/>')
-    s.append(f'<text x="{cx1 + 8}" y="{(y1 + h + y2) / 2 + 4}" font-size="11" fill="{MUT}">inputs of Proposition 1</text>')
-    xa, xb = X(3) + cw / 2, X(4) + cw / 2
-    s.append(f'<line x1="{xa}" y1="{y1 + h + 2}" x2="{xb}" y2="{y2 - 3}" stroke="currentColor" marker-end="url(#pa1)"/>')
-    s.append(f'<text x="{xb - 2}" y="{y1 + h + 30}" font-size="11" fill="{MUT}">maps to compare</text>')
-    return svg(W, H, "Map of the book: Parts 1 to 7 bound the gain on paper; Parts 8 to 11 measure it on an H200 and compare", "".join(s))
-
-
-def fig_ladder(d):
-    g = d["gains"]
-    W, H, bw, gap, x0 = 900, 270, 196, 30, 13
-    rungs = [("(a) book's bound", ["datasheet π and β,", "independent routing"], "roof_ind_ds", MUT),
-             ("(b) ceilings", ["π and β measured", "on this H200"], "roof_ind", MUT),
-             ("(c) routing", ["U counted in", "the same runs"], "roof", MUT),
-             ("(d) measured", ["vLLM with the fixes", "and the new kernels"], "measured", TD)]
-    steps = ["Part 8", "Part 8", "Parts 9–10"]
-    s = [arrow_defs(2)]
-    for i, (t, l, key, col) in enumerate(rungs):
-        x = x0 + i * (bw + gap)
-        s.append(tbox(x, 34, bw, 222, l, col, t, None, "ladder"))
-        for j, B in enumerate((1, 64)):
-            v = g[f"{B},1024"][key]
-            y = 136 + j * 62
-            s.append(f'<text x="{x + 10}" y="{y}" font-size="11" fill="{MUT}">batch {B}, context 1k</text>')
-            s.append(f'<text x="{x + 10}" y="{y + 30}" font-size="24" font-weight="600" fill="{TD if v >= 1 else AR}">Γ = {v:.2f}</text>')
-        if i < 3:
-            xa = x + bw + 2
-            s.append(f'<line x1="{xa}" y1="145" x2="{xa + gap - 4}" y2="145" stroke="currentColor" marker-end="url(#pa2)"/>')
-            s.append(f'<text x="{x + bw + gap / 2}" y="22" text-anchor="middle" font-size="11" fill="{MUT}">{steps[i]}</text>')
-    return svg(W, H, "From the book's bound to the measured gain in four steps, each changing one input", "".join(s))
 
 
 def fig_eff_roofline(d):
     ce = d["ceil"]
-    W, H, ml, mr, mt, mb = 720, 380, 70, 170, 24, 50
+    W, H, ml, mr, mt, mb = 660, 360, 62, 150, 24, 50
     x_lo, x_hi, y_lo, y_hi = 10, 10000, 40, 3000
     X = lambda I: ml + (math.log10(I) - math.log10(x_lo)) / (math.log10(x_hi) - math.log10(x_lo)) * (W - ml - mr)
     Y = lambda p: mt + (1 - (math.log10(p) - math.log10(y_lo)) / (math.log10(y_hi) - math.log10(y_lo))) * (H - mt - mb)
@@ -336,11 +209,11 @@ def fig_eff_routing(d, C=1024):
     R, Bs, G = d["routing"], d["Bs"], d["gains"]
     out = []
     for mode, col, name in (("td", TD, "TD: 256 positions per sequence"), ("ar", AR, "AR: one token per sequence")):
-        W, H, ml, mr, mt, mb = 400, 330, 44, 112, 50, 44
+        W, H, ml, mr, mt, mb = 320, 300, 40, 84, 50, 44
         X = lambda i: ml + i / (len(Bs) - 1) * (W - ml - mr)
         Y = lambda u: mt + (1 - u / 140) * (H - mt - mb)
         s = [f'<text x="{ml - 40}" y="16" font-size="12.5" font-weight="600" fill="{col}">{fits(name, 12.5, W - 10, "routing")}</text>',
-             f'<text x="{ml - 40}" y="34" font-size="11" fill="{MUT}">distinct experts per layer and pass, U</text>']
+             f'<text x="{ml - 36}" y="34" font-size="10.5" fill="{MUT}">distinct experts per layer, pass: U</text>']
         for v in range(0, 141, 20):
             s.append(f'<line x1="{ml}" y1="{Y(v)}" x2="{W - mr}" y2="{Y(v)}" stroke="{RULE}"/><text x="{ml - 6}" y="{Y(v) + 4}" text-anchor="end" font-size="11" fill="{MUT}">{v}</text>')
         for i, B in enumerate(Bs):
@@ -361,56 +234,6 @@ def fig_eff_routing(d, C=1024):
             s.append(f'<text x="{X(i_) + 8}" y="{yl}" font-size="11" fill="{c}">{lab}</text>')
         out.append(svg(W, H, f"{name}: distinct experts per layer against batch, measured and predicted for independent tokens", "".join(s)))
     return '<div class="pfig-pair">' + "".join(f"<div>{o}</div>" for o in out) + "</div>"
-
-
-
-def fig_flags():
-    W, H = 900, 290
-    s = [arrow_defs(4), arrow_defs(5, TD)]
-    def cell(x, y, w, t, col, dash=""):
-        return (f'<rect x="{x}" y="{y}" width="{w}" height="34" rx="4" fill="none" stroke="{col}" stroke-dasharray="{dash}"/>'
-                f'<text x="{x + w / 2}" y="{y + 22}" text-anchor="middle" font-size="11.5" fill="{INK}">{fits(t, 11.5, w - 12, "flags")}</text>')
-    s.append(f'<text x="20" y="22" font-size="12.5" font-weight="600" fill="{INK}">vLLM 0.28: converted at every step</text>')
-    s.append(f'<text x="480" y="22" font-size="12.5" font-weight="600" fill="{INK}">fix: one persistent int32 buffer</text>')
-    s.append(cell(20, 44, 200, "bool buffer, live flags", MUT))
-    s.append(cell(20, 150, 190, "int32 copy, capture", MUT))
-    s.append(cell(240, 150, 190, "int32 copy, step n", CRIT, "5 3"))
-    s.append(f'<line x1="60" y1="78" x2="60" y2="148" stroke="currentColor" marker-end="url(#pa4)"/>')
-    s.append(f'<text x="68" y="110" font-size="11" fill="{MUT}">.to(int32)</text><text x="68" y="124" font-size="11" fill="{MUT}">at capture</text>')
-    s.append(f'<line x1="190" y1="78" x2="320" y2="148" stroke="currentColor" marker-end="url(#pa4)"/>')
-    s.append(f'<text x="282" y="96" font-size="11" fill="{MUT}">.to(int32)</text><text x="282" y="110" font-size="11" fill="{MUT}">every step</text>')
-    s.append(cell(20, 238, 410, "replayed graph reads the captured address", TD))
-    s.append(f'<line x1="60" y1="184" x2="60" y2="236" stroke="{TD}" stroke-width="2" marker-end="url(#pa5)"/>')
-    s.append(f'<text x="68" y="215" font-size="11" fill="{TD}">reads the capture-time flags</text>')
-    s.append(f'<text x="335" y="205" text-anchor="middle" font-size="11" fill="{CRIT}">never read</text>')
-    s.append(cell(480, 150, 260, "int32 buffer, written in place", MUT))
-    s.append(f'<text x="610" y="134" text-anchor="middle" font-size="11" fill="{MUT}">same address at every step</text>')
-    s.append(cell(480, 238, 410, "replayed graph reads the same address", TD))
-    s.append(f'<line x1="520" y1="184" x2="520" y2="236" stroke="{TD}" stroke-width="2" marker-end="url(#pa5)"/>')
-    s.append(f'<text x="528" y="215" font-size="11" fill="{TD}">reads this step\'s flags</text>')
-    return svg(W, H, "A replayed CUDA graph reads the address recorded at capture, so a flag tensor recreated at every step is never read", "".join(s))
-
-
-def fig_pair():
-    s = [arrow_defs(7), arrow_defs(8, TD)]
-    for r, x0 in ((0, 20), (1, 440)):
-        cx = x0 + 140
-        s += [f'<rect x="{x0}" y="16" width="280" height="264" rx="8" fill="none" stroke="{MUT}"/>',
-              f'<text x="{cx}" y="40" text-anchor="middle" font-weight="600" font-size="12" fill="{INK}">{fits(f"CTA {r}, SM {chr(97 + r)}: columns {256 * r}–{256 * r + 255}", 12, 260, "pair")}</text>',
-              f'<text x="{cx}" y="62" text-anchor="middle" font-size="11" fill="var(--bdr-ink-2)">tiles {sub("Q", r)}, {sub("K", r)}, {sub("V", r)} in shared memory</text>']
-        for j, (y, lab) in enumerate(((84, f'{sub("S", r)} = {sub("Q", r)} {sub("K", r)}ᵀ'), (154, f'S = {sub("S", 0)} + {sub("S", 1)}, P = softmax(S)'), (224, f'{sub("O", r)} += P {sub("V", r)}'))):
-            s += [f'<rect x="{x0 + 14}" y="{y}" width="252" height="36" rx="4" fill="none" stroke="{MUT}"/>',
-                  f'<text x="{cx}" y="{y + 23}" text-anchor="middle" font-size="11.5" fill="{INK}">{fits(lab, 11.5, 240, "pair")}</text>']
-            if j:
-                s.append(f'<line x1="{cx}" y1="{y - 32}" x2="{cx}" y2="{y - 2}" stroke="currentColor" marker-end="url(#pa7)"/>')
-    s += [f'<line x1="268" y1="104" x2="452" y2="168" stroke="{TD}" stroke-width="2" marker-end="url(#pa8)"/>',
-          f'<line x1="472" y1="104" x2="288" y2="168" stroke="{TD}" stroke-width="2" marker-end="url(#pa8)"/>']
-    for k, t in enumerate(("partial scores", "m × n, FP16, to", "partner's memory")):
-        s.append(f'<text x="370" y="{210 + 15 * k}" text-anchor="middle" font-size="11" fill="{TD}">{t}</text>')
-    return svg(740, 300, "Two thread blocks on two SMs each hold half of the head dimension and exchange their partial scores", "".join(s))
-
-
-
 
 
 
@@ -469,31 +292,209 @@ def fig_run():
     s.append(box(6, 200, 350, 24, None, ["same point; kernels launched from their modules"]))
     return svg(W, H, "One measured point: after prefill and warm-up, a profiled window records every kernel, then a timed window without the profiler gives the step time; an expert counter covers both windows; one eager run of the same point follows", "".join(s))
 
+
+
+def fig_decoders():
+    W, H, x0, sw, gap = 600, 236, 46, 26, 3
+    n = 15
+    s = [arrow_defs(0)]
+    s.append(f'<text x="{x0}" y="18" font-size="11" fill="{MUT}">forward passes in time order; each reads the weights once</text>')
+    for row, (name, col, y) in enumerate((("AR", AR, 32), ("TD", TD, 116))):
+        s.append(f'<text x="{x0 - 10}" y="{y + 21}" text-anchor="end" font-size="12" font-weight="600" fill="{col}">{name}</text>')
+        for i in range(n):
+            x = x0 + i * (sw + gap)
+            op = 0.85 if row == 0 or i == n - 1 else 0.28
+            s.append(f'<rect x="{x}" y="{y}" width="{sw}" height="32" rx="3" fill="{col}" fill-opacity="{op}"/>')
+            if row == 0:
+                s.append(f'<text x="{x + sw / 2}" y="{y + 20}" text-anchor="middle" font-size="10.5" style="fill:#fff">1</text>')
+        xr = x0 + n * (sw + gap) + 6
+        s.append(f'<text x="{xr}" y="{y + 14}" font-size="12" fill="{INK}">{"15 tokens" if row == 0 else "256 tokens"}</text>')
+        s.append(f'<text x="{xr}" y="{y + 29}" font-size="11" fill="{MUT}">{"one per pass" if row == 0 else "one canvas"}</text>')
+    s.append(f'<text x="{x0}" y="84" font-size="11" fill="{MUT}">each pass commits one token per sequence</text>')
+    s.append(f'<path d="M{x0},154 v6 h{14 * (sw + gap) - gap} v-6" fill="none" stroke="{TD}" stroke-width="1.2"/>')
+    s.append(f'<text x="{x0 + 7 * (sw + gap)}" y="176" text-anchor="middle" font-size="11" fill="{INK}">S = 14 denoising passes over the 256 positions</text>')
+    xc = x0 + 14 * (sw + gap) + sw / 2
+    s.append(f'<line x1="{xc}" y1="200" x2="{xc}" y2="152" stroke="{TD}" marker-end="url(#pa0)"/>')
+    s.append(f'<text x="{xc}" y="216" text-anchor="middle" font-size="11" fill="{INK}">commit pass</text>')
+    return svg(W, H, "In the same 15 passes AR commits 15 tokens and TD commits a canvas of 256", "".join(s))
+
+
+def fig_map():
+    W, H, cw, gap, x0 = 660, 306, 118, 12, 10
+    X = lambda i: x0 + i * (cw + gap)
+    y1, y2, h = 34, 200, 76
+    s = [arrow_defs(1)]
+    s.append(f'<text x="{x0}" y="20" font-size="11" font-weight="600" letter-spacing=".06em" fill="{MUT}">ON PAPER · PARTS 1–7</text>')
+    s.append(f'<text x="{x0}" y="{y2 + 30}" font-size="11" font-weight="600" letter-spacing=".06em" fill="{MUT}">ON AN H200</text>')
+    s.append(f'<text x="{x0}" y="{y2 + 46}" font-size="11" font-weight="600" letter-spacing=".06em" fill="{MUT}">PARTS 8–11</text>')
+    top = [("PART 1", "Setup", ["costs F and Q,", "penalties"]), ("PART 2", "The gain", ["Proposition 1"]),
+           ("PARTS 3 · 4", "Two limits", ["weights, then", "the KV cache"]), ("PART 5", "All contexts", ["regimes, maps"]),
+           ("PARTS 6 · 7", "Calculator", ["and examples"])]
+    bot = [("PART 8", "Rooflines", ["measured π, β", "and experts U"]), ("PART 9", "Measurement", ["time per", "component"]),
+           ("PART 10", "Kernels", ["two rewrites"]), ("PART 11", "Conclusion", ["measured Γ", "against bound"])]
+    for i, (p, t, l) in enumerate(top):
+        s.append(tbox(X(i), y1, cw, h, l, MUT, t, p, "map"))
+        if i:
+            s.append(f'<line x1="{X(i) - gap + 1}" y1="{y1 + h / 2}" x2="{X(i) - 1}" y2="{y1 + h / 2}" stroke="currentColor" marker-end="url(#pa1)"/>')
+    for i, (p, t, l) in enumerate(bot, start=1):
+        s.append(tbox(X(i), y2, cw, h, l, TD, t, p, "map"))
+        if i > 1:
+            s.append(f'<line x1="{X(i) - gap + 1}" y1="{y2 + h / 2}" x2="{X(i) - 1}" y2="{y2 + h / 2}" stroke="currentColor" marker-end="url(#pa1)"/>')
+    cx1 = X(1) + cw / 2
+    s.append(f'<line x1="{cx1}" y1="{y1 + h + 2}" x2="{cx1}" y2="{y2 - 3}" stroke="currentColor" marker-end="url(#pa1)"/>')
+    s.append(f'<text x="{cx1 + 8}" y="{(y1 + h + y2) / 2 + 4}" font-size="11" fill="{MUT}">inputs of Prop. 1</text>')
+    xa, xb = X(3) + cw / 2, X(4) + cw / 2
+    s.append(f'<line x1="{xa}" y1="{y1 + h + 2}" x2="{xb}" y2="{y2 - 3}" stroke="currentColor" marker-end="url(#pa1)"/>')
+    s.append(f'<text x="{xb + 6}" y="{y1 + h + 26}" font-size="11" fill="{MUT}">maps to</text>')
+    s.append(f'<text x="{xb + 6}" y="{y1 + h + 40}" font-size="11" fill="{MUT}">compare</text>')
+    return svg(W, H, "Map of the book: Parts 1 to 7 bound the gain on paper; Parts 8 to 11 measure it on an H200 and compare", "".join(s))
+
+
+def fig_ladder(d):
+    g = d["gains"]
+    W, H, bw, gap, x0 = 664, 250, 150, 20, 4
+    rungs = [("(a) book's bound", ["datasheet π, β,", "independent routing"], "roof_ind_ds", MUT),
+             ("(b) ceilings", ["π, β measured", "on this H200"], "roof_ind", MUT),
+             ("(c) routing", ["U counted in", "the same runs"], "roof", MUT),
+             ("(d) measured", ["vLLM with fixes", "and new kernels"], "measured", TD)]
+    steps = ["Part 8", "Part 8", "Parts 9–10"]
+    s = [arrow_defs(2)]
+    for i, (t, l, key, col) in enumerate(rungs):
+        x = x0 + i * (bw + gap)
+        s.append(tbox(x, 30, bw, 210, l, col, t, None, "ladder"))
+        for j, B in enumerate((1, 64)):
+            v = g[f"{B},1024"][key]
+            y = 122 + j * 60
+            s.append(f'<text x="{x + 10}" y="{y}" font-size="11" fill="{MUT}">B = {B}, C = 1k</text>')
+            s.append(f'<text x="{x + 10}" y="{y + 28}" font-size="22" font-weight="600" fill="{TD if v >= 1 else AR}">Γ = {v:.2f}</text>')
+        if i < 3:
+            xa = x + bw + 2
+            s.append(f'<line x1="{xa}" y1="135" x2="{xa + gap - 4}" y2="135" stroke="currentColor" marker-end="url(#pa2)"/>')
+            s.append(f'<text x="{x + bw + gap / 2}" y="20" text-anchor="middle" font-size="11" fill="{MUT}">{steps[i]}</text>')
+    return svg(W, H, "From the book's bound to the measured gain in four steps, each changing one input", "".join(s))
+
+
 def fig_attrib():
-    """Kernel labelling: the eager trace gives each kernel its module; graph kernels take the label
-    of the eager kernel with the same name and launch shape, in order of occurrence."""
-    W, H, x0, bw, gap = 790, 270, 136, 98, 11
+    W, H, x0, bw, gap = 660, 262, 106, 84, 8
     ks = ["norm", "gemm_fp8", "attn_fwd", "gemm_fp8", "moe_gemm1", "moe_gemm2"]
     mods = ["norm", "qkv proj.", "attention", "out proj.", "experts", "experts"]
     comps = ["outside", "dense", "attention", "dense", "experts", "experts"]
     X = lambda i: x0 + i * (bw + gap)
     s = [arrow_defs(11)]
-    left = [(62, "eager run", 12.5, 600, INK), (78, "name, module", 11, 400, MUT),
-            (112, "match: same", 11, 400, MUT), (126, "name and shape,", 11, 400, MUT), (140, "in order", 11, 400, MUT),
-            (184, "graph run", 12.5, 600, INK), (200, "name only", 11, 400, MUT), (240, "component", 11, 400, MUT)]
+    left = [(62, "eager run", 12, 600, INK), (77, "name, module", 10.5, 400, MUT),
+            (112, "matched by", 10.5, 400, MUT), (126, "name, shape", 10.5, 400, MUT), (140, "and order", 10.5, 400, MUT),
+            (184, "graph run", 12, 600, INK), (199, "name only", 10.5, 400, MUT), (238, "component", 10.5, 400, MUT)]
     for y, t, fs, fw, col in left:
-        s.append(f'<text x="10" y="{y}" font-size="{fs}" font-weight="{fw}" fill="{col}">{fits(t, fs, x0 - 16, "attrib")}</text>')
+        s.append(f'<text x="4" y="{y}" font-size="{fs}" font-weight="{fw}" fill="{col}">{fits(t, fs, x0 - 10, "attrib")}</text>')
     for i, (k, m, c) in enumerate(zip(ks, mods, comps)):
         x = X(i)
-        s.append(f'<text x="{x + bw / 2}" y="28" text-anchor="middle" font-size="11" fill="{MUT}">{fits(m, 11, bw + gap - 4, "attrib")}</text>')
-        s.append(f'<path d="M{x + 2},40 v-5 h{bw - 4} v5" fill="none" stroke="{MUT}"/>')
-        s.append(f'<rect x="{x}" y="46" width="{bw}" height="36" rx="4" fill="var(--bdr-surface)" stroke="{MUT}"/>'
-                 f'<text x="{x + bw / 2}" y="68" text-anchor="middle" font-size="12" fill="{INK}">{fits(k, 12, bw - 8, "attrib")}</text>')
-        s.append(f'<line x1="{x + bw / 2}" y1="84" x2="{x + bw / 2}" y2="164" stroke="{MUT}" stroke-dasharray="3 3" marker-end="url(#pa11)"/>')
-        s.append(f'<rect x="{x}" y="168" width="{bw}" height="36" rx="4" fill="var(--bdr-surface)" stroke="{MUT}"/>'
-                 f'<text x="{x + bw / 2}" y="190" text-anchor="middle" font-size="12" fill="{INK}">{k}</text>')
-        s.append(f'<text x="{x + bw / 2}" y="240" text-anchor="middle" font-size="12" font-weight="600" fill="{INK}">{c}</text>')
+        s.append(f'<text x="{x + bw / 2}" y="26" text-anchor="middle" font-size="10.5" fill="{MUT}">{fits(m, 10.5, bw + gap - 4, "attrib")}</text>')
+        s.append(f'<path d="M{x + 2},38 v-5 h{bw - 4} v5" fill="none" stroke="{MUT}"/>')
+        s.append(f'<rect x="{x}" y="46" width="{bw}" height="34" rx="4" fill="var(--bdr-surface)" stroke="{MUT}"/>'
+                 f'<text x="{x + bw / 2}" y="67" text-anchor="middle" font-size="11" fill="{INK}">{fits(k, 11, bw - 8, "attrib")}</text>')
+        s.append(f'<line x1="{x + bw / 2}" y1="82" x2="{x + bw / 2}" y2="164" stroke="{MUT}" stroke-dasharray="3 3" marker-end="url(#pa11)"/>')
+        s.append(f'<rect x="{x}" y="168" width="{bw}" height="34" rx="4" fill="var(--bdr-surface)" stroke="{MUT}"/>'
+                 f'<text x="{x + bw / 2}" y="189" text-anchor="middle" font-size="11" fill="{INK}">{k}</text>')
+        s.append(f'<text x="{x + bw / 2}" y="238" text-anchor="middle" font-size="11" font-weight="600" fill="{INK}">{c}</text>')
     return svg(W, H, "Graph-run kernels carry their names but not their modules; each takes the module of the eager kernel with the same name and launch shape, in order", "".join(s))
+
+
+def fig_flags():
+    W, H = 660, 220
+    s = [arrow_defs(4), arrow_defs(5, TD)]
+    def cell(x, y, w, t, col, dash=""):
+        return (f'<rect x="{x}" y="{y}" width="{w}" height="30" rx="4" fill="none" stroke="{col}" stroke-dasharray="{dash}"/>'
+                f'<text x="{x + w / 2}" y="{y + 19}" text-anchor="middle" font-size="11" fill="{INK}">{fits(t, 11, w - 10, "flags")}</text>')
+    s.append(f'<text x="6" y="16" font-size="12" font-weight="600" fill="{INK}">vLLM 0.28: flags copied with .to(int32) at every step</text>')
+    s.append(cell(6, 54, 150, "bool buffer", MUT))
+    s.append(cell(250, 30, 180, "int32 copy, capture", MUT))
+    s.append(cell(250, 80, 180, "int32 copy, step n", CRIT, "5 3"))
+    s.append(cell(510, 30, 144, "graph replay", TD))
+    s.append(f'<line x1="156" y1="62" x2="248" y2="47" stroke="currentColor" marker-end="url(#pa4)"/>')
+    s.append(f'<text x="202" y="42" text-anchor="middle" font-size="10.5" fill="{MUT}">at capture</text>')
+    s.append(f'<line x1="156" y1="76" x2="248" y2="94" stroke="currentColor" marker-end="url(#pa4)"/>')
+    s.append(f'<text x="202" y="106" text-anchor="middle" font-size="10.5" fill="{MUT}">every step</text>')
+    s.append(f'<line x1="430" y1="45" x2="508" y2="45" stroke="{TD}" stroke-width="2" marker-end="url(#pa5)"/>')
+    s.append(f'<text x="469" y="38" text-anchor="middle" font-size="10.5" fill="{TD}">reads</text>')
+    s.append(f'<text x="440" y="99" font-size="10.5" fill="{CRIT}">never read</text>')
+    s.append(f'<text x="6" y="152" font-size="12" font-weight="600" fill="{INK}">fix: one persistent int32 buffer</text>')
+    s.append(cell(6, 170, 250, "int32 buffer, written in place", MUT))
+    s.append(cell(510, 170, 144, "graph replay", TD))
+    s.append(f'<line x1="256" y1="185" x2="508" y2="185" stroke="{TD}" stroke-width="2" marker-end="url(#pa5)"/>')
+    s.append(f'<text x="382" y="178" text-anchor="middle" font-size="10.5" fill="{TD}">reads this step\'s flags</text>')
+    return svg(W, H, "A replayed CUDA graph reads the address recorded at capture, so a flag tensor recreated at every step is never read", "".join(s))
+
+
+MOE_ROWS = [("quantise x (2 kernels)", "", None, ""), ("sort rows by expert", "", "sort rows by expert", ""),
+            ("GEMM 1 (gate, up)", "184 MB", "GEMM 1 + quantise x + gelu(gate)·up", "100 MB"), ("act_and_mul", "92 MB", None, ""),
+            ("quantise h (2 kernels)", "46 MB", "quantise h, per row (1 kernel)", "50 MB"),
+            ("GEMM 2, a row per pair", "369 MB", "GEMM 2 + p·row, atomic add into y", "in L2"), ("moe_sum (read 369 MB)", "46 MB", None, "")]
+
+
+def fig_moe():
+    W, rh, top = 660, 40, 56
+    H = top + rh * len(MOE_ROWS) + 10
+    L0, LW, R0, RW = 6, 186, 290, 300
+    s = [arrow_defs(6), f'<text x="{L0 + LW / 2}" y="20" text-anchor="middle" font-size="12" font-weight="600" fill="{INK}">vLLM Triton path</text>',
+         f'<text x="{R0 + RW / 2}" y="20" text-anchor="middle" font-size="12" font-weight="600" fill="{INK}">new path (moe_ws)</text>',
+         f'<text x="{L0 + LW / 2}" y="38" text-anchor="middle" font-size="10.5" fill="{MUT}">kernel · bytes written</text>',
+         f'<text x="{R0 + RW / 2}" y="38" text-anchor="middle" font-size="10.5" fill="{MUT}">kernel · bytes written</text>']
+    for i, (lb, lw, rb, rw) in enumerate(MOE_ROWS):
+        y = top + i * rh
+        s.append(f'<rect x="{L0}" y="{y}" width="{LW}" height="28" rx="4" fill="none" stroke="{MUT}"/><text x="{L0 + LW / 2}" y="{y + 18}" text-anchor="middle" font-size="11" fill="{INK}">{fits(lb, 11, LW - 8, "moe")}</text>')
+        if lw:
+            s.append(f'<text x="{L0 + LW + 6}" y="{y + 18}" font-size="11" fill="{TD}">{lw}</text>')
+        if rb:
+            s.append(f'<rect x="{R0}" y="{y}" width="{RW}" height="28" rx="4" fill="none" stroke="{MUT}"/><text x="{R0 + RW / 2}" y="{y + 18}" text-anchor="middle" font-size="11" fill="{INK}">{fits(rb, 11, RW - 8, "moe")}</text>')
+            if rw:
+                s.append(f'<text x="{R0 + RW + 6}" y="{y + 18}" font-size="11" fill="{TD}">{rw}</text>')
+        else:
+            s.append(f'<rect x="{R0}" y="{y}" width="{RW}" height="28" rx="4" fill="none" stroke="{MUT}" stroke-dasharray="4 4" opacity="0.5"/><text x="{R0 + RW / 2}" y="{y + 18}" text-anchor="middle" font-size="11" fill="{MUT}">removed (fused)</text>')
+        if i:
+            s.append(f'<line x1="{L0 + LW / 2}" y1="{y - 11}" x2="{L0 + LW / 2}" y2="{y - 2}" stroke="currentColor" marker-end="url(#pa6)"/><line x1="{R0 + RW / 2}" y1="{y - 11}" x2="{R0 + RW / 2}" y2="{y - 2}" stroke="currentColor" marker-end="url(#pa6)"/>')
+    return svg(W, H, "vLLM's expert path runs seven passes and writes intermediate tensors to memory; the new path fuses three of them away", "".join(s))
+
+
+def fig_pair():
+    W, H, bw, x1 = 660, 280, 260, 396
+    s = [arrow_defs(7), arrow_defs(8, TD)]
+    for r, x0 in ((0, 6), (1, x1)):
+        cx = x0 + bw / 2
+        s += [f'<rect x="{x0}" y="10" width="{bw}" height="256" rx="8" fill="none" stroke="{MUT}"/>',
+              f'<text x="{cx}" y="32" text-anchor="middle" font-weight="600" font-size="11.5" fill="{INK}">{fits(f"CTA {r}, SM {chr(97 + r)}: columns {256 * r}–{256 * r + 255}", 11.5, bw - 12, "pair")}</text>',
+              f'<text x="{cx}" y="52" text-anchor="middle" font-size="10.5" fill="var(--bdr-ink-2)">tiles {sub("Q", r)}, {sub("K", r)}, {sub("V", r)} in shared memory</text>']
+        for j, (y, lab) in enumerate(((70, f'{sub("S", r)} = {sub("Q", r)} {sub("K", r)}ᵀ'), (142, f'S = {sub("S", 0)} + {sub("S", 1)}, P = softmax(S)'), (214, f'{sub("O", r)} += P {sub("V", r)}'))):
+            s += [f'<rect x="{x0 + 12}" y="{y}" width="{bw - 24}" height="34" rx="4" fill="none" stroke="{MUT}"/>',
+                  f'<text x="{cx}" y="{y + 22}" text-anchor="middle" font-size="11" fill="{INK}">{fits(lab, 11, bw - 32, "pair")}</text>']
+            if j:
+                s.append(f'<line x1="{cx}" y1="{y - 36}" x2="{cx}" y2="{y - 2}" stroke="currentColor" marker-end="url(#pa7)"/>')
+    s += [f'<line x1="{6 + bw - 12}" y1="88" x2="{x1 + 12}" y2="156" stroke="{TD}" stroke-width="2" marker-end="url(#pa8)"/>',
+          f'<line x1="{x1 + 12}" y1="88" x2="{6 + bw - 12}" y2="156" stroke="{TD}" stroke-width="2" marker-end="url(#pa8)"/>']
+    for k, t in enumerate(("partial scores", "m × n, FP16,", "to partner")):
+        s.append(f'<text x="{(6 + bw + x1) / 2}" y="{200 + 14 * k}" text-anchor="middle" font-size="10.5" fill="{TD}">{fits(t, 10.5, x1 - 6 - bw - 6, "pair")}</text>')
+    return svg(W, H, "Two thread blocks on two SMs each hold half of the head dimension and exchange their partial scores", "".join(s))
+
+
+def fig_smem():
+    W, x0, sc = 660, 150, 1.95
+    rows = [("FA4, hd 512", [("Q", 64, AR), ("K", 64, GREEN), ("V", 64, AMBER), ("P", 8, MUT)]),
+            ("pair, per CTA", [("Q half", 64, AR), ("K st.1", 32, GREEN), ("K st.2", 32, GREEN), ("V st.1", 32, AMBER), ("V st.2", 32, AMBER), ("S ×2", 32, TD)])]
+    s = []
+    for i, (lab, segs) in enumerate(rows):
+        y = 16 + i * 46
+        s.append(f'<text x="{x0 - 8}" y="{y + 19}" text-anchor="end" font-size="11" fill="{INK}">{fits(lab, 11, x0 - 12, "smem")}</text>')
+        x = x0
+        for name, kb, col in segs:
+            w = kb * sc
+            s.append(f'<rect x="{x}" y="{y}" width="{w - 2}" height="28" rx="3" fill="{col}" fill-opacity="0.8"/>')
+            if w > 36:
+                s.append(f'<text x="{x + w / 2 - 1}" y="{y + 18}" text-anchor="middle" font-size="10.5" style="fill:#fff">{fits(name, 10.5, w - 6, "smem")}</text>')
+            x += w
+        s.append(f'<text x="{x0 + 227 * sc + 8}" y="{y + 19}" font-size="11" fill="{INK}">{sum(k for _, k, _ in segs)} KB</text>')
+    lx = x0 + 227 * sc
+    s += [f'<line x1="{lx}" y1="8" x2="{lx}" y2="108" stroke="{CRIT}" stroke-dasharray="5 4"/>',
+          f'<text x="{lx}" y="126" text-anchor="middle" font-size="11" fill="{CRIT}">227 KB per SM</text>']
+    return svg(W, 136, "Shared memory per thread block: FA4 at head dimension 512 fits one pipeline stage; the pair kernel fits two stages and its exchange buffers", "".join(s))
 
 
 # ---------------------------------------------------------------- tables
@@ -621,33 +622,33 @@ def blocks():
                         "", fig_decoders(),
                         "One sequence, DiffusionGemma's setting: a canvas of \\(b = 256\\) positions, \\(S = 14\\) denoising passes and one commit pass, so \\(\\omega = 15\\) passes per canvas and \\(\\mathrm{TPF} = b/\\omega = 17.1\\) tokens per forward pass. Each TD pass processes 256 positions instead of one, so it does more FLOPs and its positions touch more experts; Parts 1–5 weigh these costs against the shared read of the weights."),
         "map": fig("fig-map", "Figure 8", "The book in two halves: bounds on paper, then measurements on one H200.", "", fig_map(),
-                   "Parts 1–7 derive the gain \\(\\Gamma\\) as a ratio of roofline bounds and map it over batch and context. Parts 8–11 take the inputs of those bounds from measurements, time every kernel of both decoders in vLLM, rewrite the two kernels that lag most, and compare the measured gain with the bound.", wide=True),
+                   "Parts 1–7 derive the gain \\(\\Gamma\\) as a ratio of roofline bounds and map it over batch and context. Parts 8–11 take the inputs of those bounds from measurements, time every kernel of both decoders in vLLM, rewrite the two kernels that lag most, and compare the measured gain with the bound."),
         "ladder": fig("fig-ladder", "Figure 9", "From the book's bound to the measured gain in four steps.", "", fig_ladder(d),
-                      "DiffusionGemma (TD) against Gemma 4 26B-A4B (AR) on one H200, FP8 weights, at two of the 25 measured points. (a) is the book's accounting at FP8 with datasheet rates and independent routing. Each later column changes one input; Part 11 shows all four as maps over batch and context.", wide=True),
+                      "DiffusionGemma (TD) against Gemma 4 26B-A4B (AR) on one H200, FP8 weights, at two of the 25 measured points. (a) is the book's accounting at FP8 with datasheet rates and independent routing. Each later column changes one input; Part 11 shows all four as maps over batch and context."),
         "roofline": fig("fig-eff-roofline", "Figure 10", "The measured roofline sits below the datasheet's, more in compute than in bandwidth.", "", fig_eff_roofline(d),
                         "Attainable throughput \\(\\min(\\pi, I\\beta)\\) against arithmetic intensity, log–log, for FP8 linear layers. Dashed: datasheet (1,979 TFLOP/s, 4.8 TB/s). Solid orange: empirical ceilings of Table 11. Blue: the attention ceiling, which applies to attention kernels whatever their intensity. The ridge point, where a kernel turns compute-bound, moves from 412 to 340 FLOP/byte."),
         "routing": fig("fig-eff-routing", "Figure 11", "Both decoders touch fewer experts than independent routing predicts, for different reasons.", "", fig_eff_routing(d),
-                       "Distinct experts per MoE layer and forward pass \\(U\\), averaged over the 30 layers and the timed passes, against batch size at context 1k: the median of three repeats with different prompts, and the band spanning them. Dotted: independent tokens with uniform routing, \\(U_{E,k}(N)\\) of Definition 1. Dashed: independent tokens with each expert's measured popularity (Definition 6). AR follows the dashed curve; TD lies below it.", wide=True),
+                       "Distinct experts per MoE layer and forward pass \\(U\\), averaged over the 30 layers and the timed passes, against batch size at context 1k: the median of three repeats with different prompts, and the band spanning them. Dotted: independent tokens with uniform routing, \\(U_{E,k}(N)\\) of Definition 1. Dashed: independent tokens with each expert's measured popularity (Definition 6). AR follows the dashed curve; TD lies below it."),
         "maps_abc": fig("fig-eff-maps", "Figure 12", "The gain bound moves with each measured input, and routing moves it most.", "",
                         m4([("roof_ind_ds", "(a) datasheet, independent routing"), ("roof_ind", "(b) empirical ceilings"), ("roof", "(c) and measured routing")]),
-                        "Roofline bound on \\(\\Gamma\\) over batch \\(B\\) and context \\(C\\), with FP8 weights. Each map changes one input of the previous one. Orange: TD faster; blue: AR faster; the shade grows with \\(|\\log\\Gamma|\\) on one scale shared by Figures 12 and 20. Missing cells did not fit in memory.", wide=True),
+                        "Roofline bound on \\(\\Gamma\\) over batch \\(B\\) and context \\(C\\), with FP8 weights. Each map changes one input of the previous one. Orange: TD faster; blue: AR faster; the shade grows with \\(|\\log\\Gamma|\\) on one scale shared by Figures 12 and 20. Missing cells did not fit in memory."),
         "eager": fig("fig-eager", "Figure 13", "In eager mode the GPU waits for each launch; a CUDA graph runs the kernels of a pass back to back.", "", fig_eager(),
                      "Four kernels of one forward pass, as in Part 8's small GEMMs: launching a kernel costs the CPU a few µs, and with 64 tokens or fewer a projection runs for 5–12 µs, so in eager mode the GPU waits a large share of the time. A CUDA graph replays the recorded sequence of kernels with one launch."),
         "run": fig("fig-run", "Figure 14", "One measured point: a profiled window for the kernels, a timed window for the step time.", "", fig_run(),
                    "TD at one batch size \\(B\\) and context \\(C\\). The profiler slows the passes down, so the step time comes from the second window, where it is off. For AR the windows are 48 steps each, after 1,488 warm-up steps, which put AR's context at the middle of the windows at TD's."),
         "attrib": fig("fig-attrib", "Figure 15", "Each kernel of the graph run takes its module from the eager run.", "", fig_attrib(),
-                      "A stretch of one layer, with simplified kernel names. In the eager run each kernel is recorded inside the profiler range of the module that launched it; in the graph run only inside the range of the whole pass. The same kernel can serve several modules, as the FP8 GEMM does here, so the match counts occurrences. Each module then belongs to one component.", wide=True),
+                      "A stretch of one layer, with simplified kernel names. In the eager run each kernel is recorded inside the profiler range of the module that launched it; in the graph run only inside the range of the whole pass. The same kernel can serve several modules, as the FP8 GEMM does here, so the match counts occurrences. Each module then belongs to one component."),
         "flags": fig("fig-flags", "Figure 16", "A replayed CUDA graph reads the memory it saw at capture, so a tensor recreated at every step is never read.", "", fig_flags(),
-                     "DiffusionGemma passes a causal flag per sequence to the attention kernel: 0 for a bidirectional denoising pass, 1 for the causal commit pass. In vLLM 0.28 the flags lived in a bool buffer converted to int32 at every step; under CUDA graphs the attention kernels kept reading the copy made at capture.", wide=True),
+                     "DiffusionGemma passes a causal flag per sequence to the attention kernel: 0 for a bidirectional denoising pass, 1 for the causal commit pass. In vLLM 0.28 the flags lived in a bool buffer converted to int32 at every step; under CUDA graphs the attention kernels kept reading the copy made at capture."),
         "moe": fig("fig-moe", "Figure 17", "The new expert path removes three passes over memory; its two GEMMs are as fast as vLLM's.", "", fig_moe(),
-                   "One MoE layer at TD batch 32 (\\(Nk = 65{,}536\\) rows, each a (token, expert) pair). Each box is one kernel, in order; the orange number is what it writes to memory, read back by the next kernel.", wide=True),
+                   "One MoE layer at TD batch 32 (\\(Nk = 65{,}536\\) rows, each a (token, expert) pair). Each box is one kernel, in order; the orange number is what it writes to memory, read back by the next kernel."),
         "pair": fig("fig-pair", "Figure 18", "Each thread block of the pair holds half of the head dimension; the only traffic between the two SMs is the partial score tile.", "", fig_pair(),
                     "Both blocks process the same 128 query rows. The orange arrows are the exchange: each block writes its \\(m \\times n\\) partial scores into the partner's shared memory and waits for the partner's before the softmax."),
         "smem": fig("fig-smem", "Figure 19", "Splitting the head dimension makes room for a second pipeline stage.", "", fig_smem(),
                     "Shared memory per thread block, in KB, against the 227 KB of one SM. FA4 at head dimension 512 holds full-width tiles and fits one stage; a block of the pair holds half-width tiles and fits two stages of 64 keys plus two exchange buffers. With 80-token KV pages the fastest configuration uses the room differently, for one stage of 80-key tiles loaded by TMA (Table 18)."),
         "maps_cd": fig("fig-conc-maps", "Figure 20", "The measured gain against the bound at measured routing and empirical ceilings.", "",
                        m4([("roof", "(c) bound, measured inputs"), ("measured", "(d) measured")]),
-                       "Same scale as Figure 12. Medians of three repeats; the measured gain is TD's tokens per second over AR's at equal \\(B\\) and \\(C\\).", wide=True),
+                       "Same scale as Figure 12. Medians of three repeats; the measured gain is TD's tokens per second over AR's at equal \\(B\\) and \\(C\\)."),
         "dev": fig("fig-conc-dev", "Figure 21", "The bound is conservative up to batch 8 and optimistic from batch 16 on.", "", f'<div class="pfig-grid"><div>{dev}</div></div>',
                    "Measured gain over the bound (c), which equals \\(\\eta_{TD}/\\eta_{AR}\\) by Proposition 9. Orange where the measured gain exceeds the bound, blue where it falls short; the shade grows with the distance from 1 on its own log scale."),
         "t_ceil": t_ceilings(d), "t_neff": t_neff(d), "t_prop1": t_prop1(d), "t_stock": t_stock(d), "t_eta": t_eta(d), "t_vs2": t_vs2(d),
