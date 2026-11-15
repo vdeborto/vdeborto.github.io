@@ -148,8 +148,8 @@
   function figAccounting(root) {
     const hw = hwOf('h200');
     const rows = [
-      { name: 'Proposition 1', what: 'closed form of Part 2: no vocabulary, context fixed at 1k (at zero context, as in the closed forms of Part 3 and Table 8, TD is ahead up to batch 109)', used: 'Figures 5 and 13, the rooflines of the quiz, Table 3', g: (B) => prop1(DG, hw, B, 1024).gain },
-      { name: 'Exact, fixed context', what: 'every FLOP and byte of the appendix, vocabulary included, context fixed at 1k', used: 'Figures 9 and 15, the quiz verdicts, the maps', g: (B) => steady(DG, hw, B, 1024).gain },
+      { name: 'Proposition 1', what: 'closed form of Part 2: no vocabulary, context fixed at 1k (at zero context, as in the closed forms of Part 3 and Table 8, TD is ahead up to batch 109)', used: 'Figures 5 and 13, the rooflines of the quiz and Table 3 (Figure 16 and Table 8 use it at zero context)', g: (B) => prop1(DG, hw, B, 1024).gain },
+      { name: 'Exact, fixed context', what: 'every FLOP and byte of the appendix, vocabulary included, context fixed at 1k', used: 'Figures 9, 15 and 17, the quiz verdicts, the maps', g: (B) => steady(DG, hw, B, 1024).gain },
       { name: 'Exact, whole generation', what: 'the same accounting summed over a 1k prompt and 8k generated tokens: the context grows from 1k to 9k', used: 'the headline tiles above, the calculator', g: (B) => M.generate(DG, { ...W0, B }, O0, hw).gainDecode, slow: true },
     ];
     const table = el(`<div class="table-wrap nofold"><table class="acct"><thead><tr><th class="l">Accounting</th><th>Γ, batch 1</th><th>Γ, batch 5</th><th>Γ, batch 64</th><th>TD ahead up to batch</th></tr></thead><tbody>${rows.map((r) => `<tr><td class="l"><b>${r.name}</b><br><span class="muted">${r.what}. Used by ${r.used}.</span></td><td class="num">…</td><td class="num">…</td><td class="num">…</td><td class="num">…</td></tr>`).join('')}</tbody></table></div>`);
@@ -638,13 +638,13 @@
     draggable(pic, () => st.xs, BMARK, () => st.i, (i) => { st.i = i; draw(); });
     function draw() {
       const c = colors(), W = widthOf(pic), H = 340, m = { l: 50, r: 16, t: 14, b: 42 }, B = BMARK[st.i];
-      const xs = scale(1, 256, m.l, W - m.r), ylo = 1024, yhi = 2 ** 21, ys = scale(ylo, yhi, H - m.b, m.t);
+      const xs = scale(1, 256, m.l, W - m.r), ylo = 1024, yhi = 2 ** 22, ys = scale(ylo, yhi, H - m.b, m.t);
       const yc = (v) => ys(Math.max(ylo, Math.min(yhi, v)));
       const path = (f) => BS.map((b2) => `${xs(b2)},${yc(f(b2))}`).join(' ');
       const area = (f) => `${xs(1)},${ys(ylo)} ${path(f)} ${xs(256)},${ys(ylo)}`;
       let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Context up to which the weights are at least 90% and 50% of a pass's bytes, against batch">`;
       s += `<polygon points="${area((b2) => ar(b2, 0.5))}" fill="${c.ar}" fill-opacity="0.13"/><polygon points="${area((b2) => ar(b2, 0.9))}" fill="${c.ar}" fill-opacity="0.2"/>`;
-      for (const v of [1024, 4096, 16384, 65536, 262144, 1 << 20]) s += `<line x1="${m.l}" x2="${W - m.r}" y1="${ys(v)}" y2="${ys(v)}" stroke="${c.rule}"/><text x="${m.l - 6}" y="${ys(v) + 4}" text-anchor="end">${v >= 1 << 20 ? '1M' : `${v / 1024}k`}</text>`;
+      for (const v of [1024, 4096, 16384, 65536, 262144, 1 << 20, 1 << 22]) s += `<line x1="${m.l}" x2="${W - m.r}" y1="${ys(v)}" y2="${ys(v)}" stroke="${c.rule}"/><text x="${m.l - 6}" y="${ys(v) + 4}" text-anchor="end">${kctx(v)}</text>`;
       for (const v of BMARK) s += `<text x="${xs(v)}" y="${H - m.b + 15}" text-anchor="middle">${v}</text>`;
       s += `<text x="${(m.l + W - m.r) / 2}" y="${H - 6}" text-anchor="middle" class="ink">batch B (log scale)</text>`;
       s += `<text x="12" y="${(m.t + H - m.b) / 2}" text-anchor="middle" transform="rotate(-90 12 ${(m.t + H - m.b) / 2})" class="ink">context C, tokens (log scale)</text>`;
@@ -659,8 +659,8 @@
       for (const [f, col] of [[ar(B, 0.9), c.ar], [ar(B, 0.5), c.ar], [td(B, 0.5), c.td]]) if (f >= ylo && f <= yhi) s += `<circle cx="${xs(B)}" cy="${ys(f)}" r="4.5" fill="${col}" stroke="${c.bg}" stroke-width="1.5"/>`;
       pic.innerHTML = `${s}</g></svg>`;
       st.xs = xs;
-      // "up to C = ..." or, when the full windows alone exceed the complementary share, no context at all
-      const upTo = (v, rest) => (v <= C0.r ? `at no context (the full windows alone exceed ${rest}% of the bytes)` : `up to <b>C = ${kTok(v)}</b>`);
+      // "up to C = ..." or, when the cache of a sequence with full windows already exceeds the complementary share, no such context
+      const upTo = (v, rest) => (v <= C0.r ? `at no context with full windows (for <i>C</i> ≥ <i>w</i> the cache already exceeds ${rest}% of the bytes)` : `up to <b>C = ${comma(v)}</b> tokens`);
       out.innerHTML = `At <b>batch ${B}</b>, the weights are at least 90% of an <span class="ar">AR step</span>'s bytes ${upTo(ar(B, 0.9), 10)} and at least half ${upTo(ar(B, 0.5), 50)}. A <span class="td">TD pass</span> reads ${hsub('Π', 'lin')}(${B}) = ${gx(C0.Pi(B))} times the weights of an AR step, and they are at least half of its bytes ${upTo(td(B, 0.5), 50)}.`;
     }
     draw(); onTheme(draw); watchWidth(pic, draw);
@@ -757,7 +757,8 @@
       s += `<line x1="${mg.l}" x2="${W - mg.r}" y1="${ys(b)}" y2="${ys(b)}" stroke="${c.muted}" stroke-dasharray="3 4"/><text x="${W - mg.r - 4}" y="${ys(b) - 5}" text-anchor="end">b = ${b}</text>`;
       s += `<polyline fill="none" stroke="${c.ink}" stroke-width="1.6" stroke-dasharray="6 4" points="${CSP.map((x) => `${xs(x)},${ys(Psel(x, b))}`).join(' ')}"/>`;
       s += `<polyline fill="none" stroke="${c.td}" stroke-width="2.4" points="${CSP.map((x) => `${xs(x)},${ys(Pi(x, b))}`).join(' ')}"/>`;
-      s += `<text class="td halo" x="${W - mg.r - 4}" y="${ys(Math.max(30, 0.2 * b))}" text-anchor="end">${sub('Π', 'attn')}${W < 480 ? '' : ": with the scan's index cache"}</text>`;
+      const peak = CSP.reduce((best, x) => (Pi(x, b) > Pi(best, b) ? x : best), CSP[0]);
+      s += `<text class="td halo" x="${xs(peak) + 10}" y="${ys(Pi(peak, b)) - 9}">${sub('Π', 'attn')}${W < 480 ? '' : ": with the scan's index cache"}</text>`;
       s += `<text class="ink halo" x="${xs(2 ** 27)}" y="${ys(Psel(2 ** 27, b)) + 17}" text-anchor="end">${sub('Π', 'sel')}${W < 480 ? '' : ': selected tokens only'}</text>`;
       s += `<g class="drag" tabindex="0" role="slider" aria-label="Context" aria-valuemin="1024" aria-valuemax="${2 ** 28}" aria-valuenow="${C}" aria-valuetext="context ${kctx(C)} tokens"><rect x="${mg.l}" y="${mg.t}" width="${W - mg.r - mg.l}" height="${H - mg.b - mg.t}" fill="transparent"/>${marker(xs, C, mg.t, H - mg.b, c)}`;
       s += `<circle cx="${xs(C)}" cy="${ys(Pi(C, b))}" r="4.5" fill="${c.td}" stroke="${c.bg}" stroke-width="1.5"/><circle cx="${xs(C)}" cy="${ys(Psel(C, b))}" r="4" fill="${c.ink}" stroke="${c.bg}" stroke-width="1.5"/>`;
@@ -850,6 +851,61 @@
       });
       const r = rows.find((x) => x.id === st.id);
       out.innerHTML = `<b>${r.h.label}</b>, <i>I</i>* = ${fmt(r.Is)}: a <span class="td">TD pass</span> is compute-bound from batch <b>${gx(r.bTD)}</b> (◆, the best batch), TD stays ahead up to the parity batch ${hsub('B', '×')} = <b>${fmt(r.bX)}</b> (end of the orange bar), and an <span class="ar">AR step</span> is compute-bound from batch <b>${fmt(r.bAR)}</b> (blue dot${r.bAR > 4096 ? ', beyond the axis' : ''}).`;
+    }
+    draw(); onTheme(draw); watchWidth(pic, draw);
+  }
+
+  // ---------------------------------------------------------------- exact gains across models (Table 9)
+  function figModels(root) {
+    const hw = REF.hw, st = { id: 'dgemma' };
+    const pic = el('<div></div>'), out = el('<div class="readout" aria-live="polite"></div>');
+    root.append(pic, out);
+    const POINTS = [[1, 1024, 'batch 1'], [64, 1024, 'batch 64'], [1, 1 << 20, '1M context, batch 1']];
+    let rows = null;
+    function compute() {
+      rows = Object.entries(M.MODELS).map(([id, spec]) => {
+        const m = spec.build(), w = { ...W0, lambdaTD: m.selfCond ? 5 : 2 };
+        // Memory of the weights, of B caches and of the logits kept per sequence, as in Table 9.
+        const need = (mode) => { const wt = M.footprint(m, { ...w, B: 0, P: 0, G: 0 }, O0, mode).weights, lam = mode === 'td' ? w.lambdaTD : w.lambdaAR, lg = lam > 0 ? (mode === 'td' ? w.b : 1) * m.V * O0.bl : 0; return (B, C) => wt + B * (M.kvBytesPerSeq(m, C, O0) + lg); };
+        const nTD = need('td'), nAR = need('ar');
+        const pts = POINTS.map(([B, C]) => ({ g: M.steady(m, { ...w, B }, O0, hw, C).gain, fit: nTD(B, C) <= hw.mem && nAR(B, C) <= hw.mem }));
+        return { id, label: spec.label.replace(', sparse global layers', ', sparse'), dense: spec.group === 'Dense', Pi: bare(m, { lambdaTD: w.lambdaTD }).Pi(1), pts };
+      }).sort((a, b) => a.Pi - b.Pi || b.pts[0].g - a.pts[0].g);
+    }
+    function draw() {
+      if (!rows) compute();
+      const c = colors(), W = widthOf(pic), narrow = W < 520, rh = narrow ? 36 : 27;
+      const m = { l: narrow ? 8 : 172, r: 56, t: 44, b: 40 }, H = m.t + rows.length * rh + m.b;
+      const xs = scale(0.2, 20, m.l, W - m.r), bottom = H - m.b;
+      let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Exact gain of each model at batch 1, at batch 64 and at 1M context, models ordered by their penalty at batch 1">`;
+      for (const v of [0.25, 0.5, 1, 2, 4, 8, 16]) s += `<line x1="${xs(v)}" x2="${xs(v)}" y1="${m.t - 6}" y2="${bottom}" stroke="${v === 1 ? c.muted : c.rule}"${v === 1 ? ' stroke-width="1.5"' : ''}/><text x="${xs(v)}" y="${bottom + 15}" text-anchor="middle">${v}</text>`;
+      s += `<text x="${(m.l + W - m.r) / 2}" y="${H - 6}" text-anchor="middle" class="ink">exact gain Γ (log scale)</text>`;
+      s += `<text x="${xs(1) - 6}" y="${m.t - 12}" text-anchor="end" class="ar">AR ahead</text><text x="${xs(1) + 6}" y="${m.t - 12}" class="td">TD ahead</text>`;
+      s += `<text x="${W - m.r + 30}" y="${m.t - 12}" text-anchor="middle" class="ink">Π(1)</text>`;
+      // legend, drawn with the markers themselves
+      const lx = m.l, ly = 12;
+      s += `<circle cx="${lx + 5}" cy="${ly}" r="5" fill="${c.td}"/><text x="${lx + 15}" y="${ly + 4}">batch 1</text>`;
+      s += `<circle cx="${lx + 85}" cy="${ly}" r="4.5" fill="${c.bg}" stroke="${c.td}" stroke-width="2"/><text x="${lx + 95}" y="${ly + 4}">batch 64</text>`;
+      s += `<path d="M${lx + 172},${ly - 6} l5,6 l-5,6 l-5,-6 z" fill="${c.ink}"/><text x="${lx + 182}" y="${ly + 4}">1M context${narrow ? '' : ', batch 1'}</text>`;
+      rows.forEach((r, k) => {
+        const y0 = m.t + k * rh, y = y0 + (narrow ? 24 : rh / 2), on = r.id === st.id, cx = (g) => xs(Math.max(0.2, Math.min(20, g)));
+        const op = (p) => (p.fit ? 1 : 0.4);
+        s += `<g class="row" data-id="${r.id}" tabindex="0" role="button" aria-pressed="${on}" aria-label="${r.label}" style="cursor:pointer"><rect x="0" y="${y0}" width="${W}" height="${rh}" fill="${on ? c.soft : 'transparent'}" opacity="0.7"/>`;
+        s += narrow ? `<text x="${m.l}" y="${y0 + 12}" class="${on ? 'strong' : 'ink'}">${r.label}</text>` : `<text x="${m.l - 10}" y="${y + 4}" text-anchor="end" class="${on ? 'strong' : 'ink'}">${r.label}</text>`;
+        s += `<text x="${W - m.r + 30}" y="${y + 4}" text-anchor="middle">${r.Pi.toFixed(1)}</text>`;
+        s += `<line x1="${cx(r.pts[0].g)}" x2="${cx(r.pts[1].g)}" y1="${y}" y2="${y}" stroke="${c.td}" stroke-opacity="0.45" stroke-width="2"/>`;
+        s += `<path d="M${cx(r.pts[2].g)},${y - 6} l5,6 l-5,6 l-5,-6 z" fill="${c.ink}" opacity="${op(r.pts[2])}"/>`;
+        s += `<circle cx="${cx(r.pts[1].g)}" cy="${y}" r="4.5" fill="${c.bg}" stroke="${c.td}" stroke-width="2" opacity="${op(r.pts[1])}"/>`;
+        s += `<circle cx="${cx(r.pts[0].g)}" cy="${y}" r="5" fill="${c.td}" opacity="${op(r.pts[0])}"/></g>`;
+      });
+      pic.innerHTML = `${s}</svg>`;
+      pic.querySelectorAll('.row').forEach((g) => {
+        const choose = () => { st.id = g.dataset.id; draw(); pic.querySelector(`.row[data-id="${st.id}"]`).focus({ preventScroll: true }); };
+        g.addEventListener('click', choose);
+        g.addEventListener('keydown', (ev) => { if (ev.key === 'Enter' || ev.key === ' ') { choose(); ev.preventDefault(); } });
+      });
+      const r = rows.find((x) => x.id === st.id);
+      out.innerHTML = `<b>${r.label}</b> (${r.dense ? 'dense' : 'MoE'}, Π(1) = ${r.Pi.toFixed(1)}): ${r.pts.map((p, i) => `<b>Γ = ${g2(p.g)}</b> at ${POINTS[i][2]}${p.fit ? '' : ' (does not fit in 141 GB)'}`).join(', ')}. At batch 1, where an AR step has intensity 1 in BF16, Corollary 1 gives about min(TPF/Π(1), <i>I</i>*/ω) = min(${fmt(W0.b / OM / r.Pi)}, ${fmt(ridge(hw) / OM)}).`;
     }
     draw(); onTheme(draw); watchWidth(pic, draw);
   }
@@ -1025,7 +1081,7 @@
   // ---------------------------------------------------------------- mount
   const FIGS = {
     quiz: figQuiz, accounting: figAccounting, reuse: figReuse, roofline: figRoofline, bestbatch: figBestBatch, context: figContext, accel: figAccel,
-    experts: figExperts, weights: figWeights, linmap: figLinMap, attnread: figAttnRead, sparse: figSparse, share: figShare, thresholds: figThresholds,
+    experts: figExperts, weights: figWeights, linmap: figLinMap, attnread: figAttnRead, sparse: figSparse, share: figShare, thresholds: figThresholds, models: figModels,
   };
   document.querySelectorAll('[data-fig]').forEach((root) => {
     try { FIGS[root.dataset.fig](root); } catch (e) { root.textContent = 'This figure failed to load.'; console.error(e); }

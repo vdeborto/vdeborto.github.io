@@ -253,8 +253,8 @@ def main():
     body = src[src.index('<main class="main">') + len('<main class="main">'): src.index("</main>")]
     body = re.sub(r'\s*<div class="eyebrow">.*?</div>', "", body, count=1)
     body = re.sub(r"\s*<h1>.*?</h1>", "", body, count=1)
-    body = sub_once(body, "and the site lives in the private GitHub repository <code>vdeborto/diffusion-roofline</code>, whose history is the changelog.",
-                    "and the page has no other dependency.", "private repo sentence")
+    body = sub_once(body, "The page is self-contained: the cost model is the <code>BDModel</code> script embedded in it (view the page source), and the site lives in the private GitHub repository <code>vdeborto/diffusion-roofline</code>, whose history is the changelog.",
+                    "The cost model is the <code>BDModel</code> script in <code>/assets/roofline/note.js</code>, which every chapter loads.", "private repo sentence")
     # Interactive figures, in reading order. Figure numbers follow the page.
     body = sub_once(body, '  <div class="formula-card">', figs["quiz"] + '  <div class="formula-card">', "quiz anchor")
     body = sub_once(body, '  <div class="takeaways">', figs["accounting"] + '  <div class="takeaways">', "accounting anchor")
@@ -277,7 +277,8 @@ def main():
                          ("attnread", '  <div class="box prop" id="prop5">'),
                          ("sparse", '  <div class="box prop" id="prop6">'),
                          ("share", '  <div class="table-wrap"><table>\n    <caption>Table 5. '),
-                         ("thresholds", '  <div class="table-wrap"><table>\n    <caption>Table 8. ')):
+                         ("thresholds", '  <div class="table-wrap"><table>\n    <caption>Table 8. '),
+                         ("models", '  <div class="table-wrap"><table>\n    <caption>Table 9. ')):
         body = sub_once(body, anchor, figs[name] + anchor, f"{name} anchor")
     body = add_practice(body)
     body = add_cards(body)

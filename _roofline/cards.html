@@ -11,7 +11,7 @@
 <!-- card:Canvas length, -->
 <div class="card-more" hidden>
   <div class="eq">\[ \begin{gathered} \mathrm{TPF} = \frac{b}{\omega},\qquad I_{TD} = \frac{b}{\Pi}\,I_{AR},\\[4pt] B^\star_{TD} \approx \frac{I^\star s_wW_{TD}}{2b\,N_{\mathrm{act}}}. \end{gathered} \]</div>
-  <p>While a TD pass is memory-bound, \(\Gamma = \mathrm{TPF}/\Pi\) grows with \(b\). Once it is compute-bound, \(\Gamma = I^\star/(\omega I_{AR})\) no longer depends on \(b\): a longer canvas reaches that regime at a smaller batch, and so raises the best gain, which sits at \(B^\star_{TD}\) or one batch below it.</p>
+  <p>While a TD pass is memory-bound, \(\Gamma = \mathrm{TPF}/\Pi\) grows with \(b\). Once it is compute-bound, \(\Gamma = I^\star/(\omega I_{AR})\) no longer depends on \(b\): a longer canvas reaches that regime at a smaller batch, and so raises the best gain, which over integer batches sits at the last memory-bound batch or the first compute-bound one.</p>
   <div data-micro="canvas"></div>
   <p class="card-link"><a href="#lin-gain">The gain when the linear layers dominate</a> · <a href="#fig-bestbatch">Figure 9</a></p>
 </div>
@@ -24,7 +24,7 @@
 </div>
 <!-- card:Attention penalty, -->
 <div class="card-more" hidden>
-  <div class="eq">\[ \begin{gathered} \Pi_{\mathrm{attn}}(C) - 1 = \frac{\nu_S\,\bigl[\,U_{C,m}(b) - m\,\bigr]}{Q^{AR}_{\mathrm{attn}}(C)},\\[4pt] U_{C,m}(b) = C\Bigl[1 - \bigl(1 - \tfrac{m}{C}\bigr)^{b}\Bigr]. \end{gathered} \]</div>
+  <div class="eq">\[ \begin{gathered} \Pi_{\mathrm{attn}}(C) - 1 = \frac{\nu_S\,\bigl[\,U_{C,m}(b) - m\,\bigr]}{Q^{AR}_{\mathrm{attn}}(C)},\\[4pt] U_{C,m}(b) = C\Bigl[1 - \bigl(1 - \tfrac{m}{C}\bigr)^{b}\Bigr] \quad (C \ge m). \end{gathered} \]</div>
   <p>Only sparse layers contribute: each query selects its own \(m\) cached tokens, and the canvas reads the union, \(U_{C,m}(b)\) tokens, up to \(\min(bm, C)\). This is the MoE penalty again, with cached tokens in the role of experts and the canvas length in the role of the batch. It is 1 while \(C \le m\), largest for \(m \lt C \lesssim bm\), and returns to 1 as \(C \to \infty\), when the union stops growing and the indexer's scan carries the bytes.</p>
   <div data-micro="attn"></div>
   <p class="card-link"><a href="#prop5">Proposition 5</a> · <a href="#dsa">sparse attention</a></p>
@@ -46,15 +46,15 @@
 <!-- card:AR compute-bound -->
 <div class="card-more" hidden>
   <p>Both passes run at the peak, so time is FLOPs, and a canvas spends \(\omega\) times AR's FLOPs per token: \(\Gamma \le 1/\omega\), equal to it under Proposition 1. AR reaches the ridge at</p>
-  <div class="eq">\[ \begin{gathered} B^\star_{AR} = \frac{I^\star s_wW_{\mathrm{tot}}}{2N_{\mathrm{act}}}\\[4pt] = \frac{206 \times 2 \times 24.5\text{B}}{2 \times 3.08\text{B}} \approx 1{,}640, \end{gathered} \]</div>
-  <p>This closed form takes zero context. Holding 1,640 sequences of 9k tokens, the 1k prompt and 8k generated tokens of the running example, would take about 650 GB of KV cache, more than four H200s hold; and by Proposition 8, at a long enough context no batch makes an AR step compute-bound.</p>
+  <div class="eq">\[ \begin{gathered} B^\star_{AR} = \frac{I^\star s_wW_{\mathrm{tot}}}{2N_{\mathrm{act}}}\\[4pt] = \frac{206 \times 2 \times 24.5\text{B}}{2 \times 3.08\text{B}} \approx 1{,}640. \end{gathered} \]</div>
+  <p>This closed form takes zero context. By Proposition 8, beyond about 135 tokens of context no batch makes an AR step compute-bound. In addition, holding 1,640 sequences of 9k tokens, the 1k prompt and 8k generated tokens of the running example, would take about 650 GB of KV cache, more than four H200s hold.</p>
   <p class="card-link"><a href="#cor1">Corollary 1</a> · <a href="#prop8">Proposition 8</a></p>
 </div>
 <!-- card:Both memory-bound -->
 <div class="card-more" hidden>
   <p>Time is bytes. Per sequence, an AR step reads \(Q^{AR}\) for one token; a canvas reads \(\omega\) times \(Q^{TD} = \Pi\,Q^{AR}\) for \(b\) tokens. Hence</p>
   <div class="eq">\[ \Gamma = \frac{Q^{AR}}{\omega\,\Pi\,Q^{AR}/b} = \frac{\mathrm{TPF}}{\Pi}. \]</div>
-  <p>TD's extra FLOPs are hidden under the memory time. At batch 1, \(\mathrm{TPF} = 256/15 = 17.1\) and \(\Pi \approx \Pi_{\mathrm{lin}}(1) = 7.9\), so \(\Gamma \approx 2.2\); the exact accounting gives 2.53.</p>
+  <p>TD's extra FLOPs are hidden under the memory time. At batch 1, \(\mathrm{TPF} = 256/15 = 17.07\) and \(\Pi \approx \Pi_{\mathrm{lin}}(1) = 7.94\), so \(\Gamma \approx 2.15\); the exact accounting at a fixed context of 1k gives 2.53, and 2.55 over the whole generation.</p>
   <p class="card-link"><a href="#cor1">Corollary 1</a> · <a href="#fig-reuse">Figure 4</a></p>
 </div>
 <!-- card:AR memory-, TD compute-bound -->

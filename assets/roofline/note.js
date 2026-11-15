@@ -847,7 +847,7 @@
     $('t-kv').innerHTML = [1, 8, 16, 64, 256].map((B) => {
       const cell = (x) => {
         const C = ((x / (1 - x)) * (c.WAR(B) / B) - c.nuS * c.r) / c.nuG;
-        return C <= c.r ? 'any (≥ 1k)' : kTok(C);
+        return C <= c.r ? 'none for C ≥ w' : kTok(C);
       };
       return `<tr><td class="num">${B}</td><td class="num">${cell(0.1)}</td><td class="num">${cell(0.5)}</td></tr>`;
     }).join('');
@@ -886,7 +886,7 @@
       const needTD = memNeed(m, st.o, w, 'td'), needAR = memNeed(m, st.o, w, 'ar');
       const fits = (B, C) => needTD(B, C) <= st.hw.mem && needAR(B, C) <= st.hw.mem;
       const cell = (B, C) => { const x = g(B, C); return `<td class="num${x < 1 ? ' lose' : ''}">${x.toFixed(2)}×${fits(B, C) ? '' : '<sup class="oom" title="does not fit in memory">†</sup>'}</td>`; };
-      return `<tr><td class="l">${spec.label} <span class="muted">${spec.group === 'Dense' ? 'dense' : 'MoE'}</span></td><td class="num">${fmt(pc.total / 1e9, 3)}B / ${fmt(pc.active / 1e9, 2)}B</td><td class="num">${c.Pi(1).toFixed(1)}</td><td class="num">${fmt(c.Ikv, 2)}</td>${cell(1, 1024)}${cell(64, 1024)}${cell(1, 1048576)}</tr>`;
+      return `<tr><td class="l">${spec.label} <span class="muted">${spec.group === 'Dense' ? 'dense' : 'MoE'}</span></td><td class="num">${fmt(pc.total / 1e9, 3)}B / ${fmt(pc.active / 1e9, 2)}B</td><td class="num">${c.Pi(1).toFixed(1)}</td><td class="num">${m.sparse ? `${fmt(c.aI / c.nuI, 2)} <span class="muted">(I<sub>idx</sub>)</span>` : fmt(c.Ikv, 2)}</td>${cell(1, 1024)}${cell(64, 1024)}${cell(1, 1048576)}</tr>`;
     }).join('');
   }
 
@@ -904,6 +904,8 @@
     const peak = TPF / c.Pi(BTD);
     const Bx = solveLin(c, c.Istar / S1);
     const long32 = w.b * c.Ikv > c.Istar ? c.Istar / (S1 * c.Ikv) : TPF;
+    // Proposition 1 at one point (B, C), for a canvas of bb positions.
+    const p1At = (cc, bb, B, C) => { const IAR = cc.phi(C) / (cc.WAR(B) / B + cc.qkv(C)), ITD = (bb * cc.phi(C)) / (cc.WTD(B) / B + cc.qkvTD(C)); return Math.min(ITD, cc.Istar) / (S1 * Math.min(IAR, cc.Istar)); };
     const long16 = 16 * c.Ikv > c.Istar ? c.Istar / (S1 * c.Ikv) : 16 / S1;
     // Exact
     const ex = (B, C, ww = w) => M.steady(model, { ...ww, B }, st.o, st.hw, C);
@@ -917,8 +919,9 @@
       ['TD compute-bound from batch', fmt(BTD, 2), tdFirst ? fmt(tdFirst, 2) : '–'],
       ['Best gain', `${peak.toFixed(2)} at batch ${fmt(BTD, 2)}`, `${exPeak[1].toFixed(2)} at batch ${fmt(exPeak[0], 2)}`],
       ['AR catches up at batch', fmt(Bx, 3), cr[1] ? fmt(cr[1], 3) : '–'],
-      ['Long-context gain (1M, batch 4, the largest that fits)', long32.toFixed(2), ex(4, 1048576).gain.toFixed(2)],
-      ['Same, with b = 16', long16.toFixed(2), ex(4, 1048576, { ...w, b: 16 }).gain.toFixed(2)],
+      ['Gain at 1M context and batch 4, the largest that fits', p1At(c, w.b, 4, 1048576).toFixed(2), ex(4, 1048576).gain.toFixed(2)],
+      ['Same, with b = 16', p1At(bare({ ...st, w: { ...w, b: 16 } }).c, 16, 4, 1048576).toFixed(2), ex(4, 1048576, { ...w, b: 16 }).gain.toFixed(2)],
+      ['Limit as C → ∞, not reached in memory (b = 32; b = 16)', `${long32.toFixed(2)}; ${long16.toFixed(2)}`, '–'],
     ];
     $('t-ex').innerHTML = rows.map((r) => `<tr><td class="l">${r[0]}</td><td class="num">${r[1]}</td><td class="num">${r[2]}</td></tr>`).join('');
   }
@@ -1138,7 +1141,7 @@
     const ef = (e) => (e >= 1 ? '1' : `1/${Math.round(1 / e)}`);
     lineChart(el, series.map((sr) => ({ color: sr.color, label: '', points: etas.map((e, k) => ({ x: e, y: sr.ys[k] })) })), {
       aria: 'Exact TD over AR gain at 1M context against the selection overlap parameter', refY: 1, dots: false, xLabel: 'overlap ζ (1: independent selections)', xFmt: ef, yFmt: (v) => `${v}×`,
-      tip: (i) => `<b>η = ${ef(etas[i])}</b><br>` + series.map((sr) => `<span class="swatch" style="background:var(${sr.color})"></span>${sr.label}: ${sr.ys[i].toFixed(2)}×`).join('<br>'),
+      tip: (i) => `<b>ζ = ${ef(etas[i])}</b><br>` + series.map((sr) => `<span class="swatch" style="background:var(${sr.color})"></span>${sr.label}: ${sr.ys[i].toFixed(2)}×`).join('<br>'),
     });
     legendEl.innerHTML = series.map((sr) => `<span><span class="swatch" style="background:var(${sr.color})"></span>${sr.label}</span>`).join('');
   }

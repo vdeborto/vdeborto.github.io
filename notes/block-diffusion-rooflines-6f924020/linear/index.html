@@ -73,16 +73,16 @@ gain                                                              1,541 / 609 = 
     </ol>
     <details class="proof"><summary>Proof</summary><p>\(\class{mj-ar}{\theta^{AR}_{\mathrm{lin}}} \ge x \iff s_w\class{mj-ar}{W_{AR}}/B \ge \tfrac{x}{1-x}\,(\nu_GC + \nu_Ww)\); solve for \(C\). (1) \(\class{mj-ar}{W_{AR}}(B)/B\) is non-increasing because \(U_{E,k}\) is concave with \(U_{E,k}(0) = 0\), and constant over \(B\) once \(U_{E,k}(B) = E\). (2) and (3) substitute the TD and sparse byte counts of Definition 2. \(\blacksquare\)</p></details>
   </div>
-  <p>DiffusionGemma's cache is small (2 KV heads in 5 global layers, \(\nu_G = 20\) kB per token, plus a fixed 210 MB per sequence for the windows), so its linear layers dominate for a long way. A dense GQA model such as Llama-3-8B, with 131 kB per token and 16 GB of weights, reaches equal weight and cache bytes at \(BC \approx 122\)k.</p>
+  <p>DiffusionGemma's cache is small (2 KV heads in 5 global layers, \(\nu_G = 20\) kB per token, plus a fixed 210 MB per sequence for the windows), so its linear layers dominate for a long way. A dense GQA model such as Llama-3-8B, with 131 kB per token and 14 GB of weights without the vocabulary, reaches equal weight and cache bytes at \(BC \approx 107\)k.</p>
   <div class="bdr-fig wide" id="fig-linmap">
     <div class="fig-k">Figure 8 · interactive</div>
     <p class="fig-title">The weights dominate an AR step's bytes up to a context that falls as the batch grows.</p>
     <p class="fig-lede">Drag the marker along the batch axis to read the three thresholds.</p>
     <div data-fig="linmap"></div>
-    <p class="fig-cap">Thresholds of Proposition 4 for DiffusionGemma in BF16, with dense attention and full windows. Below the thick blue line the weights are at least half of an AR step's bytes, \(C \le C_{\mathrm{lin}}(B, 1/2)\); below the thin one, at least 90%. The batch shares the weights and each sequence brings its own cache, so both lines fall, like \(1/B\) once the batch touches every expert; where the thin line leaves the plot, the full windows alone exceed 10% of the bytes. Dashed orange: the 50% threshold of a TD pass, which reads \(\Pi_{\mathrm{lin}}(B)\) times the weights and therefore lies further out, by a factor that tends to 1 as the penalty vanishes. Table 2 lists these thresholds at five batch sizes.</p>
+    <p class="fig-cap">Thresholds of Proposition 4 for DiffusionGemma in BF16, with dense attention and full windows. Below the thick blue line the weights are at least half of an AR step's bytes, \(C \le C_{\mathrm{lin}}(B, 1/2)\); below the thin one, at least 90%. The batch shares the weights and each sequence brings its own cache, so both lines fall, like \(1/B\) once the batch touches every expert; where the thin line leaves the plot, the cache of a sequence with full windows already exceeds 10% of the bytes. Dashed orange: the 50% threshold of a TD pass, which reads \(\Pi_{\mathrm{lin}}(B)\) times the weights and therefore lies further out, by a factor that tends to 1 as the penalty vanishes. Table 2 lists these thresholds at five batch sizes.</p>
   </div>
   <div class="table-wrap"><table>
-    <caption>Table 2. Context up to which the linear layers are at least 90% and 50% of an AR step's bytes (Proposition 4), DiffusionGemma, BF16. "any" means the full windows alone already exceed the complementary share.</caption>
+    <caption>Table 2. Context up to which the linear layers are at least 90% and 50% of an AR step's bytes (Proposition 4), DiffusionGemma, BF16. "None for \(C \ge w\)": with the windows full, the cache already exceeds the complementary share.</caption>
     <thead><tr><th>\(B\)</th><th>linear ≥ 90% until</th><th>linear ≥ 50% until</th></tr></thead>
     <tbody id="t-kv"></tbody>
   </table></div>
@@ -104,7 +104,7 @@ gain                                                              1,541 / 609 = 
   <ul>
     <li><b>Both memory-bound, \(B \lt \class{mj-td}{B^\star_{TD}}\): \(\Gamma = \mathrm{TPF}/\Pi_{\mathrm{lin}}(B)\).</b> The gain rises with the batch as \(\Pi_{\mathrm{lin}}\) falls.</li>
     <li><b>TD compute-bound, \(\class{mj-td}{B^\star_{TD}} \le B \lt \class{mj-ar}{B^\star_{AR}}\): \(\Gamma = I^\star/(\omega \class{mj-ar}{I^{AR}_{\mathrm{lin}}}(B))\).</b> Since \(\class{mj-ar}{I^{AR}_{\mathrm{lin}}}\) grows with the batch the gain falls, exactly like \(1/B\) once an AR step touches every expert, reaching parity at \(B_\times\). AR need not be compute-bound to win: \(\class{mj-ar}{I^{AR}_{\mathrm{lin}}} \gt I^\star/\omega\) is enough.</li>
-    <li><b>The best batch is \(\class{mj-td}{B^\star_{TD}}\)</b>, where the two expressions meet: \(\mathrm{TPF}/\Pi_{\mathrm{lin}}(\class{mj-td}{B^\star_{TD}})\), i.e. 6.5 at batch 6.4 under the propositions and 5.1 at batch 5 in the exact model. Since \(\class{mj-td}{B^\star_{TD}} \approx \class{mj-ar}{B^\star_{AR}}/b\), a longer canvas moves it earlier and raises it.</li>
+    <li><b>The best batch is \(\class{mj-td}{B^\star_{TD}}\)</b>, where the two expressions meet: \(\mathrm{TPF}/\Pi_{\mathrm{lin}}(\class{mj-td}{B^\star_{TD}})\), i.e. 6.5 at batch 6.4 under the propositions and 5.3 at batch 5 in the exact accounting at context 1k (Figure 9). Since \(\class{mj-td}{B^\star_{TD}} \approx \class{mj-ar}{B^\star_{AR}}/b\), a longer canvas moves it earlier and raises it.</li>
   </ul>
   <p>The closed forms for \(\class{mj-ar}{B^\star_{AR}}\) and \(B_\times\) assume that AR's batch already touches every expert; for DiffusionGemma on an H200 the three thresholds are 6.4, 1,640 and 109.</p>
   <div class="bdr-fig wide" id="fig-bestbatch">

@@ -15,7 +15,7 @@ Parts 3 and 4 treat the two extremes, a pass that reads only weights and one tha
 <!-- intro:calculator -->
 The propositions give closed forms under simplifying assumptions. The calculator instead evaluates every pass of a generation with the exact accounting of the appendix, for any accelerator, model, attention layout and decoding setup. It reports both throughputs, the AR batch that matches TD, the memory each decoder needs, and the maps of Part 5 for the chosen setting; the page address records the setting, so it can be shared.
 <!-- intro:appendix -->
-Every number in Parts 1–7 is a roofline bound computed from a cost model, not a measurement; Parts 8–11 give the measurements. This appendix describes the exact accounting behind the maps, the headline numbers and the calculator, compares its bounds with throughput measured in vLLM, and lists the sources of the model shapes and accelerator specifications.
+Every number in Parts 1–7 is a roofline bound computed from a cost model, not a measurement; Parts 8–11 give the measurements. This appendix describes the exact accounting behind the maps, the headline numbers and the calculator, points to the measurements that check it, and lists the sources of the model shapes and accelerator specifications.
 <!-- intro:introduction -->
 This book asks when block text diffusion produces more tokens per second than autoregressive decoding, for the same model on the same accelerator. Parts 1–7 answer with roofline bounds; Parts 8–11 measure the answer for DiffusionGemma on one H200 and account for the difference. This chapter states the question, shows how the parts fit together, and fixes the setting of the measurements.
 <!-- intro:effective -->

@@ -28,7 +28,7 @@ sitemap: false
     <ol>
       <li>If AR is compute-bound, \(\class{mj-ar}{I_{AR}} \ge I^\star\), TD loses: \(\Gamma \le 1/\omega\).</li>
       <li>Otherwise \(\Gamma \ge 1\) exactly when both \(\mathrm{TPF} \ge \Pi\) and \(\class{mj-ar}{I_{AR}} \le I^\star/\omega\): a TD pass must serve more tokens per read than it pays in penalty, and AR must use at most a fraction \(1/\omega\) of the compute, so that TD's \(\omega\) times more FLOPs fit in what AR leaves idle.</li>
-      <li>The gain is \(\Gamma = \min\bigl(\mathrm{TPF}/\Pi,\ I^\star/(\omega \class{mj-ar}{I_{AR}})\bigr)\), largest where the two are equal, at the batch where a TD pass reaches the ridge.</li>
+      <li>The gain is \(\Gamma = \min\bigl(\mathrm{TPF}/\Pi,\ I^\star/(\omega \class{mj-ar}{I_{AR}})\bigr)\). When \(\Pi\) is non-increasing in the batch, it is largest at the smallest batch at which a TD pass is compute-bound: where the two terms are equal if a TD pass is memory-bound at batch 1, and at batch 1 otherwise.</li>
     </ol>
     <details class="proof"><summary>Proof</summary><p>(1) and (3) are Corollary 1 with Proposition 2's expressions. (2) A minimum of two numbers is at least 1 exactly when both are. \(\blacksquare\)</p></details>
   </div>
@@ -74,7 +74,7 @@ sitemap: false
     </tbody>
   </table></div>
   <ul>
-    <li><b>AR compute-bound (R3, R4, R7, R8).</b> TD loses. Both decoders run at peak, so only the work ratio is left and \(\Gamma \le 1/\omega\).</li>
+    <li><b>AR compute-bound (R3, R4, R7, R8).</b> TD loses, with \(\Gamma \le 1/\omega\): in R4 and R8 both decoders run at peak and only the work ratio is left, and in R3 and R7 a TD pass is memory-bound and slower still.</li>
     <li><b>Both memory-bound (R1, R5).</b> TD's extra FLOPs hide under the memory time, and each read serves TPF tokens, at the penalty of whichever part dominates.</li>
     <li><b>AR memory-bound, TD compute-bound (R2, R6).</b> TD uses compute that AR leaves idle, \(\Gamma = I^\star/(\omega \class{mj-ar}{I_{AR}})\), independent of \(b\); it falls with the batch at short context (like \(1/B\) once AR touches every expert) and is flat in the batch at long context.</li>
   </ul>
@@ -82,7 +82,7 @@ sitemap: false
   <div class="box prop" id="kernels">
     <div class="bdr-title"><span class="tag">Remark 2</span>Kernels run one after another</div>
     <p class="gist"><span>In short.</span> Timing a pass as a chain of kernels instead of one fully overlapped kernel is never faster and at most twice slower; it moves DiffusionGemma's best batch from 5 to 9.</p>
-    <p>(A1) gives a pass the time of one kernel in which all of its compute and memory traffic overlap. A pass is a chain of kernels, and adding their roofline times, \(\sum_c \max(F_c/\pi, Q_c/\beta)\) over kernel classes, is never faster and at most twice slower. For an AR step at moderate batch every class is memory-bound and nothing changes. For a TD pass the dense layers are compute-bound from batch 1 while the experts stay memory-bound until \(Bbk/E \approx I^\star\), batch 13 here; the best batch moves from 5 to 9 and the peak gain from 5.1× to 3.7×. The calculator offers both rules.</p>
+    <p>(A1) gives a pass the time of one kernel in which all of its compute and memory traffic overlap. A pass is a chain of kernels, and adding their roofline times, \(\sum_c \max(F_c/\pi, Q_c/\beta)\) over kernel classes, is never faster and at most twice slower. For an AR step at moderate batch every class is memory-bound and nothing changes. For a TD pass the dense layers are compute-bound from batch 1 while the experts stay memory-bound until \(Bbk/E \approx I^\star\), batch 13 here; at context 1k the best batch moves from 5 to 9 and the peak gain from 5.3× to 3.8× (Figure 9). The calculator offers both rules.</p>
   </div>
 
   <h3>Across accelerators and models</h3>
@@ -101,11 +101,18 @@ sitemap: false
     <p class="fig-cap">DiffusionGemma in BF16 under Proposition 1 at zero context, as in Table 8. Orange bar: the batches at which TD is ahead, from 1 to the parity batch \(B_\times\), which solves \(\class{mj-ar}{I^{AR}_{\mathrm{lin}}}(B) = I^\star/\omega\). Diamond: \(\class{mj-td}{B^\star_{TD}}\), from which a TD pass is compute-bound and where the gain is largest. Blue: from \(B_\times\) to \(\class{mj-ar}{B^\star_{AR}}\), AR is ahead although it is still memory-bound; the dot is \(\class{mj-ar}{B^\star_{AR}}\), from which an AR step is compute-bound too. All three thresholds are proportional to the ridge point \(I^\star\) once the batch touches every expert.</p>
   </div>
   <div class="table-wrap"><table>
-    <caption>Table 8. Regime thresholds by accelerator, DiffusionGemma in BF16 under Proposition 1. The parity batch solves \(\class{mj-ar}{I^{AR}_{\mathrm{lin}}}(B) = I^\star/\omega\) with the full \(\class{mj-ar}{W_{AR}}(B)\). A higher ridge point favours TD.</caption>
+    <caption>Table 8. Regime thresholds by accelerator, DiffusionGemma in BF16 under Proposition 1. The parity batch solves \(\class{mj-ar}{I^{AR}_{\mathrm{lin}}}(B) = I^\star/\omega\) with the full \(\class{mj-ar}{W_{AR}}(B)\). A higher ridge point favours TD. The row "H200 SXM, measured ceilings" uses the rates measured in Part 8 in place of the datasheet's.</caption>
     <thead><tr><th class="l">Accelerator</th><th>\(I^\star\)</th><th>TD compute-bound from batch</th><th>R2 parity at batch</th><th>long-context gain (R6)</th></tr></thead>
     <tbody id="t-hw"></tbody>
   </table></div>
-  <p>Each model below is paired with a hypothetical TD twin on the same backbone (\(r = 1\), no self-conditioning). Dense models pay no linear penalty, so TD gets almost the full TPF at batch 1, but their AR intensity grows fastest with batch. MoE models pay an expert penalty close to their ratio of total to active parameters. The long-context limit depends only on \(I_{\mathrm{attn}}\).</p>
+  <p>Each model below is paired with a hypothetical TD twin on the same backbone (\(r = 1\), no self-conditioning). Dense models pay no linear penalty, so at batch 1 the gain is \(\min(\mathrm{TPF},\ I^\star/\omega)\): 13.7 on an H200, where a dense TD pass is already compute-bound. Their AR intensity also grows fastest with the batch. MoE models pay an expert penalty close to their ratio of total to active parameters. The long-context limit depends only on \(I_{\mathrm{attn}}\), or on \(I_{\mathrm{idx}}\) for the sparse variant.</p>
+  <div class="bdr-fig wide" id="fig-models">
+    <div class="fig-k">Figure 17 · interactive</div>
+    <p class="fig-title">The larger a model's MoE penalty, the smaller TD's lead at batch 1 and the larger at batch 64.</p>
+    <p class="fig-lede">Each row is a model, ordered by its penalty at batch 1. Select a row to read its gains.</p>
+    <div data-fig="models"></div>
+    <p class="fig-cap">Exact gains on an H200 in BF16, with a canvas of 256 and \(S = 14\), as in Table 9. Filled circle: batch 1 at context 1k; open circle: batch 64 at context 1k; diamond: batch 1 at 1M context. Models are ordered by \(\Pi(1)\), the penalty of Proposition 3 at batch 1, from the dense models (\(\Pi = 1\)) to gpt-oss-120b (25.4). At batch 1, Corollary 1 gives \(\Gamma \approx \min\bigl(\mathrm{TPF}/\Pi(1),\ I^\star/(\omega \class{mj-ar}{I_{AR}})\bigr)\): the dense models reach the second term, about 13.7, and the MoE models the first, which falls as the penalty grows. At batch 64 the order is reversed, because the intensity of an AR step at a given batch, about \(B\,N_{\mathrm{act}}/\class{mj-ar}{W_{AR}}(B)\) in BF16, is lowest for the models with the most inactive weights. Faint markers: the point does not fit in the H200's 141 GB (the † of Table 9).</p>
+  </div>
   <div class="table-wrap"><table>
     <caption>Table 9. Exact gains on H200, BF16, canvas 256, \(S = 14\), context 1k (1M and batch 1 for the last column). †: the weights and the KV cache of that point exceed the H200's 141 GB, so the gain is that of a hypothetical accelerator with the same rates and more memory. Total parameters include the embedding matrix; active ones exclude it, as \(N_{\mathrm{act}}\) does. \(\Pi(1)\) under Proposition 3.</caption>
     <thead><tr><th class="l">Model</th><th>total / active parameters</th><th>\(\Pi(1)\)</th><th>\(I_{\mathrm{attn}}\)</th><th>Γ, batch 1</th><th>Γ, batch 64</th><th>Γ, 1M, batch 1</th></tr></thead>
@@ -114,7 +121,7 @@ sitemap: false
 
   <h3 id="maps">The exact maps</h3>
   <p>The maps drop the propositions' simplifications and use the exact accounting (appendix), vocabulary included, over batch × context. Every line is a contour of the computed grid. Grey cells do not fit in the accelerator's memory: weights, KV cache and one pass's logits, which are \(b\) times larger for a TD canvas than for an AR step. On the gain maps, grey marks where TD does not fit and hatching where AR does not fit either. Hover or tap a cell for its values.</p>
-  <div class="fig-k">Figure 17 · four maps, one shown at a time</div>
+  <div class="fig-k">Figure 18 · four maps, one shown at a time</div>
   <div class="tabs" role="tablist" aria-label="Exact maps">
     <button role="tab" aria-selected="true" data-tab="m-gain">TD/AR gain</button>
     <button role="tab" aria-selected="false" data-tab="m-ar">AR intensity</button>

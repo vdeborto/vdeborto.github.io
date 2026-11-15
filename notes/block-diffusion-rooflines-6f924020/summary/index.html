@@ -54,7 +54,7 @@ sitemap: false
       <li><b>TD trades work for reuse.</b> A canvas of \(b\) tokens costs \(\omega\) forward passes instead of one, so TD does \(\omega\) times more FLOPs per token than AR. In return, every byte it reads from memory serves \(b\) positions instead of one. <a class="tk-fig" href="/notes/block-diffusion-rooflines-6f924020/setup/#fig-reuse">Try it in Figure 4</a></li>
       <li><b>The best batch is the one at which a TD pass just becomes compute-bound.</b> At smaller batches TD is still memory-bound, and the gain grows as a larger batch dilutes the MoE penalty. At larger batches TD already runs at peak while AR keeps speeding up, so the gain falls, like \(1/B\) once AR touches every expert. <a class="tk-fig" href="/notes/block-diffusion-rooflines-6f924020/linear/#fig-bestbatch">Try it in Figure 9</a></li>
       <li><b>At long context the batch stops mattering.</b> Both decoders are then reading the KV cache, which belongs to one sequence, so no batch can share it. What still separates them is when they become compute-bound: an AR step reads the cache for one query and never reaches the ridge, while a TD pass reads it once for \(b\) queries and does. <a class="tk-fig" href="/notes/block-diffusion-rooflines-6f924020/attention/#fig-context">Try it in Figure 13</a></li>
-      <li><b>A higher ridge point means more to gain.</b> Whenever TD is compute-bound and AR is not, the gain scales with \(I^\star\), because \(I^\star\) measures the compute AR leaves idle. The price is that TD needs more to reach the ridge: a larger batch at short context, and a canvas longer than \(I^\star/I_{\mathrm{attn}}\) at long context. On a DGX Spark, 273 GB/s against the 7.9 GB that an AR step of DiffusionGemma reads per token in BF16 caps AR at about 35 tokens per second and 0.2% of the chip's BF16 compute; the rest is what TD can spend. <a class="tk-fig" href="/notes/block-diffusion-rooflines-6f924020/whole/#fig-accel">Try it in Figure 15</a></li>
+      <li><b>A higher ridge point means more to gain.</b> Whenever TD is compute-bound and AR is not, the gain scales with \(I^\star\), because \(I^\star\) measures the compute AR leaves idle. The price is that TD needs more to reach the ridge: a larger batch at short context, and a canvas longer than \(I^\star/I_{\mathrm{attn}}\) at long context. On a DGX Spark, 273 GB/s against the 7.9 GB that an AR step of DiffusionGemma reads per token in BF16 (batch 1, context 1k, vocabulary included) caps AR at about 35 tokens per second and 0.2% of the chip's BF16 compute; the rest is what TD can spend. <a class="tk-fig" href="/notes/block-diffusion-rooflines-6f924020/whole/#fig-accel">Try it in Figure 15</a></li>
     </ol>
   </div>
 
@@ -96,7 +96,7 @@ sitemap: false
     <div class="bdr-card"><div class="card-k">Canvas length, \(b\)</div><p>Every byte a TD pass reads serves \(b\) positions. While TD is memory-bound this sets the gain, through \(\mathrm{TPF} = b/\omega\). It also sets the batch at which TD becomes compute-bound, which scales like \(1/b\).</p>
 <div class="card-more" hidden>
   <div class="eq">\[ \begin{gathered} \mathrm{TPF} = \frac{b}{\omega},\qquad \class{mj-td}{I_{TD}} = \frac{b}{\Pi}\,\class{mj-ar}{I_{AR}},\\[4pt] \class{mj-td}{B^\star_{TD}} \approx \frac{I^\star s_w\class{mj-td}{W_{TD}}}{2b\,N_{\mathrm{act}}}. \end{gathered} \]</div>
-  <p>While a TD pass is memory-bound, \(\Gamma = \mathrm{TPF}/\Pi\) grows with \(b\). Once it is compute-bound, \(\Gamma = I^\star/(\omega \class{mj-ar}{I_{AR}})\) no longer depends on \(b\): a longer canvas reaches that regime at a smaller batch, and so raises the best gain, which sits at \(\class{mj-td}{B^\star_{TD}}\) or one batch below it.</p>
+  <p>While a TD pass is memory-bound, \(\Gamma = \mathrm{TPF}/\Pi\) grows with \(b\). Once it is compute-bound, \(\Gamma = I^\star/(\omega \class{mj-ar}{I_{AR}})\) no longer depends on \(b\): a longer canvas reaches that regime at a smaller batch, and so raises the best gain, which over integer batches sits at the last memory-bound batch or the first compute-bound one.</p>
   <div data-micro="canvas"></div>
   <p class="card-link"><a href="/notes/block-diffusion-rooflines-6f924020/linear/#lin-gain">The gain when the linear layers dominate</a> · <a href="/notes/block-diffusion-rooflines-6f924020/linear/#fig-bestbatch">Figure 9</a></p>
 </div>
@@ -111,7 +111,7 @@ sitemap: false
 </div>
     <div class="bdr-card"><div class="card-k">Attention penalty, \(\Pi_{\mathrm{attn}}\)</div><p>1 for dense and windowed attention: the canvas reads the cache once for \(b\) queries. Above 1 for sparse attention, where each query selects its own tokens and the canvas reads the union. Same formula as the linear penalty, with the canvas size in the role of the batch size.</p>
 <div class="card-more" hidden>
-  <div class="eq">\[ \begin{gathered} \Pi_{\mathrm{attn}}(C) - 1 = \frac{\nu_S\,\bigl[\,U_{C,m}(b) - m\,\bigr]}{\class{mj-ar}{Q^{AR}_{\mathrm{attn}}}(C)},\\[4pt] U_{C,m}(b) = C\Bigl[1 - \bigl(1 - \tfrac{m}{C}\bigr)^{b}\Bigr]. \end{gathered} \]</div>
+  <div class="eq">\[ \begin{gathered} \Pi_{\mathrm{attn}}(C) - 1 = \frac{\nu_S\,\bigl[\,U_{C,m}(b) - m\,\bigr]}{\class{mj-ar}{Q^{AR}_{\mathrm{attn}}}(C)},\\[4pt] U_{C,m}(b) = C\Bigl[1 - \bigl(1 - \tfrac{m}{C}\bigr)^{b}\Bigr] \quad (C \ge m). \end{gathered} \]</div>
   <p>Only sparse layers contribute: each query selects its own \(m\) cached tokens, and the canvas reads the union, \(U_{C,m}(b)\) tokens, up to \(\min(bm, C)\). This is the MoE penalty again, with cached tokens in the role of experts and the canvas length in the role of the batch. It is 1 while \(C \le m\), largest for \(m \lt C \lesssim bm\), and returns to 1 as \(C \to \infty\), when the union stops growing and the indexer's scan carries the bytes.</p>
   <div data-micro="attn"></div>
   <p class="card-link"><a href="/notes/block-diffusion-rooflines-6f924020/attention/#prop5">Proposition 5</a> · <a href="/notes/block-diffusion-rooflines-6f924020/attention/#dsa">sparse attention</a></p>
@@ -137,19 +137,19 @@ sitemap: false
 
   <h3>Three regimes matter</h3>
   <div class="cards three">
-    <div class="bdr-card regime lose"><div class="card-k">AR compute-bound</div><div class="card-v">\(\Gamma = 1/\omega\)</div><p>TD is then compute-bound as well. Both run at peak, and TD does \(\omega\) times the work. Rare for MoE decoding: DiffusionGemma on an H200 would need a batch of about 1,600.</p>
+    <div class="bdr-card regime lose"><div class="card-k">AR compute-bound</div><div class="card-v">\(\Gamma = 1/\omega\)</div><p>TD is then compute-bound as well. Both run at peak, and TD does \(\omega\) times the work. Rare for MoE decoding: DiffusionGemma on an H200 would need a batch of about 1,600 at zero context, and no batch suffices beyond about 135 tokens of context.</p>
 <div class="card-more" hidden>
   <p>Both passes run at the peak, so time is FLOPs, and a canvas spends \(\omega\) times AR's FLOPs per token: \(\Gamma \le 1/\omega\), equal to it under Proposition 1. AR reaches the ridge at</p>
-  <div class="eq">\[ \begin{gathered} \class{mj-ar}{B^\star_{AR}} = \frac{I^\star s_wW_{\mathrm{tot}}}{2N_{\mathrm{act}}}\\[4pt] = \frac{206 \times 2 \times 24.5\text{B}}{2 \times 3.08\text{B}} \approx 1{,}640, \end{gathered} \]</div>
-  <p>This closed form takes zero context. Holding 1,640 sequences of 9k tokens, the 1k prompt and 8k generated tokens of the running example, would take about 650 GB of KV cache, more than four H200s hold; and by Proposition 8, at a long enough context no batch makes an AR step compute-bound.</p>
+  <div class="eq">\[ \begin{gathered} \class{mj-ar}{B^\star_{AR}} = \frac{I^\star s_wW_{\mathrm{tot}}}{2N_{\mathrm{act}}}\\[4pt] = \frac{206 \times 2 \times 24.5\text{B}}{2 \times 3.08\text{B}} \approx 1{,}640. \end{gathered} \]</div>
+  <p>This closed form takes zero context. By Proposition 8, beyond about 135 tokens of context no batch makes an AR step compute-bound. In addition, holding 1,640 sequences of 9k tokens, the 1k prompt and 8k generated tokens of the running example, would take about 650 GB of KV cache, more than four H200s hold.</p>
   <p class="card-link"><a href="/notes/block-diffusion-rooflines-6f924020/gain/#cor1">Corollary 1</a> · <a href="/notes/block-diffusion-rooflines-6f924020/whole/#prop8">Proposition 8</a></p>
 </div>
 </div>
-    <div class="bdr-card regime mem"><div class="card-k">Both memory-bound</div><div class="card-v">\(\Gamma = \mathrm{TPF}/\Pi\)</div><p>TD's extra FLOPs cost nothing. Each read serves TPF tokens, minus the penalty of whichever bytes dominate: 17.1 / 7.9 ≈ 2.2 at batch 1.</p>
+    <div class="bdr-card regime mem"><div class="card-k">Both memory-bound</div><div class="card-v">\(\Gamma = \mathrm{TPF}/\Pi\)</div><p>TD's extra FLOPs cost nothing. Each read serves TPF tokens, divided by the penalty of whichever bytes dominate: 17.07 / 7.94 ≈ 2.15 at batch 1.</p>
 <div class="card-more" hidden>
   <p>Time is bytes. Per sequence, an AR step reads \(\class{mj-ar}{Q^{AR}}\) for one token; a canvas reads \(\omega\) times \(\class{mj-td}{Q^{TD}} = \Pi\,\class{mj-ar}{Q^{AR}}\) for \(b\) tokens. Hence</p>
   <div class="eq">\[ \Gamma = \frac{\class{mj-ar}{Q^{AR}}}{\omega\,\Pi\,\class{mj-ar}{Q^{AR}}/b} = \frac{\mathrm{TPF}}{\Pi}. \]</div>
-  <p>TD's extra FLOPs are hidden under the memory time. At batch 1, \(\mathrm{TPF} = 256/15 = 17.1\) and \(\Pi \approx \Pi_{\mathrm{lin}}(1) = 7.9\), so \(\Gamma \approx 2.2\); the exact accounting gives 2.53.</p>
+  <p>TD's extra FLOPs are hidden under the memory time. At batch 1, \(\mathrm{TPF} = 256/15 = 17.07\) and \(\Pi \approx \Pi_{\mathrm{lin}}(1) = 7.94\), so \(\Gamma \approx 2.15\); the exact accounting at a fixed context of 1k gives 2.53, and 2.55 over the whole generation.</p>
   <p class="card-link"><a href="/notes/block-diffusion-rooflines-6f924020/gain/#cor1">Corollary 1</a> · <a href="/notes/block-diffusion-rooflines-6f924020/setup/#fig-reuse">Figure 4</a></p>
 </div>
 </div>
@@ -165,11 +165,11 @@ sitemap: false
 
   <h3>What the formulas leave out</h3>
   <ul>
-    <li><b>Vocabulary and self-conditioning.</b> Per token, TD runs \(2S-1\) vocabulary-sized matmuls against AR's one, and a smaller decoder does not shrink them. The maps and the calculator include them.</li>
+    <li><b>Vocabulary and self-conditioning.</b> With self-conditioning, each denoising pass feeds the token distribution predicted by the previous pass back in through the embedding matrix. Per token, TD runs \(2S-1\) vocabulary-sized matmuls against AR's one, and a smaller decoder does not shrink them. The maps and the calculator include them.</li>
     <li><b>Kernels run one after another.</b> Assumption (A1) gives a pass the time of a single kernel in which all of its compute and all of its memory traffic overlap. Adding up the roofline times of its kernels instead is never faster and at most twice slower, and it moves DiffusionGemma's best batch from 5 to 9 (Part 5). The calculator offers both.</li>
-    <li><b>Small effects.</b> Activations (they stay on-chip once kernels are fused), KV writes, and the at most \(b\) keys inside the canvas.</li>
+    <li><b>Small effects.</b> Activations (they stay in the processor's caches when consecutive operations are merged into one kernel), KV writes, and the at most \(b\) keys inside the canvas.</li>
     <li><b>Cross-layer KV sharing.</b> It divides the KV cache's size, not the bytes read per pass, since each layer still reads the shared cache. It changes the largest batch that fits in memory, not any intensity.</li>
-    <li><b>Beyond the roofline.</b> Kernel efficiency, uneven and correlated expert routing (<a href="/notes/block-diffusion-rooflines-6f924020/effective/">Parts 8–11</a> measure both on an H200: at batch 8 and above both decoders run at about half of their empirical rooflines, and a canvas touches far fewer experts than independent routing predicts), adaptive step counts, correlated block selections, the wait for the first canvas, and quality per step.</li>
+    <li><b>Beyond the roofline.</b> Kernel efficiency, uneven and correlated expert routing (<a href="/notes/block-diffusion-rooflines-6f924020/effective/">Parts 8–11</a> measure both on an H200: at batch 8 and above TD runs at 0.46–0.61 of its empirical roofline and AR at 0.43–0.69, and a canvas touches far fewer experts than independent routing predicts), adaptive step counts, correlated block selections, the wait for the first canvas, and quality per step.</li>
   </ul>
 </section>
 <nav class="book-nav" aria-label="Chapters"><a class="prev" href="/notes/block-diffusion-rooflines-6f924020/"><span>Previous</span>Introduction</a><a class="next" href="/notes/block-diffusion-rooflines-6f924020/setup/"><span>Next</span>1 · Setup</a></nav>

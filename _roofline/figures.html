@@ -27,7 +27,7 @@
   <div class="bdr-fig wide" id="fig-roofline">
     <div class="fig-k">Figure 5 · interactive</div>
     <p class="fig-title">Proposition 1 on the roofline.</p>
-    <p class="fig-lede">Each dot sits at the arithmetic intensity of its pass, on the roofline of the accelerator. The bracket is how much faster TD's FLOPs run than AR's; dividing it by \(\omega\) gives \(\Gamma\). Move the batch and the context, or pick one of the three regimes.</p>
+    <p class="fig-lede">Each dot sits at the arithmetic intensity of its pass, on the roofline of the accelerator. The bracket is how much faster TD's FLOPs run than AR's; dividing it by \(\omega\) gives \(\Gamma\). Move the batch and the context, or pick one of three settings: batch 1 and batch 8 at context 1k, and batch 4 at context 1M.</p>
     <div data-fig="roofline"></div>
     <p class="fig-cap">The roofline is \(\min(\pi,\ I\beta)\), and the bracket is \(\min(I_{TD}, I^\star)/\min(I_{AR}, I^\star)\). Intensities from Definition 3 without the vocabulary, as in (A2): DiffusionGemma, BF16, \(b = 256\), \(S = 14\), \(\omega = 15\). The exact accounting of the appendix, at the same fixed context, is given under the plot for comparison.</p>
   </div>
@@ -77,7 +77,7 @@
     <p class="fig-title">The weights dominate an AR step's bytes up to a context that falls as the batch grows.</p>
     <p class="fig-lede">Drag the marker along the batch axis to read the three thresholds.</p>
     <div data-fig="linmap"></div>
-    <p class="fig-cap">Thresholds of Proposition 4 for DiffusionGemma in BF16, with dense attention and full windows. Below the thick blue line the weights are at least half of an AR step's bytes, \(C \le C_{\mathrm{lin}}(B, 1/2)\); below the thin one, at least 90%. The batch shares the weights and each sequence brings its own cache, so both lines fall, like \(1/B\) once the batch touches every expert; where the thin line leaves the plot, the full windows alone exceed 10% of the bytes. Dashed orange: the 50% threshold of a TD pass, which reads \(\Pi_{\mathrm{lin}}(B)\) times the weights and therefore lies further out, by a factor that tends to 1 as the penalty vanishes. Table 2 lists these thresholds at five batch sizes.</p>
+    <p class="fig-cap">Thresholds of Proposition 4 for DiffusionGemma in BF16, with dense attention and full windows. Below the thick blue line the weights are at least half of an AR step's bytes, \(C \le C_{\mathrm{lin}}(B, 1/2)\); below the thin one, at least 90%. The batch shares the weights and each sequence brings its own cache, so both lines fall, like \(1/B\) once the batch touches every expert; where the thin line leaves the plot, the cache of a sequence with full windows already exceeds 10% of the bytes. Dashed orange: the 50% threshold of a TD pass, which reads \(\Pi_{\mathrm{lin}}(B)\) times the weights and therefore lies further out, by a factor that tends to 1 as the penalty vanishes. Table 2 lists these thresholds at five batch sizes.</p>
   </div>
 <!-- fig:attnread -->
   <div class="bdr-fig" id="fig-attnread">
@@ -85,7 +85,7 @@
     <p class="fig-title">A canvas reads the cache once for all its queries, except for the tokens that a sparse layer selects.</p>
     <p class="fig-lede">Columns are the cached tokens of one sequence and rows the queries of a pass. A filled cell is a pair (query, cached token) that the layer scores; the bar under each block marks the tokens whose keys and values the pass reads. Choose the kind of layer and the number of queries.</p>
     <div data-fig="attnread"></div>
-    <p class="fig-cap">A toy cache of \(C = 40\) tokens, with a window of \(w = 10\) and \(m = 5\) selected tokens per query; DiffusionGemma has \(w = 1{,}024\) and a canvas of \(b = 256\) queries, and the sparse variant of this chapter \(m = 2{,}048\). The FLOPs of a pass are proportional to its filled cells and its bytes to its filled bars, which is the content of Table 4. In a dense or windowed layer the bar is the same for one query and for \(b\), so a canvas has \(b\) times the intensity of an AR step. In a sparse layer each query selects its own tokens, independently and uniformly here as in (A2), and the bar is the union of the selections, of expected size \(U_{C,m}(b)\); the pale cells are the indexer's scan, whose index keys are read once. The canvas's own positions, which its queries also attend to, are not drawn.</p>
+    <p class="fig-cap">A toy cache of \(C = 40\) tokens, with a window of \(w = 10\) and \(m = 5\) selected tokens per query; DiffusionGemma has \(w = 1{,}023\) and a canvas of \(b = 256\) queries, and the sparse variant of this chapter \(m = 2{,}048\). The FLOPs of a pass are proportional to its full cells, plus its pale cells at the indexer's smaller cost \(\alpha_I\) each, and its bytes to its filled bars, which is the content of Table 4. In a dense or windowed layer the bar is the same for one query and for \(b\), so a canvas has \(b\) times the intensity of an AR step. In a sparse layer each query selects its own tokens, independently and uniformly here as in (A2), and the bar is the union of the selections, of expected size \(U_{C,m}(b)\); the pale cells are the indexer's scan, whose index keys are read once. The canvas's own positions, which its queries also attend to, are not drawn.</p>
   </div>
 <!-- fig:sparse -->
   <div class="bdr-fig wide" id="fig-sparse">
@@ -93,7 +93,7 @@
     <p class="fig-title">The penalty of a sparse layer rises once the cache exceeds one selection, and falls back only when the scan dominates.</p>
     <p class="fig-lede">Drag the marker along the context axis, and change the canvas length.</p>
     <div data-fig="sparse"></div>
-    <p class="fig-cap">A model whose attention is one kind of sparse layer, with the constants of DiffusionGemma's five global layers (\(m = 2{,}048\), \(\nu_I = \nu_S/32\)), under independent selections (A2). Dashed: \(\Pi_{\mathrm{sel}} = U_{C,m}(b)/m\), the penalty on the selected tokens alone (Proposition 5(3)); it is 1 up to \(C = m\), follows \(C/m\) while the canvas's selections cover the cache, and tends to \(b\) beyond \(C = bm\). Orange: \(\Pi_{\mathrm{attn}}\) of Proposition 5, which adds the index cache \(\nu_I C\) that both decoders read once. For \(b = 256\) it reaches 23 near 210k and returns towards 1 only when the index cache outweighs the union, beyond \(C \approx \nu_S\,bm/\nu_I \approx 17\)M. Shaded: \(m \le C \le bm\). The gain in the readout is that of Table 6, for attention dominating both decoders on an H200.</p>
+    <p class="fig-cap">A model whose attention is one kind of sparse layer, with the constants of DiffusionGemma's five global layers (\(m = 2{,}048\), \(\nu_I = \nu_S/32\)), under independent selections (A2). Dashed: \(\Pi_{\mathrm{sel}} = U_{C,m}(b)/m\), the penalty on the selected tokens alone (Proposition 5(3)); it is 1 up to \(C = m\), follows \(C/m\) while the canvas's selections cover the cache, and tends to \(b\) beyond \(C = bm\). Orange: \(\Pi_{\mathrm{attn}}\) of Proposition 5, which adds the index cache \(\nu_I C\) that both decoders read once. For \(b = 256\) it reaches 23 near 218k tokens and returns towards 1 only when the index cache outweighs the union, beyond \(C \approx \nu_S\,bm/\nu_I = 2^{24}\), about 16.8M tokens. Shaded: \(m \le C \le bm\). The gain in the readout is that of Table 6, for attention dominating both decoders on an H200.</p>
   </div>
 <!-- fig:share -->
   <div class="bdr-fig wide" id="fig-share">
@@ -101,7 +101,7 @@
     <p class="fig-title">Attention takes over the bytes at a context that depends on the batch, and the FLOPs at one that does not.</p>
     <p class="fig-lede">Drag the marker along the context axis.</p>
     <div data-fig="share"></div>
-    <p class="fig-cap">Share of the attention terms in the bytes of an AR step, \(\theta^{AR}_{\mathrm{attn}} = Q^{AR}_{\mathrm{attn}}/Q^{AR}\) (blue, one curve per batch), and in the FLOPs of a position (black), for DiffusionGemma in BF16 with dense attention, without the vocabulary. The FLOP share is the same for AR and TD and at every batch; it reaches one half at \(C = C_F(1 - \sigma) = 35\)k (Proposition 6). The byte share reaches one half at \(C_{\mathrm{lin}}(B, 1/2)\): 291k at batch 1 and 27k at batch 64. Between the two thresholds, at large batch, the cache is most of the bytes while the linear layers still do most of the FLOPs, and the attention-dominated gain of this chapter does not apply yet. Table 5 lists the FLOP thresholds.</p>
+    <p class="fig-cap">Share of the attention terms in the bytes of an AR step, \(\theta^{AR}_{\mathrm{attn}} = Q^{AR}_{\mathrm{attn}}/Q^{AR}\) (blue, one curve per batch), and in the FLOPs of a position (black), for DiffusionGemma in BF16 with dense attention, without the vocabulary. The FLOP share is the same for AR and TD and at every batch; it reaches one half at \(C = C_F(1 - \sigma)\), 35,100 tokens (Proposition 6). The byte share reaches one half at \(C_{\mathrm{lin}}(B, 1/2)\): 291,000 tokens at batch 1 and 26,600 at batch 64. Between the two thresholds, at large batch, the cache is most of the bytes while the linear layers still do most of the FLOPs, and the attention-dominated gain of this chapter does not apply yet. Table 5 lists the FLOP thresholds.</p>
   </div>
 <!-- fig:thresholds -->
   <div class="bdr-fig wide" id="fig-thresholds">
@@ -110,4 +110,12 @@
     <p class="fig-lede">Each row is an accelerator, ordered by ridge point. Select a row to read its thresholds.</p>
     <div data-fig="thresholds"></div>
     <p class="fig-cap">DiffusionGemma in BF16 under Proposition 1 at zero context, as in Table 8. Orange bar: the batches at which TD is ahead, from 1 to the parity batch \(B_\times\), which solves \(I^{AR}_{\mathrm{lin}}(B) = I^\star/\omega\). Diamond: \(B^\star_{TD}\), from which a TD pass is compute-bound and where the gain is largest. Blue: from \(B_\times\) to \(B^\star_{AR}\), AR is ahead although it is still memory-bound; the dot is \(B^\star_{AR}\), from which an AR step is compute-bound too. All three thresholds are proportional to the ridge point \(I^\star\) once the batch touches every expert.</p>
+  </div>
+<!-- fig:models -->
+  <div class="bdr-fig wide" id="fig-models">
+    <div class="fig-k">Figure 17 · interactive</div>
+    <p class="fig-title">The larger a model's MoE penalty, the smaller TD's lead at batch 1 and the larger at batch 64.</p>
+    <p class="fig-lede">Each row is a model, ordered by its penalty at batch 1. Select a row to read its gains.</p>
+    <div data-fig="models"></div>
+    <p class="fig-cap">Exact gains on an H200 in BF16, with a canvas of 256 and \(S = 14\), as in Table 9. Filled circle: batch 1 at context 1k; open circle: batch 64 at context 1k; diamond: batch 1 at 1M context. Models are ordered by \(\Pi(1)\), the penalty of Proposition 3 at batch 1, from the dense models (\(\Pi = 1\)) to gpt-oss-120b (25.4). At batch 1, Corollary 1 gives \(\Gamma \approx \min\bigl(\mathrm{TPF}/\Pi(1),\ I^\star/(\omega I_{AR})\bigr)\): the dense models reach the second term, about 13.7, and the MoE models the first, which falls as the penalty grows. At batch 64 the order is reversed, because the intensity of an AR step at a given batch, about \(B\,N_{\mathrm{act}}/W_{AR}(B)\) in BF16, is lowest for the models with the most inactive weights. Faint markers: the point does not fit in the H200's 141 GB (the † of Table 9).</p>
   </div>
