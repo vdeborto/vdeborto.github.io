@@ -1,7 +1,7 @@
 <!-- Opening paragraph of each chapter page, inserted by bin/build-roofline.py under the "Part N of" line.
      One <!-- intro:SLUG --> block per chapter; "examples" keeps the note's own first paragraph. -->
 <!-- intro:summary -->
-The later chapters derive the gain \(\Gamma\) of block text diffusion (TD) over autoregressive decoding (AR) one step at a time. This page states the results first, so that each chapter can be read as the proof of one of them: the symbols, the quantities that move \(\Gamma\), the three regimes that matter in practice, and what the roofline model leaves out.
+The later chapters derive the gain \(\Gamma\) of block text diffusion (TD) over autoregressive decoding (AR) one step at a time. This chapter states the results first, so that each chapter can be read as the proof of one of them: the symbols, the quantities that move \(\Gamma\), the three regimes that matter in practice, and what the roofline model leaves out.
 <!-- intro:setup -->
 Comparing two decoders on a roofline requires, for each, the FLOPs of a forward pass and the bytes it reads from memory. This chapter defines both for an AR step and for a TD pass over a canvas of \(b\) tokens. From them come the two quantities used in every later chapter: the arithmetic intensity of a pass, which decides whether it is compute- or memory-bound, and the penalty, the extra bytes per sequence that a TD pass reads because its \(b\) positions touch more experts and, in sparse layers, more cached tokens.
 <!-- intro:gain -->
@@ -15,7 +15,7 @@ Parts 3 and 4 treat the two extremes, a pass that reads only weights and one tha
 <!-- intro:calculator -->
 The propositions give closed forms under simplifying assumptions. The calculator instead evaluates every pass of a generation with the exact accounting of the appendix, for any accelerator, model, attention layout and decoding setup. It reports both throughputs, the AR batch that matches TD, the memory each decoder needs, and the maps of Part 5 for the chosen setting; the page address records the setting, so it can be shared.
 <!-- intro:appendix -->
-Every number in this book is a roofline bound computed from a cost model, not a measurement. This appendix describes the exact accounting behind the maps, the headline numbers and the calculator, compares its bounds with throughput measured in vLLM, and lists the sources of the model shapes and accelerator specifications.
+Every number in Parts 1–7 is a roofline bound computed from a cost model, not a measurement; Parts 8–11 give the measurements. This appendix describes the exact accounting behind the maps, the headline numbers and the calculator, compares its bounds with throughput measured in vLLM, and lists the sources of the model shapes and accelerator specifications.
 <!-- intro:introduction -->
 This book asks when block text diffusion produces more tokens per second than autoregressive decoding, for the same model on the same accelerator. Parts 1–7 answer with roofline bounds; Parts 8–11 measure the answer for DiffusionGemma on one H200 and account for the difference. This chapter states the question, shows how the parts fit together, and fixes the setting of the measurements.
 <!-- intro:effective -->

@@ -115,7 +115,7 @@
   const rerenders = [];
   const onTheme = (f) => rerenders.push(f);
 
-  // The accelerator is shared by Figures 2, 3, 4 and 6: choosing one in a figure sets it in all.
+  // The accelerator is shared by Figures 5, 6, 7 and 9: choosing one in a figure sets it in all.
   const ACCEL = ['h20', 'rtx5090', 'a100', 'h200', 'v5e', 'b200', 'mi355x', 'h100pcie', 'spark', 'v6e'];
   const SHORT = { h20: 'H20', rtx5090: 'RTX 5090', a100: 'A100', h200: 'H200', v5e: 'TPU v5e', b200: 'B200', mi355x: 'MI355X', h100pcie: 'H100 PCIe', spark: 'DGX Spark', v6e: 'TPU v6e' };
   // The choice is remembered across the pages of the book (a per-viewer convenience).
@@ -143,8 +143,8 @@
   function figAccounting(root) {
     const hw = hwOf('h200');
     const rows = [
-      { name: 'Proposition 1', what: 'closed form of §2: no vocabulary, context fixed at 1k (at zero context, as in the closed forms of §3 and Table 8, TD is ahead up to batch 109)', used: 'Figures 2 and 4, the rooflines of the quiz, Table 3', g: (B) => prop1(DG, hw, B, 1024).gain },
-      { name: 'Exact, fixed context', what: 'every FLOP and byte of the appendix, vocabulary included, context fixed at 1k', used: 'Figures 3 and 6, the quiz verdicts, the maps', g: (B) => steady(DG, hw, B, 1024).gain },
+      { name: 'Proposition 1', what: 'closed form of Part 2: no vocabulary, context fixed at 1k (at zero context, as in the closed forms of Part 3 and Table 8, TD is ahead up to batch 109)', used: 'Figures 5 and 7, the rooflines of the quiz, Table 3', g: (B) => prop1(DG, hw, B, 1024).gain },
+      { name: 'Exact, fixed context', what: 'every FLOP and byte of the appendix, vocabulary included, context fixed at 1k', used: 'Figures 6 and 9, the quiz verdicts, the maps', g: (B) => steady(DG, hw, B, 1024).gain },
       { name: 'Exact, whole generation', what: 'the same accounting summed over a 1k prompt and 8k generated tokens: the context grows from 1k to 9k', used: 'the headline tiles above, the calculator', g: (B) => M.generate(DG, { ...W0, B }, O0, hw).gainDecode, slow: true },
     ];
     const table = el(`<div class="table-wrap nofold"><table class="acct"><thead><tr><th class="l">Accounting</th><th>Γ, batch 1</th><th>Γ, batch 5</th><th>Γ, batch 64</th><th>TD ahead up to batch</th></tr></thead><tbody>${rows.map((r) => `<tr><td class="l"><b>${r.name}</b><br><span class="muted">${r.what}. Used by ${r.used}.</span></td><td class="num">…</td><td class="num">…</td><td class="num">…</td><td class="num">…</td></tr>`).join('')}</tbody></table></div>`);
@@ -160,7 +160,7 @@
     });
   }
 
-  // ---------------------------------------------------------------- roofline renderer (Figure 2, quiz)
+  // ---------------------------------------------------------------- roofline renderer (Figure 5, quiz)
   // One accelerator's roofline with an AR dot and a TD dot at their intensities; the bracket on the
   // right is the ratio of their attainable FLOP rates, min(I_TD, I*) / min(I_AR, I*).
   function rooflineSvg({ hw, IAR, ITD, W = 640, H = 300, mini = false }) {
@@ -194,7 +194,7 @@
     return `${s}</svg>`;
   }
 
-  // ---------------------------------------------------------------- Figure 1: byte reuse and the MoE penalty
+  // ---------------------------------------------------------------- Figure 4: byte reuse and the MoE penalty
   function figReuse(root) {
     const st = { b: 64, S: 14, t: 0, timer: 0, model: 'dense' };
     const ctl = el('<div class="fig-controls"></div>');
@@ -257,14 +257,14 @@
       const moe = st.model === 'moe' ? ` A canvas of ${b} positions touches ${fmt(M.distinctExperts(DG, b))} of 128 experts per layer and one token touches 8, so a TD pass reads ${hsub('Π', 'lin')} = ${fmt(Pi)} times the weights of an AR step.` : '';
       out.innerHTML = t < n
         ? `After <b>${t}</b> of <b>${n}</b> passes: <span class="ar">AR</span> has committed ${t} token${t === 1 ? '' : 's'}, <span class="td">TD</span> none yet.${moe}`
-        : `<span class="big">In ${n} passes, <span class="ar">AR</span> commits ${n} tokens and <span class="td">TD</span> commits ${b}: TPF = ${b}/${n} = <b>${fmt(tpf)}</b>.</span><br>${moe} Per token, TD reads ${Pi === 1 ? `1/TPF = ${fmt(1 / tpf)}` : `${hsub('Π', 'lin')}/TPF = ${fmt(Pi / tpf)}`} times the weight bytes of AR and performs ${n} times its FLOPs. If both passes are memory-bound, <b>Γ = ${Pi === 1 ? `TPF = ${fmt(gain)}` : `TPF/${hsub('Π', 'lin')} = ${fmt(tpf)}/${fmt(Pi)} = ${fmt(gain)}`}</b>${gain < 1 ? ': the canvas is too short to pay for what it reads, and TD loses' : ''}.${Pi === 1 && b > 206 ? ` A dense TD pass over ${b} positions has an intensity of about ${b}, above the ridge of an H200 (206): there it is compute-bound, and the gain is capped at <i>I</i>*/(ω ${hsub('I', 'AR')}) (Corollary 1, Figure 2).` : ''}`;
+        : `<span class="big">In ${n} passes, <span class="ar">AR</span> commits ${n} tokens and <span class="td">TD</span> commits ${b}: TPF = ${b}/${n} = <b>${fmt(tpf)}</b>.</span><br>${moe} Per token, TD reads ${Pi === 1 ? `1/TPF = ${fmt(1 / tpf)}` : `${hsub('Π', 'lin')}/TPF = ${fmt(Pi / tpf)}`} times the weight bytes of AR and performs ${n} times its FLOPs. If both passes are memory-bound, <b>Γ = ${Pi === 1 ? `TPF = ${fmt(gain)}` : `TPF/${hsub('Π', 'lin')} = ${fmt(tpf)}/${fmt(Pi)} = ${fmt(gain)}`}</b>${gain < 1 ? ': the canvas is too short to pay for what it reads, and TD loses' : ''}.${Pi === 1 && b > 206 ? ` A dense TD pass over ${b} positions has an intensity of about ${b}, above the ridge of an H200 (206): there it is compute-bound, and the gain is capped at <i>I</i>*/(ω ${hsub('I', 'AR')}) (Corollary 1, Figure 5).` : ''}`;
     }
     reset();
     onTheme(draw);
     watchWidth(pic, draw);
   }
 
-  // ---------------------------------------------------------------- Figure 2: live roofline (Proposition 1)
+  // ---------------------------------------------------------------- Figure 5: live roofline (Proposition 1)
   function figRoofline(root) {
     const ctl = el('<div class="fig-controls"></div>');
     const sB = slider('batch <i>B</i>', BATCHES, 0, (v) => String(v));
@@ -291,7 +291,7 @@
     watchWidth(pic, draw);
   }
 
-  // ---------------------------------------------------------------- Figure 3: find the best batch (exact, fixed context)
+  // ---------------------------------------------------------------- Figure 6: find the best batch (exact, fixed context)
   const BSCAN = [...new Set([...Array.from({ length: 40 }, (_, i) => i + 1), ...Array.from({ length: 60 }, (_, i) => Math.round(40 * 1.056 ** (i + 1))), 64, 128, 256, 512, 1024])].filter((B) => B <= 1024).sort((a, b) => a - b);
   const curveCache = new Map();
   function gainCurve(hwId, rule) {
@@ -384,7 +384,7 @@
     watchWidth(pic, draw);
   }
 
-  // ---------------------------------------------------------------- Figure 4: both intensities forget the batch (Proposition 1)
+  // ---------------------------------------------------------------- Figure 7: both intensities forget the batch (Proposition 1)
   const CSCAN = Array.from({ length: 41 }, (_, i) => Math.round(1024 * 2 ** (i / 4)));
   const CBATCH = [1, 4, 16, 64];
   function figContext(root) {
@@ -444,7 +444,7 @@
     watchWidth(pic, draw);
   }
 
-  // ---------------------------------------------------------------- Figure 6: the gain is a function of the ridge point (exact)
+  // ---------------------------------------------------------------- Figure 9: the gain is a function of the ridge point (exact)
   // Scaling peak and bandwidth together scales every pass time alike, so the gain depends on the
   // accelerator only through I* = peak / bandwidth. The curve is drawn for a chip with unlimited memory.
   function figAccel(root) {
@@ -517,6 +517,10 @@
   }
 
   // ---------------------------------------------------------------- quiz
+  // Measured gains of Part 11, {"B,C": [measured, bound]}, written into the page by the build.
+  let MEAS = {};
+  try { MEAS = JSON.parse(document.getElementById('bdr-meas').textContent) || {}; } catch (e) { /* not on this page */ }
+  const MEAS_RANGE = (() => { const r = Object.values(MEAS).map(([g, b]) => g / b); return r.length ? [Math.min(...r), Math.max(...r)] : [1, 1]; })();
   // Settings on which Proposition 1 and the exact accounting agree, and which fit in memory.
   const QUIZ = [
     { hw: 'h200', m: DG, model: 'DiffusionGemma 26B-A4B', B: 1, C: 1024,
@@ -545,10 +549,11 @@
       const q = data[st.k], ans = st.answers[st.k], done = ans !== undefined, td = q.gain > 1, p = q.p;
       const answered = st.answers.filter((a) => a !== undefined).length, score = st.answers.filter((a, i) => a === (data[i].gain > 1)).length;
       const bound = (I) => (I >= p.Is ? 'compute' : 'memory');
-      // vLLM reaches 84% of the TD bound at batch 1 and 34% at batch 64 (appendix); the AR bound is not measured there.
-      const thin = !td ? '' : q.B === 1
-        ? (q.m === DG && q.C === 1024 && q.hwLabel.startsWith('H200') ? ' For this model, accelerator and batch, vLLM reaches 84% of the TD bound (appendix).' : '')
-        : (q.gain < 3 ? ' This lead is thin: in vLLM, TD reaches 84% of its bound at batch 1 and 34% at batch 64 (appendix, which does not measure AR). If TD ran at 34% of its bound and AR at its own, a roofline lead below about ×3 would be lost.' : '');
+      // Part 11 measured DiffusionGemma against Gemma 4 on an H200 in FP8 (vLLM with the kernel work of Part 10).
+      const mk = MEAS[`${q.B},${q.C}`];
+      const thin = q.m === DG && q.hwLabel.startsWith('H200') && mk
+        ? ` Measured on an H200 in FP8 (Part 11): Γ = ${mk[0].toFixed(2)}, against a bound of ${mk[1].toFixed(2)} at the measured routing and ceilings.`
+        : (td && q.gain < 3 ? ` This lead is thin: on the H200 grid of Part 11 the measured gain lies between ${MEAS_RANGE[0].toFixed(2)} and ${MEAS_RANGE[1].toFixed(2)} times the bound, so a lead this small can be lost.` : '');
       box.innerHTML = `
         <div class="quiz-head"><span>Setting ${st.k + 1} of ${data.length}</span><span>${answered ? `${score} of ${answered} right so far` : ''}</span></div>
         <div class="quiz-case">

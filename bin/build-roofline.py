@@ -181,7 +181,7 @@ def color_math(body):
     return MATH.sub(seg, body)
 
 
-TAKEAWAY_FIGS = [("fig-reuse", "Figure 1"), ("fig-bestbatch", "Figure 3"), ("fig-context", "Figure 4"), ("fig-accel", "Figure 6")]
+TAKEAWAY_FIGS = [("fig-reuse", "Figure 4"), ("fig-bestbatch", "Figure 6"), ("fig-context", "Figure 7"), ("fig-accel", "Figure 9")]
 
 
 def link_takeaways(body):
@@ -252,9 +252,9 @@ def main():
     if old_fig1:
         body = body.replace(old_fig1.group(0), figs["bestbatch"])
     else:
-        problems.append("old Figure 1 block not found")
+        problems.append("old Figure 4 block not found")
     body = sub_once(body, '  <div class="table-wrap breakout"><table class="cls t6">', figs["context"] + '  <div class="table-wrap breakout"><table class="cls t6">', "context anchor")
-    body = sub_once(body, "<figcaption>Figure 2. Smallest compute-bound batch", "<figcaption>Figure 5. Smallest compute-bound batch", "Figure 2 caption")
+    body = sub_once(body, "<figcaption>Figure 2. Smallest compute-bound batch", "<figcaption>Figure 8. Smallest compute-bound batch", "Figure 8 caption")
     body = sub_once(body, "  <h3>Across accelerators and models</h3>\n", "  <h3>Across accelerators and models</h3>\n" + figs["accel"], "accel anchor")
     body = add_practice(body)
     body = add_cards(body)
@@ -271,7 +271,7 @@ def main():
     js = "\n".join(scripts)
     js = sub_once(js, "    initTheme();\n", "", "initTheme call")
     js = sub_once(js, "    initRail();\n", "", "initRail call")
-    js = sub_once(js, "    rooflineIntuition($('roof-int'), REF.hw, REF.o, REF.w);\n", "", "Figure 1 call")
+    js = sub_once(js, "    rooflineIntuition($('roof-int'), REF.hw, REF.o, REF.w);\n", "", "Figure 4 call")
     js = sub_once(js, ".box[id] > .title, section.wide[id] > .col > h2", ".box[id] > .bdr-title, section.wide[id] > .bdr-col > h2", "anchor selector")
     js = sub_once(js, "  init();\n})();", "  window.BDR = { HW, HWBYID, REF, boe, omega, fmt, comma, kTok, css, model };\n  init();\n})();", "expose internals")
     # Each page holds one chapter: a missing element is a detached stand-in, the maps and charts
@@ -304,7 +304,14 @@ def main():
         for p in problems:
             print("PROBLEM:", p)
         return 1
+    global MEAS
+    MEAS = measured_gains()
     pages = split_book(body)
+    # Figures and tables are numbered in reading order: 1, 2, 3, ... across the chapters.
+    for kind, rx in (("Figure", r'(?:<div class="fig-k">|<figcaption>)Figure (\d+)'), ("Table", r"<caption>Table (\d+)\.")):
+        seen = [int(n) for ch in CHAPTERS for n in re.findall(rx, pages.get(ch[0], ""))]
+        if seen != list(range(1, len(seen) + 1)):
+            problems.append(f"{kind} numbers not in reading order: {seen}")
     if problems:
         for p in problems:
             print("PROBLEM:", p)
@@ -326,6 +333,15 @@ def url_of(slug):
 def label_of(ch):
     slug, num, title = ch[:3]
     return f"{num} · {title}" if num and slug else title
+
+
+def measured_gains():
+    """Measured gains of Part 11 for the quiz: {"B,C": [measured, bound (c)]}."""
+    d = json.loads((ROOT / "_roofline" / "practice-data.json").read_text())
+    return json.dumps({k: [round(v["measured"], 2), round(v["roof"], 2)] for k, v in d["gains"].items()}, separators=(",", ":"))
+
+
+MEAS = None
 
 
 def split_book(body):
@@ -420,6 +436,7 @@ sitemap: false
 <link rel="stylesheet" href="/assets/roofline/note.css">
 <link rel="stylesheet" href="/assets/roofline/theme.css">
 <script type="application/json" id="bdr-book">{json.dumps(meta, separators=(",", ":"))}</script>
+<script type="application/json" id="bdr-meas">{MEAS}</script>
 <script defer src="/assets/roofline/mathjax.js"></script>
 <script defer src="/assets/roofline/note.js"></script>
 <script defer src="/assets/roofline/figures.js"></script>

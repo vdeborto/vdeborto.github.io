@@ -101,6 +101,24 @@
   addEventListener('scroll', update, { passive: true });
   addEventListener('resize', update);
 
+  // ---------------------------------------------------------------- steppers: one panel at a time
+  for (const st of page.querySelectorAll('.pfig-steps')) {
+    const btns = [...st.querySelectorAll('.pfig-step-buttons button')], panels = [...st.querySelectorAll(':scope > .pfig-step')];
+    const show = (k) => {
+      panels.forEach((p) => { p.hidden = p.dataset.k !== k; });
+      btns.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.k === k)));
+    };
+    st.classList.add('js');
+    btns.forEach((b) => b.addEventListener('click', () => show(b.dataset.k)));
+    st.addEventListener('keydown', (ev) => {
+      if (ev.key !== 'ArrowRight' && ev.key !== 'ArrowLeft') return;
+      const i = btns.findIndex((b) => b.getAttribute('aria-pressed') === 'true'), n = btns.length;
+      const j = (i + (ev.key === 'ArrowRight' ? 1 : n - 1)) % n;
+      show(btns[j].dataset.k); btns[j].focus(); ev.preventDefault();
+    });
+    show('0');
+  }
+
   // ---------------------------------------------------------------- symbol key
   // [pattern in the TeX source, symbol as HTML, meaning]. Patterns avoid lookbehind (older Safari).
   const S = (b, s) => `<i>${b}</i><sub>${s}</sub>`;
@@ -133,14 +151,35 @@
     [/\\nu_/, 'ν', 'KV-cache bytes per cached token (G: global, W: windowed, S: sparse layers, I: indexer)'],
     [/\\alpha_/, 'α', 'attention FLOPs per query and per cached token (same subscripts as ν)'],
     [/s_w/, S('s', 'w'), 'bytes per weight (2 in BF16)'],
-    [/\\pi(?![A-Za-z])/, 'π', 'peak FLOPs per second of the accelerator'],
-    [/\\beta(?![A-Za-z])/, 'β', 'memory bandwidth of the accelerator, in bytes per second'],
+    [/\\pi(?![A-Za-z])/, 'π', 'peak FLOPs per second of the accelerator', 'T'],
+    [/\\beta(?![A-Za-z])/, 'β', 'memory bandwidth of the accelerator, in bytes per second', 'T'],
     [/(^|[^\\A-Za-z_])B(?![A-Za-z^_])/, '<i>B</i>', 'batch: sequences decoded together'],
     [/(^|[^\\A-Za-z_])C(?![A-Za-z_])/, '<i>C</i>', 'context: tokens already in the KV cache of each sequence'],
     [/(^|[^\\A-Za-z_])b(?![A-Za-z])/, '<i>b</i>', 'canvas length, in tokens'],
-    [/(^|[^\\A-Za-z_])S(?![A-Za-z_])/, '<i>S</i>', 'denoising passes per canvas'],
-    [/(^|[^\\A-Za-z_])r(?![A-Za-z])/, '<i>r</i>', 'cost of a denoising pass, as a fraction of a forward pass'],
+    [/(^|[^\\A-Za-z_])S(?![A-Za-z_])/, '<i>S</i>', 'denoising passes per canvas', 'T'],
+    [/(^|[^\\A-Za-z_])r(?![A-Za-z])/, '<i>r</i>', 'cost of a denoising pass, as a fraction of a forward pass', 'T'],
+    // Parts 8-11 (measurements)
+    [/\\Gamma_\{\\mathrm\{meas\}\}/, 'Γ<sub>meas</sub>', 'measured gain: TD tokens per second over AR tokens per second', 'P'],
+    [/\\Gamma_\{\\mathrm\{roof\}\}/, 'Γ<sub>roof</sub>', 'roofline gain at the measured ceilings and routing', 'P'],
+    [/\\tau/, 'τ', 'empirical roofline time: max(<i>F</i>/π̂, <i>Q</i>/β̂), of a component <i>c</i> or of a whole step <i>X</i>', 'P'],
+    [/\\hat\{?\\pi/, 'π̂', 'empirical compute ceiling: the highest FLOP rate measured on this H200 (FP8 1,468, BF16 781, attention 638 TFLOP/s)', 'P'],
+    [/\\hat\{?\\beta/, 'β̂', 'empirical bandwidth: 4.32 TB/s measured on this H200', 'P'],
+    [/\\eta/, 'η', 'efficiency: roofline time over measured time (1 means at the roofline)', 'P'],
+    [/(^|[^\\A-Za-z_])t_\{?(X|AR|TD|c)/, '<i>t</i>', 'measured time of a step (<i>t</i><sub>AR</sub>, <i>t</i><sub>TD</sub>) or of a component (<i>t</i><sub>c</sub>)', 'P'],
+    [/(^|[^\\A-Za-z_])n_\{?(X|AR|TD)/, '<i>n</i>', 'tokens a step commits: <i>B</i> for AR, <i>Bb</i>/ω for TD', 'P'],
+    [/U\^\{\\mathrm\{meas\}\}/, '<i>U</i><sup>meas</sup>', 'distinct experts per layer that a pass touches, measured', 'P'],
+    [/U\^\{\\mathrm\{freq\}\}/, '<i>U</i><sup>freq</sup>', 'distinct experts predicted from the measured expert frequencies, tokens independent', 'P'],
+    [/N\^\{\\mathrm\{eff\}\}/, '<i>N</i><sup>eff</sup>', 'effective independent tokens: the <i>N</i> at which <i>U</i><sub>E,k</sub>(<i>N</i>) equals the measured count', 'P'],
+    [/\\rho_/, 'ρ<sub>e</sub>', 'frequency with which a token selects expert <i>e</i>', 'P'],
+    [/\\bar\{?m/, '<i>m̄</i>', 'rows per touched expert, <i>Nk</i>/<i>U</i>', 'P'],
+    [/f_E/, S('f', 'E'), 'width of one expert (704)', 'P'],
+    [/L_q|L_k/, '<i>L</i><sub>q</sub>, <i>L</i><sub>k</sub>', 'queries and keys per sequence in one global-attention call', 'P'],
+    [/T_q|T_k/, '<i>T</i><sub>q</sub>, <i>T</i><sub>k</sub>', 'query rows and keys of one attention tile', 'P'],
+    [/n_q|n_\{kv/, '<i>n</i><sub>q</sub>, <i>n</i><sub>kv</sub>', 'query heads and KV heads of a layer (16 and 2 on the global layers)'],
+    [/\\mathbf\{Z\}/, '<b>Z</b>', 'attention scores <b>QK</b><sup>⊤</sup> of one tile', 'P'],
+    [/(^|[^\\A-Za-z_])h(?![A-Za-z_])/, '<i>h</i>', 'head dimension of a global layer (512)', 'P'],
   ];
+  const PRACTICE = new Set(['effective', 'stack', 'kernelwork', 'conclusion']);
   const key = el('<div class="sym-key" role="dialog" aria-label="Symbols in this formula" hidden></div>');
   document.body.appendChild(key);
   function closeKey() { key.hidden = true; }
@@ -158,7 +197,8 @@
     const src = texOf(mj);
     if (!src) return;
     const tex = src.replace(/\\text\{[^}]*\}/g, ''); // \text{B} is "billion", not the batch
-    const hits = SYMBOLS.filter(([re]) => re.test(tex)).slice(0, 14);
+    const sec = mj.closest('section'), scope = sec && PRACTICE.has(sec.id) ? 'P' : 'T';
+    const hits = SYMBOLS.filter(([re, , , sc]) => (!sc || sc === scope) && re.test(tex)).slice(0, 14);
     if (!hits.length) return;
     key.innerHTML = `<dl>${hits.map(([, sym, what]) => `<dt>${sym}</dt><dd>${what}</dd>`).join('')}</dl>`;
     key.hidden = false;

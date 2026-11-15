@@ -333,3 +333,15 @@ html { scroll-behavior: smooth; }
 .bdr .bdr-fig svg.pfig-svg { margin-left: auto; margin-right: auto; }
 /* chapter header: the book on one line, the previous and next chapters on one line each */
 .bdr .book-part .book-links, .bdr .book-part .bl-row { display: block; color: var(--bdr-muted); }
+/* boxes of the book map are links to their chapters */
+.bdr .pfig a.pfig-link { cursor: pointer; }
+.bdr .pfig a.pfig-link:hover rect, .bdr .pfig a.pfig-link:focus rect { stroke-width: 2.4; fill: var(--bdr-bg); }
+/* steppers: buttons choose the panel shown (reading.js); without JS every panel is shown */
+.bdr .pfig-step-buttons { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin: 4px 0 10px; font-family: var(--bdr-font-ui); font-size: 13px; }
+.bdr .pfig-step-buttons span { color: var(--bdr-muted); margin-right: 4px; }
+.bdr .pfig-step-buttons button { font: inherit; padding: 3px 10px; border-radius: 999px; border: 1px solid var(--rule); background: var(--bdr-surface); color: var(--ink); cursor: pointer; }
+.bdr .pfig-step-buttons button[aria-pressed="true"] { background: var(--ink); color: var(--bdr-surface); border-color: var(--ink); }
+.bdr .pfig-steps:not(.js) .pfig-step-buttons { display: none; }
+.bdr .pfig-step[hidden] { display: none; }
+/* a figure label outside a figure card (the tabbed maps of Part 5) */
+.bdr > section > .fig-k, .bdr .bdr-col > .fig-k { font-family: var(--bdr-font-ui); font-size: 12px; letter-spacing: .06em; text-transform: uppercase; color: var(--bdr-muted); margin: 18px 0 6px; }

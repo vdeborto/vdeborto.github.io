@@ -18,8 +18,9 @@
     return { d: 2816, V: 262144, window: 1024, fD: 2112, E: 128, k: 8, fE: 704, fSC: 2112, selfCond: true, tied: true, layers };
   }
 
-  // DSA-style sparse attention for the global layers: each query attends to `m` selected tokens in
-  // blocks of `beta`, chosen by an indexer of `HI` heads of `hI` dims stored at `sI` bytes. `eta` is the
+  // DSA-style sparse attention for the global layers: each query attends to `m` selected tokens
+  // (`beta`, a selection block size, is not used), chosen by an indexer of `HI` heads of `hI` dims whose
+  // one shared key per token is cached at `sI` bytes per dimension. `eta` is the
   // fraction of a canvas's queries whose selections are effectively independent (1: independent;
   // 1/b: every query selects the same blocks).
   const SPARSE = { m: 2048, beta: 64, eta: 1, HI: 8, hI: 128, sI: 1 };
@@ -60,7 +61,7 @@
   const kappa = (l) => (l.kvShared ? 1 : 2); // projected K/V tensors per layer
   // K/V tensors kept in the cache: 2 unless the layer has K = V and the cache stores it once.
   const cacheTensors = (l, o) => (l.kvShared && o.kvOnce ? 1 : 2);
-  const attnParams = (m, l) => m.d * l.h * (2 * l.nq + kappa(l) * l.nkv) + (l.attn === 'sparse' ? 2 * m.d * m.sparse.HI * m.sparse.hI : 0);
+  const attnParams = (m, l) => m.d * l.h * (2 * l.nq + kappa(l) * l.nkv) + (l.attn === 'sparse' ? m.d * (m.sparse.HI * m.sparse.hI + m.sparse.hI + m.sparse.HI) : 0);
   const denseParams = (m) => 3 * m.d * m.fD;
   const expertParams = (m) => 3 * m.d * m.fE;
   const routerParams = (m) => m.d * m.E;
@@ -71,6 +72,21 @@
   // Expected number of distinct experts a layer touches when N tokens each pick a
   // uniformly random k-subset of the E experts.
   const distinctExperts = (m, N) => (m.E > 0 ? m.E * (1 - Math.pow(1 - m.k / m.E, N)) : 0);
+  // Measured routing (Part 8): m.routing = { td: [[B, Neff], ...], ar: [[B, Neff], ...] }, the independent
+  // tokens N_eff that would touch as many experts as a pass of that decoder did at batch B (canvas 256).
+  // Between measured batches N_eff is interpolated log-log, beyond them extrapolated with the last slope;
+  // a canvas of b positions is taken to touch what b/256 of a 256-position canvas would.
+  function neffAt(tab, B) {
+    const L = (x) => Math.log(x);
+    let i = tab.findIndex(([b]) => b >= B);
+    if (i === 0) return tab[0][1] * (B / tab[0][0]);
+    if (i < 0) i = tab.length - 1;
+    const [b0, n0] = tab[i - 1], [b1, n1] = tab[i];
+    return Math.exp(L(n0) + ((L(n1) - L(n0)) * (L(B) - L(b0))) / (L(b1) - L(b0)));
+  }
+  const experts = (m, B, n) => (m.routing
+    ? distinctExperts(m, n > 1 ? neffAt(m.routing.td, B) * (n / 256) : neffAt(m.routing.ar, B))
+    : distinctExperts(m, B * n));
 
   // Σ_{c=a}^{z} min(c, W) for integers a ≤ z (W may be Infinity).
   function sumMin(a, z, W) {
@@ -116,7 +132,7 @@
   // o: { bw, bwOther, bkv, ba, bl, kvOnce, rkv, honourWindow }
   function pass(m, p, o) {
     const N = p.B * p.n;
-    const U = distinctExperts(m, N);
+    const U = experts(m, p.B, p.n);
     const r = { flin: 0, fatt: 0, fhead: 0, fsc: 0, qw: 0, qkvr: 0, qkvw: 0, qact: 0, qio: 0, U };
     // Kernel classes: dense linear layers, experts, global attention, windowed attention, vocabulary head.
     // Each class carries its own FLOPs and bytes, so a pass can be timed kernel by kernel.
@@ -135,7 +151,7 @@
       if (sparse) {
         const fi = 2 * m.sparse.HI * m.sparse.hI * p.B * attendedKeys(m, l, p.C, p.n, p.mask, o);
         r.fatt += fi; cls.index.F += fi;
-        const idxTok = m.sparse.HI * m.sparse.hI * (m.sparse.sI / o.bkv); // in KV-byte units, scaled below
+        const idxTok = m.sparse.hI * (m.sparse.sI / o.bkv); // one index key per token, in KV-byte units
         kv.index.r += p.B * p.C * idxTok; kv.index.w += p.B * p.kvWrite * idxTok;
       }
       wDense += attnParams(m, l) + denseParams(m);
@@ -259,7 +275,7 @@
     let s = 0;
     for (const l of m.layers) {
       s += (l.attn === 'sliding' ? Math.min(len, m.window) : len) * cacheTensors(l, o) * l.nkv * l.h * o.bkv;
-      if (l.attn === 'sparse') s += len * m.sparse.HI * m.sparse.hI * m.sparse.sI;
+      if (l.attn === 'sparse') s += len * m.sparse.hI * m.sparse.sI;
     }
     return s;
   }
@@ -301,7 +317,7 @@
     };
   }
 
-  // ------------------------------------------------------------ compact per-token model (§4–§9)
+  // ------------------------------------------------------------ compact per-token model (Parts 2–5)
 
   // Costs per generated token (batch-amortised): FLOPs f, bytes q. TD costs are per committed token.
   function compact(m, w, o, hw) {
@@ -312,7 +328,7 @@
       lin += attnParams(m, l) + denseParams(m);
       other += routerParams(m) + miscParams(m, l);
       const a = 4 * l.nq * l.h, nu = o.bkv * cacheTensors(l, o) * l.nkv * l.h * o.rkv;
-      if (l.attn === 'sparse') { aSp += a; nuSp += nu; aI += 2 * m.sparse.HI * m.sparse.hI; nuI += m.sparse.HI * m.sparse.hI * m.sparse.sI * o.rkv; }
+      if (l.attn === 'sparse') { aSp += a; nuSp += nu; aI += 2 * m.sparse.HI * m.sparse.hI; nuI += m.sparse.hI * m.sparse.sI * o.rkv; }
       else if (l.attn === 'sliding' && o.honourWindow) { aS += a; nuS += nu; } else { aG += a; nuG += nu; }
       sumA += actPerToken(m, l);
     }
@@ -324,8 +340,8 @@
     const qkv = (C) => nuG * C + nuS * Math.min(C, r) + nuSp * Math.min(C, msel) + nuI * C;       // an AR step
     const qkvTD = (C) => nuG * C + nuS * Math.min(C, r) + nuSp * unionRead(C, w.b) + nuI * C;    // a TD pass
     const wBytes = (U, e, sc) => o.bw * (lin + L * U * We) + o.bwOther * (other + e * Vd + (sc ? scParams(m) : 0));
-    const WAR = (B) => wBytes(distinctExperts(m, B), 1, false);
-    const WTD = (B) => wBytes(distinctExperts(m, B * w.b), m.selfCond ? 2 : 1, m.selfCond);
+    const WAR = (B) => wBytes(experts(m, B, 1), 1, false);
+    const WTD = (B) => wBytes(experts(m, B, w.b), m.selfCond ? 2 : 1, m.selfCond);
     const Wtot = wBytes(m.E, 1, false);
     const muAR = o.ba * (sumA + 3 * m.d) + o.bwOther * m.d + w.lambdaAR * m.V * o.bl;
     const muTD = om * o.ba * sumA + (S + 1) * o.bwOther * m.d + S * (o.ba * (3 * m.d + (m.selfCond ? 8 * m.d + 2 * m.fSC : 0)) + w.lambdaTD * m.V * o.bl);
@@ -350,7 +366,7 @@
     return { om, Nact, Vd, aG, aS, nuG, nuS, aSp, nuSp, aI, nuI, msel, sp, unionRead, r, TPF, Istar, phi, qkv, qkvTD, WAR, WTD, Wtot, muAR, muTD, fAR, fTD, qAR, qTD, gain, Pi, CF, Ikv, BTD, Bx, CQ, Cx };
   }
 
-  // Per-kernel-class version of the compact model, for Proposition S1: FLOPs per position and
+  // Per-kernel-class version of the compact model, for the kernel-by-kernel rule (Remark 2): FLOPs per position and
   // bytes per pass by class, the per-class intensities, and the harmonic-mean gain.
   function split(m, w, o, hw) {
     const L = m.layers.length, We = expertParams(m), r = isFinite(m.window) ? m.window - 1 : 0;
@@ -360,18 +376,18 @@
       wD += attnParams(m, l) + denseParams(m);
       wDo += routerParams(m) + miscParams(m, l);
       const a = 4 * l.nq * l.h, nu = o.bkv * cacheTensors(l, o) * l.nkv * l.h * o.rkv;
-      if (l.attn === 'sparse') { aSp += a; nuSp += nu; aI += 2 * m.sparse.HI * m.sparse.hI; nuI += m.sparse.HI * m.sparse.hI * m.sparse.sI * o.rkv; }
+      if (l.attn === 'sparse') { aSp += a; nuSp += nu; aI += 2 * m.sparse.HI * m.sparse.hI; nuI += m.sparse.hI * m.sparse.sI * o.rkv; }
       else if (l.attn === 'sliding' && o.honourWindow) { aS += a; nuS += nu; } else { aG += a; nuG += nu; }
     }
     const sp = m.sparse || SPARSE, msel = sp.m;
     const unionRead = (C, n) => (C <= msel ? C : C * (1 - Math.pow(1 - msel / C, Math.max(1, sp.eta * n))));
     const S = w.S, rd = w.r ?? 1, om = S * rd + 1, Istar = hw.peak / hw.bw, b = w.b;
     const Wdense = wD * o.bw + wDo * o.bwOther;                 // bytes, shared by the batch
-    const Wexp = (N) => L * distinctExperts(m, N) * We * o.bw; // bytes, shared by the batch
+    const Wexp = (B, n) => L * experts(m, B, n) * We * o.bw; // bytes, shared by the batch
     // Per class: FLOPs per position phi, shared bytes per pass W(B), per-sequence bytes q(C).
     const classes = {
       dense: { phi: () => 2 * Nd, W: () => Wdense, q: () => 0 },
-      expert: { phi: () => 2 * L * m.k * We, WAR: (B) => Wexp(B), WTD: (B) => Wexp(B * b), q: () => 0 },
+      expert: { phi: () => 2 * L * m.k * We, WAR: (B) => Wexp(B, 1), WTD: (B) => Wexp(B, b), q: () => 0 },
       attnG: { phi: (C) => aG * C, W: () => 0, q: (C) => nuG * C },
       attnW: { phi: (C) => aS * Math.min(C, r), W: () => 0, q: (C) => nuS * Math.min(C, r) },
       attnS: { phi: (C) => aSp * Math.min(C, msel), W: () => 0, q: (C) => nuSp * Math.min(C, msel), qTD: (C) => nuSp * unionRead(C, b) },
@@ -409,7 +425,7 @@
     MODELS, makeModel, paramCounts, sparsify, SPARSE,
     kvBytesPerSeq, footprint, steady, compact, split, CLASSES,
     gemma4_26b, attnParams, denseParams, expertParams, routerParams, miscParams, scParams,
-    distinctExperts, sumMin, attendedKeys, actPerToken, pass, passes, passTime, generate, kappa,
+    distinctExperts, experts, neffAt, sumMin, attendedKeys, actPerToken, pass, passes, passTime, generate, kappa,
   };
 })(typeof window !== 'undefined' ? window : globalThis);
 
@@ -428,6 +444,7 @@
     { id: 'h100', label: 'H100 SXM', tflops: 989, tbps: 3.35, gb: 80 },
     { id: 'h20', label: 'H20', tflops: 148, tbps: 4.0, gb: 96 },
     { id: 'h200', label: 'H200 SXM', tflops: 989, tbps: 4.8, gb: 141 },
+    { id: 'h200meas', label: 'H200 SXM, measured ceilings (Part 8)', tflops: 781, tflops8: 1468, tbps: 4.32, gb: 141, prec: 'fp8' },
     { id: 'b200', label: 'B200 (HGX)', tflops: 2250, tbps: 8.0, gb: 180 },
     { id: 'gb200', label: 'GB200, per GPU', tflops: 2500, tbps: 8.0, gb: 186 },
     { id: 'b300', label: 'B300 / GB300, per GPU (≈)', tflops: 2500, tbps: 8.0, gb: 288 },
@@ -866,8 +883,10 @@
       const s1 = { ...st, w };
       const { c } = bare(s1, m);
       const g = (B, C) => M.steady(m, { ...w, B }, st.o, st.hw, C).gain;
-      const cell = (x) => `<td class="num${x < 1 ? ' lose' : ''}">${x.toFixed(2)}×</td>`;
-      return `<tr><td class="l">${spec.label} <span class="muted">${spec.group === 'Dense' ? 'dense' : 'MoE'}</span></td><td class="num">${fmt(pc.total / 1e9, 3)}B / ${fmt(pc.active / 1e9, 2)}B</td><td class="num">${c.Pi(1).toFixed(1)}</td><td class="num">${fmt(c.Ikv, 2)}</td>${cell(g(1, 1024))}${cell(g(64, 1024))}${cell(g(64, 1048576))}</tr>`;
+      const needTD = memNeed(m, st.o, w, 'td'), needAR = memNeed(m, st.o, w, 'ar');
+      const fits = (B, C) => needTD(B, C) <= st.hw.mem && needAR(B, C) <= st.hw.mem;
+      const cell = (B, C) => { const x = g(B, C); return `<td class="num${x < 1 ? ' lose' : ''}">${x.toFixed(2)}×${fits(B, C) ? '' : '<sup class="oom" title="does not fit in memory">†</sup>'}</td>`; };
+      return `<tr><td class="l">${spec.label} <span class="muted">${spec.group === 'Dense' ? 'dense' : 'MoE'}</span></td><td class="num">${fmt(pc.total / 1e9, 3)}B / ${fmt(pc.active / 1e9, 2)}B</td><td class="num">${c.Pi(1).toFixed(1)}</td><td class="num">${fmt(c.Ikv, 2)}</td>${cell(1, 1024)}${cell(64, 1024)}${cell(1, 1048576)}</tr>`;
     }).join('');
   }
 
@@ -898,8 +917,8 @@
       ['TD compute-bound from batch', fmt(BTD, 2), tdFirst ? fmt(tdFirst, 2) : '–'],
       ['Best gain', `${peak.toFixed(2)} at batch ${fmt(BTD, 2)}`, `${exPeak[1].toFixed(2)} at batch ${fmt(exPeak[0], 2)}`],
       ['AR catches up at batch', fmt(Bx, 3), cr[1] ? fmt(cr[1], 3) : '–'],
-      ['Long-context gain (1M, batch 64)', long32.toFixed(2), ex(64, 1048576).gain.toFixed(2)],
-      ['Same, with b = 16', long16.toFixed(2), ex(64, 1048576, { ...w, b: 16 }).gain.toFixed(2)],
+      ['Long-context gain (1M, batch 4, the largest that fits)', long32.toFixed(2), ex(4, 1048576).gain.toFixed(2)],
+      ['Same, with b = 16', long16.toFixed(2), ex(4, 1048576, { ...w, b: 16 }).gain.toFixed(2)],
     ];
     $('t-ex').innerHTML = rows.map((r) => `<tr><td class="l">${r[0]}</td><td class="num">${r[1]}</td><td class="num">${r[2]}</td></tr>`).join('');
   }
@@ -1076,7 +1095,7 @@
     const cases = [
       { color: '--bdr-td', label: 'batch 1, 1k context', B: 1, C: 1024 },
       { color: '--bdr-s3', label: 'batch 64, 1k context', B: 64, C: 1024 },
-      { color: '--accent', label: 'batch 64, 1M context', B: 64, C: 1048576 },
+      { color: '--accent', label: 'batch 4, 1M context', B: 4, C: 1048576 },
     ];
     const data = cases.map((cs) => ({ ...cs, ys: rs.map((r) => M.steady(model, { ...REF.w, r, B: cs.B }, REF.o, REF.hw, cs.C).gain) }));
     const rFmt = (r) => (r >= 1 ? `${r}` : `1/${Math.round(1 / r)}`);
@@ -1118,7 +1137,7 @@
     ].map((sr) => ({ ...sr, ys: etas.map((eta) => M.steady({ ...base, sparse: { ...base.sparse, eta } }, { ...REF.w, B: sr.B }, REF.o, REF.hw, C).gain) }));
     const ef = (e) => (e >= 1 ? '1' : `1/${Math.round(1 / e)}`);
     lineChart(el, series.map((sr) => ({ color: sr.color, label: '', points: etas.map((e, k) => ({ x: e, y: sr.ys[k] })) })), {
-      aria: 'Exact TD over AR gain at 1M context against the selection overlap parameter', refY: 1, dots: false, xLabel: 'overlap η (1: independent selections)', xFmt: ef, yFmt: (v) => `${v}×`,
+      aria: 'Exact TD over AR gain at 1M context against the selection overlap parameter', refY: 1, dots: false, xLabel: 'overlap ζ (1: independent selections)', xFmt: ef, yFmt: (v) => `${v}×`,
       tip: (i) => `<b>η = ${ef(etas[i])}</b><br>` + series.map((sr) => `<span class="swatch" style="background:var(${sr.color})"></span>${sr.label}: ${sr.ys[i].toFixed(2)}×`).join('<br>'),
     });
     legendEl.innerHTML = series.map((sr) => `<span><span class="swatch" style="background:var(${sr.color})"></span>${sr.label}</span>`).join('');
@@ -1198,15 +1217,24 @@
     return M.sparsify(m, { m: Math.round(v('s-m', 1)), beta: Math.round(v('s-beta', 1)), eta: Math.min(1, v('s-eta', 0.001)), HI: Math.round(v('s-HI', 1)), hI: Math.round(v('s-hI', 1)), sI: +$('s-sI').value });
   }
 
+  // Effective independent tokens per pass, measured on DiffusionGemma against Gemma 4 26B-A4B on one H200
+  // (Part 8): geometric mean over contexts 1k-16k at each batch (64k is left out: TD's text degrades there).
+  const MEASURED_ROUTING = {"td": [[1, 12.24], [2, 14.62], [4, 18.06], [8, 22.6], [16, 26.99], [32, 32.54], [64, 37.37]], "ar": [[1, 1.0], [2, 1.76], [4, 2.98], [8, 4.73], [16, 7.13], [32, 9.44], [64, 12.27]]};
+  function routeApply(m) {
+    const ok = MEASURED_ROUTING && m.E === 128 && m.k === 8;
+    $('c-route').disabled = !MEASURED_ROUTING || !ok;
+    return $('c-route').checked && ok ? { ...m, routing: MEASURED_ROUTING } : m;
+  }
+
   function settings() {
     const v = (id) => parseFloat($(id).value);
     const fp8 = $('c-prec').value === 'fp8';
     const b = Math.max(1, Math.round(v('c-b')) || 1);
     const G = Math.max(b, Math.round((v('c-G') || b) / b) * b);
-    const peak = Math.max(1, v('c-peak') || 1) * 1e12;
+    const peak = Math.max(1, v('c-peak') || 1) * 1e12, peak8 = Math.max(1, v('c-peak8') || 2 * v('c-peak') || 2) * 1e12;
     return {
-      m: sparseApply(modelFromSpecs()),
-      hw: { peak, peakFp8: 2 * peak, bw: Math.max(0.01, v('c-bw') || 0.01) * 1e12, mem: Math.max(1, v('c-mem') || 1) * 1e9, fp8, kernels: $('c-kern').value },
+      m: routeApply(sparseApply(modelFromSpecs())),
+      hw: { peak, peakFp8: peak8, bw: Math.max(0.01, v('c-bw') || 0.01) * 1e12, mem: Math.max(1, v('c-mem') || 1) * 1e9, fp8, kernels: $('c-kern').value },
       o: { bw: fp8 ? 1 : 2, bwOther: 2, bkv: 2, ba: $('c-actl2').checked ? 0 : 2, bl: v('c-bl'), kvOnce: $('c-kvonce').checked, rkv: Math.max(1, v('c-rho') || 1), honourWindow: $('c-win').checked },
       w: { B: Math.max(1, Math.round(v('c-B')) || 1), P: Math.max(1, Math.round(v('c-P')) || 1), G, b, S: Math.max(1, Math.round(v('c-S')) || 1), r: Math.max(0.01, v('c-r') || 1), lambdaAR: v('c-la') || 0, lambdaTD: v('c-lt') || 0 },
     };
@@ -1240,11 +1268,11 @@
   const REGIMES = {
     R1: ['short context', 'both memory-bound', 'Γ = TPF / Π(B)', 'TD shares each weight read over TPF tokens but streams more experts.'],
     R2: ['short context', 'AR memory-bound, TD compute-bound', 'Γ = I* / (ω · I_lin(B))', 'TD spends compute AR leaves idle; the gain falls as the batch raises AR\'s intensity.'],
-    R3: ['short context', 'AR compute-bound, TD memory-bound', 'Γ ≤ 1/ω', 'Unusual: the MoE penalty exceeds the canvas length.'],
+    R3: ['short context', 'AR compute-bound, TD memory-bound', 'Γ ≤ 1/ω', 'Not reached: it needs a penalty above the canvas length, and under (A2) Π ≤ b.'],
     R4: ['short context', 'both compute-bound', 'Γ = 1/ω', 'Both run at peak, and TD does ω times the work.'],
     R5: ['long context', 'both memory-bound', 'Γ = TPF', 'Both read the KV cache; TD shares each read over TPF tokens.'],
     R6: ['long context', 'AR memory-bound, TD compute-bound', 'Γ = I* / (ω · I_attn)', 'TD spends the compute AR leaves idle while it streams the KV cache.'],
-    R7: ['long context', 'AR compute-bound, TD memory-bound', 'Γ ≤ 1/ω', 'Unusual: requires a canvas shorter than one token.'],
+    R7: ['long context', 'AR compute-bound, TD memory-bound', 'Γ ≤ 1/ω', 'Impossible: it needs a canvas shorter than one token.'],
     R8: ['long context', 'both compute-bound', 'Γ = 1/ω', 'Both run at peak, and TD does ω times the work.'],
   };
 
@@ -1375,9 +1403,9 @@
   }
 
   // ---------------------------------------------------------------- calculator state in the page address
-  const STATE_IDS = ['c-hw', 'c-peak', 'c-bw', 'c-mem', 'c-prec', 'c-kern', 'c-model', 's-on', 's-m', 's-beta', 's-eta', 's-HI', 's-hI', 's-sI', 'c-P', 'c-G', 'c-b', 'c-S', 'c-r', 'c-B',
+  const STATE_IDS = ['c-hw', 'c-peak', 'c-peak8', 'c-bw', 'c-mem', 'c-prec', 'c-kern', 'c-model', 'c-route', 's-on', 's-m', 's-beta', 's-eta', 's-HI', 's-hI', 's-sI', 'c-P', 'c-G', 'c-b', 'c-S', 'c-r', 'c-B',
     'c-lt', 'c-la', 'c-bl', 'c-rho', 'c-actl2', 'c-kvonce', 'c-win', ...SPEC_NUM.map((k) => `m-${k}`), 'm-fSC', 'm-kvs', 'm-sc', 'm-tied'];
-  const HW_FIELDS = ['c-peak', 'c-bw', 'c-mem'];
+  const HW_FIELDS = ['c-peak', 'c-peak8', 'c-bw', 'c-mem'];
   const keyOf = (id) => id.replace(/^c-/, '');
   const valOf = (el) => (el.type === 'checkbox' ? (el.checked ? '1' : '0') : el.value);
   let DEFAULTS = null;
@@ -1408,8 +1436,10 @@
     const h = HWBYID[$('c-hw').value];
     if (!h) return;
     $('c-peak').value = h.tflops;
+    $('c-peak8').value = h.tflops8 || 2 * h.tflops;
     $('c-bw').value = h.tbps;
     $('c-mem').value = h.gb;
+    if (h.prec) $('c-prec').value = h.prec;
   }
 
   // ---------------------------------------------------------------- navigation: tabs and contents rail
@@ -1533,7 +1563,7 @@
     });
     document.querySelectorAll('#c-mspecs input').forEach((el) => el.addEventListener('input', () => { $('c-model').value = 'custom'; }));
     $('m-sc').addEventListener('change', () => { $('c-lt').value = $('m-sc').checked ? 5 : 2; });
-    for (const id of ['c-peak', 'c-bw', 'c-mem']) $(id).addEventListener('input', () => { $('c-hw').value = 'custom'; });
+    for (const id of ['c-peak', 'c-peak8', 'c-bw', 'c-mem']) $(id).addEventListener('input', () => { $('c-hw').value = 'custom'; });
     document.querySelectorAll('.calc input, .calc select').forEach((el) => { el.addEventListener('input', schedule); el.addEventListener('change', commit); });
     let lastHw = $('c-hw').value !== 'custom' ? $('c-hw').value : 'h200';
     let lastModel = M.MODELS[$('c-model').value] ? $('c-model').value : 'dgemma';
