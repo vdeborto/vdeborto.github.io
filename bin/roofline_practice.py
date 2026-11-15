@@ -414,51 +414,60 @@ def fig_pair():
 
 
 
+
+
 def fig_eager():
     """Eager mode against CUDA-graph replay: CPU and GPU lanes, same structure for both."""
-    W, H, x0, L, nx = 660, 290, 70, 58, 392
+    W, H, x0, L, K, nx = 470, 214, 46, 46, 30, 306
     s = [arrow_defs(9)]
     def row(y0, title, launches, kernels, notes):
-        r = [f'<text x="10" y="{y0}" font-size="12.5" font-weight="600" fill="{INK}">{title}</text>',
-             f'<text x="{x0 - 10}" y="{y0 + 31}" text-anchor="end" font-size="11.5" fill="{MUT}">CPU</text>',
-             f'<text x="{x0 - 10}" y="{y0 + 71}" text-anchor="end" font-size="11.5" fill="{MUT}">GPU</text>']
+        r = [f'<text x="6" y="{y0}" font-size="12" font-weight="600" fill="{INK}">{title}</text>',
+             f'<text x="{x0 - 8}" y="{y0 + 23}" text-anchor="end" font-size="11" fill="{MUT}">CPU</text>',
+             f'<text x="{x0 - 8}" y="{y0 + 51}" text-anchor="end" font-size="11" fill="{MUT}">GPU</text>']
         for x, t in launches:
-            r.append(f'<rect x="{x}" y="{y0 + 14}" width="{L}" height="26" rx="3" fill="none" stroke="{MUT}"/>'
-                     f'<text x="{x + L / 2}" y="{y0 + 31}" text-anchor="middle" font-size="11.5" fill="{INK}">{t}</text>')
+            r.append(f'<rect x="{x}" y="{y0 + 9}" width="{L}" height="20" rx="3" fill="none" stroke="{MUT}"/>'
+                     f'<text x="{x + L / 2}" y="{y0 + 23}" text-anchor="middle" font-size="10.5" fill="{INK}">{t}</text>')
         for x, t in kernels:
-            r.append(f'<rect x="{x}" y="{y0 + 54}" width="38" height="26" rx="3" fill="{MUT}" fill-opacity="0.35"/>'
-                     f'<text x="{x + 19}" y="{y0 + 71}" text-anchor="middle" font-size="11.5" fill="{INK}">{t}</text>')
+            r.append(f'<rect x="{x}" y="{y0 + 37}" width="{K}" height="20" rx="3" fill="{MUT}" fill-opacity="0.35"/>'
+                     f'<text x="{x + K / 2}" y="{y0 + 51}" text-anchor="middle" font-size="10.5" fill="{INK}">{t}</text>')
         for k, t in enumerate(notes):
-            r.append(f'<text x="{nx}" y="{y0 + 31 + 40 * k}" font-size="11.5" fill="{MUT}">{fits(t, 11.5, W - nx - 4, "eager")}</text>')
+            r.append(f'<text x="{nx}" y="{y0 + 23 + 28 * k}" font-size="11" fill="{MUT}">{fits(t, 11, W - nx - 2, "eager")}</text>')
         return "".join(r)
-    s.append(row(16, "eager mode", [(x0 + i * (L + 4), "launch") for i in range(4)],
-                 [(x0 + L + i * (L + 4), f"k{i + 1}") for i in range(4)], ["one launch per kernel", "GPU idle between launches"]))
-    s.append(row(140, "CUDA graph", [(x0, "replay")], [(x0 + L + i * 40, f"k{i + 1}") for i in range(4)],
-                 ["one launch for the pass", "kernels back to back"]))
-    s.append(f'<line x1="{x0}" y1="256" x2="{W - 10}" y2="256" stroke="currentColor" marker-end="url(#pa9)"/>')
-    s.append(f'<text x="{(x0 + W) / 2}" y="280" text-anchor="middle" font-size="11.5" fill="{MUT}">time</text>')
+    s.append(row(14, "eager mode", [(x0 + i * (L + 4), "launch") for i in range(4)],
+                 [(x0 + L + i * (L + 4), f"k{i + 1}") for i in range(4)], ["a launch per kernel", "GPU waits"]))
+    s.append(row(106, "CUDA graph", [(x0, "replay")], [(x0 + L + i * (K + 2), f"k{i + 1}") for i in range(4)],
+                 ["one launch", "back to back"]))
+    s.append(f'<line x1="{x0}" y1="186" x2="{nx - 16}" y2="186" stroke="currentColor" marker-end="url(#pa9)"/>')
+    s.append(f'<text x="{(x0 + nx - 16) / 2}" y="206" text-anchor="middle" font-size="11" fill="{MUT}">time</text>')
     return svg(W, H, "In eager mode the CPU launches each kernel separately and the GPU waits between short kernels; a CUDA graph is launched once and its kernels run back to back", "".join(s))
 
 
 def fig_run():
     """One measured point: windows of passes in time order, and the eager run of the same point."""
-    W, H = 720, 330
+    W, H = 600, 236
     s = [arrow_defs(10)]
-    segs = [(10, 156, "prefill", ["the C context", "tokens"]),
-            (174, 150, "warm-up", ["2 canvases,", "30 passes"]),
-            (332, 186, "profiled window", ["45 passes, profiler on:", "kernels, durations"]),
-            (526, 186, "timed window", ["45 passes, profiler off:", "step time t"])]
-    s.append(f'<text x="10" y="28" font-size="12.5" font-weight="600" fill="{INK}">graph run (three repeats, different prompts)</text>')
+    def box(x, y, w, h, title, lines):
+        r = [f'<rect x="{x}" y="{y}" width="{w}" height="{h}" rx="4" fill="var(--bdr-surface)" stroke="{MUT}"/>']
+        yy = y + 16
+        if title:
+            r.append(f'<text x="{x + 8}" y="{yy}" font-size="11.5" font-weight="600" fill="{INK}">{fits(title, 11.5, w - 14, "run")}</text>')
+            yy += 15
+        for t in lines:
+            r.append(f'<text x="{x + 8}" y="{yy}" font-size="10.5" fill="var(--bdr-ink-2)">{fits(t, 10.5, w - 14, "run")}</text>')
+            yy += 14
+        return "".join(r)
+    s.append(f'<text x="6" y="16" font-size="12" font-weight="600" fill="{INK}">graph run, three repeats</text>')
+    segs = [(6, 96, "prefill", ["C tokens"]), (106, 104, "warm-up", ["30 passes"]),
+            (214, 188, "profiled window", ["45 passes, profiler on:", "kernel durations"]),
+            (406, 188, "timed window", ["45 passes, profiler off:", "step time t"])]
     for x, w, t, lines in segs:
-        s.append(tbox(x, 42, w, 78, lines, MUT, t, None, "run"))
-    s.append(f'<text x="332" y="142" font-size="11" fill="{MUT}">counter in every MoE layer</text>')
-    s.append(tbox(332, 150, 380, 34, ["tokens per expert, per layer and pass"], MUT, None, None, "run"))
-    s.append(f'<line x1="10" y1="208" x2="{W - 8}" y2="208" stroke="currentColor" marker-end="url(#pa10)"/>')
-    s.append(f'<text x="10" y="228" font-size="11" fill="{MUT}">passes in time order</text>')
-    s.append(f'<text x="10" y="264" font-size="12.5" font-weight="600" fill="{INK}">eager run (once)</text>')
-    s.append(tbox(10, 274, 420, 34, ["same point; each kernel launched from its module"], MUT, None, None, "run"))
+        s.append(box(x, 26, w, 62, t, lines))
+    s.append(box(214, 96, 380, 24, None, ["expert counter: tokens per expert, layer, pass"]))
+    s.append(f'<line x1="6" y1="138" x2="{W - 6}" y2="138" stroke="currentColor" marker-end="url(#pa10)"/>')
+    s.append(f'<text x="6" y="156" font-size="10.5" fill="{MUT}">passes in time order</text>')
+    s.append(f'<text x="6" y="190" font-size="12" font-weight="600" fill="{INK}">eager run, once</text>')
+    s.append(box(6, 200, 350, 24, None, ["same point; kernels launched from their modules"]))
     return svg(W, H, "One measured point: after prefill and warm-up, a profiled window records every kernel, then a timed window without the profiler gives the step time; an expert counter covers both windows; one eager run of the same point follows", "".join(s))
-
 
 def fig_attrib():
     """Kernel labelling: the eager trace gives each kernel its module; graph kernels take the label
@@ -625,7 +634,7 @@ def blocks():
         "eager": fig("fig-eager", "Figure 13", "In eager mode the GPU waits for each launch; a CUDA graph runs the kernels of a pass back to back.", "", fig_eager(),
                      "Four kernels of one forward pass, as in Part 8's small GEMMs: launching a kernel costs the CPU a few µs, and with 64 tokens or fewer a projection runs for 5–12 µs, so in eager mode the GPU waits a large share of the time. A CUDA graph replays the recorded sequence of kernels with one launch."),
         "run": fig("fig-run", "Figure 14", "One measured point: a profiled window for the kernels, a timed window for the step time.", "", fig_run(),
-                   "TD at one batch size \\(B\\) and context \\(C\\). The profiler slows the passes down, so the step time comes from the second window, where it is off. For AR the windows are 48 steps each, after 1,488 warm-up steps, which put AR's context at the middle of the windows at TD's.", wide=True),
+                   "TD at one batch size \\(B\\) and context \\(C\\). The profiler slows the passes down, so the step time comes from the second window, where it is off. For AR the windows are 48 steps each, after 1,488 warm-up steps, which put AR's context at the middle of the windows at TD's."),
         "attrib": fig("fig-attrib", "Figure 15", "Each kernel of the graph run takes its module from the eager run.", "", fig_attrib(),
                       "A stretch of one layer, with simplified kernel names. In the eager run each kernel is recorded inside the profiler range of the module that launched it; in the graph run only inside the range of the whole pass. The same kernel can serve several modules, as the FP8 GEMM does here, so the match counts occurrences. Each module then belongs to one component.", wide=True),
         "flags": fig("fig-flags", "Figure 16", "A replayed CUDA graph reads the memory it saw at capture, so a tensor recreated at every step is never read.", "", fig_flags(),
