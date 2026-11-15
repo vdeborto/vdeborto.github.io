@@ -29,3 +29,14 @@ TD wins exactly when a pass serves more tokens per read than it pays in penalty 
 With dense attention and full windows, a batch cannot saturate compute on cache bytes, since each sequence brings its own cache, but a canvas can: once \(b\,I_{\mathrm{attn}} \gt I^\star\), a longer context makes a TD pass compute-bound at a smaller batch, not a larger one.
 <!-- gist:kernels -->
 Timing a pass as a chain of kernels instead of one fully overlapped kernel is never faster and at most twice slower; it moves DiffusionGemma's best batch from 5 to 9.
+<!-- gist:def5 -->
+The empirical ceiling of a rate is the highest value measured on this GPU; the empirical roofline of a component is \(\max(F_c/\hat\pi_c,\ Q_c/\hat\beta)\) at those ceilings.
+<!-- gist:def6 -->
+\(U^{\mathrm{meas}}\) counts the experts a pass actually touches; \(U^{\mathrm{freq}}\) is what independent tokens with the measured popularity would touch; \(N^{\mathrm{eff}}\) is the number of uniformly routed tokens that would touch \(U^{\mathrm{meas}}\).
+<!-- gist:rem-neff -->
+Measured routing enters Proposition 1 only through the expert penalty, which becomes \(U^{\mathrm{meas}}_{TD}/U^{\mathrm{meas}}_{AR}\).
+<!-- gist:def7 -->
+A component's efficiency is its empirical roofline over its measured time; its recoverable time is what remains above the time of the best kernel available at its shape.
+<!-- gist:prop9 -->
+The measured gain over the bound equals TD's step efficiency over AR's, so the bound is conservative exactly when TD runs closer to its roofline.
+

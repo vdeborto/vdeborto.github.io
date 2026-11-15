@@ -10,6 +10,8 @@ interactive figures kept in this repo:
   _roofline/cards.html          "more" panels of the TL;DR cards, one <!-- card:TITLE PREFIX --> block each
   _roofline/gists.html          one-sentence summary of each definition and proposition box
   _roofline/intros.html         opening paragraph of each chapter page
+  bin/roofline_practice.py      figures and tables of the practice chapters (Parts 0, 8-11), from
+                                _roofline/practice-data.json (exported by roofscope's pages/book/export.py)
   assets/roofline/reading.js    contents rail, reading progress, and the intuition / full-math switch
 Every AR quantity in the math (I_{AR}, W_{AR}, F^{AR}_{...}, B^\\star_{AR}, ...) is wrapped in
 \\class{mj-ar}{...} and every TD quantity in \\class{mj-td}{...}, so that it takes the figures' colours.
@@ -48,7 +50,8 @@ BASE = f"/notes/{SLUG}/"
 TITLE = "Block Diffusion Rooflines"
 # (page slug, part number, title, source element id, one-line description); "" is the first page.
 CHAPTERS = [
-    ("", "0", "Introduction", "top", "the question, a quiz, the headline numbers, and the contents."),
+    ("", "", "Front page", "top", "the question, a quiz, the headline numbers, and the contents."),
+    ("introduction", "0", "Introduction", "intro", "what the book does, how it is organised, and how to read it."),
     ("summary", "", "Summary", "tldr", "the symbols, what moves the gain, and the three regimes that matter in practice."),
     ("setup", "1", "Setup", "setup", "notation, costs, intensities, penalties."),
     ("gain", "2", "The gain", "gain", "Proposition 1, and the split of each intensity into a linear part and an attention part."),
@@ -57,6 +60,10 @@ CHAPTERS = [
     ("whole", "5", "The whole picture", "whole", "when TD wins, the batch needed to saturate compute, the eight regimes, the exact maps."),
     ("calculator", "6", "Calculator", "calc", "any accelerator, model, attention layout and decoding setup, with the exact accounting."),
     ("examples", "7", "Worked examples", "examples", "a smaller canvas, a dense model, a low-ridge accelerator."),
+    ("effective", "8", "Effective rooflines", "effective", "the ceilings one H200 sustains, the experts each decoder actually touches, and the bound they give."),
+    ("stack", "9", "The measurement stack", "stack", "how every kernel of a step is timed and attributed, and three defects of the stock engine."),
+    ("kernels", "10", "Kernels", "kernelwork", "two rewrites, of the experts and of global attention, and what they change in efficiency and throughput."),
+    ("conclusion", "11", "Conclusion", "conclusion", "the bound against the measurement, what the roofline gets right, limitations, related work, open problems."),
     ("appendix", "A", "Appendix", "appendix", "the exact accounting, a check against measurements, sources."),
 ]
 ASSETS = ROOT / "assets/roofline"
@@ -190,6 +197,26 @@ def link_takeaways(body):
     return body.replace(m.group(0), "</li>".join(parts))
 
 
+def add_practice(body):
+    """Figures and tables of the practice chapters (Parts 0, 8-11): each <!-- pfig:NAME --> in the
+    note is replaced by bin/roofline_practice.py's block NAME."""
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    import roofline_practice
+    blocks = roofline_practice.blocks()
+    used = set()
+    def put(m):
+        name = m.group(1)
+        if name not in blocks:
+            problems.append(f"practice figure {name!r} unknown")
+            return m.group(0)
+        used.add(name)
+        return blocks[name]
+    body = re.sub(r"[ \t]*<!-- pfig:([\w-]+) -->\n?", put, body)
+    for name in sorted(set(blocks) - used):
+        problems.append(f"practice figure {name!r} not placed")
+    return body
+
+
 def add_gists(body):
     blocks = re.split(r"<!-- gist:([\w-]+) -->\n", GISTS.read_text())
     for i in range(1, len(blocks), 2):
@@ -230,6 +257,7 @@ def main():
     body = sub_once(body, '  <div class="table-wrap breakout"><table class="cls t6">', figs["context"] + '  <div class="table-wrap breakout"><table class="cls t6">', "context anchor")
     body = sub_once(body, "<figcaption>Figure 2. Smallest compute-bound batch", "<figcaption>Figure 5. Smallest compute-bound batch", "Figure 2 caption")
     body = sub_once(body, "  <h3>Across accelerators and models</h3>\n", "  <h3>Across accelerators and models</h3>\n" + figs["accel"], "accel anchor")
+    body = add_practice(body)
     body = add_cards(body)
     body = add_gists(body)
     body = sub_once(body, '  <div class="tiles hero-tiles">', '  <p class="math-key">In the equations, <span class="q-ar">AR quantities are in blue</span> and <span class="q-td">TD quantities in orange</span>, as in the figures. Select any formula to see what its symbols mean.</p>\n  <div class="tiles hero-tiles">', "math key anchor")

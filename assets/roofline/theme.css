@@ -312,3 +312,17 @@ html { scroll-behavior: smooth; }
 .bdr .chapter-intro { font-size: 1.08rem; line-height: 1.65; color: var(--ink); }
 /* chapter pages have no subtitle: their introduction follows the title */
 .post-header .post-description:empty { display: none; }
+
+/* ---------------------------------------------------------------- practice chapters (bin/roofline_practice.py) */
+.bdr .pfig-svg text { font-family: var(--bdr-font-ui); }
+.bdr .pfig-pair { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 14px 32px; }
+.bdr .pfig-grid { display: flex; flex-wrap: wrap; gap: 10px 28px; }
+.bdr .pfig-grid > div { flex: 0 1 300px; min-width: 0; }
+.bdr .pfig .fig-cap b { color: var(--ink); }
+.bdr pre.excerpt { font: 12.5px/1.55 var(--bdr-font-mono); background: var(--bdr-surface); border: 1px solid var(--rule); border-radius: 3px; padding: 10px 12px; overflow-x: auto; margin: 10px 0 6px; }
+.bdr pre.excerpt .c { color: var(--bdr-muted); }
+.bdr .excerpt-src { font: 500 11.5px var(--bdr-font-ui); color: var(--bdr-muted); margin: 14px 0 0; }
+@media (max-width: 700px) {
+  .bdr .pfig-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .bdr .bdr-fig svg.pfig-wide { min-width: 640px; }
+}
