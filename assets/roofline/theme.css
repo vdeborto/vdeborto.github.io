@@ -329,3 +329,5 @@ html { scroll-behavior: smooth; }
 /* a wide practice figure leaves the column symmetrically, like the wide tables (the .bdr-fig
    margin shorthand above would otherwise reset the breakout's left margin) */
 .bdr .bdr-fig.breakout { margin-left: calc(50% - var(--bdr-wide) / 2); }
+/* practice figures never render larger than drawn (max-width = viewBox width), centred */
+.bdr .bdr-fig svg.pfig-svg { margin-left: auto; margin-right: auto; }

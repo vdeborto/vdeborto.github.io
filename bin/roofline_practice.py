@@ -49,7 +49,7 @@ def _inline(m):
 def svg(w, h, label, body, extra=""):
     body = _TEXT.sub(_inline, body)
     out = (f'<svg viewBox="0 0 {w} {h}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="{label}" '
-           f'class="pfig-svg{" pfig-wide" if w >= 700 else ""}"{extra}>' + body + "</svg>")
+           f'class="pfig-svg{" pfig-wide" if w >= 700 else ""}" style="max-width:{w}px"{extra}>' + body + "</svg>")
     # wide diagrams keep a readable size on phones and scroll sideways instead of shrinking
     return f'<div class="pfig-scroll">{out}</div>' if w >= 700 else out
 
