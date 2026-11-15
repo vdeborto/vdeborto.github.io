@@ -335,7 +335,6 @@ html { scroll-behavior: smooth; }
 .bdr .book-part .book-links, .bdr .book-part .bl-row { display: block; color: var(--bdr-muted); }
 /* boxes of the book map are links to their chapters */
 .bdr .pfig a.pfig-link { cursor: pointer; }
-.bdr .pfig a.pfig-link:hover rect, .bdr .pfig a.pfig-link:focus rect { stroke-width: 2.4; fill: var(--bdr-bg); }
 /* steppers: buttons choose the panel shown (reading.js); without JS every panel is shown */
 .bdr .pfig-step-buttons { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin: 4px 0 10px; font-family: var(--bdr-font-ui); font-size: 13px; }
 .bdr .pfig-step-buttons span { color: var(--bdr-muted); margin-right: 4px; }
@@ -345,3 +344,36 @@ html { scroll-behavior: smooth; }
 .bdr .pfig-step[hidden] { display: none; }
 /* a figure label outside a figure card (the tabbed maps of Part 5) */
 .bdr > section > .fig-k, .bdr .bdr-col > .fig-k { font-family: var(--bdr-font-ui); font-size: 12px; letter-spacing: .06em; text-transform: uppercase; color: var(--bdr-muted); margin: 18px 0 6px; }
+
+/* ---- figures of Parts 3-5 added with the book map's links, citation and comments ---- */
+/* a button next to the sliders of a figure (new draw, new selections) */
+.bdr .fig-controls > .seg { align-self: end; }
+.bdr .bdr-fig .fig-btn[hidden] { display: none; }
+.bdr .bdr-fig svg .row:focus { outline: none; }
+.bdr .bdr-fig svg .row:focus-visible rect:first-child { stroke: var(--accent); stroke-width: 2; }
+
+/* the boxes of the book map are links: no underline on their text, a visible hover and focus */
+.bdr .pfig a.pfig-link, .bdr .pfig a.pfig-link text { text-decoration: none; }
+.bdr .pfig a.pfig-link:focus-visible { outline: none; }
+.bdr .pfig a.pfig-link:hover rect, .bdr .pfig a.pfig-link:focus-visible rect { stroke: var(--accent); stroke-width: 2.4; }
+
+/* citation, at the end of the first page */
+.bdr .book-cite { margin: 44px 0 0; padding-top: 18px; border-top: 1px solid var(--rule); }
+.bdr .book-cite h3, .bdr .book-comments h3 { margin-top: 0; }
+.bdr .cite-entry { position: relative; margin: 8px 0 14px; }
+.bdr .cite-entry pre {
+  margin: 0; padding: 12px 14px; border: 1px solid var(--rule); border-radius: 6px; background: var(--bdr-surface);
+  color: var(--ink); font: 13px/1.55 var(--bdr-font-mono); white-space: pre-wrap; overflow-wrap: anywhere;
+}
+.bdr .cite-entry pre.cite-bib { padding-right: 76px; }
+.bdr .cite-copy {
+  position: absolute; top: 8px; right: 8px; font: 12px var(--bdr-font-ui); padding: 3px 10px; border-radius: 999px;
+  border: 1px solid var(--rule); background: var(--bdr-bg); color: var(--ink); cursor: pointer;
+}
+.bdr .cite-copy:hover, .bdr .cite-copy:focus-visible { border-color: var(--accent); color: var(--accent); }
+
+/* comment thread, under the chapter navigation */
+.bdr .book-comments { margin: 36px 0 0; padding-top: 18px; border-top: 1px solid var(--rule); }
+.bdr .book-comments .comments-frame { min-height: 120px; margin-top: 10px; }
+.bdr .book-comments .giscus, .bdr .book-comments .giscus-frame { width: 100%; }
+@media print { .bdr .book-comments, .bdr .cite-copy { display: none; } }

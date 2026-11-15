@@ -5,6 +5,7 @@
 //  - the contents list: a rail in the left margin on wide screens, a sheet opened by a "Contents"
 //    button elsewhere, with the reading progress;
 //  - the symbol key: selecting a formula lists what its symbols mean.
+//  - the citation block's copy button, and the comment thread under each chapter (giscus).
 (function () {
   'use strict';
   const page = document.querySelector('.bdr');
@@ -209,6 +210,54 @@
     ev.stopPropagation();
   });
   document.addEventListener('click', (ev) => { if (!key.hidden && !ev.target.closest('.sym-key, mjx-container')) closeKey(); });
+
+  // ---------------------------------------------------------------- citation: copy the BibTeX entry
+  for (const btn of page.querySelectorAll('.cite-copy')) {
+    btn.addEventListener('click', async () => {
+      const pre = btn.closest('.cite-entry').querySelector('pre');
+      const say = (t) => { btn.textContent = t; setTimeout(() => { btn.textContent = 'Copy'; }, 1600); };
+      try { await navigator.clipboard.writeText(pre.textContent); say('Copied'); } catch (e) {
+        const r = document.createRange(); r.selectNodeContents(pre);
+        const s = getSelection(); s.removeAllRanges(); s.addRange(r); say('Selected: copy with ⌘C or Ctrl-C');
+      }
+    });
+  }
+
+  // ---------------------------------------------------------------- comments (giscus, GitHub Discussions)
+  // The thread is loaded when the reader reaches the end of the chapter, with the site's current
+  // theme; the site's own theme switch then keeps iframe.giscus-frame in step (assets/js/theme.js).
+  const thread = document.getElementById('bdr-comments');
+  if (thread && thread.dataset.repo) {
+    const load = () => {
+      if (thread.dataset.loaded) return;
+      thread.dataset.loaded = '1';
+      const dark = typeof determineComputedTheme === 'function' ? determineComputedTheme() === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+      const s = document.createElement('script');
+      const attrs = {
+        src: 'https://giscus.app/client.js', 'data-repo': thread.dataset.repo, 'data-repo-id': thread.dataset.repoId,
+        'data-category': thread.dataset.category, 'data-category-id': thread.dataset.categoryId,
+        'data-mapping': 'specific', 'data-term': thread.dataset.term, 'data-strict': '1', 'data-reactions-enabled': '1',
+        'data-emit-metadata': '0', 'data-input-position': 'top', 'data-theme': dark ? 'dark' : 'light', 'data-lang': 'en',
+        crossorigin: 'anonymous',
+      };
+      Object.entries(attrs).forEach(([k, v]) => s.setAttribute(k, v));
+      s.async = true;
+      thread.querySelector('.comments-frame').appendChild(s);
+    };
+    // giscus reports a missing installation or an unreachable repository to its host page: say so
+    // in words instead of leaving its error box. ("Discussion not found" is the normal state of a
+    // chapter nobody has commented on yet, and is left to giscus.)
+    addEventListener('message', (ev) => {
+      if (ev.origin !== 'https://giscus.app' || !ev.data || !ev.data.giscus || !ev.data.giscus.error) return;
+      if (!/not installed|Bad credentials|rate limit/i.test(String(ev.data.giscus.error))) return;
+      const frame = thread.querySelector('.comments-frame');
+      frame.innerHTML = `<p class="small">The comment thread is not available at the moment. You can write in the <a href="https://github.com/${thread.dataset.repo}/discussions">discussions of the site's repository</a>.</p>`;
+    });
+    if ('IntersectionObserver' in window) {
+      const io = new IntersectionObserver((es) => { if (es.some((e) => e.isIntersecting)) { io.disconnect(); load(); } }, { rootMargin: '600px' });
+      io.observe(thread);
+    } else load();
+  }
 
   // ---------------------------------------------------------------- start
   let saved = null;

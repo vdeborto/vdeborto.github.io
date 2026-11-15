@@ -7,12 +7,14 @@ page into a page of this Jekyll site, in the site's own layout and palette, and 
 interactive figures kept in this repo:
 
   _roofline/figures.html        markup of the interactive figures, one <!-- fig:NAME --> block each
+                                (main() below places each one at an anchor of the note's text)
   _roofline/cards.html          "more" panels of the TL;DR cards, one <!-- card:TITLE PREFIX --> block each
   _roofline/gists.html          one-sentence summary of each definition and proposition box
   _roofline/intros.html         opening paragraph of each chapter page
   bin/roofline_practice.py      figures and tables of the practice chapters (Parts 0, 8-11), from
                                 _roofline/practice-data.json (exported by roofscope's pages/book/export.py)
-  assets/roofline/reading.js    contents rail, reading progress, and the intuition / full-math switch
+  assets/roofline/reading.js    contents rail, reading progress, the intuition / full-math switch, the
+                                steppers, the symbol key, the citation's copy button and the comment thread
 Every AR quantity in the math (I_{AR}, W_{AR}, F^{AR}_{...}, B^\\star_{AR}, ...) is wrapped in
 \\class{mj-ar}{...} and every TD quantity in \\class{mj-td}{...}, so that it takes the figures' colours.
   assets/roofline/theme.css     the note's colour and font tokens mapped to the site's palette,
@@ -32,11 +34,16 @@ with "Part N of" and previous / next links, a contents rail listing every chapte
 between chapters rewritten to the right page. Old single-page links (#prop1, ?B=64) are
 forwarded by the first page to the chapter that now holds the anchor.
 
+The first page ends with a citation block (cite_block) and every chapter with a comment thread
+(comments_block): giscus, one GitHub Discussion per chapter in the repository named by GISCUS. It
+needs Discussions enabled there and the giscus app installed on it (https://github.com/apps/giscus).
+
 Every page is unlisted: no link from the site, robots noindex (front matter `robots`), excluded
 from the sitemap (_config.yml defaults for notes/). Usage:
     python3 -I bin/build-roofline.py      (exit 1 if an anchor is missing)
 then preview, commit and push.
 """
+import html
 import json
 import re
 import sys
@@ -65,6 +72,12 @@ CHAPTERS = [
     ("conclusion", "11", "Conclusion", "conclusion", "the bound against the measurement, what the roofline gets right, limitations, related work, open problems."),
     ("appendix", "A", "Appendix", "appendix", "the exact accounting, a check against measurements, sources."),
 ]
+# Citation, and the comment threads (ids from https://giscus.app for the repository and category).
+AUTHOR = ("De Bortoli", "Valentin")
+YEAR = "2026"
+SITE = "https://vdeborto.github.io"
+GISCUS = {"repo": "vdeborto/vdeborto.github.io", "repo-id": "MDEwOlJlcG9zaXRvcnkxMTY1OTk1ODA=",
+          "category": "Announcements", "category-id": "DIC_kwDOBvMrHM4DLMnm"}
 ASSETS = ROOT / "assets/roofline"
 FIGS = ROOT / "_roofline/figures.html"
 CARDS = ROOT / "_roofline/cards.html"
@@ -181,7 +194,7 @@ def color_math(body):
     return MATH.sub(seg, body)
 
 
-TAKEAWAY_FIGS = [("fig-reuse", "Figure 4"), ("fig-bestbatch", "Figure 6"), ("fig-context", "Figure 7"), ("fig-accel", "Figure 9")]
+TAKEAWAY_FIGS = [("fig-reuse", "Figure 4"), ("fig-bestbatch", "Figure 9"), ("fig-context", "Figure 13"), ("fig-accel", "Figure 15")]
 
 
 def link_takeaways(body):
@@ -254,8 +267,18 @@ def main():
     else:
         problems.append("old Figure 4 block not found")
     body = sub_once(body, '  <div class="table-wrap breakout"><table class="cls t6">', figs["context"] + '  <div class="table-wrap breakout"><table class="cls t6">', "context anchor")
-    body = sub_once(body, "<figcaption>Figure 2. Smallest compute-bound batch", "<figcaption>Figure 8. Smallest compute-bound batch", "Figure 8 caption")
+    body = sub_once(body, "<figcaption>Figure 2. Smallest compute-bound batch", "<figcaption>Figure 14. Smallest compute-bound batch", "Figure 14 caption")
     body = sub_once(body, "  <h3>Across accelerators and models</h3>\n", "  <h3>Across accelerators and models</h3>\n" + figs["accel"], "accel anchor")
+    # Parts 3-5: experts and weights (Proposition 3), where the weights dominate (Table 2), what a pass reads of
+    # the cache (Table 4), the sparse penalty (Proposition 5), attention's shares (Table 5), thresholds (Table 8).
+    for name, anchor in (("experts", "  <p>For DiffusionGemma, \\(E/k = 16\\)"),
+                         ("weights", '  <div class="box prop" id="prop4">'),
+                         ("linmap", '  <div class="table-wrap"><table>\n    <caption>Table 2. '),
+                         ("attnread", '  <div class="box prop" id="prop5">'),
+                         ("sparse", '  <div class="box prop" id="prop6">'),
+                         ("share", '  <div class="table-wrap"><table>\n    <caption>Table 5. '),
+                         ("thresholds", '  <div class="table-wrap"><table>\n    <caption>Table 8. ')):
+        body = sub_once(body, anchor, figs[name] + anchor, f"{name} anchor")
     body = add_practice(body)
     body = add_cards(body)
     body = add_gists(body)
@@ -342,6 +365,42 @@ def measured_gains():
 
 
 MEAS = None
+
+
+def bibtex(url):
+    return ("@misc{debortoli2026rooflines,\n"
+            f"  title = {{{TITLE}}},\n"
+            f"  author = {{{AUTHOR[0]}, {AUTHOR[1]}}},\n"
+            "  howpublished = {Online},\n"
+            f"  note = {{Retrieved from {url}}},\n"
+            f"  year = {{{YEAR}}}\n"
+            "}")
+
+
+def cite_block():
+    """How to cite the book, at the end of its first page."""
+    return (f'<section class="book-cite" id="cite">\n  <h3>Citation</h3>\n'
+            f'  <p>For attribution in academic contexts, please cite this work as:</p>\n'
+            f'  <div class="cite-entry"><pre class="cite-text">{AUTHOR[0]}, "{TITLE}", online, {YEAR}.</pre></div>\n'
+            f'  <p>or as a BibTeX entry:</p>\n'
+            f'  <div class="cite-entry"><button type="button" class="cite-copy">Copy</button><pre class="cite-bib">{html.escape(bibtex(SITE + BASE))}</pre></div>\n'
+            f'  <p class="small">To cite one chapter, add its name, for example "Part 3, The linear part". The figures and the calculator recompute their numbers from the cost model of the appendix, so a citation of a number should give the setting it was read at.</p>\n'
+            f'</section>\n')
+
+
+def comments_block(ch):
+    """The comment thread of a chapter: a GitHub Discussion found by its title (reading.js loads giscus)."""
+    slug, num, title = ch[:3]
+    term = f"{TITLE} · " + (f"Part {num} · {title}" if num.isdigit() else title)
+    g = GISCUS
+    return (f'<section class="book-comments" id="bdr-comments" data-repo="{g["repo"]}" data-repo-id="{g["repo-id"]}" data-category="{g["category"]}" '
+            f'data-category-id="{g["category-id"]}" data-term="{html.escape(term, quote=True)}">\n'
+            f'  <h3>Comments</h3>\n'
+            f'  <p class="small">Questions and corrections on this chapter are welcome below. The thread is a GitHub Discussion of this site\'s repository, so posting needs a GitHub account. '
+            f'To cite the book, see the <a href="{BASE}#cite">citation</a> on its first page.</p>\n'
+            f'  <div class="comments-frame"></div>\n'
+            f'  <noscript><p class="small">The comment thread needs JavaScript.</p></noscript>\n'
+            f'</section>\n')
 
 
 def split_book(body):
@@ -445,7 +504,8 @@ sitemap: false
 <div class="bdr book-chapter" id="top">
 <noscript><p>This page needs JavaScript for its equations, figures and calculator.</p></noscript>
 """
-        pages[slug] = front + head + text.strip() + "\n" + foot + "</div>\n{% endraw %}\n"
+        cite = "" if slug else cite_block()
+        pages[slug] = front + head + text.strip() + "\n" + cite + foot + comments_block(ch) + "</div>\n{% endraw %}\n"
     pages["introduction"] = f"""---
 layout: null
 permalink: {url_of("introduction")}

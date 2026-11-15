@@ -51,7 +51,7 @@ sitemap: false
   <p class="callout">The canvas does for the KV cache what batch does for the weights.</p>
   <p>A larger batch does not help with cache bytes, because every sequence brings its own cache. AR uses each cache byte for one query, so at long context its intensity drifts toward \(I_{\mathrm{attn}}\), far below the ridge, whatever the batch. A canvas uses each cache byte for \(b\) queries, and once \(b\,I_{\mathrm{attn}} \gt I^\star\) a longer context makes compute easier to saturate, not harder. When \(W_n\) does not depend on \(B\), solving the inequality gives \(B^\star_n(C) = \lceil I^\star s_wW_n/D_n(C)\rceil\) for \(D_n \gt 0\), which at zero context is the \(\class{mj-ar}{B^\star_{AR}}\) and \(\class{mj-td}{B^\star_{TD}}\) of Part 3.</p>
   <figure class="mapfig">
-    <figcaption>Figure 8. Smallest compute-bound batch against context · DiffusionGemma, H200, BF16, vocabulary excluded</figcaption>
+    <figcaption>Figure 14. Smallest compute-bound batch against context · DiffusionGemma, H200, BF16, vocabulary excluded</figcaption>
     <div class="legend" id="bstar-legend"></div>
     <div class="chart" id="bstar"></div>
   </figure>
@@ -87,11 +87,18 @@ sitemap: false
 
   <h3>Across accelerators and models</h3>
   <div class="bdr-fig wide" id="fig-accel">
-    <div class="fig-k">Figure 9 · interactive</div>
+    <div class="fig-k">Figure 15 · interactive</div>
     <p class="fig-title">The gain depends on the accelerator only through its ridge point, and a higher ridge never lowers it.</p>
     <p class="fig-lede">The curve is the gain for a chip of ridge point \(I^\star = \pi/\beta\); each dot is an accelerator. Drag the marker along the axis, select a dot, or switch to long context.</p>
     <div data-fig="accel"></div>
     <p class="fig-cap">Exact roofline gains, DiffusionGemma, BF16, \(b = 256\), \(S = 14\). Multiplying the peak \(\pi\) and the bandwidth \(\beta\) by the same factor multiplies the time of every pass alike, so \(\Gamma\) depends on the accelerator only through \(I^\star\), and the accelerators lie on the curve. Short context: \(C = 1{,}024\), at the batch that maximises \(\Gamma\); on the flat stretch near \(I^\star = 60\), batch 1 is best and both decoders are memory-bound, so the gain is \(\mathrm{TPF}/\Pi\) whatever the ridge. Long context: \(C = 2^{20}\) at batch 1; the dashed line is the limit \(I^\star/(\omega I_{\mathrm{attn}})\) as \(C \to \infty\), linear in \(I^\star\). Over this range the curve lies above the line, because at batch 1 the weights are still about a quarter of an AR step's bytes; above \(I^\star \approx 620\) a TD pass at batch 1 is itself memory-bound at this context, and the curve is flat. The curve assumes unlimited memory; a hollow dot marks an accelerator in which the model and its KV cache do not fit.</p>
+  </div>
+  <div class="bdr-fig wide" id="fig-thresholds">
+    <div class="fig-k">Figure 16 · interactive</div>
+    <p class="fig-title">A higher ridge point moves both the best batch and the parity batch later.</p>
+    <p class="fig-lede">Each row is an accelerator, ordered by ridge point. Select a row to read its thresholds.</p>
+    <div data-fig="thresholds"></div>
+    <p class="fig-cap">DiffusionGemma in BF16 under Proposition 1 at zero context, as in Table 8. Orange bar: the batches at which TD is ahead, from 1 to the parity batch \(B_\times\), which solves \(\class{mj-ar}{I^{AR}_{\mathrm{lin}}}(B) = I^\star/\omega\). Diamond: \(\class{mj-td}{B^\star_{TD}}\), from which a TD pass is compute-bound and where the gain is largest. Blue: from \(B_\times\) to \(\class{mj-ar}{B^\star_{AR}}\), AR is ahead although it is still memory-bound; the dot is \(\class{mj-ar}{B^\star_{AR}}\), from which an AR step is compute-bound too. All three thresholds are proportional to the ridge point \(I^\star\) once the batch touches every expert.</p>
   </div>
   <div class="table-wrap"><table>
     <caption>Table 8. Regime thresholds by accelerator, DiffusionGemma in BF16 under Proposition 1. The parity batch solves \(\class{mj-ar}{I^{AR}_{\mathrm{lin}}}(B) = I^\star/\omega\) with the full \(\class{mj-ar}{W_{AR}}(B)\). A higher ridge point favours TD.</caption>
@@ -107,7 +114,7 @@ sitemap: false
 
   <h3 id="maps">The exact maps</h3>
   <p>The maps drop the propositions' simplifications and use the exact accounting (appendix), vocabulary included, over batch × context. Every line is a contour of the computed grid. Grey cells do not fit in the accelerator's memory: weights, KV cache and one pass's logits, which are \(b\) times larger for a TD canvas than for an AR step. On the gain maps, grey marks where TD does not fit and hatching where AR does not fit either. Hover or tap a cell for its values.</p>
-  <div class="fig-k">Figure 10 · four maps, one shown at a time</div>
+  <div class="fig-k">Figure 17 · four maps, one shown at a time</div>
   <div class="tabs" role="tablist" aria-label="Exact maps">
     <button role="tab" aria-selected="true" data-tab="m-gain">TD/AR gain</button>
     <button role="tab" aria-selected="false" data-tab="m-ar">AR intensity</button>
@@ -137,5 +144,11 @@ sitemap: false
   <p class="small">Context pulls AR toward \(I_{\mathrm{attn}} = 8\) from either side, never reaching the ridge, and pulls TD toward \(b\,I_{\mathrm{attn}} = 2048\), across it. On the gain map, the bottom-left is R1, the band above the TD-compute line is R2, and the colour flattens toward R6's 1.7 at long context. With sparse layers it falls further at large batch, toward the limit 0.86 of Table 6, and stays between 2.3 and 2.6 at batch 1, where the weights still carry most of AR's bytes.</p>
 </section>
 <nav class="book-nav" aria-label="Chapters"><a class="prev" href="/notes/block-diffusion-rooflines-6f924020/attention/"><span>Previous</span>4 · The attention part</a><a class="next" href="/notes/block-diffusion-rooflines-6f924020/calculator/"><span>Next</span>6 · Calculator</a></nav>
+<section class="book-comments" id="bdr-comments" data-repo="vdeborto/vdeborto.github.io" data-repo-id="MDEwOlJlcG9zaXRvcnkxMTY1OTk1ODA=" data-category="Announcements" data-category-id="DIC_kwDOBvMrHM4DLMnm" data-term="Block Diffusion Rooflines · Part 5 · The whole picture">
+  <h3>Comments</h3>
+  <p class="small">Questions and corrections on this chapter are welcome below. The thread is a GitHub Discussion of this site's repository, so posting needs a GitHub account. To cite the book, see the <a href="/notes/block-diffusion-rooflines-6f924020/#cite">citation</a> on its first page.</p>
+  <div class="comments-frame"></div>
+  <noscript><p class="small">The comment thread needs JavaScript.</p></noscript>
+</section>
 </div>
 {% endraw %}

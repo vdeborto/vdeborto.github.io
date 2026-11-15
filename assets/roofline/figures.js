@@ -1,6 +1,11 @@
 // Interactive figures for the Block Diffusion Rooflines page. Every number comes from the note's own
 // cost model (window.BDModel) and helpers (window.BDR, exposed by note.js).
 //
+// The figures of Parts 3-5 on experts, weights, the KV cache and thresholds (figExperts ... figThresholds)
+// use the model as the propositions do: no vocabulary, independent uniform routing and selections (A2).
+// Their toy grids (experts of one layer, cached tokens of one sequence) show one random draw; the
+// readout next to each gives the expectation that the propositions use.
+//
 // Accountings (see the table built by figAccounting):
 //   - intensities are always those of Proposition 1 (Definition 3, no vocabulary): prop1();
 //   - gains labelled "exact" use the full accounting at a fixed context: steady();
@@ -10,7 +15,7 @@
   'use strict';
   const M = window.BDModel, X = window.BDR;
   if (!M || !X) return;
-  const { HWBYID, REF, omega, fmt, css, comma } = X;
+  const { HWBYID, REF, omega, fmt, css, comma, kTok } = X;
 
   // ---------------------------------------------------------------- helpers
   const hwOf = (id, kernels = 'whole') => { const h = HWBYID[id]; return { peak: h.tflops * 1e12, peakFp8: 2 * h.tflops * 1e12, bw: h.tbps * 1e12, mem: h.gb * 1e9, fp8: false, kernels }; };
@@ -115,7 +120,7 @@
   const rerenders = [];
   const onTheme = (f) => rerenders.push(f);
 
-  // The accelerator is shared by Figures 5, 6, 7 and 9: choosing one in a figure sets it in all.
+  // The accelerator is shared by Figures 5, 9, 13 and 15: choosing one in a figure sets it in all.
   const ACCEL = ['h20', 'rtx5090', 'a100', 'h200', 'v5e', 'b200', 'mi355x', 'h100pcie', 'spark', 'v6e'];
   const SHORT = { h20: 'H20', rtx5090: 'RTX 5090', a100: 'A100', h200: 'H200', v5e: 'TPU v5e', b200: 'B200', mi355x: 'MI355X', h100pcie: 'H100 PCIe', spark: 'DGX Spark', v6e: 'TPU v6e' };
   // The choice is remembered across the pages of the book (a per-viewer convenience).
@@ -143,8 +148,8 @@
   function figAccounting(root) {
     const hw = hwOf('h200');
     const rows = [
-      { name: 'Proposition 1', what: 'closed form of Part 2: no vocabulary, context fixed at 1k (at zero context, as in the closed forms of Part 3 and Table 8, TD is ahead up to batch 109)', used: 'Figures 5 and 7, the rooflines of the quiz, Table 3', g: (B) => prop1(DG, hw, B, 1024).gain },
-      { name: 'Exact, fixed context', what: 'every FLOP and byte of the appendix, vocabulary included, context fixed at 1k', used: 'Figures 6 and 9, the quiz verdicts, the maps', g: (B) => steady(DG, hw, B, 1024).gain },
+      { name: 'Proposition 1', what: 'closed form of Part 2: no vocabulary, context fixed at 1k (at zero context, as in the closed forms of Part 3 and Table 8, TD is ahead up to batch 109)', used: 'Figures 5 and 13, the rooflines of the quiz, Table 3', g: (B) => prop1(DG, hw, B, 1024).gain },
+      { name: 'Exact, fixed context', what: 'every FLOP and byte of the appendix, vocabulary included, context fixed at 1k', used: 'Figures 9 and 15, the quiz verdicts, the maps', g: (B) => steady(DG, hw, B, 1024).gain },
       { name: 'Exact, whole generation', what: 'the same accounting summed over a 1k prompt and 8k generated tokens: the context grows from 1k to 9k', used: 'the headline tiles above, the calculator', g: (B) => M.generate(DG, { ...W0, B }, O0, hw).gainDecode, slow: true },
     ];
     const table = el(`<div class="table-wrap nofold"><table class="acct"><thead><tr><th class="l">Accounting</th><th>Γ, batch 1</th><th>Γ, batch 5</th><th>Γ, batch 64</th><th>TD ahead up to batch</th></tr></thead><tbody>${rows.map((r) => `<tr><td class="l"><b>${r.name}</b><br><span class="muted">${r.what}. Used by ${r.used}.</span></td><td class="num">…</td><td class="num">…</td><td class="num">…</td><td class="num">…</td></tr>`).join('')}</tbody></table></div>`);
@@ -291,7 +296,7 @@
     watchWidth(pic, draw);
   }
 
-  // ---------------------------------------------------------------- Figure 6: find the best batch (exact, fixed context)
+  // ---------------------------------------------------------------- Figure 9: find the best batch (exact, fixed context)
   const BSCAN = [...new Set([...Array.from({ length: 40 }, (_, i) => i + 1), ...Array.from({ length: 60 }, (_, i) => Math.round(40 * 1.056 ** (i + 1))), 64, 128, 256, 512, 1024])].filter((B) => B <= 1024).sort((a, b) => a - b);
   const curveCache = new Map();
   function gainCurve(hwId, rule) {
@@ -384,7 +389,7 @@
     watchWidth(pic, draw);
   }
 
-  // ---------------------------------------------------------------- Figure 7: both intensities forget the batch (Proposition 1)
+  // ---------------------------------------------------------------- Figure 13: both intensities forget the batch (Proposition 1)
   const CSCAN = Array.from({ length: 41 }, (_, i) => Math.round(1024 * 2 ** (i / 4)));
   const CBATCH = [1, 4, 16, 64];
   function figContext(root) {
@@ -444,7 +449,7 @@
     watchWidth(pic, draw);
   }
 
-  // ---------------------------------------------------------------- Figure 9: the gain is a function of the ridge point (exact)
+  // ---------------------------------------------------------------- Figure 15: the gain is a function of the ridge point (exact)
   // Scaling peak and bandwidth together scales every pass time alike, so the gain depends on the
   // accelerator only through I* = peak / bandwidth. The curve is drawn for a chip with unlimited memory.
   function figAccel(root) {
@@ -514,6 +519,339 @@
     draw();
     onTheme(draw);
     watchWidth(pic, draw);
+  }
+
+  // ---------------------------------------------------------------- helpers of the figures of Parts 3-5 below
+  const gx = (x) => (x >= 100 ? String(Math.round(x)) : x >= 10 ? x.toFixed(1) : x.toFixed(2));
+  const gbs = (x) => (x / 1e9 >= 10 ? (x / 1e9).toFixed(1) : (x / 1e9).toFixed(2));
+  const segLabel = (text, s) => { const lab = el(`<label class="wide"><span>${text}</span><span class="segbox"></span></label>`); lab.querySelector('.segbox').appendChild(s); return lab; };
+  const marker = (xs, v, y0, y1, c) => `<line x1="${xs(v)}" x2="${xs(v)}" y1="${y0}" y2="${y1}" stroke="${c.accent}" stroke-width="2"/><path d="M${xs(v) - 7},${y1} l7,-11 l7,11 z" fill="${c.accent}"/>`;
+  // A small deterministic generator, so that a random draw can be repeated and redrawn on resize.
+  function rng(seed) { let a = seed >>> 0; return () => { a = (a + 0x6D2B79F5) >>> 0; let t = a; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
+  // k distinct values of 0..n-1, uniformly.
+  function pick(rand, n, k) { const s = new Set(); while (s.size < k) s.add(Math.floor(rand() * n)); return s; }
+
+  // ---------------------------------------------------------------- the model, as the propositions use it
+  // The compact model of the propositions: no vocabulary, no activations (as prop1 above).
+  const bare = (m, w = {}) => M.compact({ ...m, V: 0, fSC: 0 }, { ...W0, ...w }, { ...O0, ba: 0, bl: 0 }, REF.hw);
+  const C0 = bare(DG), NLAYERS = DG.layers.length, WE = O0.bw * M.expertParams(DG); // bytes of one expert
+  const expertsOf = (N) => M.distinctExperts(DG, N); // U_{E,k}(N)
+  // Weights an AR step and a TD pass read at batch B, split into the part every token reads and the experts touched.
+  function weights(B, b) {
+    const c = b === W0.b ? C0 : bare(DG, { b });
+    const WAR = c.WAR(B), WTD = c.WTD(B), eAR = NLAYERS * expertsOf(B) * WE, eTD = NLAYERS * expertsOf(B * b) * WE;
+    return { WAR, WTD, eAR, eTD, dense: WAR - eAR, PiE: expertsOf(B * b) / expertsOf(B), thetaE: eAR / WAR, Pi: WTD / WAR, Wtot: c.Wtot };
+  }
+
+  // The batch and the canvas are shared by the two figures on the experts.
+  const lin = { B: 1, b: 256, subs: [] };
+  const LB = [1, 2, 3, 4, 6, 8, 12, 16, 24, 32, 48, 64];
+  const setLin = (patch) => { Object.assign(lin, patch); lin.subs.forEach((f) => f()); };
+  function linControls(extra) {
+    const ctl = el('<div class="fig-controls"></div>');
+    const sB = slider('batch <i>B</i>', LB, LB.indexOf(lin.B), (v) => String(v));
+    sB.input.addEventListener('input', () => setLin({ B: sB.value }));
+    const bs = seg([8, 32, 256].map((v) => [v, String(v)]), lin.b, (v) => setLin({ b: v }));
+    ctl.append(sB.lab, segLabel('canvas length <i>b</i>', bs));
+    if (extra) ctl.append(extra);
+    lin.subs.push(() => { sB.set(lin.B); bs.querySelectorAll('button').forEach((x) => x.setAttribute('aria-pressed', String(x.textContent === String(lin.b)))); });
+    return ctl;
+  }
+
+  // ---------------------------------------------------------------- experts touched by a pass (Proposition 3)
+  function figExperts(root) {
+    const st = { seed: 7 };
+    const again = el('<button type="button" class="fig-btn">New draw</button>');
+    again.addEventListener('click', () => { st.seed += 1; draw(); });
+    const pic = el('<div></div>'), out = el('<div class="readout" aria-live="polite"></div>');
+    root.append(linControls(el('<div class="seg"></div>')), pic, out);
+    root.querySelector('.fig-controls > .seg').appendChild(again);
+    function draw() {
+      const c = colors(), W = widthOf(pic), { B, b } = lin, E = DG.E, k = DG.k, cols = 16, rows = E / cols;
+      const gap = W < 480 ? 14 : 44, cell = Math.min(19, Math.floor((W - gap) / 2 / cols)), gw = cell * cols, x0 = Math.round((W - 2 * gw - gap) / 2);
+      // One draw: every token picks k of the E experts uniformly; the AR step's B tokens are the first B of the draw.
+      const rand = rng(st.seed * 7919 + 13), ar = new Set(), td = new Set(), N = B * b;
+      for (let t = 0; t < N && td.size < E; t++) { const s = pick(rand, E, k); s.forEach((e) => { td.add(e); if (t < B) ar.add(e); }); }
+      let s = `<svg viewBox="0 0 ${W} ${rows * cell + 66}" role="img" aria-label="Experts of one layer touched by an AR step of ${B} tokens (${ar.size} of ${E}) and by a TD pass of ${N} positions (${td.size} of ${E})">`;
+      const grid = (gx, set, col, title, n, cls) => {
+        let g = `<text x="${gx}" y="14" class="${cls}">${title}</text><text x="${gx}" y="29">${n}</text>`;
+        for (let e = 0; e < E; e++) {
+          const x = gx + (e % cols) * cell, y = 38 + Math.floor(e / cols) * cell, on = set.has(e);
+          g += `<rect x="${x + 1}" y="${y + 1}" width="${cell - 2}" height="${cell - 2}" rx="2" fill="${on ? col : 'none'}" stroke="${on ? col : c.muted}" stroke-opacity="${on ? 1 : 0.45}"/>`;
+        }
+        return `${g}<text x="${gx}" y="${38 + rows * cell + 17}" class="ink">${set.size} of ${E} touched</text>`;
+      };
+      s += grid(x0, ar, c.ar, 'AR step', `${B} token${B > 1 ? 's' : ''}, ${k} experts each`, 'ar');
+      s += grid(x0 + gw + gap, td, c.td, 'TD pass', `${B} × ${b} = ${N.toLocaleString('en-US')} positions`, 'td');
+      pic.innerHTML = `${s}</svg>`;
+      const w = weights(B, b);
+      out.innerHTML = `In expectation, an <span class="ar">AR step</span> at batch ${B} touches <i>U</i><sub>E,k</sub>(${B}) = <b>${fmt(expertsOf(B))}</b> experts per layer and a <span class="td">TD pass</span> <i>U</i><sub>E,k</sub>(${N.toLocaleString('en-US')}) = <b>${fmt(expertsOf(N))}</b>, so ${hsub('Π', 'E')} = ${fmt(expertsOf(N))}/${fmt(expertsOf(B))} = <b>${gx(w.PiE)}</b>.<br>`
+        + `<span class="big">The experts are ${hsub('θ', 'E')} = ${pct(w.thetaE)} of the weights an AR step reads, so ${hsub('Π', 'lin')} = 1 + ${hsub('θ', 'E')}(${hsub('Π', 'E')} − 1) = <b>${gx(w.Pi)}</b>.</span>`;
+    }
+    lin.subs.push(draw);
+    draw(); onTheme(draw); watchWidth(pic, draw);
+  }
+
+  // ---------------------------------------------------------------- weights read by a pass (Proposition 3)
+  function figWeights(root) {
+    const pic = el('<div></div>'), out = el('<div class="readout" aria-live="polite"></div>');
+    root.append(linControls(), pic, out);
+    function draw() {
+      const c = colors(), W = widthOf(pic), { B, b } = lin, w = weights(B, b), narrow = W < 480;
+      const m = { l: narrow ? 8 : 92, r: 16 }, xs = scale(0, 52e9, m.l, W - m.r, false), bh = 30;
+      const rowsY = narrow ? [44, 122] : [30, 92], H = rowsY[1] + bh + 46;
+      let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Weights read by one pass at batch ${B}: AR step ${gbs(w.WAR)} GB, TD pass ${gbs(w.WTD)} GB">`;
+      for (const v of [0, 10, 20, 30, 40, 50]) s += `<line x1="${xs(v * 1e9)}" x2="${xs(v * 1e9)}" y1="${rowsY[0] - 10}" y2="${rowsY[1] + bh + 8}" stroke="${c.rule}"/><text x="${xs(v * 1e9)}" y="${rowsY[1] + bh + 22}" text-anchor="middle">${v}</text>`;
+      s += `<text x="${(m.l + W - m.r) / 2}" y="${H - 6}" text-anchor="middle" class="ink">weights read by one pass, GB${narrow ? '' : ' (BF16, no vocabulary)'}</text>`;
+      s += `<line x1="${xs(w.Wtot)}" x2="${xs(w.Wtot)}" y1="${rowsY[0] - 14}" y2="${rowsY[1] + bh + 8}" stroke="${c.muted}" stroke-dasharray="3 4"/><text x="${xs(w.Wtot) - 4}" y="${rowsY[0] - 16}" text-anchor="end">every weight: ${gbs(w.Wtot)} GB</text>`;
+      const row = (y, name, cls, col, experts, total) => {
+        let g = narrow ? `<text x="${m.l}" y="${y - 8}" class="${cls}">${name}</text>` : `<text x="${m.l - 8}" y="${y + bh / 2 + 4}" text-anchor="end" class="${cls}">${name}</text>`;
+        g += `<rect x="${xs(0)}" y="${y}" width="${xs(w.dense) - xs(0)}" height="${bh}" fill="${c.muted}" fill-opacity="0.55"/>`;
+        g += `<rect x="${xs(w.dense)}" y="${y}" width="${Math.max(1, xs(w.dense + experts) - xs(w.dense))}" height="${bh}" fill="${col}"/>`;
+        const xe = xs(total), inside = xe > W - m.r - 62;
+        g += `<text x="${inside ? xe - 6 : xe + 6}" y="${y + bh / 2 + 4}" text-anchor="${inside ? 'end' : 'start'}" class="strong"${inside ? ` style="fill:${c.bg}"` : ''}>${gbs(total)} GB</text>`;
+        return g;
+      };
+      s += row(rowsY[0], 'AR step', 'ar', c.ar, w.eAR, w.WAR);
+      s += row(rowsY[1], 'TD pass', 'td', c.td, w.eTD, w.WTD);
+      const ly = (rowsY[0] + bh + rowsY[1]) / 2 + (narrow ? -12 : 4);
+      s += `<rect x="${xs(0)}" y="${ly - 9}" width="10" height="10" fill="${c.muted}" fill-opacity="0.55"/><text x="${xs(0) + 15}" y="${ly}">read by every token: ${gbs(w.dense)} GB</text>`;
+      if (!narrow) s += `<rect x="${xs(0) + 230}" y="${ly - 9}" width="10" height="10" fill="${c.ar}"/><rect x="${xs(0) + 242}" y="${ly - 9}" width="10" height="10" fill="${c.td}"/><text x="${xs(0) + 257}" y="${ly}">experts touched</text>`;
+      pic.innerHTML = `${s}</svg>`;
+      out.innerHTML = `At batch ${B}, both passes read the ${gbs(w.dense)} GB that every token uses (attention and dense layers, routers). An <span class="ar">AR step</span> adds ${gbs(w.eAR)} GB of experts and a <span class="td">TD pass</span> of ${b} positions per sequence ${gbs(w.eTD)} GB, ${hsub('Π', 'E')} = ${gx(w.PiE)} times as much.<br>`
+        + `<span class="big">${hsub('Π', 'lin')} = ${hsub('W', 'TD')}/${hsub('W', 'AR')} = ${gbs(w.WTD)}/${gbs(w.WAR)} = <b>${gx(w.Pi)}</b>.</span> ${w.Pi < 1.1 ? 'The batch alone touches almost every expert, and the penalty is gone.' : `The shared ${gbs(w.dense)} GB dilute the expert ratio ${gx(w.PiE)} to ${gx(w.Pi)}.`}`;
+    }
+    lin.subs.push(draw);
+    draw(); onTheme(draw); watchWidth(pic, draw);
+  }
+
+  // ---------------------------------------------------------------- where the weights dominate (Proposition 4)
+  // C_lin(B, x): the context up to which the weights are at least a share x of a pass's bytes.
+  const clin = (WB, x) => (((1 - x) / x) * WB - C0.nuS * C0.r) / C0.nuG;
+  const BS = Array.from({ length: 65 }, (_, i) => 2 ** (i / 8)); // batch 1 to 256
+  const BMARK = [1, 2, 4, 8, 16, 32, 64, 128, 256];
+  function figLinMap(root) {
+    const st = { i: 3 };
+    const pic = el('<div></div>'), out = el('<div class="readout" aria-live="polite"></div>');
+    root.append(pic, out);
+    const ar = (B, x) => clin(C0.WAR(B) / B, x), td = (B, x) => clin(C0.WTD(B) / B, x);
+    draggable(pic, () => st.xs, BMARK, () => st.i, (i) => { st.i = i; draw(); });
+    function draw() {
+      const c = colors(), W = widthOf(pic), H = 340, m = { l: 50, r: 16, t: 14, b: 42 }, B = BMARK[st.i];
+      const xs = scale(1, 256, m.l, W - m.r), ylo = 1024, yhi = 2 ** 21, ys = scale(ylo, yhi, H - m.b, m.t);
+      const yc = (v) => ys(Math.max(ylo, Math.min(yhi, v)));
+      const path = (f) => BS.map((b2) => `${xs(b2)},${yc(f(b2))}`).join(' ');
+      const area = (f) => `${xs(1)},${ys(ylo)} ${path(f)} ${xs(256)},${ys(ylo)}`;
+      let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Context up to which the weights are at least 90% and 50% of a pass's bytes, against batch">`;
+      s += `<polygon points="${area((b2) => ar(b2, 0.5))}" fill="${c.ar}" fill-opacity="0.13"/><polygon points="${area((b2) => ar(b2, 0.9))}" fill="${c.ar}" fill-opacity="0.2"/>`;
+      for (const v of [1024, 4096, 16384, 65536, 262144, 1 << 20]) s += `<line x1="${m.l}" x2="${W - m.r}" y1="${ys(v)}" y2="${ys(v)}" stroke="${c.rule}"/><text x="${m.l - 6}" y="${ys(v) + 4}" text-anchor="end">${v >= 1 << 20 ? '1M' : `${v / 1024}k`}</text>`;
+      for (const v of BMARK) s += `<text x="${xs(v)}" y="${H - m.b + 15}" text-anchor="middle">${v}</text>`;
+      s += `<text x="${(m.l + W - m.r) / 2}" y="${H - 6}" text-anchor="middle" class="ink">batch B (log scale)</text>`;
+      s += `<text x="12" y="${(m.t + H - m.b) / 2}" text-anchor="middle" transform="rotate(-90 12 ${(m.t + H - m.b) / 2})" class="ink">context C, tokens (log scale)</text>`;
+      s += `<polyline fill="none" stroke="${c.td}" stroke-width="2" stroke-dasharray="6 4" points="${path((b2) => td(b2, 0.5))}"/>`;
+      s += `<polyline fill="none" stroke="${c.ar}" stroke-width="2.2" points="${path((b2) => ar(b2, 0.5))}"/><polyline fill="none" stroke="${c.ar}" stroke-width="1.4" points="${path((b2) => ar(b2, 0.9))}"/>`;
+      const small = W < 480;
+      s += `<text class="ink halo" x="${xs(small ? 1.15 : 1.3)}" y="${ys(1700)}">weights ≥ 90%${small ? '' : " of an AR step's bytes"}</text>`;
+      s += `<text class="ink halo" x="${xs(small ? 1.15 : 1.3)}" y="${ys(60000)}">weights ≥ 50%</text>`;
+      s += `<text class="ink halo" x="${W - m.r - 6}" y="${ys(400000)}" text-anchor="end">${small ? 'KV cache > 50% of AR bytes' : "the KV cache is most of an AR step's bytes"}</text>`;
+      s += `<text class="td halo" x="${xs(1.3)}" y="${yc(td(1.3, 0.5)) - 8}">TD pass: weights ≥ 50% below this line</text>`;
+      s += `<g class="drag" tabindex="0" role="slider" aria-label="Batch" aria-valuemin="1" aria-valuemax="256" aria-valuenow="${B}" aria-valuetext="batch ${B}"><rect x="${m.l}" y="${m.t}" width="${W - m.r - m.l}" height="${H - m.b - m.t}" fill="transparent"/>${marker(xs, B, m.t, H - m.b, c)}`;
+      for (const [f, col] of [[ar(B, 0.9), c.ar], [ar(B, 0.5), c.ar], [td(B, 0.5), c.td]]) if (f >= ylo && f <= yhi) s += `<circle cx="${xs(B)}" cy="${ys(f)}" r="4.5" fill="${col}" stroke="${c.bg}" stroke-width="1.5"/>`;
+      pic.innerHTML = `${s}</g></svg>`;
+      st.xs = xs;
+      // "up to C = ..." or, when the full windows alone exceed the complementary share, no context at all
+      const upTo = (v, rest) => (v <= C0.r ? `at no context (the full windows alone exceed ${rest}% of the bytes)` : `up to <b>C = ${kTok(v)}</b>`);
+      out.innerHTML = `At <b>batch ${B}</b>, the weights are at least 90% of an <span class="ar">AR step</span>'s bytes ${upTo(ar(B, 0.9), 10)} and at least half ${upTo(ar(B, 0.5), 50)}. A <span class="td">TD pass</span> reads ${hsub('Π', 'lin')}(${B}) = ${gx(C0.Pi(B))} times the weights of an AR step, and they are at least half of its bytes ${upTo(td(B, 0.5), 50)}.`;
+    }
+    draw(); onTheme(draw); watchWidth(pic, draw);
+  }
+
+  // ---------------------------------------------------------------- what a pass reads of one sequence's cache (Table 4)
+  // A toy cache: columns are the cached tokens of one sequence, rows are the queries of a pass. A filled cell
+  // is a (query, key) pair that the layer scores, so FLOPs count cells; bytes count the columns that hold one.
+  function figAttnRead(root) {
+    const TOY = { C: 40, w: 10, m: 5 }, st = { kind: 'dense', b: 6, seed: 3 };
+    const kinds = seg([['dense', 'dense'], ['window', 'sliding window'], ['sparse', 'sparse (DSA)']], st.kind, (v) => { st.kind = v; draw(); });
+    const sb = slider('canvas queries <i>b</i> (toy)', [2, 3, 4, 5, 6, 7, 8], st.b - 2, (v) => String(v));
+    sb.input.addEventListener('input', () => { st.b = sb.value; draw(); });
+    const again = el('<button type="button" class="fig-btn">New selections</button>');
+    again.addEventListener('click', () => { st.seed += 1; draw(); });
+    const ctl = el('<div class="fig-controls"></div>'), tools = el('<div class="seg"></div>');
+    tools.appendChild(again);
+    ctl.append(segLabel('layer', kinds), sb.lab, tools);
+    const pic = el('<div></div>'), out = el('<div class="readout" aria-live="polite"></div>');
+    root.append(ctl, pic, out);
+    function draw() {
+      const c = colors(), W = widthOf(pic), { C, w, m } = TOY, { kind, b } = st, sparse = kind === 'sparse';
+      again.hidden = !sparse;
+      const narrow = W < 520, x0 = narrow ? 6 : 140, cw = Math.floor((W - x0 - 6) / C), ch = 13, sh = 8;
+      const rand = rng(st.seed * 104729 + 5);
+      const sel = Array.from({ length: 8 }, () => pick(rand, C, m)).slice(0, b); // the same first selections whatever b
+      const reads = (q) => (kind === 'dense' ? () => true : kind === 'window' ? (s) => s >= C - w : (s) => sel[q].has(s));
+      const block = (y, name, cls, col, nq, title2) => {
+        let g = '', yy = y;
+        if (narrow) { g += `<text x="${x0}" y="${yy + 10}" class="${cls}">${name}: ${title2}</text>`; yy += 16; }
+        else g += `<text x="${x0 - 8}" y="${yy + 10}" text-anchor="end" class="${cls}">${name}, ${title2}</text>`;
+        const union = new Set();
+        for (let q = 0; q < nq; q++) {
+          const f = reads(q);
+          for (let s2 = 0; s2 < C; s2++) {
+            const on = f(s2); if (on) union.add(s2);
+            g += `<rect x="${x0 + s2 * cw + 0.5}" y="${yy + q * ch + 0.5}" width="${cw - 1}" height="${ch - 1}" fill="${on ? col : sparse ? col : 'none'}" fill-opacity="${on ? 1 : sparse ? 0.16 : 0}" stroke="${c.muted}" stroke-opacity="0.35" stroke-width="0.6"/>`;
+          }
+        }
+        yy += nq * ch + 6;
+        if (sparse) {
+          g += narrow ? '' : `<text x="${x0 - 8}" y="${yy + 7}" text-anchor="end">index keys read</text>`;
+          for (let s2 = 0; s2 < C; s2++) g += `<rect x="${x0 + s2 * cw + 0.5}" y="${yy}" width="${cw - 1}" height="${sh - 3}" fill="${col}" fill-opacity="0.35"/>`;
+          yy += sh + 2;
+        }
+        g += narrow ? '' : `<text x="${x0 - 8}" y="${yy + 8}" text-anchor="end">keys, values read</text>`;
+        for (let s2 = 0; s2 < C; s2++) g += `<rect x="${x0 + s2 * cw + 0.5}" y="${yy}" width="${cw - 1}" height="${sh}" fill="${union.has(s2) ? c.ink : 'none'}" fill-opacity="0.8" stroke="${c.muted}" stroke-opacity="0.35" stroke-width="0.6"/>`;
+        yy += sh;
+        if (narrow) { g += `<text x="${x0}" y="${yy + 13}">${sparse ? 'bars: index keys, then keys and values' : 'bar: keys and values read'}</text>`; yy += 16; }
+        return { g, bottom: yy, cells: nq * (kind === 'dense' ? C : kind === 'window' ? w : m), cols: union.size };
+      };
+      let s = `<text x="${x0}" y="12">${narrow ? '' : 'the '}${C} cached tokens of one sequence${narrow ? '' : ', oldest first'}</text>`;
+      const a = block(22, 'AR step', 'ar', c.ar, 1, '1 query');
+      const t = block(a.bottom + 20, 'TD pass', 'td', c.td, b, `${b} queries`);
+      const H = t.bottom + 8;
+      pic.innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Cached tokens read by an AR step and by a TD pass in a ${kind} layer: ${a.cols} and ${t.cols} of ${C}">${s}${a.g}${t.g}</svg>`;
+      const expU = C * (1 - (1 - m / C) ** b);
+      const law = kind === 'dense'
+        ? `In a dense layer every query scores every cached token. The canvas scores ${b} times as many pairs and reads the same ${C} tokens, once: ${hsub('Π', 'attn')} = 1, and its intensity is <b>${b} times</b> that of an AR step (<i>b</i> times in general).`
+        : kind === 'window'
+          ? `In a sliding-window layer every query scores the last <i>w</i> = ${w} cached tokens. The canvas reads the same ${w} tokens, once: ${hsub('Π', 'attn')} = 1, and its intensity is <b>${b} times</b> that of an AR step. (Drawn as Table 4 counts it: the window of a later canvas position starts later and ends inside the canvas, and reads no other cached token.)`
+          : `In a sparse layer every query scans the index keys of all ${C} tokens (pale cells, one read of the index for the whole canvas) and then attends to its own <i>m</i> = ${m} selected tokens (full cells). The canvas reads the union of its ${b} selections, ${t.cols} tokens in this draw and <i>U</i><sub>C,m</sub>(${b}) = ${expU.toFixed(2)} in expectation, so on the selected tokens it reads ${hsub('Π', 'sel')} = ${expU.toFixed(2)}/${m} = <b>${gx(expU / m)}</b> times what an AR step reads, for ${b} times the pairs.`;
+      out.innerHTML = `<span class="ar">AR step</span>: ${a.cells} scored pairs${sparse ? ' on the selected tokens' : ''}, ${a.cols} tokens' keys and values read. <span class="td">TD pass</span>: ${t.cells} pairs, ${t.cols} tokens read.<br>${law}`;
+    }
+    draw(); onTheme(draw); watchWidth(pic, draw);
+  }
+
+  // ---------------------------------------------------------------- the penalty of a sparse layer (Proposition 5)
+  // A model whose attention is one sparse layer type, as in Table 6: constants of DiffusionGemma's global layers.
+  const SP = bare(M.MODELS.dgemma_sparse.build());
+  const CSP = Array.from({ length: 73 }, (_, i) => Math.round(1024 * 2 ** (i / 4))); // 1k to 268M
+  function figSparse(root) {
+    const st = { i: CSP.indexOf(1 << 17), b: 256 };
+    const ctl = el('<div class="fig-controls"></div>');
+    ctl.append(segLabel('canvas length <i>b</i>', seg([16, 64, 256].map((v) => [v, String(v)]), st.b, (v) => { st.b = v; draw(); })));
+    const pic = el('<div></div>'), out = el('<div class="readout" aria-live="polite"></div>');
+    root.append(ctl, pic, out);
+    const m = SP.msel, Is = SP.Istar;
+    const Un = (C, b) => (C <= m ? C : C * (1 - (1 - m / C) ** b));
+    const qAR = (C) => SP.nuI * C + SP.nuSp * Math.min(C, m), qTD = (C, b) => SP.nuI * C + SP.nuSp * Un(C, b);
+    const f = (C) => SP.aI * C + SP.aSp * Math.min(C, m);
+    const Pi = (C, b) => qTD(C, b) / qAR(C), Psel = (C, b) => Un(C, b) / Math.min(C, m);
+    draggable(pic, () => st.xs, CSP, () => st.i, (i) => { st.i = i; draw(); });
+    function draw() {
+      const c = colors(), W = widthOf(pic), H = 320, mg = { l: 46, r: 18, t: 16, b: 42 }, C = CSP[st.i], b = st.b;
+      const xs = scale(1024, 2 ** 28, mg.l, W - mg.r), ylo = 0.8, yhi = 400, ys = scale(ylo, yhi, H - mg.b, mg.t);
+      let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Penalty of a sparse layer against context, canvas of ${b}">`;
+      s += `<rect x="${xs(m)}" y="${mg.t}" width="${xs(b * m) - xs(m)}" height="${H - mg.b - mg.t}" fill="${c.soft}" opacity="0.6"/>`;
+      for (const v of [1, 10, 100]) s += `<line x1="${mg.l}" x2="${W - mg.r}" y1="${ys(v)}" y2="${ys(v)}" stroke="${c.rule}"/><text x="${mg.l - 6}" y="${ys(v) + 4}" text-anchor="end">${v}</text>`;
+      for (const v of [1 << 10, 1 << 14, 1 << 18, 1 << 22, 1 << 26]) s += `<text x="${xs(v)}" y="${H - mg.b + 15}" text-anchor="middle">${kctx(v)}</text>`;
+      s += `<text x="${(mg.l + W - mg.r) / 2}" y="${H - 6}" text-anchor="middle" class="ink">context C, tokens in the KV cache (log scale)</text>`;
+      s += `<text x="12" y="${(mg.t + H - mg.b) / 2}" text-anchor="middle" transform="rotate(-90 12 ${(mg.t + H - mg.b) / 2})" class="ink">penalty (log scale)</text>`;
+      for (const [v, t, anchor] of [[m, 'm', 'end'], [b * m, 'bm', 'start']]) s += `<line x1="${xs(v)}" x2="${xs(v)}" y1="${mg.t}" y2="${H - mg.b}" stroke="${c.muted}" stroke-dasharray="3 4"/><text x="${xs(v) + (anchor === 'end' ? -4 : 4)}" y="${mg.t + 11}" text-anchor="${anchor}" class="ink">C = ${t}</text>`;
+      s += `<line x1="${mg.l}" x2="${W - mg.r}" y1="${ys(b)}" y2="${ys(b)}" stroke="${c.muted}" stroke-dasharray="3 4"/><text x="${W - mg.r - 4}" y="${ys(b) - 5}" text-anchor="end">b = ${b}</text>`;
+      s += `<polyline fill="none" stroke="${c.ink}" stroke-width="1.6" stroke-dasharray="6 4" points="${CSP.map((x) => `${xs(x)},${ys(Psel(x, b))}`).join(' ')}"/>`;
+      s += `<polyline fill="none" stroke="${c.td}" stroke-width="2.4" points="${CSP.map((x) => `${xs(x)},${ys(Pi(x, b))}`).join(' ')}"/>`;
+      s += `<text class="td halo" x="${W - mg.r - 4}" y="${ys(Math.max(30, 0.2 * b))}" text-anchor="end">${sub('Π', 'attn')}${W < 480 ? '' : ": with the scan's index cache"}</text>`;
+      s += `<text class="ink halo" x="${xs(2 ** 27)}" y="${ys(Psel(2 ** 27, b)) + 17}" text-anchor="end">${sub('Π', 'sel')}${W < 480 ? '' : ': selected tokens only'}</text>`;
+      s += `<g class="drag" tabindex="0" role="slider" aria-label="Context" aria-valuemin="1024" aria-valuemax="${2 ** 28}" aria-valuenow="${C}" aria-valuetext="context ${kctx(C)} tokens"><rect x="${mg.l}" y="${mg.t}" width="${W - mg.r - mg.l}" height="${H - mg.b - mg.t}" fill="transparent"/>${marker(xs, C, mg.t, H - mg.b, c)}`;
+      s += `<circle cx="${xs(C)}" cy="${ys(Pi(C, b))}" r="4.5" fill="${c.td}" stroke="${c.bg}" stroke-width="1.5"/><circle cx="${xs(C)}" cy="${ys(Psel(C, b))}" r="4" fill="${c.ink}" stroke="${c.bg}" stroke-width="1.5"/>`;
+      pic.innerHTML = `${s}</g></svg>`;
+      st.xs = xs;
+      const IAR = f(C) / qAR(C), ITD = (b * f(C)) / qTD(C, b), om = W0.S + 1, tpf = b / om, P = Pi(C, b);
+      const gain = Math.min(ITD, Is) / (om * Math.min(IAR, Is));
+      out.innerHTML = `At <b>C = ${kctx(C)}</b>, a canvas of ${b} queries reads <i>U</i><sub>C,m</sub>(${b}) = ${kctx(Un(C, b))} selected tokens where one query reads ${kctx(Math.min(C, m))}: ${hsub('Π', 'sel')} = ${gx(Psel(C, b))}, and with the index cache <b>${hsub('Π', 'attn')} = ${gx(P)}</b>.<br>`
+        + `Attention intensities: ${hsub('I', 'AR')} = ${fmt(IAR)}, ${hsub('I', 'TD')} = <i>b</i> ${hsub('I', 'AR')}/${hsub('Π', 'attn')} = ${fmt(ITD)} (<span class="td">TD ${ITD >= Is ? 'compute' : 'memory'}-bound</span> on an H200, <i>I</i>* = ${fmt(Is)}). If attention dominated both decoders, Proposition 1 would give Γ = ${ITD >= Is ? `<i>I</i>*/(ω ${hsub('I', 'AR')})` : `TPF/${hsub('Π', 'attn')} = ${fmt(tpf)}/${gx(P)}`} = <b>${gx(gain)}</b>.`;
+    }
+    draw(); onTheme(draw); watchWidth(pic, draw);
+  }
+
+  // ---------------------------------------------------------------- attention's share of bytes and of FLOPs (Proposition 6)
+  const CSH = Array.from({ length: 41 }, (_, i) => Math.round(1024 * 2 ** (i / 4))); // 1k to 1M
+  const SHB = [1, 16, 64, 256];
+  function figShare(root) {
+    const st = { i: CSH.indexOf(1 << 14) };
+    const pic = el('<div></div>'), out = el('<div class="readout" aria-live="polite"></div>');
+    root.append(pic, out);
+    const bytes = (B, C) => C0.qkv(C) / (C0.WAR(B) / B + C0.qkv(C));
+    const flops = (C) => (C0.phi(C) - 2 * C0.Nact) / C0.phi(C);
+    draggable(pic, () => st.xs, CSH, () => st.i, (i) => { st.i = i; draw(); });
+    function draw() {
+      const c = colors(), W = widthOf(pic), H = 330, m = { l: 46, r: 18, t: 16, b: 42 }, C = CSH[st.i];
+      const xs = scale(1024, 1 << 20, m.l, W - m.r), ys = scale(0, 1, H - m.b, m.t, false);
+      let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Share of attention in the bytes of an AR step, for batches ${SHB.join(', ')}, and in the FLOPs of a position, against context">`;
+      for (const v of [0, 0.25, 0.5, 0.75, 1]) s += `<line x1="${m.l}" x2="${W - m.r}" y1="${ys(v)}" y2="${ys(v)}" stroke="${v === 0.5 ? c.muted : c.rule}"${v === 0.5 ? ' stroke-dasharray="3 4"' : ''}/><text x="${m.l - 6}" y="${ys(v) + 4}" text-anchor="end">${v * 100}%</text>`;
+      for (const v of [1024, 4096, 16384, 65536, 262144, 1 << 20]) s += `<text x="${xs(v)}" y="${H - m.b + 15}" text-anchor="middle">${v >= 1 << 20 ? '1M' : `${v / 1024}k`}</text>`;
+      s += `<text x="${(m.l + W - m.r) / 2}" y="${H - 6}" text-anchor="middle" class="ink">context C, tokens in the KV cache (log scale)</text>`;
+      s += `<text x="12" y="${(m.t + H - m.b) / 2}" text-anchor="middle" transform="rotate(-90 12 ${(m.t + H - m.b) / 2})" class="ink">share taken by attention</text>`;
+      const op = [1, 0.75, 0.55, 0.38];
+      SHB.forEach((B, k) => {
+        s += `<polyline fill="none" stroke="${c.ar}" stroke-opacity="${op[k]}" stroke-width="2.2" points="${CSH.map((x) => `${xs(x)},${ys(bytes(B, x))}`).join(' ')}"/>`;
+        // label each curve where it crosses 62%, to the left of it
+        const at = CSH.find((x) => bytes(B, x) >= 0.62) || CSH[CSH.length - 1];
+        s += `<text class="ar halo" x="${xs(at) - 6}" y="${ys(bytes(B, at)) - 5}" text-anchor="end" style="opacity:${0.55 + 0.45 * op[k]}">${W < 480 && B < 256 ? B : `B = ${B}`}</text>`;
+      });
+      s += `<polyline fill="none" stroke="${c.ink}" stroke-width="2.4" points="${CSH.map((x) => `${xs(x)},${ys(flops(x))}`).join(' ')}"/>`;
+      s += `<text class="ar halo" x="${m.l + 8}" y="${ys(1) + 14}">blue: bytes of an AR step, by batch</text>`;
+      s += `<text class="ink halo" x="${m.l + 8}" y="${ys(1) + 29}">black: FLOPs of a position, any batch</text>`;
+      s += `<g class="drag" tabindex="0" role="slider" aria-label="Context" aria-valuemin="1024" aria-valuemax="${1 << 20}" aria-valuenow="${C}" aria-valuetext="context ${kctx(C)} tokens"><rect x="${m.l}" y="${m.t}" width="${W - m.r - m.l}" height="${H - m.b - m.t}" fill="transparent"/>${marker(xs, C, m.t, H - m.b, c)}`;
+      SHB.forEach((B, k) => { s += `<circle cx="${xs(C)}" cy="${ys(bytes(B, C))}" r="4" fill="${c.ar}" fill-opacity="${op[k]}" stroke="${c.bg}" stroke-width="1.5"/>`; });
+      s += `<circle cx="${xs(C)}" cy="${ys(flops(C))}" r="4.5" fill="${c.ink}" stroke="${c.bg}" stroke-width="1.5"/>`;
+      pic.innerHTML = `${s}</g></svg>`;
+      st.xs = xs;
+      const sh = SHB.map((B) => bytes(B, C)), fl = flops(C), first = SHB.find((B, k) => sh[k] > 0.5 && fl < 0.5);
+      out.innerHTML = `At <b>C = ${kctx(C)}</b>, attention is ${SHB.map((B, k) => `${pct(sh[k])}`).join(', ')} of an <span class="ar">AR step</span>'s bytes at batches ${SHB.join(', ')}, and <b>${pct(fl)}</b> of a position's FLOPs at every batch.`
+        + (first ? ` From batch ${first} on, the cache is already most of the bytes while the linear layers still do most of the FLOPs: the attention-dominated gain does not apply yet.` : fl >= 0.5 ? ' Attention does most of the FLOPs here.' : ' The weights are still most of the bytes at every batch shown.');
+    }
+    draw(); onTheme(draw); watchWidth(pic, draw);
+  }
+
+  // ---------------------------------------------------------------- batch thresholds by accelerator (Part 5)
+  // Under Proposition 1 at zero context: a TD pass is compute-bound from B*_TD, AR is ahead from B_x.
+  function figThresholds(root) {
+        const pic = el('<div></div>'), out = el('<div class="readout" aria-live="polite"></div>');
+    root.append(pic, out);
+    const st = { id: 'h200' };
+    const om = W0.S + 1;
+    const rowsOf = () => ACCEL.map((id) => {
+      const h = HWBYID[id], Is = h.tflops / h.tbps;
+      const IAR = (B) => (2 * B * C0.Nact) / C0.WAR(B), ITD = (B) => (2 * B * W0.b * C0.Nact) / C0.WTD(B);
+      const solve = (f, target) => { if (f(1) >= target) return 1; let lo = 1, hi = 2; while (f(hi) < target && hi < 1e6) hi *= 2; for (let k = 0; k < 60; k++) { const mid = Math.sqrt(lo * hi); if (f(mid) < target) lo = mid; else hi = mid; } return hi; };
+      return { id, h, Is, bTD: solve(ITD, Is), bX: solve(IAR, Is / om), bAR: solve(IAR, Is) };
+    }).sort((a, b) => a.Is - b.Is);
+    function draw() {
+      const c = colors(), W = widthOf(pic), rows = rowsOf(), narrow = W < 520, rh = narrow ? 34 : 26;
+      const m = { l: narrow ? 8 : 150, r: 16, t: 30, b: 40 }, H = m.t + rows.length * rh + m.b;
+      const xs = scale(1, 4096, m.l, W - m.r);
+      let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="For each accelerator, the batches at which TD is ahead of AR under Proposition 1, the best batch and the parity batch">`;
+      for (const v of [1, 4, 16, 64, 256, 1024, 4096]) s += `<line x1="${xs(v)}" x2="${xs(v)}" y1="${m.t - 6}" y2="${H - m.b}" stroke="${c.rule}"/><text x="${xs(v)}" y="${H - m.b + 15}" text-anchor="middle">${v}</text>`;
+      s += `<text x="${(m.l + W - m.r) / 2}" y="${H - 6}" text-anchor="middle" class="ink">batch B (log scale)</text>`;
+      s += `<text x="${xs(1)}" y="14" class="td">TD ahead up to the parity batch ${sub('B', '×')}</text>`;
+      rows.forEach((r, k) => {
+        const y = m.t + k * rh + (narrow ? 12 : 0), on = r.id === st.id, mid = y + 9;
+        s += `<g class="row" data-id="${r.id}" tabindex="0" role="button" aria-pressed="${on}" aria-label="${r.h.label}" style="cursor:pointer"><rect x="0" y="${m.t + k * rh}" width="${W}" height="${rh}" fill="${on ? c.soft : 'transparent'}" opacity="0.7"/>`;
+        s += narrow ? `<text x="${m.l}" y="${y - 2}" class="${on ? 'strong' : 'ink'}">${r.h.label}</text>` : `<text x="${m.l - 10}" y="${mid + 4}" text-anchor="end" class="${on ? 'strong' : 'ink'}">${r.h.label}</text>`;
+        s += `<rect x="${xs(1)}" y="${mid - 5}" width="${Math.max(2, xs(r.bX) - xs(1))}" height="10" rx="2" fill="${c.td}" fill-opacity="0.55"/>`;
+        s += `<line x1="${xs(r.bX)}" x2="${xs(Math.min(4096, r.bAR))}" y1="${mid}" y2="${mid}" stroke="${c.ar}" stroke-width="2"/>`;
+        s += `<path d="M${xs(r.bTD)},${mid - 8} l5,8 l-5,8 l-5,-8 z" fill="${c.ink}"/>`;
+        if (r.bAR <= 4096) s += `<circle cx="${xs(r.bAR)}" cy="${mid}" r="4" fill="${c.ar}" stroke="${c.bg}" stroke-width="1.5"/>`;
+        s += '</g>';
+      });
+      pic.innerHTML = `${s}</svg>`;
+      pic.querySelectorAll('.row').forEach((g) => {
+        const choose = () => { st.id = g.dataset.id; draw(); pic.querySelector(`.row[data-id="${st.id}"]`).focus({ preventScroll: true }); };
+        g.addEventListener('click', choose);
+        g.addEventListener('keydown', (ev) => { if (ev.key === 'Enter' || ev.key === ' ') { choose(); ev.preventDefault(); } });
+      });
+      const r = rows.find((x) => x.id === st.id);
+      out.innerHTML = `<b>${r.h.label}</b>, <i>I</i>* = ${fmt(r.Is)}: a <span class="td">TD pass</span> is compute-bound from batch <b>${gx(r.bTD)}</b> (◆, the best batch), TD stays ahead up to the parity batch ${hsub('B', '×')} = <b>${fmt(r.bX)}</b> (end of the orange bar), and an <span class="ar">AR step</span> is compute-bound from batch <b>${fmt(r.bAR)}</b> (blue dot${r.bAR > 4096 ? ', beyond the axis' : ''}).`;
+    }
+    draw(); onTheme(draw); watchWidth(pic, draw);
   }
 
   // ---------------------------------------------------------------- quiz
@@ -685,7 +1023,10 @@
   initCards();
 
   // ---------------------------------------------------------------- mount
-  const FIGS = { quiz: figQuiz, accounting: figAccounting, reuse: figReuse, roofline: figRoofline, bestbatch: figBestBatch, context: figContext, accel: figAccel };
+  const FIGS = {
+    quiz: figQuiz, accounting: figAccounting, reuse: figReuse, roofline: figRoofline, bestbatch: figBestBatch, context: figContext, accel: figAccel,
+    experts: figExperts, weights: figWeights, linmap: figLinMap, attnread: figAttnRead, sparse: figSparse, share: figShare, thresholds: figThresholds,
+  };
   document.querySelectorAll('[data-fig]').forEach((root) => {
     try { FIGS[root.dataset.fig](root); } catch (e) { root.textContent = 'This figure failed to load.'; console.error(e); }
   });

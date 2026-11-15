@@ -23,7 +23,7 @@ sitemap: false
   <h3 id="exercise">7.1 A smaller canvas</h3>
   <p>Keep DiffusionGemma, the H200, \(S = 14\) and \(r = 1\) (so \(\omega = 15\)), but shrink the canvas from 256 to <b>\(b = 32\)</b>. The exact map below changes completely. Predict each feature from the propositions before opening its answer; every answer says where to look on the map.</p>
   <figure class="mapfig">
-    <figcaption>Figure 11. Exact TD/AR gain with a 32-token canvas · DiffusionGemma, H200, BF16, S = 14</figcaption>
+    <figcaption>Figure 18. Exact TD/AR gain with a 32-token canvas · DiffusionGemma, H200, BF16, S = 14</figcaption>
     <div class="maplegend" id="map-ex-legend"></div>
     <div class="chart" id="map-ex"></div>
   </figure>
@@ -56,7 +56,7 @@ sitemap: false
   <h3 id="ex-dense">7.2 A dense model</h3>
   <p>Now take a dense model, Llama 3.1 8B, on the same H200 with the same canvas (\(b = 256\), \(S = 14\), \(r = 1\)), and pair it with a TD twin that has no self-conditioning. A dense model has no MoE penalty, \(\Pi = 1\), and in BF16 its linear intensity is simply the batch: \(I_{\mathrm{lin}}(B) = 2BN/(2N) = B\).</p>
   <figure class="mapfig">
-    <figcaption>Figure 12. Exact TD/AR gain · Llama 3.1 8B and its TD twin, H200, BF16, b = 256, S = 14</figcaption>
+    <figcaption>Figure 19. Exact TD/AR gain · Llama 3.1 8B and its TD twin, H200, BF16, b = 256, S = 14</figcaption>
     <div class="maplegend" id="map-ex2-legend"></div>
     <div class="chart" id="map-ex2"></div>
   </figure>
@@ -78,7 +78,7 @@ sitemap: false
   <h3 id="ex-h20">7.3 A low-ridge accelerator</h3>
   <p>Back to DiffusionGemma with \(b = 256\) and \(S = 14\), but on an H20: 148 TFLOP/s of BF16, 4.0 TB/s and 96 GB. Its ridge point is \(I^\star = 148/4.0 = 37\), against 206 on the H200.</p>
   <figure class="mapfig">
-    <figcaption>Figure 13. Exact TD/AR gain · DiffusionGemma, H20, BF16, b = 256, S = 14</figcaption>
+    <figcaption>Figure 20. Exact TD/AR gain · DiffusionGemma, H20, BF16, b = 256, S = 14</figcaption>
     <div class="maplegend" id="map-ex3-legend"></div>
     <div class="chart" id="map-ex3"></div>
   </figure>
@@ -96,5 +96,11 @@ sitemap: false
 
 </section>
 <nav class="book-nav" aria-label="Chapters"><a class="prev" href="/notes/block-diffusion-rooflines-6f924020/calculator/"><span>Previous</span>6 · Calculator</a><a class="next" href="/notes/block-diffusion-rooflines-6f924020/effective/"><span>Next</span>8 · Effective rooflines</a></nav>
+<section class="book-comments" id="bdr-comments" data-repo="vdeborto/vdeborto.github.io" data-repo-id="MDEwOlJlcG9zaXRvcnkxMTY1OTk1ODA=" data-category="Announcements" data-category-id="DIC_kwDOBvMrHM4DLMnm" data-term="Block Diffusion Rooflines · Part 7 · Worked examples">
+  <h3>Comments</h3>
+  <p class="small">Questions and corrections on this chapter are welcome below. The thread is a GitHub Discussion of this site's repository, so posting needs a GitHub account. To cite the book, see the <a href="/notes/block-diffusion-rooflines-6f924020/#cite">citation</a> on its first page.</p>
+  <div class="comments-frame"></div>
+  <noscript><p class="small">The comment thread needs JavaScript.</p></noscript>
+</section>
 </div>
 {% endraw %}

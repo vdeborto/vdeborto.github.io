@@ -350,35 +350,78 @@ def fig_decoders():
     return svg(W, H, "In the same 15 passes AR commits 15 tokens and TD commits a canvas of 256", "".join(s))
 
 
-def fig_map():
-    W, H, cw, gap, x0 = 660, 306, 118, 12, 10
-    X = lambda i: x0 + i * (cw + gap)
-    y1, y2, h = 34, 200, 76
+# The book map: one box per part, every box a link to its chapter.
+MAP_TOP = [  # (x, width, [(slug, part label, title, lines)]); two entries are stacked in one column
+    (10, 100, [("setup", "PART 1", "Setup", ["costs F, Q,", "penalties"])]),
+    (122, 100, [("gain", "PART 2", "The gain", ["Prop. 1"])]),
+    (234, 126, [("linear", "PART 3", "Linear part", []), ("attention", "PART 4", "Attention part", [])]),
+    (372, 122, [("whole", "PART 5", "Whole picture", ["regimes, maps"])]),
+    (506, 144, [("calculator", "PART 6", "Calculator", []), ("examples", "PART 7", "Worked examples", [])]),
+]
+MAP_BOT = [("effective", "PART 8", "Effective rooflines", ["measured π, β", "and experts U"]),
+           ("stack", "PART 9", "Measurement stack", ["time per component"]),
+           ("kernels", "PART 10", "Kernels", ["two rewrites"]),
+           ("conclusion", "PART 11", "Conclusion", ["measured Γ", "against the bound"])]
+MAP_SIDE = [("summary", "Summary", "the results first"), ("appendix", "Appendix", "exact accounting, sources")]
+
+
+def linkbox(x, y, w, h, href, part, title, lines, col, tip):
+    """One part of the book: a box that is a link to its chapter."""
+    r = [f'<a href="{href}" class="pfig-link"><title>{tip}</title>'
+         f'<rect x="{x}" y="{y}" width="{w}" height="{h}" rx="6" fill="var(--bdr-surface)" stroke="{col}" stroke-width="1.4"/>']
+    yy = y + 16
+    r.append(f'<text x="{x + 10}" y="{yy}" font-size="10" letter-spacing=".06em" fill="{MUT}">{fits(part, 11, w - 20, "map")}</text>')
+    yy += 16
+    r.append(f'<text x="{x + 10}" y="{yy}" font-size="11.5" font-weight="600" fill="{INK}">{fits(title, 11.5, w - 20, "map")}</text>')
+    for t in lines:
+        yy += 15
+        r.append(f'<text x="{x + 10}" y="{yy}" font-size="11" fill="var(--bdr-ink-2)">{fits(t, 11, w - 20, "map")}</text>')
+    r.append("</a>")
+    return "".join(r)
+
+
+def fig_map(base=BOOK_URL):
+    W, H, y1, h1, y2, h2 = 660, 322, 30, 86, 190, 78
     s = [arrow_defs(1)]
-    s.append(f'<text x="{x0}" y="20" font-size="11" font-weight="600" letter-spacing=".06em" fill="{MUT}">ON PAPER · PARTS 1–7</text>')
-    s.append(f'<text x="{x0}" y="{y2 + 30}" font-size="11" font-weight="600" letter-spacing=".06em" fill="{MUT}">ON AN H200</text>')
-    s.append(f'<text x="{x0}" y="{y2 + 46}" font-size="11" font-weight="600" letter-spacing=".06em" fill="{MUT}">PARTS 8–11</text>')
-    top = [("PART 1", "Setup", ["costs F and Q,", "penalties"], "setup"), ("PART 2", "The gain", ["Proposition 1"], "gain"),
-           ("PARTS 3 · 4", "Two limits", ["weights, then", "the KV cache"], "linear"), ("PART 5", "All contexts", ["regimes, maps"], "whole"),
-           ("PARTS 6 · 7", "Calculator", ["and examples"], "calculator")]
-    bot = [("PART 8", "Rooflines", ["measured π, β", "and experts U"], "effective"), ("PART 9", "Measurement", ["time per", "component"], "stack"),
-           ("PART 10", "Kernels", ["two rewrites"], "kernels"), ("PART 11", "Conclusion", ["measured Γ", "against bound"], "conclusion")]
-    for i, (p, t, l, slug) in enumerate(top):
-        s.append(tbox(X(i), y1, cw, h, l, MUT, t, p, "map", BOOK_URL + slug + "/"))
+    s.append(f'<text x="10" y="18" font-size="11" font-weight="600" letter-spacing=".06em" fill="{MUT}">ON PAPER · PARTS 1–7</text>')
+    prev = None
+    for x, w, parts in MAP_TOP:
+        if len(parts) == 1:
+            slug, part, title, lines = parts[0]
+            s.append(linkbox(x, y1, w, h1, f"{base}{slug}/", part, title, lines, MUT, f"Go to {part.title()}: {title}"))
+        else:
+            hh = (h1 - 8) / 2
+            for j, (slug, part, title, lines) in enumerate(parts):
+                s.append(linkbox(x, y1 + j * (hh + 8), w, hh, f"{base}{slug}/", part, title, lines, MUT, f"Go to {part.title()}: {title}"))
+        if prev is not None:
+            s.append(f'<line x1="{prev + 1}" y1="{y1 + h1 / 2}" x2="{x - 1}" y2="{y1 + h1 / 2}" stroke="currentColor" marker-end="url(#pa1)"/>')
+        prev = x + w
+    s.append(f'<text x="170" y="{y2 - 12}" font-size="11" font-weight="600" letter-spacing=".06em" fill="{MUT}">ON AN H200 · PARTS 8–11</text>')
+    bw, gap, bx = 154, 12, 4
+    X = lambda i: bx + i * (bw + gap)
+    for i, (slug, part, title, lines) in enumerate(MAP_BOT):
+        s.append(linkbox(X(i), y2, bw, h2, f"{base}{slug}/", part, title, lines, TD, f"Go to {part.title()}: {title}"))
         if i:
-            s.append(f'<line x1="{X(i) - gap + 1}" y1="{y1 + h / 2}" x2="{X(i) - 1}" y2="{y1 + h / 2}" stroke="currentColor" marker-end="url(#pa1)"/>')
-    for i, (p, t, l, slug) in enumerate(bot, start=1):
-        s.append(tbox(X(i), y2, cw, h, l, TD, t, p, "map", BOOK_URL + slug + "/"))
-        if i > 1:
-            s.append(f'<line x1="{X(i) - gap + 1}" y1="{y2 + h / 2}" x2="{X(i) - 1}" y2="{y2 + h / 2}" stroke="currentColor" marker-end="url(#pa1)"/>')
-    cx1 = X(1) + cw / 2
-    s.append(f'<line x1="{cx1}" y1="{y1 + h + 2}" x2="{cx1}" y2="{y2 - 3}" stroke="currentColor" marker-end="url(#pa1)"/>')
-    s.append(f'<text x="{cx1 + 8}" y="{(y1 + h + y2) / 2 + 4}" font-size="11" fill="{MUT}">inputs of Prop. 1</text>')
-    xa, xb = X(3) + cw / 2, X(4) + cw / 2
-    s.append(f'<line x1="{xa}" y1="{y1 + h + 2}" x2="{xb}" y2="{y2 - 3}" stroke="currentColor" marker-end="url(#pa1)"/>')
-    s.append(f'<text x="{xb + 6}" y="{y1 + h + 26}" font-size="11" fill="{MUT}">maps to</text>')
-    s.append(f'<text x="{xb + 6}" y="{y1 + h + 40}" font-size="11" fill="{MUT}">compare</text>')
-    return svg(W, H, "Map of the book: Parts 1 to 7 bound the gain on paper; Parts 8 to 11 measure it on an H200 and compare", "".join(s))
+            s.append(f'<line x1="{X(i) - gap + 1}" y1="{y2 + h2 / 2}" x2="{X(i) - 1}" y2="{y2 + h2 / 2}" stroke="currentColor" marker-end="url(#pa1)"/>')
+    # Part 2's proposition takes its inputs from Part 8; Part 5's maps are compared in Part 11.
+    for (xa, xb, lab, dx) in ((140, 140, ["inputs of", "Prop. 1"], 10), (476, X(3) + 34, ["maps to", "compare"], -16)):
+        ya, yb = y1 + h1 + 2, y2 - 3
+        s.append(f'<line x1="{xa}" y1="{ya}" x2="{xb}" y2="{yb}" stroke="currentColor" marker-end="url(#pa1)"/>')
+        xm, ym = (xa + xb) / 2 + dx, (ya + yb) / 2
+        for j, t in enumerate(lab):
+            s.append(f'<text x="{xm}" y="{ym - 3 + j * 13}" font-size="10.5" fill="{MUT}"{' text-anchor="end"' if dx < 0 else ""}>{t}</text>')
+    yc = y2 + h2 + 18
+    s.append(f'<text x="10" y="{yc + 17}" font-size="11" font-weight="600" letter-spacing=".06em" fill="{MUT}">ALSO</text>')
+    cx = 58
+    for slug, title, what in MAP_SIDE:
+        label = f"{title}: {what}"
+        w = round(tw(label, 11) + 22)
+        s.append(f'<a href="{base}{slug}/" class="pfig-link"><title>Go to the {title}</title><rect x="{cx}" y="{yc}" width="{w}" height="26" rx="13" fill="var(--bdr-surface)" stroke="{MUT}" stroke-width="1.2"/>'
+                 f'<text x="{cx + 11}" y="{yc + 17}" font-size="11" fill="{INK}">{label}</text></a>')
+        cx += w + 12
+    if cx > W:
+        FIT.append(f"map: the chips need {cx} px, have {W}")
+    return svg(W, H, "Map of the book, each box a link to its chapter: Parts 1 to 7 bound the gain on paper; Parts 8 to 11 measure it on an H200 and compare", "".join(s))
 
 
 def fig_ladder(d):
@@ -403,6 +446,64 @@ def fig_ladder(d):
             s.append(f'<line x1="{xa}" y1="135" x2="{xa + gap - 4}" y2="135" stroke="currentColor" marker-end="url(#pa2)"/>')
             s.append(f'<text x="{x + bw + gap / 2}" y="20" text-anchor="middle" font-size="11" fill="{MUT}">{steps[i]}</text>')
     return svg(W, H, "From the book's bound to the measured gain in four steps, each changing one input", "".join(s))
+
+
+def fig_stack():
+    W, rh, pitch, y0 = 660, 58, 78, 30
+    ax, aw, bx, bw, cx, cw, bus = 6, 180, 222, 244, 500, 118, 638
+    ACC = "var(--accent)"
+    s = [arrow_defs(30), arrow_defs(31, ACC)]
+    for x, t in ((ax, "WHAT RUNS"), (bx, "WHAT ROOFSCOPE RECORDS THERE"), (cx, "WHICH GIVES")):
+        s.append(f'<text x="{x}" y="16" font-size="10.5" font-weight="600" letter-spacing=".06em" fill="{MUT}">{t}</text>')
+
+    def box(x, y, w, title, lines, col):
+        r = [f'<rect x="{x}" y="{y}" width="{w}" height="{rh}" rx="5" fill="var(--bdr-surface)" stroke="{col}" stroke-width="1.3"/>']
+        yy = y + 19
+        r.append(f'<text x="{x + 10}" y="{yy}" font-size="12" font-weight="600" fill="{INK}">{fits(title, 12, w - 20, "stack")}</text>')
+        for t in lines:
+            yy += 14
+            r.append(f'<text x="{x + 10}" y="{yy}" font-size="10.5" fill="var(--bdr-ink-2)">{fits(t, 10.5, w - 20, "stack")}</text>')
+        return "".join(r)
+
+    hat = lambda ch: ch + "\u0302"  # combining circumflex
+    stack = [("Workload", ["B prompts of C tokens"], "served by"),
+             ("Engine: vLLM 0.28", ["one forward pass per", "step, as a CUDA graph"], "calls"),
+             ("Model", ["30 layers: attention,", "MoE, vocabulary head"], "launches"),
+             ("Kernels", ["cuBLAS, FlashAttention,", "Triton"], "run on"),
+             ("Accelerator", ["one H200 SXM, 700 W cap"], None)]
+    reads = [None,
+             ("Wall clock of each pass", ["timed window, profiler off"], ("step time " + "<tspan font-style=\"italic\">t</tspan>", [])),
+             ("Counter in each MoE layer", ["tokens per expert, in every pass"], ("experts " + "<tspan font-style=\"italic\">U</tspan>", ["per layer"])),
+             ("Profiler trace", ["every kernel and its duration;", "its module, from an eager run"], ("time " + sub("<tspan font-style=\"italic\">t</tspan>", "c"), ["per component"])),
+             ("Microbenchmarks (Part 8)", ["highest FLOP rate and bandwidth", "that any kernel reached"], ("ceilings", [f"{hat('π')} and {hat('β')}"]))]
+    for i, (title, lines, verb) in enumerate(stack):
+        y = y0 + i * pitch
+        s.append(box(ax, y, aw, title, lines, MUT))
+        if verb:
+            xm = ax + 36
+            s.append(f'<line x1="{xm}" y1="{y + rh + 1}" x2="{xm}" y2="{y + pitch - 2}" stroke="currentColor" marker-end="url(#pa30)"/>')
+            s.append(f'<text x="{xm + 9}" y="{y + rh + 14}" font-size="10.5" fill="{MUT}">{verb}</text>')
+        if reads[i]:
+            rt, rl, (qt, ql) = reads[i]
+            s.append(box(bx, y, bw, rt, rl, ACC))
+            s.append(box(cx, y, cw, qt, ql, ACC))
+            ym = y + rh / 2
+            s.append(f'<line x1="{ax + aw + 1}" y1="{ym}" x2="{bx - 2}" y2="{ym}" stroke="{ACC}" marker-end="url(#pa31)"/>')
+            s.append(f'<line x1="{bx + bw + 1}" y1="{ym}" x2="{cx - 2}" y2="{ym}" stroke="{ACC}" marker-end="url(#pa31)"/>')
+            s.append(f'<line x1="{cx + cw}" y1="{ym}" x2="{bus}" y2="{ym}" stroke="{ACC}"/>')
+    yr = y0 + 5 * pitch + 2
+    s.append(f'<line x1="{bus}" y1="{y0 + pitch + rh / 2}" x2="{bus}" y2="{yr - 2}" stroke="{ACC}" marker-end="url(#pa31)"/>')
+    rw = W - bx - 6
+    s.append(f'<rect x="{bx}" y="{yr}" width="{rw}" height="68" rx="5" fill="var(--bdr-surface)" stroke="{INK}" stroke-width="1.5"/>')
+    it = lambda t: f'<tspan font-style="italic">{t}</tspan>'
+    tau, eta, F, Q, t = sub("τ", "c"), sub("η", "c"), sub(it("F"), "c"), sub(it("Q"), "c"), sub(it("t"), "c")
+    s.append(f'<text x="{bx + 10}" y="{yr + 19}" font-size="12" font-weight="600" fill="{INK}">Definition 7, for each component c</text>')
+    l1 = f'roofline time {tau} = max({F}/{hat("π")}, {Q}/{hat("β")}), with {F}, {Q} counted at {it("U")}'
+    l2 = f'efficiency {eta} = {tau}/{t};  for the step, η = Σ {tau}/{it("t")}'
+    for j, line in enumerate((l1, l2)):
+        fits(line.replace("\u0302", ""), 11, rw - 20, "stack")
+        s.append(f'<text x="{bx + 10}" y="{yr + 38 + j * 17}" font-size="11" fill="{INK}">{line}</text>')
+    return svg(W, yr + 76, "The serving stack from the workload down to the accelerator, what roofscope records at four of its levels, and the quantities of Definition 7 that each record gives", "".join(s))
 
 
 def fig_attrib():
@@ -656,39 +757,41 @@ def blocks():
         "decoders": fig("fig-decoders", "Figure 1", "In the same number of passes, AR commits one token per pass and TD a whole canvas.",
                         "", fig_decoders(),
                         "One sequence, DiffusionGemma's setting: a canvas of \\(b = 256\\) positions, \\(S = 14\\) denoising passes and one commit pass, so \\(\\omega = 15\\) passes per canvas and \\(\\mathrm{TPF} = b/\\omega = 17.1\\) tokens per forward pass. Each TD pass processes 256 positions instead of one, so it does more FLOPs and its positions touch more experts; Parts 1–5 weigh these costs against the shared read of the weights."),
-        "map": fig("fig-map", "Figure 2", "The book in two halves: bounds on paper, then measurements on one H200.", "", fig_map(),
-                   "Parts 1–7 derive the gain \\(\\Gamma\\) as a ratio of roofline bounds and map it over batch and context. Parts 8–11 take the inputs of those bounds from measurements, time every kernel of both decoders in vLLM, rewrite the two kernels that lag most, and compare the measured gain with the bound."),
+        "map": fig("fig-map", "Figure 2 · every box is a link", "The book in two halves: bounds on paper, then measurements on one H200.", "", fig_map(),
+                   "Parts 1–7 derive the gain \\(\\Gamma\\) as a ratio of roofline bounds and map it over batch and context. Parts 8–11 take the inputs of those bounds from measurements, time every kernel of both decoders in vLLM, rewrite the two kernels that lag most, and compare the measured gain with the bound. Select a box to open its chapter."),
         "ladder": fig("fig-ladder", "Figure 3", "From the book's bound to the measured gain in four steps.", "", fig_ladder(d),
                       "DiffusionGemma (TD) against Gemma 4 26B-A4B (AR) on one H200, FP8 weights, at two of the 25 measured points. (a) is the book's accounting at FP8 with datasheet rates and independent routing. Each later column changes one input. Part 8 maps (a)–(c) over batch and context, and Part 11 maps (c) and (d)."),
-        "roofline": fig("fig-eff-roofline", "Figure 14", "The measured roofline sits below the datasheet's, more in compute than in bandwidth.", "", fig_eff_roofline(d),
+        "roofline": fig("fig-eff-roofline", "Figure 21", "The measured roofline sits below the datasheet's, more in compute than in bandwidth.", "", fig_eff_roofline(d),
                         "Attainable throughput \\(\\min(\\pi, I\\beta)\\) against arithmetic intensity, log–log, for FP8 linear layers. Dashed: datasheet (1,979 TFLOP/s, 4.8 TB/s). Solid orange: empirical ceilings of Table 11. Blue: the attention ceiling, which applies to attention kernels whatever their intensity. The ridge point, where a kernel turns compute-bound, moves from 412 to 340 FLOP/byte."),
-        "routing": fig("fig-eff-routing", "Figure 15", "Both decoders touch fewer experts than independent routing predicts, for different reasons.", "", stepper("routing", [(f"context {kc(C)}", fig_eff_routing(d, C)) for C in d["Cs"]], "Context"),
+        "routing": fig("fig-eff-routing", "Figure 22", "Both decoders touch fewer experts than independent routing predicts, for different reasons.", "", stepper("routing", [(f"context {kc(C)}", fig_eff_routing(d, C)) for C in d["Cs"]], "Context"),
                        "Distinct experts per MoE layer and forward pass \\(U\\), averaged over the 30 layers and the timed passes, against batch size, at the context chosen above: the median of three repeats with different prompts, and the band spanning them. Dotted: independent tokens with uniform routing, \\(U_{E,k}(N)\\) of Definition 1. Dashed: independent tokens with each expert's measured popularity (Definition 6). AR follows the dashed curve; TD lies below it."),
-        "maps_abc": fig("fig-eff-maps", "Figure 16", "The gain bound moves with each measured input, and routing moves it most.", "",
+        "maps_abc": fig("fig-eff-maps", "Figure 23", "The gain bound moves with each measured input, and routing moves it most.", "",
                         stepper("maps-abc", [(t, f'<div class="pfig-grid"><div>{heat(d, k, t, sc4)}</div></div>') for k, t in
                                              [("roof_ind_ds", "(a) datasheet, independent routing"), ("roof_ind", "(b) empirical ceilings"), ("roof", "(c) and measured routing")]], "Map"),
-                        "Roofline bound on \\(\\Gamma\\) over batch \\(B\\) and context \\(C\\), with FP8 weights. Each map changes one input of the previous one. Orange: TD faster; blue: AR faster; the shade grows with \\(|\\log\\Gamma|\\) on one scale shared by Figures 16 and 25. Missing cells were not measured: the grid keeps \\(BC \\le 2^{21}\\) tokens, and TD's batches at \\((32, 64\\text{k})\\) and \\((64, 16\\text{k})\\) did not fit in memory."),
-        "eager": fig("fig-eager", "Figure 17", "In eager mode the GPU waits for each launch; a CUDA graph runs the kernels of a pass back to back.", "", fig_eager(),
+                        "Roofline bound on \\(\\Gamma\\) over batch \\(B\\) and context \\(C\\), with FP8 weights. Each map changes one input of the previous one. Orange: TD faster; blue: AR faster; the shade grows with \\(|\\log\\Gamma|\\) on one scale shared by Figures 23 and 33. Missing cells were not measured: the grid keeps \\(BC \\le 2^{21}\\) tokens, and TD's batches at \\((32, 64\\text{k})\\) and \\((64, 16\\text{k})\\) did not fit in memory."),
+        "eager": fig("fig-eager", "Figure 24", "In eager mode the GPU waits for each launch; a CUDA graph runs the kernels of a pass back to back.", "", fig_eager(),
                      "Four kernels of one forward pass, as in Part 8's small GEMMs: launching a kernel costs the CPU a few µs, and with 64 tokens or fewer a projection runs for 5–12 µs, so in eager mode the GPU waits a large share of the time. A CUDA graph replays the recorded sequence of kernels with one launch."),
-        "run": fig("fig-run", "Figure 18", "One measured point: a profiled window for the kernels, a timed window for the step time.", "", fig_run(),
+        "stack": fig("fig-stack", "Figure 25", "Each term of a component's efficiency is read at a different level of the serving stack.", "", fig_stack(),
+                     "Left: what runs when the engine serves a point \\((B, C)\\), from the prompts down to the accelerator. Middle: the four records roofscope takes, each at the level where the quantity exists. The engine's wall clock gives the step time \\(t\\); a counter in the model gives the experts touched, \\(U\\); the profiler's trace of kernels gives the time \\(t_c\\) of each component; and the microbenchmarks of Part 8 give the ceilings \\(\\hat\\pi\\) and \\(\\hat\\beta\\) of the accelerator. Definition 7 combines them: the FLOPs \\(F_c\\) and bytes \\(Q_c\\) of a component, counted by the cost model of Parts 1–7 at the measured \\(U\\), and the ceilings give its roofline time \\(\\tau_c\\), which is compared with \\(t_c\\). The rest of this section describes the two windows of a run (Figure 26) and the labelling of kernels (Figure 27)."),
+        "run": fig("fig-run", "Figure 26", "One measured point: a profiled window for the kernels, a timed window for the step time.", "", fig_run(),
                    "TD at one batch size \\(B\\) and context \\(C\\): the windows are the second to fifth canvases of the answer. The profiler slows the passes down, so the step time comes from the second window, where it is off. For AR the windows are 48 steps each, after 976 warm-up steps, which put AR's context at the middle of the windows at TD's."),
-        "attrib": fig("fig-attrib", "Figure 19", "Each kernel of the graph run takes its module from the eager run.", "", fig_attrib(),
+        "attrib": fig("fig-attrib", "Figure 27", "Each kernel of the graph run takes its module from the eager run.", "", fig_attrib(),
                       "A stretch of one layer, with simplified kernel names. In the eager run each kernel is recorded inside the profiler range of the module that launched it; in the graph run only inside the range of the whole pass. The same kernel can serve several modules, as the FP8 GEMM does here, so the match counts occurrences. Each module then belongs to one component. The compiler fuses the norm with its neighbours into a kernel of another name, which has no eager match and counts as outside the model."),
-        "flags": fig("fig-flags", "Figure 20", "A replayed CUDA graph reads the memory it saw at capture, so a tensor recreated at every step is never read.", "", fig_flags(),
+        "flags": fig("fig-flags", "Figure 28", "A replayed CUDA graph reads the memory it saw at capture, so a tensor recreated at every step is never read.", "", fig_flags(),
                      "DiffusionGemma passes a causal flag per sequence to the attention kernel: 0 for a bidirectional denoising pass, 1 for the causal commit pass. In vLLM 0.28 the flags lived in a bool buffer converted to int32 at every step; under CUDA graphs the attention kernels kept reading the copy made at capture."),
-        "moe": fig("fig-moe", "Figure 21", "The new expert path removes three passes over memory; its two GEMMs are as fast as vLLM's.", "", fig_moe(),
+        "moe": fig("fig-moe", "Figure 29", "The new expert path removes three passes over memory; its two GEMMs are as fast as vLLM's.", "", fig_moe(),
                    "One MoE layer at TD batch 32 (\\(Nk = 65{,}536\\) rows, each a (token, expert) pair). Each box is one step of the path, one kernel unless marked, in order; the orange number is what it writes to memory, read back by the next step."),
-        "pair": fig("fig-pair", "Figure 22", "Each thread block of the pair holds half of the head dimension; the only traffic between the two SMs is the partial score tile.", "", fig_pair(),
+        "pair": fig("fig-pair", "Figure 30", "Each thread block of the pair holds half of the head dimension; the only traffic between the two SMs is the partial score tile.", "", fig_pair(),
                     "Both blocks process the same 128 query rows. The orange arrows are the exchange: each block writes its \\(T_q \\times T_k\\) partial scores into the partner's shared memory and waits for the partner's before the softmax."),
-        "smem": fig("fig-smem", "Figure 23", "Splitting the head dimension makes room for a second pipeline stage.", "", fig_smem(),
+        "smem": fig("fig-smem", "Figure 31", "Splitting the head dimension makes room for a second pipeline stage.", "", fig_smem(),
                     "Shared memory per thread block, in KB, against the 227 KB of one SM. FA4 at head dimension 512 holds full-width tiles and fits one stage; a block of the pair holds half-width tiles and fits two stages of 64 keys plus two exchange buffers. With 80-token KV pages the fastest configuration uses the room differently, for one stage of 80-key tiles loaded by TMA (Table 16)."),
-        "maps_cd": fig("fig-conc-maps", "Figure 25", "The measured gain against the bound at measured routing and empirical ceilings.", "",
+        "maps_cd": fig("fig-conc-maps", "Figure 33", "The measured gain against the bound at measured routing and empirical ceilings.", "",
                        stepper("maps-cd", [(t, f'<div class="pfig-grid"><div>{heat(d, k, t, sc4)}</div></div>') for k, t in
                                            [("roof", "(c) bound, measured inputs"), ("measured", "(d) measured")]], "Map"),
-                       "Same scale as Figure 16. Medians of three repeats; the measured gain is TD's tokens per second over AR's at equal \\(B\\) and \\(C\\)."),
-        "dev": fig("fig-conc-dev", "Figure 26", "The bound is conservative up to batch 8 and optimistic from batch 16 on.", "", f'<div class="pfig-grid"><div>{dev}</div></div>',
+                       "Same scale as Figure 23. Medians of three repeats; the measured gain is TD's tokens per second over AR's at equal \\(B\\) and \\(C\\)."),
+        "dev": fig("fig-conc-dev", "Figure 34", "The bound is conservative up to batch 8 and optimistic from batch 16 on.", "", f'<div class="pfig-grid"><div>{dev}</div></div>',
                    "Measured gain over the bound (c), which equals \\(\\eta_{TD}/\\eta_{AR}\\) by Proposition 9. Orange where the measured gain exceeds the bound, blue where it falls short; the shade grows with the distance from 1 on its own log scale."),
-        "eta_maps": fig("fig-eta-maps", "Figure 24", "Each component's efficiency over batch and context, after the kernel work.", "",
+        "eta_maps": fig("fig-eta-maps", "Figure 32", "Each component's efficiency over batch and context, after the kernel work.", "",
                         stepper("eta", [(f"{dn} {cn}", f'<div class="pfig-grid"><div>{eta_heat(d, m, c, f"{dn}: {cn}")}</div></div>')
                                         for m, dn in (("td", "TD"), ("ar", "AR")) for c, cn in ETA_COMPS], "Component"),
                         "Efficiency \\(\\eta_c = \\tau_c/t_c\\) of each component \\(c\\), its empirical roofline time over its measured kernel time, medians of three repeats; the whole step is \\(\\eta_X = \\tau_X/t_X\\). The shade grows from 0 to 1. Time outside the model and idle time have no roofline and count only in the step."),
