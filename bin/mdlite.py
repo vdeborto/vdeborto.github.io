@@ -76,6 +76,14 @@ def _list(lines):
     return "".join(out)
 
 
+def starts_block(line: str) -> bool:
+    """A line that opens or closes a block element, or holds a comment or raw element: it ends a
+    paragraph. A line that starts with an inline tag (a link, </a>, <em>) does not."""
+    t = line.lstrip()
+    return t.startswith("\x00") or bool(re.match(r"</?(p|div|ul|ol|li|table|thead|tbody|tr|td|th|section|figure|figcaption|"
+                                                  r"details|summary|h[1-6]|blockquote|dl|dt|dd|header|footer|nav|aside|hr|pre|svg|script|style)\b", t, re.I))
+
+
 def _chunk(c: str, wrap: bool) -> str:
     lines = c.split("\n")
     s = c.strip()
@@ -104,9 +112,10 @@ def _chunk(c: str, wrap: bool) -> str:
         closed = re.compile(r"(</(p|h[1-6]|ul|ol|div|table|figure|section|details|blockquote|dl)>|-->|\x00\d+\x00)\s*$")
         while k < len(ls):
             ln = ls[k]
+            # a paragraph starts with text; its later lines may start with an inline tag (</a>, <em>)
             if ln.strip() and not ln.lstrip().startswith(("<", "\x00")) and (not out_ls or closed.search(out_ls[-1])):
                 j = k
-                while j < len(ls) and ls[j].strip() and not ls[j].lstrip().startswith(("<", "\x00")):
+                while j < len(ls) and ls[j].strip() and not starts_block(ls[j]):
                     j += 1
                 run = "\n".join(ls[k:j])
                 # text that closes an element opened earlier (the rest of a list item) is not a paragraph
