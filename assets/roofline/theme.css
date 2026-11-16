@@ -19,6 +19,10 @@
   --bdr-int-comp: #5a4fa0;
   --bdr-s3: #2f9a72;
   --bdr-s4: #b98410;
+  /* measured quantities (Parts 0, 8-11): their own hue, apart from TD, AR and the compute-bound purple */
+  --bdr-meas: #c453c8;
+  /* neutral highlight for markers and selected points (the site's --accent equals AR blue) */
+  --bdr-hi: #47464d;
   --bdr-font-body: "Source Serif 4", Charter, Georgia, serif;
   --bdr-font-ui: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
   --bdr-font-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
@@ -29,12 +33,14 @@
     --bdr-bg: #16171a; --bdr-surface: #1c1e22; --bdr-ink-2: #c4c2bc; --bdr-muted: #8d8f97; --bdr-accent-soft: #1d2a35;
     --bdr-ar: #9dc6e2; --bdr-td: #e39468; --bdr-critical: #e06c6c; --bdr-div-neg: #6fa3c7; --bdr-div-mid: #2a2b2e;
     --bdr-div-pos: #e39468; --bdr-int-mem: #4cc093; --bdr-int-comp: #9a90e6; --bdr-s3: #3bbf8b; --bdr-s4: #e0a83a;
+    --bdr-meas: #c24ba1; --bdr-hi: #c4c2bc;
   }
 }
 html[data-theme="dark"] {
   --bdr-bg: #16171a; --bdr-surface: #1c1e22; --bdr-ink-2: #c4c2bc; --bdr-muted: #8d8f97; --bdr-accent-soft: #1d2a35;
   --bdr-ar: #9dc6e2; --bdr-td: #e39468; --bdr-critical: #e06c6c; --bdr-div-neg: #6fa3c7; --bdr-div-mid: #2a2b2e;
   --bdr-div-pos: #e39468; --bdr-int-mem: #4cc093; --bdr-int-comp: #9a90e6; --bdr-s3: #3bbf8b; --bdr-s4: #e0a83a;
+    --bdr-meas: #c24ba1; --bdr-hi: #c4c2bc;
 }
 
 /* ---------------------------------------------------------------- page */
@@ -81,9 +87,9 @@ html { scroll-behavior: smooth; }
 .bdr .bdr-fig .fig-lede { font-size: .98rem; color: var(--bdr-ink-2); margin: 0 0 12px; }
 .bdr .bdr-fig .fig-cap { font-size: .9rem; line-height: 1.55; color: var(--bdr-ink-2); margin: 10px 0 8px; }
 .bdr .bdr-fig svg { display: block; width: 100%; height: auto; overflow: visible; user-select: none; -webkit-user-select: none; }
-.bdr .bdr-fig svg text { font-family: var(--bdr-font-ui); font-size: 11px; fill: var(--bdr-muted); }
+.bdr .bdr-fig svg text { font-family: var(--bdr-font-ui); font-size: 12px; fill: var(--bdr-muted); }
 .bdr .bdr-fig svg text.ink { fill: var(--ink); }
-.bdr .bdr-fig svg text.strong { fill: var(--ink); font-weight: 500; font-size: 12px; }
+.bdr .bdr-fig svg text.strong { fill: var(--ink); font-weight: 500; font-size: 12.5px; }
 .bdr .bdr-fig svg text.ar { fill: var(--bdr-ar); font-weight: 500; }
 .bdr .bdr-fig svg text.td { fill: var(--bdr-td); font-weight: 500; }
 .bdr .bdr-fig svg text.halo { paint-order: stroke; stroke: var(--bdr-bg); stroke-width: 4px; stroke-linejoin: round; }
@@ -92,7 +98,7 @@ html { scroll-behavior: smooth; }
 .bdr .bdr-fig svg .drag:focus { outline: none; }
 
 .bdr .fig-controls { display: flex; flex-wrap: wrap; gap: 10px 22px; align-items: end; margin: 4px 0 10px; }
-.bdr .fig-controls label { display: flex; flex-direction: column; gap: 2px; font: 12px var(--bdr-font-ui); color: var(--bdr-ink-2); min-width: 150px; flex: 1 1 150px; }
+.bdr .fig-controls label, .bdr .fig-controls .ctl { display: flex; flex-direction: column; gap: 2px; font: 12px var(--bdr-font-ui); color: var(--bdr-ink-2); min-width: 150px; flex: 1 1 150px; }
 .bdr .fig-controls label output { font: 500 13px var(--bdr-font-ui); color: var(--ink); }
 .bdr .fig-controls input[type=range] { width: 100%; accent-color: var(--accent); margin: 2px 0 0; }
 .bdr .fig-controls select { font: 13px var(--bdr-font-ui); padding: 4px 6px; border: 1px solid var(--rule); border-radius: 3px; background: var(--bdr-bg); color: var(--ink); }
@@ -111,6 +117,9 @@ html { scroll-behavior: smooth; }
 .bdr .readout .ar { color: var(--bdr-ar); font-weight: 500; }
 .bdr .readout .td { color: var(--bdr-td); font-weight: 500; }
 .bdr .readout .big { font-size: 15px; color: var(--ink); }
+/* shown under a figure's controls when its accelerator, shared within the page, is not the H200 that the text quotes */
+.bdr .hw-note { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; font: 12.5px/1.5 var(--bdr-font-ui); color: var(--bdr-ink-2); margin: -2px 0 8px; }
+.bdr .hw-note[hidden] { display: none; }
 .bdr .key-row { display: flex; flex-wrap: wrap; gap: 4px 16px; font: 12px var(--bdr-font-ui); color: var(--bdr-ink-2); margin: 0 0 4px; }
 .bdr .key-row i { display: inline-block; width: 14px; height: 3px; vertical-align: middle; margin-right: 6px; border-radius: 1px; }
 
@@ -142,12 +151,12 @@ html { scroll-behavior: smooth; }
 .bdr .quiz-dots span { width: 9px; height: 9px; border-radius: 50%; border: 1px solid var(--bdr-muted); }
 .bdr .quiz-dots span.ok { background: var(--bdr-int-mem); border-color: var(--bdr-int-mem); }
 .bdr .quiz-dots span.no { background: var(--bdr-critical); border-color: var(--bdr-critical); }
-.bdr .quiz-dots span.cur { outline: 2px solid var(--accent); outline-offset: 1px; }
+.bdr .quiz-dots span.cur { outline: 2px solid var(--bdr-hi); outline-offset: 1px; }
 
 /* Long inline math inside propositions scrolls within its box on narrow screens. */
 .bdr .box { overflow-x: auto; }
-.bdr .fig-controls label.wide { flex: 2 1 300px; }
-.bdr .fig-controls label > span:first-child { display: block; }
+.bdr .fig-controls label.wide, .bdr .fig-controls .ctl.wide { flex: 2 1 300px; }
+.bdr .fig-controls label > span:first-child, .bdr .fig-controls .ctl > span:first-child { display: block; }
 .bdr .fig-controls label.sel { flex: 0 1 230px; min-width: 0; }
 
 /* expandable TL;DR cards */
@@ -180,8 +189,8 @@ html { scroll-behavior: smooth; }
 .bdr .box-more { display: none; padding: 0; border: none; background: none; cursor: pointer; font: 500 11.5px var(--bdr-font-ui); letter-spacing: .06em; color: var(--accent); }
 .bdr .box-more:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .bdr.intuition .box-more { display: inline-block; }
-.bdr.intuition .box.prop:not(.open) > :not(.bdr-title):not(.gist):not(.box-more),
-.bdr.intuition .box.def:not(.open) > :not(.bdr-title):not(.gist):not(.box-more) { display: none; }
+.bdr.intuition .box.prop:not(.open) > :not(.bdr-title):not(.gist):not(.box-more):not(.keep),
+.bdr.intuition .box.def:not(.open) > :not(.bdr-title):not(.gist):not(.box-more):not(.keep) { display: none; }
 .bdr.intuition .box.prop:not(.open), .bdr.intuition .box.def:not(.open) { padding-bottom: 12px; }
 .bdr.intuition .box.open .box-more { margin-bottom: 8px; }
 
@@ -380,8 +389,8 @@ html { scroll-behavior: smooth; }
 @media print { .bdr .book-comments, .bdr .cite-copy { display: none; } }
 /* measured.js: one control per row, the label to the left of its buttons */
 .bdr .fig-controls.mctl { display: grid; grid-template-columns: max-content 1fr; gap: 8px 14px; align-items: center; }
-.bdr .fig-controls.mctl label, .bdr .fig-controls.mctl label.wide { display: contents; }
-.bdr .fig-controls.mctl label > span:first-child { font: 12px var(--bdr-font-ui); color: var(--bdr-ink-2); }
+.bdr .fig-controls.mctl label, .bdr .fig-controls.mctl label.wide, .bdr .fig-controls.mctl .ctl { display: contents; }
+.bdr .fig-controls.mctl label > span:first-child, .bdr .fig-controls.mctl .ctl > span:first-child { font: 12px var(--bdr-font-ui); color: var(--bdr-ink-2); }
 .bdr .fig-controls.mctl .seg button { padding: 3px 9px; font-size: 12.5px; }
 .bdr .mchart svg { width: 100%; height: auto; display: block; }
 /* tables that back a figure, collapsed under it */
@@ -464,9 +473,9 @@ html { scroll-behavior: smooth; }
 .bdr .readout .ro-l { color: var(--bdr-muted); }
 .bdr .readout .ro-v { color: var(--ink); font-variant-numeric: tabular-nums; }
 .bdr .readout .ro-l.td, .bdr .readout .ro-v.td { color: var(--bdr-td); }
-.bdr .readout .ro-l.meas, .bdr .readout .ro-v.meas { color: var(--bdr-int-comp); font-weight: 500; }
+.bdr .readout .ro-l.meas, .bdr .readout .ro-v.meas { color: var(--bdr-meas); font-weight: 500; }
 .bdr .readout .ro-l.ar, .bdr .readout .ro-v.ar { color: var(--bdr-ar); }
-.bdr .readout .ro-l.hi, .bdr .readout .ro-v.hi { color: var(--accent); font-weight: 500; }
+.bdr .readout .ro-l.hi, .bdr .readout .ro-v.hi { color: var(--ink); font-weight: 600; }
 @media (max-width: 520px) { .bdr .readout .ro-g { grid-template-columns: 1fr; } .bdr .readout .ro-v { margin-bottom: 3px; } }
 /* wide diagrams that scroll on narrow screens */
 .bdr .scroll-hint { font: 11.5px var(--bdr-font-ui); color: var(--bdr-muted); margin: 0 0 4px; }

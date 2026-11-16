@@ -18,14 +18,14 @@
 <!-- card:Linear penalty, -->
 <div class="card-more" hidden>
   <div class="eq">\[ \begin{gathered} \Pi_{\mathrm{lin}}(B) = \frac{W_{TD}(B)}{W_{AR}(B)},\\[4pt] W_{AR}(B) = W_{\mathrm{ne}} + L\,U_{E,k}(B)\,W^e,\\[2pt] W_{TD}(B) = W_{\mathrm{ne}} + L\,U_{E,k}(Bb)\,W^e,\\[4pt] U_{E,k}(N) = E\Bigl[1 - \bigl(1 - \tfrac{k}{E}\bigr)^{N}\Bigr]. \end{gathered} \]</div>
-  <p>\(U_{E,k}(N)\) is the expected number of distinct experts that \(N\) positions touch in one layer. A canvas routes \(Bb\) positions and touches almost all \(E = 128\); an AR step routes \(B\) and touches about \(kB\), with \(k = 8\). The dense part \(W_{\mathrm{ne}} = 1.66\)B is read by both and dilutes the ratio from \(E/k = 16\) to 7.9. Dense models have \(\Pi_{\mathrm{lin}} = 1\).</p>
+  <p>\(U_{E,k}(N)\) is the expected number of distinct experts that \(N\) positions touch in one layer. A canvas routes \(Bb\) positions and touches almost all \(E = 128\); an AR step routes \(B\) and touches about \(kB\) while \(kB \ll E\), with \(k = 8\). The dense part \(W_{\mathrm{ne}} = 1.66\)B is read by both and dilutes the ratio from \(E/k = 16\) to 7.9. Dense models have \(\Pi_{\mathrm{lin}} = 1\).</p>
   <div data-micro="lin"></div>
   <p class="card-link"><a href="#prop3">Proposition 3</a> · <a href="#def4">Definition 4</a></p>
 </div>
 <!-- card:Attention penalty, -->
 <div class="card-more" hidden>
   <div class="eq">\[ \begin{gathered} \Pi_{\mathrm{attn}}(C) - 1 = \frac{\nu_S\,\bigl[\,U_{C,m}(b) - m\,\bigr]}{Q^{AR}_{\mathrm{attn}}(C)},\\[4pt] U_{C,m}(b) = C\Bigl[1 - \bigl(1 - \tfrac{m}{C}\bigr)^{b}\Bigr] \quad (C \ge m). \end{gathered} \]</div>
-  <p>Only sparse layers contribute: each query selects its own \(m\) cached tokens, and the canvas reads the union, \(U_{C,m}(b)\) tokens, up to \(\min(bm, C)\). This is the MoE penalty again, with cached tokens in the role of experts and the canvas length in the role of the batch. It is 1 while \(C \le m\), largest for \(m \lt C \lesssim bm\), and returns to 1 as \(C \to \infty\), when the union stops growing and the indexer's scan carries the bytes.</p>
+  <p>Only sparse layers contribute: each query selects its own \(m\) cached tokens, and the canvas reads the union, \(U_{C,m}(b)\) tokens, up to \(\min(bm, C)\). This is the expert penalty \(\Pi_E\) again, with cached tokens in the role of experts and the canvas length in the role of the batch. It is 1 while \(C \le m\), largest for \(m \lt C \lesssim bm\), and returns to 1 as \(C \to \infty\), when the union stops growing and the indexer's scan carries the bytes.</p>
   <div data-micro="attn"></div>
   <p class="card-link"><a href="#prop5">Proposition 5</a> · <a href="#dsa">sparse attention</a></p>
 </div>
@@ -39,7 +39,7 @@
 <!-- card:Context, -->
 <div class="card-more" hidden>
   <div class="eq">\[ \begin{gathered} I_X = \theta^X_{\mathrm{lin}}\,I^X_{\mathrm{lin}} + \theta^X_{\mathrm{attn}}\,I^X_{\mathrm{attn}},\\[4pt] \theta^X_{\mathrm{attn}} = \frac{Q^X_{\mathrm{attn}}}{Q^X}. \end{gathered} \]</div>
-  <p>Each intensity is the byte-weighted average of its two parts (Proposition 2). As \(C\) grows, the cache's share \(\theta_{\mathrm{attn}}\) goes to 1 and the intensities go to their attention values: \(I_{AR} \to I_{\mathrm{attn}} = 8\) on DiffusionGemma's global layers, far below every ridge, and \(I_{TD} \to b\,I_{\mathrm{attn}} = 2{,}048\), above every ridge in this book.</p>
+  <p>Each intensity is the byte-weighted average of its two parts (Proposition 2). As \(C\) grows, the cache's share \(\theta^X_{\mathrm{attn}}\) goes to 1 and the intensities go to their attention values: \(I_{AR} \to I_{\mathrm{attn}} = 8\) on DiffusionGemma's global layers, far below every ridge, and \(I_{TD} \to b\,I_{\mathrm{attn}} = 2{,}048\), above every ridge in this book.</p>
   <div data-micro="context"></div>
   <p class="card-link"><a href="#prop2">Proposition 2</a> · <a href="#fig-context">Figure 13</a></p>
 </div>
@@ -59,7 +59,7 @@
 </div>
 <!-- card:AR memory-, TD compute-bound -->
 <div class="card-more" hidden>
-  <p>TD runs at the peak \(\pi\) and AR at \(I_{AR}\,\beta\), so TD's FLOPs run \(I^\star/I_{AR}\) times faster and it does \(\omega\) times as many. The gain is the compute that AR leaves idle, divided by TD's extra work. At short context \(I_{AR}\) grows with the batch and \(\Gamma\) reaches 1 near batch 109 (Proposition 1 at zero context; 118 in the exact accounting over a whole generation). At long context \(I_{AR} \to I_{\mathrm{attn}}\), and at any batch</p>
+  <p>TD runs at the peak \(\pi\) and AR at \(I_{AR}\,\beta\), so TD's FLOPs run \(I^\star/I_{AR}\) times faster and it does \(\omega\) times as many. The gain is the compute that AR leaves idle, divided by TD's extra work. At short context \(I_{AR}\) grows with the batch and \(\Gamma\) reaches 1 near batch 109. At long context \(I_{AR} \to I_{\mathrm{attn}}\), and at any batch</p>
   <div class="eq">\[ \Gamma \to \frac{I^\star}{\omega\,I_{\mathrm{attn}}} = \frac{206}{15 \times 8} = 1.72. \]</div>
   <p class="card-link"><a href="#prop7">Proposition 7</a> · <a href="#fig-accel">Figure 16</a></p>
 </div>

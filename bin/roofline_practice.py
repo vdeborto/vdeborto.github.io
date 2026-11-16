@@ -3,7 +3,8 @@
 Imported by bin/build-roofline.py, which replaces each <!-- pfig:NAME --> placeholder in the
 note's text with blocks()[NAME]. Numbers come from _roofline/practice-data.json, written by
 ~/code/roofscope-campaign2/pages/book/export.py from the campaign-3 measurements (H200, vLLM 0.28,
-FP8 weights). Colours are the book's tokens: AR blue (--bdr-ar), TD orange (--bdr-td).
+FP8 weights). Colours are the book's tokens: AR blue (--bdr-ar), TD orange (--bdr-td), measured
+quantities magenta (--bdr-meas), neutral highlights --bdr-hi; bounds are drawn in ink.
 """
 import json
 import math
@@ -15,6 +16,7 @@ DATA = ROOT / "_roofline/practice-data.json"
 
 AR, TD, MUT, INK, RULE = "var(--bdr-ar)", "var(--bdr-td)", "var(--bdr-muted)", "var(--ink)", "var(--rule)"
 GREEN, AMBER, CRIT = "var(--bdr-s3)", "var(--bdr-s4)", "var(--bdr-critical)"
+MEAS, HI, INK2, BG = "var(--bdr-meas)", "var(--bdr-hi)", "var(--bdr-ink-2)", "var(--bdr-bg)"
 
 
 def f(x, n=2):
@@ -46,9 +48,10 @@ def _inline(m):
     return f'<text{rest} style="{css}">' if css else f"<text{rest}>"
 
 
-def svg(w, h, label, body, extra=""):
+def svg(w, h, label, body, extra="", role="img"):
+    """`role="group"` for a figure whose links must stay reachable by screen readers (role=img hides them)."""
     body = _TEXT.sub(_inline, body)
-    out = (f'<svg viewBox="0 0 {w} {h}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="{label}" '
+    out = (f'<svg viewBox="0 0 {w} {h}" xmlns="http://www.w3.org/2000/svg" role="{role}" aria-label="{label}" '
            f'class="pfig-svg{" pfig-wide" if w >= 560 else ""}" style="max-width:{w}px"{extra}>' + body + "</svg>")
     # wide diagrams keep a readable size on phones and scroll sideways instead of shrinking
     return f'<div class="pfig-scroll">{out}</div>' if w >= 560 else out
@@ -99,10 +102,10 @@ def heat(d, key, title, scale, Bs=None, Cs=None, fmtv=None, color=None, size=(62
     W, H = ml + cw * len(Cs) + 8, mt + ch * len(Bs) + 30
     s = [f'<text x="{ml}" y="16" font-size="12.5" font-weight="600" fill="{INK}">{title}</text>']
     for j, C in enumerate(Cs):
-        s.append(f'<text x="{ml + j * cw + cw / 2}" y="{mt - 8}" text-anchor="middle" font-size="11.5" fill="{MUT}">{kc(C)}</text>')
+        s.append(f'<text x="{ml + j * cw + cw / 2}" y="{mt - 8}" text-anchor="middle" font-size="12" fill="{MUT}">{kc(C)}</text>')
     for i, B in enumerate(reversed(Bs)):
         y = mt + i * ch
-        s.append(f'<text x="{ml - 8}" y="{y + ch / 2 + 4}" text-anchor="end" font-size="11.5" fill="{MUT}">B = {B}</text>')
+        s.append(f'<text x="{ml - 8}" y="{y + ch / 2 + 4}" text-anchor="end" font-size="12" fill="{MUT}">B = {B}</text>')
         for j, C in enumerate(Cs):
             r = g.get(f"{B},{C}")
             v = None if r is None else (key(r) if callable(key) else r.get(key))
@@ -110,14 +113,14 @@ def heat(d, key, title, scale, Bs=None, Cs=None, fmtv=None, color=None, size=(62
             x = ml + j * cw
             if v is None:
                 s.append(f'<rect x="{x + 1}" y="{y + 1}" width="{cw - 2}" height="{ch - 2}" rx="2" fill="{RULE}" fill-opacity="0.5"/>'
-                         f'<text x="{x + cw / 2}" y="{y + ch / 2 + 4}" text-anchor="middle" font-size="11.5" fill="{MUT}">–</text>')
+                         f'<text x="{x + cw / 2}" y="{y + ch / 2 + 4}" text-anchor="middle" font-size="12" fill="{MUT}">–</text>')
                 continue
             fill, a = (color or (lambda v: (TD if v >= 1 else AR, min(1, abs(math.log(v)) / scale))))(v)
             a = max(0.06, a)
             txt = "var(--bdr-bg)" if a > 0.55 else INK  # page background: white on dark cells, dark on bright cells in dark mode
             s.append(f'<rect x="{x + 1}" y="{y + 1}" width="{cw - 2}" height="{ch - 2}" rx="2" fill="{fill}" fill-opacity="{a:.2f}"><title>B = {B}, C = {kc(C)}: {(fmtv or (lambda v: f"{v:.2f}"))(v)}</title></rect>'
-                     f'<text x="{x + cw / 2}" y="{y + ch / 2 + 4}" text-anchor="middle" font-size="11.5" style="fill:{txt};font-weight:{600 if a > 0.55 else 400}">{(fmtv or (lambda v: f"{v:.2f}"))(v)}</text>')
-    s.append(f'<text x="{ml + cw * len(Cs) / 2}" y="{H - 6}" text-anchor="middle" font-size="11.5" fill="{MUT}">context C</text>')
+                     f'<text x="{x + cw / 2}" y="{y + ch / 2 + 4}" text-anchor="middle" font-size="12" style="fill:{txt};font-weight:{600 if a > 0.55 else 400}">{(fmtv or (lambda v: f"{v:.2f}"))(v)}</text>')
+    s.append(f'<text x="{ml + cw * len(Cs) / 2}" y="{H - 6}" text-anchor="middle" font-size="12" fill="{MUT}">context C</text>')
     return svg(W, H, title, "".join(s))
 
 
@@ -129,7 +132,7 @@ def stepper(name, panels, label="Show"):
             f'<span>{label}</span>{btns}</div>{body}</div>')
 
 
-ETA_COMPS = [("step", "whole step"), ("experts", "experts"), ("dense", "dense layers"), ("attnG", "global attention"),
+ETA_COMPS = [("step", "whole step"), ("experts", "experts"), ("dense", "dense GEMMs and router"), ("attnG", "global attention"),
              ("attnW", "window attention"), ("head", "head, sampler, self-cond.")]
 
 
@@ -192,7 +195,7 @@ def tbox(x, y, w, h, lines, col=MUT, title=None, part=None, where="", href=None)
         r.append(f'<text x="{x + 10}" y="{yy}" font-size="12.5" font-weight="600" fill="{INK}">{fits(title, 12.5, w - 20, where)}</text>')
         yy += 17
     for t in lines:
-        r.append(f'<text x="{x + 10}" y="{yy}" font-size="11" fill="var(--bdr-ink-2)">{fits(t, 11, w - 20, where)}</text>')
+        r.append(f'<text x="{x + 10}" y="{yy}" font-size="12" fill="var(--bdr-ink-2)">{fits(t, 12, w - 20, where)}</text>')
         yy += 15
     if href:
         r.append("</a>")
@@ -220,16 +223,16 @@ def fig_eff_roofline(d):
         out = f'<polyline points="{" ".join(f"{X(a)},{Y(b)}" for a, b in pts)}" fill="none" stroke="{col}" stroke-width="2.2" stroke-dasharray="{dash}"/>'
         out += f'<circle cx="{X(ridge)}" cy="{Y(pi / 1e12)}" r="3.5" fill="{col}"/>'
         ty = Y(pi / 1e12) - 10 if above else Y(pi / 1e12) + 20
-        out += f'<text x="{X(ridge) + 6}" y="{ty}" font-size="11.5" fill="{col}">ridge {ridge:.0f}</text>'
-        out += f'<text x="{W - mr + 8}" y="{Y(pi / 1e12) + 4 - (6 if above else -6)}" font-size="11.5" fill="{col}">{lab}</text>'
+        out += f'<text x="{X(ridge) + 6}" y="{ty}" font-size="12" fill="{col}">ridge {ridge:.0f}</text>'
+        out += f'<text x="{W - mr + 8}" y="{Y(pi / 1e12) + 4 - (6 if above else -6)}" font-size="12" fill="{col}">{lab}</text>'
         return out
     s.append(roof(1979e12, 4.8e12, MUT, "6 4", "datasheet FP8 1,979", True))
-    s.append(roof(ce["pi_fp8"], ce["beta"], TD, "", f"empirical FP8 {ce['pi_fp8'] / 1e12:,.0f}", False))
+    s.append(roof(ce["pi_fp8"], ce["beta"], MEAS, "", f"empirical FP8 {ce['pi_fp8'] / 1e12:,.0f}", False))
     pa = ce["pi_attn"] / 1e12
-    s.append(f'<line x1="{X(ce["pi_attn"] / ce["beta"])}" y1="{Y(pa)}" x2="{W - mr}" y2="{Y(pa)}" stroke="{AR}" stroke-width="2"/>')
-    s.append(f'<text x="{W - mr + 8}" y="{Y(pa) + 4}" font-size="11.5" fill="{AR}">attention {pa:,.0f}</text>')
-    s.append(f'<text x="{X(11)}" y="{Y(1500)}" font-size="11.5" fill="{MUT}">slope: bandwidth, 4.80 TB/s</text>')
-    s.append(f'<text x="{X(11)}" y="{Y(1500) + 16}" font-size="11.5" fill="{MUT}">datasheet, {ce["beta"] / 1e12:.2f} empirical</text>')
+    s.append(f'<line x1="{X(ce["pi_attn"] / ce["beta"])}" y1="{Y(pa)}" x2="{W - mr}" y2="{Y(pa)}" stroke="{INK}" stroke-width="2" stroke-dasharray="2 3"/>')
+    s.append(f'<text x="{W - mr + 8}" y="{Y(pa) + 4}" font-size="12" fill="{INK}">attention {pa:,.0f}</text>')
+    s.append(f'<text x="{X(11)}" y="{Y(1500)}" font-size="12" fill="{MUT}">slope: bandwidth, 4.80 TB/s</text>')
+    s.append(f'<text x="{X(11)}" y="{Y(1500) + 16}" font-size="12" fill="{MUT}">datasheet, {ce["beta"] / 1e12:.2f} empirical</text>')
     return svg(W, H, "The empirical FP8 roofline lies below the datasheet one, more in compute than in bandwidth, so its ridge point moves left", "".join(s))
 
 
@@ -251,12 +254,12 @@ def fig_eff_routing(d, C=1024):
         X = lambda i: ml + i / (len(Bs) - 1) * (W - ml - mr)
         Y = lambda u: mt + (1 - u / 140) * (H - mt - mb)
         s = [f'<text x="{ml - 40}" y="16" font-size="12.5" font-weight="600" fill="{col}">{fits(name, 12.5, W - 10, "routing")}</text>',
-             f'<text x="{ml - 36}" y="34" font-size="10.5" fill="{MUT}">distinct experts per layer, pass: U</text>']
+             f'<text x="{ml - 36}" y="34" font-size="12" fill="{MUT}">distinct experts per layer, pass: U</text>']
         for v in range(0, 141, 20):
-            s.append(f'<line x1="{ml}" y1="{Y(v)}" x2="{W - mr}" y2="{Y(v)}" stroke="{RULE}"/><text x="{ml - 6}" y="{Y(v) + 4}" text-anchor="end" font-size="11" fill="{MUT}">{v}</text>')
+            s.append(f'<line x1="{ml}" y1="{Y(v)}" x2="{W - mr}" y2="{Y(v)}" stroke="{RULE}"/><text x="{ml - 6}" y="{Y(v) + 4}" text-anchor="end" font-size="12" fill="{MUT}">{v}</text>')
         for i, B in enumerate(Bs):
-            s.append(f'<text x="{X(i)}" y="{H - mb + 16}" text-anchor="middle" font-size="11" fill="{MUT}">{B}</text>')
-        s.append(f'<text x="{(ml + W - mr) / 2}" y="{H - 8}" text-anchor="middle" font-size="11" fill="{MUT}">batch B</text>')
+            s.append(f'<text x="{X(i)}" y="{H - mb + 16}" text-anchor="middle" font-size="12" fill="{MUT}">{B}</text>')
+        s.append(f'<text x="{(ml + W - mr) / 2}" y="{H - 8}" text-anchor="middle" font-size="12" fill="{MUT}">batch B</text>')
         pts = [(i, R[mode].get(f"{B},{C}")) for i, B in enumerate(Bs)]
         pts = [(i, dict(v, meas=G[f"{Bs[i]},{C}"]["U_td" if mode == "td" else "U_ar"])) for i, v in pts if v and f"{Bs[i]},{C}" in G]
         band = " ".join(f"{X(i)},{Y(v['meas_hi'])}" for i, v in pts) + " " + " ".join(f"{X(i)},{Y(v['meas_lo'])}" for i, v in reversed(pts))
@@ -269,7 +272,7 @@ def fig_eff_routing(d, C=1024):
             s.append(f'<polyline points="{" ".join(f"{X(i)},{Y(v[key])}" for i, v in pts)}" fill="none" stroke="{c}" stroke-width="{w_}" stroke-dasharray="{dash}"/>')
             if key == "meas":
                 s += [f'<circle cx="{X(i)}" cy="{Y(v[key])}" r="3" fill="{c}"><title>B = {Bs[i]}: U = {v[key]:.1f} (repeats {v["meas_lo"]:.0f}–{v["meas_hi"]:.0f})</title></circle>' for i, v in pts]
-            s.append(f'<text x="{X(i_) + 8}" y="{yl}" font-size="11" fill="{c}">{lab}</text>')
+            s.append(f'<text x="{X(i_) + 8}" y="{yl}" font-size="12" fill="{c}">{lab}</text>')
         out.append(svg(W, H, f"{name}: distinct experts per layer against batch, measured and predicted for independent tokens", "".join(s)))
     return '<div class="pfig-pair">' + "".join(f"<div>{o}</div>" for o in out) + "</div>"
 
@@ -278,56 +281,55 @@ def fig_eff_routing(d, C=1024):
 
 
 def fig_eager():
-    """Eager mode against CUDA-graph replay: CPU and GPU lanes, same structure for both."""
-    W, H, x0, L, K, nx = 470, 214, 46, 46, 30, 306
+    """Eager mode against CUDA-graph replay: CPU and GPU lanes, same structure for both. Narrow enough
+    (300 px) to be drawn at full size on a phone; the notes sit under each pair of lanes."""
+    W, H, x0, L, K = 300, 236, 46, 50, 30
     s = [arrow_defs(9)]
-    def row(y0, title, launches, kernels, notes):
+    def row(y0, title, launches, kernels, note):
         r = [f'<text x="6" y="{y0}" font-size="12" font-weight="600" fill="{INK}">{title}</text>',
-             f'<text x="{x0 - 8}" y="{y0 + 23}" text-anchor="end" font-size="11" fill="{MUT}">CPU</text>',
-             f'<text x="{x0 - 8}" y="{y0 + 51}" text-anchor="end" font-size="11" fill="{MUT}">GPU</text>']
+             f'<text x="{x0 - 8}" y="{y0 + 23}" text-anchor="end" font-size="12" fill="{MUT}">CPU</text>',
+             f'<text x="{x0 - 8}" y="{y0 + 51}" text-anchor="end" font-size="12" fill="{MUT}">GPU</text>']
         for x, t in launches:
             r.append(f'<rect x="{x}" y="{y0 + 9}" width="{L}" height="20" rx="3" fill="none" stroke="{MUT}"/>'
-                     f'<text x="{x + L / 2}" y="{y0 + 23}" text-anchor="middle" font-size="10.5" fill="{INK}">{t}</text>')
+                     f'<text x="{x + L / 2}" y="{y0 + 23}" text-anchor="middle" font-size="12" fill="{INK}">{t}</text>')
         for x, t in kernels:
             r.append(f'<rect x="{x}" y="{y0 + 37}" width="{K}" height="20" rx="3" fill="{MUT}" fill-opacity="0.35"/>'
-                     f'<text x="{x + K / 2}" y="{y0 + 51}" text-anchor="middle" font-size="10.5" fill="{INK}">{t}</text>')
-        for k, t in enumerate(notes):
-            r.append(f'<text x="{nx}" y="{y0 + 23 + 28 * k}" font-size="11" fill="{MUT}">{fits(t, 11, W - nx - 2, "eager")}</text>')
+                     f'<text x="{x + K / 2}" y="{y0 + 51}" text-anchor="middle" font-size="12" fill="{INK}">{t}</text>')
+        r.append(f'<text x="{x0}" y="{y0 + 74}" font-size="12" fill="var(--bdr-ink-2)">{fits(note, 12, W - x0 - 2, "eager")}</text>')
         return "".join(r)
     s.append(row(14, "eager mode", [(x0 + i * (L + 4), "launch") for i in range(4)],
-                 [(x0 + L + i * (L + 4), f"k{i + 1}") for i in range(4)], ["a launch per kernel", "GPU waits"]))
-    s.append(row(106, "CUDA graph", [(x0, "replay")], [(x0 + L + i * (K + 2), f"k{i + 1}") for i in range(4)],
-                 ["one launch", "back to back"]))
-    s.append(f'<line x1="{x0}" y1="186" x2="{nx - 16}" y2="186" stroke="currentColor" marker-end="url(#pa9)"/>')
-    s.append(f'<text x="{(x0 + nx - 16) / 2}" y="206" text-anchor="middle" font-size="11" fill="{MUT}">time</text>')
+                 [(x0 + L + i * (L + 4), f"k{i + 1}") for i in range(4)], "a launch per kernel; GPU waits"))
+    s.append(row(110, "CUDA graph", [(x0, "replay")], [(x0 + L + i * (K + 2), f"k{i + 1}") for i in range(4)],
+                 "one launch; kernels back to back"))
+    s.append(f'<line x1="{x0}" y1="208" x2="{W - 8}" y2="208" stroke="currentColor" marker-end="url(#pa9)"/>')
+    s.append(f'<text x="{(x0 + W - 8) / 2}" y="228" text-anchor="middle" font-size="12" fill="{MUT}">time</text>')
     return svg(W, H, "In eager mode the CPU launches each kernel separately and the GPU waits between short kernels; a CUDA graph is launched once and its kernels run back to back", "".join(s))
-
 
 def fig_run():
     """One measured point: windows of passes in time order, and the eager run of the same point."""
-    W, H = 600, 236
+    W, H = 640, 236
     s = [arrow_defs(10)]
     def box(x, y, w, h, title, lines):
         r = [f'<rect x="{x}" y="{y}" width="{w}" height="{h}" rx="4" fill="var(--bdr-surface)" stroke="{MUT}"/>']
         yy = y + 16
         if title:
-            r.append(f'<text x="{x + 8}" y="{yy}" font-size="11.5" font-weight="600" fill="{INK}">{fits(title, 11.5, w - 14, "run")}</text>')
+            r.append(f'<text x="{x + 8}" y="{yy}" font-size="12" font-weight="600" fill="{INK}">{fits(title, 12, w - 14, "run")}</text>')
             yy += 15
         for t in lines:
-            r.append(f'<text x="{x + 8}" y="{yy}" font-size="10.5" fill="var(--bdr-ink-2)">{fits(t, 10.5, w - 14, "run")}</text>')
+            r.append(f'<text x="{x + 8}" y="{yy}" font-size="12" fill="var(--bdr-ink-2)">{fits(t, 12, w - 14, "run")}</text>')
             yy += 14
         return "".join(r)
     s.append(f'<text x="6" y="16" font-size="12" font-weight="600" fill="{INK}">graph run, three repeats</text>')
-    segs = [(6, 96, "prefill", ["C tokens,", "first canvas"]), (106, 104, "warm-up", ["1 canvas,", "15 passes"]),
-            (214, 188, "profiled window", ["2 canvases, 30 passes,", "profiler on: kernels"]),
-            (406, 188, "timed window", ["2 canvases, 30 passes,", "profiler off: step time t"])]
+    segs = [(6, 104, "prefill", ["C tokens,", "first canvas"]), (116, 106, "warm-up", ["1 canvas,", "15 passes"]),
+            (228, 200, "profiled window", ["2 canvases, 30 passes,", "profiler on: kernels"]),
+            (434, 200, "timed window", ["2 canvases, 30 passes,", "profiler off: step time t"])]
     for x, w, t, lines in segs:
         s.append(box(x, 26, w, 62, t, lines))
-    s.append(box(214, 96, 380, 24, None, ["expert counter: tokens per expert, layer, pass"]))
+    s.append(box(228, 96, 406, 24, None, ["expert counter: tokens per expert, layer, pass"]))
     s.append(f'<line x1="6" y1="138" x2="{W - 6}" y2="138" stroke="currentColor" marker-end="url(#pa10)"/>')
-    s.append(f'<text x="6" y="156" font-size="10.5" fill="{MUT}">passes in time order</text>')
+    s.append(f'<text x="6" y="156" font-size="12" fill="{MUT}">passes in time order</text>')
     s.append(f'<text x="6" y="190" font-size="12" font-weight="600" fill="{INK}">eager run, once</text>')
-    s.append(box(6, 200, 350, 24, None, ["same point; kernels launched from their modules"]))
+    s.append(box(6, 200, 370, 24, None, ["same point; kernels launched from their modules"]))
     return svg(W, H, "One measured point: after prefill and warm-up, a profiled window records every kernel, then a timed window without the profiler gives the step time; an expert counter covers both windows; one eager run of the same point follows", "".join(s))
 
 
@@ -336,7 +338,7 @@ def fig_decoders():
     W, H, x0, sw, gap = 600, 236, 46, 26, 3
     n = 15
     s = [arrow_defs(0)]
-    s.append(f'<text x="{x0}" y="18" font-size="11" fill="{MUT}">forward passes in time order; each reads the weights once</text>')
+    s.append(f'<text x="{x0}" y="18" font-size="12" fill="{MUT}">forward passes in time order; each reads the weights once</text>')
     for row, (name, col, y) in enumerate((("AR", AR, 32), ("TD", TD, 116))):
         s.append(f'<text x="{x0 - 10}" y="{y + 21}" text-anchor="end" font-size="12" font-weight="600" fill="{col}">{name}</text>')
         for i in range(n):
@@ -345,16 +347,16 @@ def fig_decoders():
             s.append(f'<rect x="{x + 0.6}" y="{y + 0.6}" width="{sw - 1.2}" height="30.8" rx="3" fill="{col}" fill-opacity="{0.85 if solid else 0.16}"'
                      f'{"" if solid else f" stroke=\"{col}\" stroke-width=\"1.2\""}/>')
             if row == 0:
-                s.append(f'<text x="{x + sw / 2}" y="{y + 20}" text-anchor="middle" font-size="10.5" style="fill:#fff">1</text>')
+                s.append(f'<text x="{x + sw / 2}" y="{y + 20}" text-anchor="middle" font-size="12" style="fill:var(--bdr-bg)">1</text>')
         xr = x0 + n * (sw + gap) + 6
         s.append(f'<text x="{xr}" y="{y + 14}" font-size="12" fill="{INK}">{"15 tokens" if row == 0 else "256 tokens"}</text>')
-        s.append(f'<text x="{xr}" y="{y + 29}" font-size="11" fill="{MUT}">{"one per pass" if row == 0 else "one canvas"}</text>')
-    s.append(f'<text x="{x0}" y="84" font-size="11" fill="{MUT}">each pass commits one token per sequence</text>')
+        s.append(f'<text x="{xr}" y="{y + 29}" font-size="12" fill="{MUT}">{"one per pass" if row == 0 else "one canvas"}</text>')
+    s.append(f'<text x="{x0}" y="84" font-size="12" fill="{MUT}">each pass commits one token per sequence</text>')
     s.append(f'<path d="M{x0},154 v6 h{14 * (sw + gap) - gap} v-6" fill="none" stroke="{TD}" stroke-width="1.2"/>')
-    s.append(f'<text x="{x0 + 7 * (sw + gap)}" y="176" text-anchor="middle" font-size="11" fill="{INK}">S = 14 denoising passes over the 256 positions</text>')
+    s.append(f'<text x="{x0 + 7 * (sw + gap)}" y="176" text-anchor="middle" font-size="12" fill="{INK}">S = 14 denoising passes over the 256 positions</text>')
     xc = x0 + 14 * (sw + gap) + sw / 2
     s.append(f'<line x1="{xc}" y1="200" x2="{xc}" y2="152" stroke="{TD}" marker-end="url(#pa0)"/>')
-    s.append(f'<text x="{xc}" y="216" text-anchor="middle" font-size="11" fill="{INK}">commit pass</text>')
+    s.append(f'<text x="{xc}" y="216" text-anchor="middle" font-size="12" fill="{INK}">commit pass</text>')
     wide = svg(W, H, "In the same 15 passes AR commits 15 tokens and TD commits a canvas of 256", "".join(s))
     return f'<div class="v-wide">{wide}</div><div class="v-narrow">{fig_decoders_narrow()}</div>'
 
@@ -363,21 +365,21 @@ def fig_decoders_narrow():
     """Figure 1 for a phone: the same two rows of 15 passes, with the counts under each row."""
     W, H, x0, sw, gap, n = 360, 214, 30, 18, 3, 15
     s = [arrow_defs(30)]
-    s.append(f'<text x="{x0}" y="13" font-size="11" fill="{MUT}">passes in time order; each reads the weights</text>')
+    s.append(f'<text x="{x0}" y="13" font-size="12" fill="{MUT}">passes in time order; each reads the weights</text>')
     for row, (name, col, y) in enumerate((("AR", AR, 22), ("TD", TD, 92))):
-        s.append(f'<text x="{x0 - 6}" y="{y + 17}" text-anchor="end" font-size="11.5" font-weight="600" fill="{col}">{name}</text>')
+        s.append(f'<text x="{x0 - 6}" y="{y + 17}" text-anchor="end" font-size="12" font-weight="600" fill="{col}">{name}</text>')
         for i in range(n):
             x = x0 + i * (sw + gap)
             solid = row == 0 or i == n - 1
             s.append(f'<rect x="{x + 0.6}" y="{y + 0.6}" width="{sw - 1.2}" height="24.8" rx="3" fill="{col}" fill-opacity="{0.85 if solid else 0.16}"'
                      f'{"" if solid else f" stroke=\"{col}\" stroke-width=\"1.2\""}/>')
-    s.append(f'<text x="{x0}" y="66" font-size="11" fill="{INK}">15 tokens, one per pass</text>')
+    s.append(f'<text x="{x0}" y="66" font-size="12" fill="{INK}">15 tokens, one per pass</text>')
     s.append(f'<path d="M{x0},124 v5 h{14 * (sw + gap) - gap} v-5" fill="none" stroke="{TD}" stroke-width="1.2"/>')
-    s.append(f'<text x="{x0}" y="145" font-size="11" fill="{INK}">S = 14 denoising passes</text>')
+    s.append(f'<text x="{x0}" y="145" font-size="12" fill="{INK}">S = 14 denoising passes</text>')
     xc = x0 + 14 * (sw + gap) + sw / 2
     s.append(f'<line x1="{xc}" y1="160" x2="{xc}" y2="122" stroke="{TD}" marker-end="url(#pa30)"/>')
-    s.append(f'<text x="{xc}" y="174" text-anchor="end" font-size="11" fill="{INK}">commit pass</text>')
-    s.append(f'<text x="{x0}" y="200" font-size="11" fill="{INK}">256 tokens, one canvas</text>')
+    s.append(f'<text x="{xc}" y="174" text-anchor="end" font-size="12" fill="{INK}">commit pass</text>')
+    s.append(f'<text x="{x0}" y="200" font-size="12" fill="{INK}">256 tokens, one canvas</text>')
     return svg(W, H, "In the same 15 passes AR commits 15 tokens and TD commits a canvas of 256", "".join(s))
 
 
@@ -399,7 +401,7 @@ MAP_TOP = [  # (x, width, [(slug, part label, title, lines)]); two entries are s
     (372, 122, [("whole", "PART 5", "Whole picture", ["regimes, maps"])]),
     (506, 144, [("calculator", "PART 6", "Calculator", []), ("examples", "PART 7", "Worked examples", [])]),
 ]
-MAP_BOT = [("effective", "PART 8", "Effective rooflines", ["measured π, β", "and experts U"]),
+MAP_BOT = [("effective", "PART 8", "Empirical rooflines", ["measured π, β", "and experts U"]),
            ("stack", "PART 9", "Measurement stack", ["time per component"]),
            ("kernels", "PART 10", "Kernels", ["two rewrites"]),
            ("conclusion", "PART 11", "Conclusion", ["measured Γ", "against the bound"])]
@@ -408,7 +410,7 @@ MAP_SIDE = [("summary", "Summary", "the results first"), ("appendix", "Appendix"
 
 def linkbox(x, y, w, h, href, part, title, lines, col, tip):
     """One part of the book: a box that is a link to its chapter."""
-    r = [f'<a href="{href}" class="pfig-link"><title>{tip}</title>'
+    r = [f'<a href="{href}" class="pfig-link" aria-label="{part.title()}, {title}"><title>{tip}</title>'
          f'<rect x="{x}" y="{y}" width="{w}" height="{h}" rx="6" fill="var(--bdr-surface)" stroke="{col}" stroke-width="1.4"/>']
     yy = y + 16
     r.append(f'<text x="{x + 10}" y="{yy}" font-size="10" letter-spacing=".06em" fill="{MUT}">{fits(part, 11, w - 20, "map")}</text>')
@@ -459,12 +461,12 @@ def fig_map(base=BOOK_URL):
     for slug, title, what in MAP_SIDE:
         label = f"{title}: {what}"
         w = round(tw(label, 11) + 22)
-        s.append(f'<a href="{base}{slug}/" class="pfig-link"><title>Go to the {title}</title><rect x="{cx}" y="{yc}" width="{w}" height="26" rx="13" fill="var(--bdr-surface)" stroke="{MUT}" stroke-width="1.2"/>'
+        s.append(f'<a href="{base}{slug}/" class="pfig-link" aria-label="{title}"><title>Go to the {title}</title><rect x="{cx}" y="{yc}" width="{w}" height="26" rx="13" fill="var(--bdr-surface)" stroke="{MUT}" stroke-width="1.2"/>'
                  f'<text x="{cx + 11}" y="{yc + 17}" font-size="11" fill="{INK}">{label}</text></a>')
         cx += w + 12
     if cx > W:
         FIT.append(f"map: the chips need {cx} px, have {W}")
-    wide = svg(W, H, "Map of the book, each box a link to its chapter: Parts 1 to 7 bound the gain on paper; Parts 8 to 11 measure it on an H200 and compare", "".join(s))
+    wide = svg(W, H, "Map of the book, each box a link to its chapter: Parts 1 to 7 bound the gain on paper; Parts 8 to 11 measure it on an H200 and compare", "".join(s), role="group")
     return f'<div class="v-wide">{wide}</div><div class="v-narrow">{fig_map_narrow(base)}</div>'
 
 
@@ -483,22 +485,22 @@ def fig_ladder(d):
         for j, B in enumerate((1, 64)):
             v = g[f"{B},1024"][key]
             y = 122 + j * 60
-            s.append(f'<text x="{x + 10}" y="{y}" font-size="11" fill="{MUT}">B = {B}, C = 1k</text>')
+            s.append(f'<text x="{x + 10}" y="{y}" font-size="12" fill="{MUT}">B = {B}, C = 1k</text>')
             s.append(f'<text x="{x + 10}" y="{y + 28}" font-size="22" font-weight="600" fill="{TD if v >= 1 else AR}">Γ = {v:.2f}</text>')
         if i < 3:
             xa = x + bw + 2
             s.append(f'<line x1="{xa}" y1="135" x2="{xa + gap - 4}" y2="135" stroke="currentColor" marker-end="url(#pa2)"/>')
-            s.append(f'<text x="{x + bw + gap / 2}" y="20" text-anchor="middle" font-size="11" fill="{MUT}">{steps[i]}</text>')
-    return svg(W, H, "From the book's bound to the measured gain: three changes of input, then the measurement", "".join(s))
+            s.append(f'<text x="{x + bw + gap / 2}" y="20" text-anchor="middle" font-size="12" fill="{MUT}">{steps[i]}</text>')
+    return svg(W, H, "From the book's bound to the measured gain: two measured inputs, then the measurement", "".join(s))
 
 
 def fig_stack():
     W, rh, pitch, y0 = 660, 58, 78, 30
-    ax, aw, bx, bw, cx, cw, bus = 6, 180, 222, 244, 500, 118, 638
-    ACC = "var(--accent)"
+    ax, aw, bx, bw, cx, cw, bus = 6, 196, 222, 258, 500, 118, 638
+    ACC = HI
     s = [arrow_defs(30), arrow_defs(31, ACC)]
     for x, t in ((ax, "WHAT RUNS"), (bx, "WHAT ROOFSCOPE RECORDS THERE"), (cx, "WHICH GIVES")):
-        s.append(f'<text x="{x}" y="16" font-size="10.5" font-weight="600" letter-spacing=".06em" fill="{MUT}">{t}</text>')
+        s.append(f'<text x="{x}" y="16" font-size="12" font-weight="600" letter-spacing=".06em" fill="{MUT}">{t}</text>')
 
     def box(x, y, w, title, lines, col):
         r = [f'<rect x="{x}" y="{y}" width="{w}" height="{rh}" rx="5" fill="var(--bdr-surface)" stroke="{col}" stroke-width="1.3"/>']
@@ -506,10 +508,14 @@ def fig_stack():
         r.append(f'<text x="{x + 10}" y="{yy}" font-size="12" font-weight="600" fill="{INK}">{fits(title, 12, w - 20, "stack")}</text>')
         for t in lines:
             yy += 14
-            r.append(f'<text x="{x + 10}" y="{yy}" font-size="10.5" fill="var(--bdr-ink-2)">{fits(t, 10.5, w - 20, "stack")}</text>')
+            r.append(f'<text x="{x + 10}" y="{yy}" font-size="12" fill="var(--bdr-ink-2)">{fits(t, 12, w - 20, "stack")}</text>')
         return "".join(r)
 
-    hat = lambda ch: ch + "\u0302"  # combining circumflex
+    def hat(ch, fs=12):
+        """A circumflex drawn over `ch` by a raised, smaller caret (no combining characters)."""
+        a, ca, k = 0.61 * fs, 0.61 * 0.8 * fs, 0.36 * fs
+        return (f'<tspan font-size="{0.8 * fs:.1f}" dy="{-k:.1f}">^</tspan>'
+                f'<tspan font-size="{fs}" dx="{-(a + ca) / 2:.1f}" dy="{k:.1f}">{ch}</tspan>')
     stack = [("Workload", ["B prompts of C tokens"], "served by"),
              ("Engine: vLLM 0.28", ["one forward pass per", "step, as a CUDA graph"], "calls"),
              ("Model", ["30 layers: attention,", "dense MLP, MoE; the head"], "launches"),
@@ -519,14 +525,14 @@ def fig_stack():
              ("Wall clock of each pass", ["timed window, profiler off"], ("step time " + "<tspan font-style=\"italic\">t</tspan>", [])),
              ("Counter in each MoE layer", ["tokens per expert, in every pass", "of both windows"], ("experts " + "<tspan font-style=\"italic\">U</tspan>", ["per layer"])),
              ("Profiler trace", ["every kernel and its duration;", "its module, from an eager run"], ("time " + sub("<tspan font-style=\"italic\">t</tspan>", "c"), ["per component"])),
-             ("Microbenchmarks (Part 8)", ["highest FLOP rates", "and bandwidth measured"], ("ceilings", [f"{sub(hat('π'), 'c')} and {hat('β')}"]))]
+             ("Microbenchmarks (Part 8)", ["highest FLOP rates", "and bandwidth measured"], ("ceilings", [f"{sub(hat('π', 12), 'c')} and {hat('β', 12)}"]))]
     for i, (title, lines, verb) in enumerate(stack):
         y = y0 + i * pitch
         s.append(box(ax, y, aw, title, lines, MUT))
         if verb:
             xm = ax + 36
             s.append(f'<line x1="{xm}" y1="{y + rh + 1}" x2="{xm}" y2="{y + pitch - 2}" stroke="currentColor" marker-end="url(#pa30)"/>')
-            s.append(f'<text x="{xm + 9}" y="{y + rh + 14}" font-size="10.5" fill="{MUT}">{verb}</text>')
+            s.append(f'<text x="{xm + 9}" y="{y + rh + 14}" font-size="12" fill="{MUT}">{verb}</text>')
         if reads[i]:
             rt, rl, (qt, ql) = reads[i]
             s.append(box(bx, y, bw, rt, rl, ACC))
@@ -542,10 +548,10 @@ def fig_stack():
     it = lambda t: f'<tspan font-style="italic">{t}</tspan>'
     tau, eta, F, Q, t = sub("τ", "c"), sub("η", "c"), sub(it("F"), "c"), sub(it("Q"), "c"), sub(it("t"), "c")
     s.append(f'<text x="{bx + 10}" y="{yr + 19}" font-size="12" font-weight="600" fill="{INK}">Definitions 5 and 7, for each component c</text>')
-    l1 = f'roofline time {tau} = max({F}/{sub(hat("π"), "c")}, {Q}/{hat("β")}); {F}, {Q} taken at {it("B")}, {it("C")}, {it("U")}'
+    l1 = f'roofline time {tau} = max({F}/{sub(hat("π", 12), "c")}, {Q}/{hat("β", 12)}); {F}, {Q} taken at {it("B")}, {it("C")}, {it("U")}'
     l2 = f'efficiency {eta} = {tau}/{t};  for the step, η = τ/{it("t")}'
     for j, line in enumerate((l1, l2)):
-        fits(line.replace("\u0302", ""), 11, rw - 20, "stack")
+        fits(line.replace("^", ""), 11, rw - 20, "stack")
         s.append(f'<text x="{bx + 10}" y="{yr + 38 + j * 17}" font-size="11" fill="{INK}">{line}</text>')
     return svg(W, yr + 76, "The serving stack from the workload down to the accelerator, what roofscope records at four of its levels, and the quantities of Definition 7 that each record gives", "".join(s))
 
@@ -565,50 +571,51 @@ def fig_attrib():
         s.append(f'<text x="4" y="{y}" font-size="{fs}" font-weight="{fw}" fill="{col}">{fits(t, fs, x0 - 10, "attrib")}</text>')
     for i, (k, m, c) in enumerate(zip(ks, mods, comps)):
         x = X(i)
-        s.append(f'<text x="{x + bw / 2}" y="26" text-anchor="middle" font-size="10.5" fill="{MUT}">{fits(m, 10.5, bw + gap - 4, "attrib")}</text>')
+        s.append(f'<text x="{x + bw / 2}" y="26" text-anchor="middle" font-size="12" fill="{MUT}">{fits(m, 12, bw + gap - 4, "attrib")}</text>')
         s.append(f'<path d="M{x + 2},38 v-5 h{bw - 4} v5" fill="none" stroke="{MUT}"/>')
         s.append(f'<rect x="{x}" y="46" width="{bw}" height="34" rx="4" fill="var(--bdr-surface)" stroke="{MUT}"/>'
-                 f'<text x="{x + bw / 2}" y="67" text-anchor="middle" font-size="11" fill="{INK}">{fits(k, 11, bw - 8, "attrib")}</text>')
+                 f'<text x="{x + bw / 2}" y="67" text-anchor="middle" font-size="12" fill="{INK}">{fits(k, 12, bw - 8, "attrib")}</text>')
         if kg[i] == k:
             s.append(f'<line x1="{x + bw / 2}" y1="82" x2="{x + bw / 2}" y2="164" stroke="{MUT}" stroke-dasharray="3 3" marker-end="url(#pa11)"/>')
         else:  # a compiler-fused kernel: no eager kernel of that name, so no module
-            s.append(f'<text x="{x + bw / 2}" y="128" text-anchor="middle" font-size="10.5" fill="{MUT}">{fits("no match", 10.5, bw, "attrib")}</text>')
+            s.append(f'<text x="{x + bw / 2}" y="128" text-anchor="middle" font-size="12" fill="{MUT}">{fits("no match", 12, bw, "attrib")}</text>')
         s.append(f'<rect x="{x}" y="168" width="{bw}" height="34" rx="4" fill="var(--bdr-surface)" stroke="{MUT}"/>'
-                 f'<text x="{x + bw / 2}" y="189" text-anchor="middle" font-size="11" fill="{INK}">{fits(kg[i], 11, bw - 8, "attrib")}</text>')
-        s.append(f'<text x="{x + bw / 2}" y="238" text-anchor="middle" font-size="11" font-weight="600" fill="{INK}">{c}</text>')
+                 f'<text x="{x + bw / 2}" y="189" text-anchor="middle" font-size="12" fill="{INK}">{fits(kg[i], 12, bw - 8, "attrib")}</text>')
+        s.append(f'<text x="{x + bw / 2}" y="238" text-anchor="middle" font-size="12" font-weight="600" fill="{INK}">{c}</text>')
     return svg(W, H, "Graph-run kernels carry their names but not their modules; each takes the module of the eager kernel with the same name and launch shape, in order", "".join(s))
 
 
 def fig_flags():
     W, H = 660, 220
-    s = [arrow_defs(4), arrow_defs(5, TD)]
+    s = [arrow_defs(4), arrow_defs(5, INK)]
     def cell(x, y, w, t, col, dash=""):
         return (f'<rect x="{x}" y="{y}" width="{w}" height="30" rx="4" fill="none" stroke="{col}" stroke-dasharray="{dash}"/>'
-                f'<text x="{x + w / 2}" y="{y + 19}" text-anchor="middle" font-size="11" fill="{INK}">{fits(t, 11, w - 10, "flags")}</text>')
+                f'<text x="{x + w / 2}" y="{y + 19}" text-anchor="middle" font-size="12" fill="{INK}">{fits(t, 12, w - 10, "flags")}</text>')
     s.append(f'<text x="6" y="16" font-size="12" font-weight="600" fill="{INK}">vLLM 0.28: flags copied with .to(int32) at every step</text>')
     s.append(cell(6, 54, 150, "bool buffer", MUT))
     s.append(cell(250, 30, 180, "int32 copy, capture", MUT))
     s.append(cell(250, 80, 180, "int32 copy, step n", CRIT, "5 3"))
-    s.append(cell(510, 30, 144, "graph replay", TD))
+    s.append(cell(510, 30, 144, "graph replay", INK))
     s.append(f'<line x1="156" y1="62" x2="248" y2="47" stroke="currentColor" marker-end="url(#pa4)"/>')
-    s.append(f'<text x="202" y="42" text-anchor="middle" font-size="10.5" fill="{MUT}">at capture</text>')
+    s.append(f'<text x="202" y="42" text-anchor="middle" font-size="12" fill="{MUT}">at capture</text>')
     s.append(f'<line x1="156" y1="76" x2="248" y2="94" stroke="currentColor" marker-end="url(#pa4)"/>')
-    s.append(f'<text x="202" y="106" text-anchor="middle" font-size="10.5" fill="{MUT}">every step</text>')
-    s.append(f'<line x1="430" y1="45" x2="508" y2="45" stroke="{TD}" stroke-width="2" marker-end="url(#pa5)"/>')
-    s.append(f'<text x="469" y="38" text-anchor="middle" font-size="10.5" fill="{TD}">reads</text>')
-    s.append(f'<text x="440" y="99" font-size="10.5" fill="{CRIT}">never read</text>')
+    s.append(f'<text x="202" y="106" text-anchor="middle" font-size="12" fill="{MUT}">every step</text>')
+    s.append(f'<line x1="430" y1="45" x2="508" y2="45" stroke="{INK}" stroke-width="2" marker-end="url(#pa5)"/>')
+    s.append(f'<text x="469" y="38" text-anchor="middle" font-size="12" fill="{INK}">reads</text>')
+    s.append(f'<text x="440" y="99" font-size="12" fill="{CRIT}">never read</text>')
     s.append(f'<text x="6" y="152" font-size="12" font-weight="600" fill="{INK}">fix: one persistent int32 buffer</text>')
     s.append(cell(6, 170, 250, "int32 buffer, written in place", MUT))
-    s.append(cell(510, 170, 144, "graph replay", TD))
-    s.append(f'<line x1="256" y1="185" x2="508" y2="185" stroke="{TD}" stroke-width="2" marker-end="url(#pa5)"/>')
-    s.append(f'<text x="382" y="178" text-anchor="middle" font-size="10.5" fill="{TD}">reads this step\'s flags</text>')
+    s.append(cell(510, 170, 144, "graph replay", INK))
+    s.append(f'<line x1="256" y1="185" x2="508" y2="185" stroke="{INK}" stroke-width="2" marker-end="url(#pa5)"/>')
+    s.append(f'<text x="382" y="178" text-anchor="middle" font-size="12" fill="{INK}">reads this step\'s flags</text>')
     return svg(W, H, "A replayed CUDA graph reads the address recorded at capture, so a flag tensor recreated at every step is never read", "".join(s))
 
 
 MOE_ROWS = [("quantise x (2 kernels)", "", "quantise x, per token (1 kernel)", "23 MB"), ("sort rows by expert", "", "sort rows by expert", ""),
             ("GEMM 1 (gate, up)", "184 MB", "GEMM 1 + gelu(gate)·up", "100 MB"), ("act_and_mul", "92 MB", None, ""),
             ("quantise h (2 kernels)", "46 MB", "quantise h, per row (1 kernel)", "50 MB"),
-            ("GEMM 2, a row per pair", "369 MB", "GEMM 2 + g·row, atomic add into y", "in L2"), ("moe_sum (read 369 MB)", "46 MB", None, "")]
+            (None, "", "zero y (1 kernel)", ""),
+            ("GEMM 2, a row per pair", "369 MB", "GEMM 2 + p·row, atomic add into y", "in L2"), ("moe_sum (read 369 MB)", "46 MB", None, "")]
 
 
 def fig_moe():
@@ -617,64 +624,72 @@ def fig_moe():
     L0, LW, R0, RW = 6, 186, 290, 300
     s = [arrow_defs(6), f'<text x="{L0 + LW / 2}" y="20" text-anchor="middle" font-size="12" font-weight="600" fill="{INK}">vLLM Triton path</text>',
          f'<text x="{R0 + RW / 2}" y="20" text-anchor="middle" font-size="12" font-weight="600" fill="{INK}">new path (moe_ws)</text>',
-         f'<text x="{L0 + LW / 2}" y="38" text-anchor="middle" font-size="10.5" fill="{MUT}">kernel · bytes written</text>',
-         f'<text x="{R0 + RW / 2}" y="38" text-anchor="middle" font-size="10.5" fill="{MUT}">kernel · bytes written</text>']
+         f'<text x="{L0 + LW / 2}" y="38" text-anchor="middle" font-size="12" fill="{MUT}">kernel · bytes written</text>',
+         f'<text x="{R0 + RW / 2}" y="38" text-anchor="middle" font-size="12" fill="{MUT}">kernel · bytes written</text>']
     for i, (lb, lw, rb, rw) in enumerate(MOE_ROWS):
         y = top + i * rh
-        s.append(f'<rect x="{L0}" y="{y}" width="{LW}" height="28" rx="4" fill="none" stroke="{MUT}"/><text x="{L0 + LW / 2}" y="{y + 18}" text-anchor="middle" font-size="11" fill="{INK}">{fits(lb, 11, LW - 8, "moe")}</text>')
+        if lb:
+            s.append(f'<rect x="{L0}" y="{y}" width="{LW}" height="28" rx="4" fill="none" stroke="{MUT}"/><text x="{L0 + LW / 2}" y="{y + 18}" text-anchor="middle" font-size="12" fill="{INK}">{fits(lb, 12, LW - 8, "moe")}</text>')
         if lw:
-            s.append(f'<text x="{L0 + LW + 6}" y="{y + 18}" font-size="11" fill="{TD}">{lw}</text>')
+            s.append(f'<text x="{L0 + LW + 6}" y="{y + 18}" font-size="12" fill="{INK2}">{lw}</text>')
         if rb:
-            s.append(f'<rect x="{R0}" y="{y}" width="{RW}" height="28" rx="4" fill="none" stroke="{MUT}"/><text x="{R0 + RW / 2}" y="{y + 18}" text-anchor="middle" font-size="11" fill="{INK}">{fits(rb, 11, RW - 8, "moe")}</text>')
+            s.append(f'<rect x="{R0}" y="{y}" width="{RW}" height="28" rx="4" fill="none" stroke="{MUT}"/><text x="{R0 + RW / 2}" y="{y + 18}" text-anchor="middle" font-size="12" fill="{INK}">{fits(rb, 12, RW - 8, "moe")}</text>')
             if rw:
-                s.append(f'<text x="{R0 + RW + 6}" y="{y + 18}" font-size="11" fill="{TD}">{rw}</text>')
+                s.append(f'<text x="{R0 + RW + 6}" y="{y + 18}" font-size="12" fill="{INK2}">{rw}</text>')
         else:
-            s.append(f'<rect x="{R0}" y="{y}" width="{RW}" height="28" rx="4" fill="none" stroke="{MUT}" stroke-dasharray="4 4" opacity="0.5"/><text x="{R0 + RW / 2}" y="{y + 18}" text-anchor="middle" font-size="11" fill="{MUT}">removed (fused)</text>')
+            s.append(f'<rect x="{R0}" y="{y}" width="{RW}" height="28" rx="4" fill="none" stroke="{MUT}" stroke-dasharray="4 4" opacity="0.5"/><text x="{R0 + RW / 2}" y="{y + 18}" text-anchor="middle" font-size="12" fill="{MUT}">removed (fused)</text>')
         if i:
-            s.append(f'<line x1="{L0 + LW / 2}" y1="{y - 11}" x2="{L0 + LW / 2}" y2="{y - 2}" stroke="currentColor" marker-end="url(#pa6)"/><line x1="{R0 + RW / 2}" y1="{y - 11}" x2="{R0 + RW / 2}" y2="{y - 2}" stroke="currentColor" marker-end="url(#pa6)"/>')
-    return svg(W, H, "vLLM's expert path runs nine kernels and writes intermediate tensors to memory; the new path runs five", "".join(s))
+            # the left path has no box in the row of the new path's extra kernel: its arrow spans that row
+            if lb:
+                y0 = y - 11 if MOE_ROWS[i - 1][0] else y - rh - 11
+                s.append(f'<line x1="{L0 + LW / 2}" y1="{y0}" x2="{L0 + LW / 2}" y2="{y - 2}" stroke="currentColor" marker-end="url(#pa6)"/>')
+            s.append(f'<line x1="{R0 + RW / 2}" y1="{y - 11}" x2="{R0 + RW / 2}" y2="{y - 2}" stroke="currentColor" marker-end="url(#pa6)"/>')
+    return svg(W, H, "vLLM's expert path runs nine kernels and writes intermediate tensors to memory; the new path runs six", "".join(s))
 
 
 def fig_pair():
     W, H, bw, x1 = 660, 280, 260, 396
-    s = [arrow_defs(7), arrow_defs(8, TD)]
+    s = [arrow_defs(7), arrow_defs(8, INK)]
     for r, x0 in ((0, 6), (1, x1)):
         cx = x0 + bw / 2
         s += [f'<rect x="{x0}" y="10" width="{bw}" height="256" rx="8" fill="none" stroke="{MUT}"/>',
-              f'<text x="{cx}" y="32" text-anchor="middle" font-weight="600" font-size="11.5" fill="{INK}">{fits(f"CTA {r}, SM {chr(97 + r)}: columns {256 * r}–{256 * r + 255}", 11.5, bw - 12, "pair")}</text>',
-              f'<text x="{cx}" y="52" text-anchor="middle" font-size="10.5" fill="var(--bdr-ink-2)">tiles {sub("Q", r)}, {sub("K", r)}, {sub("V", r)} in shared memory</text>']
-        for j, (y, lab) in enumerate(((70, f'{sub("Z", r)} = {sub("Q", r)} {sub("K", r)}ᵀ'), (142, f'Z = {sub("Z", 0)} + {sub("Z", 1)}, P = softmax(Z)'), (214, f'{sub("O", r)} += P {sub("V", r)}'))):
+              f'<text x="{cx}" y="32" text-anchor="middle" font-weight="600" font-size="12" fill="{INK}">{fits(f"CTA {r}, SM {chr(97 + r)}: columns {256 * r}–{256 * r + 255}", 12, bw - 12, "pair")}</text>',
+              f'<text x="{cx}" y="52" text-anchor="middle" font-size="12" fill="var(--bdr-ink-2)">tiles {sub("Q", r)}, {sub("K", r)}, {sub("V", r)} in shared memory</text>']
+        for j, (y, lab) in enumerate(((70, f'{sub("Z", r)} = {sub("Q", r)} {sub("K", r)}<tspan baseline-shift="super" font-size="0.75em">T</tspan>'), (142, f'Z = {sub("Z", 0)} + {sub("Z", 1)}, P = softmax(Z)'), (214, f'{sub("O", r)} += P {sub("V", r)}'))):
             s += [f'<rect x="{x0 + 12}" y="{y}" width="{bw - 24}" height="34" rx="4" fill="none" stroke="{MUT}"/>',
-                  f'<text x="{cx}" y="{y + 22}" text-anchor="middle" font-size="11" fill="{INK}">{fits(lab, 11, bw - 32, "pair")}</text>']
+                  f'<text x="{cx}" y="{y + 22}" text-anchor="middle" font-size="12" fill="{INK}">{fits(lab, 12, bw - 32, "pair")}</text>']
             if j:
                 s.append(f'<line x1="{cx}" y1="{y - 36}" x2="{cx}" y2="{y - 2}" stroke="currentColor" marker-end="url(#pa7)"/>')
-    s += [f'<line x1="{6 + bw - 12}" y1="88" x2="{x1 + 12}" y2="156" stroke="{TD}" stroke-width="2" marker-end="url(#pa8)"/>',
-          f'<line x1="{x1 + 12}" y1="88" x2="{6 + bw - 12}" y2="156" stroke="{TD}" stroke-width="2" marker-end="url(#pa8)"/>']
-    for k, t in enumerate(("partial scores", "Tq × Tk, FP16,", "to partner")):
-        s.append(f'<text x="{(6 + bw + x1) / 2}" y="{200 + 14 * k}" text-anchor="middle" font-size="10.5" fill="{TD}">{fits(t, 10.5, x1 - 6 - bw - 6, "pair")}</text>')
+    s += [f'<line x1="{6 + bw - 12}" y1="88" x2="{x1 + 12}" y2="156" stroke="{INK}" stroke-width="2" marker-end="url(#pa8)"/>',
+          f'<line x1="{x1 + 12}" y1="88" x2="{6 + bw - 12}" y2="156" stroke="{INK}" stroke-width="2" marker-end="url(#pa8)"/>']
+    for k, t in enumerate(("partial scores", f'{sub("M", "q")} × {sub("M", "k")}, FP16,', "to partner")):
+        s.append(f'<text x="{(6 + bw + x1) / 2}" y="{194 + 19 * k}" text-anchor="middle" font-size="12" fill="{INK}">{fits(t, 12, x1 - 6 - bw - 6, "pair")}</text>')
     return svg(W, H, "Two thread blocks on two SMs each hold half of the head dimension and exchange their partial scores", "".join(s))
 
 
 def fig_smem():
     W, x0, sc = 660, 150, 1.95
-    rows = [("FA4, hd 512", [("Q", 64, AR), ("K", 64, GREEN), ("V", 64, AMBER), ("P", 8, MUT)]),
-            ("pair, per CTA", [("Q half", 64, AR), ("K st.1", 32, GREEN), ("K st.2", 32, GREEN), ("V st.1", 32, AMBER), ("V st.2", 32, AMBER), ("Z ×2", 32, TD)])]
+    rows = [("FA4, hd 512", [("Q", 64, INK2), ("K", 64, GREEN), ("V", 64, AMBER), ("P", 8, MUT)]),
+            ("pair, per CTA", [("Q half", 64, INK2), ("K st.1", 32, GREEN), ("K st.2", 32, GREEN), ("V st.1", 32, AMBER), ("V st.2", 32, AMBER), ("Z ×2", 32, MUT)])]
     s = []
     for i, (lab, segs) in enumerate(rows):
-        y = 16 + i * 46
-        s.append(f'<text x="{x0 - 8}" y="{y + 19}" text-anchor="end" font-size="11" fill="{INK}">{fits(lab, 11, x0 - 12, "smem")}</text>')
+        y = 22 + i * 46
+        s.append(f'<text x="{x0 - 8}" y="{y + 19}" text-anchor="end" font-size="12" fill="{INK}">{fits(lab, 12, x0 - 12, "smem")}</text>')
         x = x0
         for name, kb, col in segs:
             w = kb * sc
             s.append(f'<rect x="{x}" y="{y}" width="{w - 2}" height="28" rx="3" fill="{col}" fill-opacity="0.8"/>')
             if w > 36:
-                s.append(f'<text x="{x + w / 2 - 1}" y="{y + 18}" text-anchor="middle" font-size="10.5" style="fill:#fff">{fits(name, 10.5, w - 6, "smem")}</text>')
+                s.append(f'<text x="{x + w / 2 - 1}" y="{y + 18}" text-anchor="middle" font-size="12" style="fill:var(--bdr-bg)">{fits(name, 12, w - 6, "smem")}</text>')
+            else:  # too narrow for its name: label above the bar, with a leader
+                s.append(f'<line x1="{x + w / 2 - 1}" y1="{y - 1}" x2="{x + w / 2 - 1}" y2="{y - 4}" stroke="{INK}"/>'
+                         f'<text x="{x + w / 2 - 1}" y="{y - 6}" text-anchor="middle" font-size="12" fill="{INK}">{name}</text>')
             x += w
-        s.append(f'<text x="{x0 + 227 * sc + 8}" y="{y + 19}" font-size="11" fill="{INK}">{sum(k for _, k, _ in segs)} KB</text>')
+        s.append(f'<text x="{x0 + 227 * sc + 8}" y="{y + 19}" font-size="12" fill="{INK}">{sum(k for _, k, _ in segs)} KB</text>')
     lx = x0 + 227 * sc
-    s += [f'<line x1="{lx}" y1="8" x2="{lx}" y2="108" stroke="{CRIT}" stroke-dasharray="5 4"/>',
-          f'<text x="{lx}" y="126" text-anchor="middle" font-size="11" fill="{CRIT}">227 KB per SM</text>']
-    return svg(W, 136, "Shared memory per thread block: FA4 at head dimension 512 fits one pipeline stage; the pair kernel fits two stages and its exchange buffers", "".join(s))
+    s += [f'<line x1="{lx}" y1="14" x2="{lx}" y2="114" stroke="{CRIT}" stroke-dasharray="5 4"/>',
+          f'<text x="{lx}" y="132" text-anchor="middle" font-size="12" fill="{CRIT}">227 KB per SM</text>']
+    return svg(W, 142, "Shared memory per thread block: FA4 at head dimension 512 fits one pipeline stage; the pair kernel fits two stages and its exchange buffers", "".join(s))
 
 
 # ---------------------------------------------------------------- tables
@@ -760,21 +775,21 @@ def dumbbell(rows, lo, hi, ticks, fmtx, refs, xlabel, label_w=150):
     W, rh, mt, mb, mr = 664, 34, 30, 40, 92
     H = mt + rh * len(rows) + mb
     X = lambda v: label_w + (v - lo) / (hi - lo) * (W - label_w - mr)
-    s = [arrow_defs(21, TD)]
+    s = []
     for t in ticks:
         s.append(f'<line x1="{X(t)}" x2="{X(t)}" y1="{mt - 8}" y2="{H - mb}" stroke="{RULE}"/>'
-                 f'<text x="{X(t)}" y="{H - mb + 15}" text-anchor="middle" font-size="11" fill="{MUT}">{fmtx(t)}</text>')
-    s.append(f'<text x="{(label_w + W - mr) / 2}" y="{H - 8}" text-anchor="middle" font-size="11.5" fill="{INK}">{xlabel}</text>')
+                 f'<text x="{X(t)}" y="{H - mb + 15}" text-anchor="middle" font-size="12" fill="{MUT}">{fmtx(t)}</text>')
+    s.append(f'<text x="{(label_w + W - mr) / 2}" y="{H - 8}" text-anchor="middle" font-size="12" fill="{INK}">{xlabel}</text>')
     for x, text in refs:
         s.append(f'<line x1="{X(x)}" x2="{X(x)}" y1="{mt - 14}" y2="{H - mb}" stroke="{INK}" stroke-dasharray="4 3"/>'
-                 f'<text x="{X(x) + 4}" y="{mt - 16}" font-size="11" fill="{INK}">{text}</text>')
+                 f'<text x="{X(x) + 4}" y="{mt - 16}" font-size="12" fill="{INK}">{text}</text>')
     for i, (lab, a, b, note) in enumerate(rows):
         y = mt + i * rh + rh / 2
-        s.append(f'<text x="{label_w - 10}" y="{y + 4}" text-anchor="end" font-size="11.5" fill="{INK}">{lab}</text>')
+        s.append(f'<text x="{label_w - 10}" y="{y + 4}" text-anchor="end" font-size="12" fill="{INK}">{lab}</text>')
         s.append(f'<line x1="{X(a)}" x2="{X(b)}" y1="{y}" y2="{y}" stroke="{TD}" stroke-width="2.4" stroke-opacity="0.55"/>')
         s.append(f'<circle cx="{X(a)}" cy="{y}" r="5" fill="var(--bdr-surface)" stroke="{MUT}" stroke-width="2"><title>{lab}: before {fmtx(a)}</title></circle>')
         s.append(f'<circle cx="{X(b)}" cy="{y}" r="5.5" fill="{TD}"><title>{lab}: after {fmtx(b)}</title></circle>')
-        s.append(f'<text x="{X(b) + 10}" y="{y + 4}" font-size="11" fill="{MUT}">{note}</text>')
+        s.append(f'<text x="{X(b) + 10}" y="{y + 4}" font-size="12" fill="{MUT}">{note}</text>')
     return svg(W, H, xlabel, "".join(s))
 
 
@@ -786,26 +801,26 @@ def fig_moe_eff():
 
 
 def fig_attn_eff():
-    rows = [("B = 8, C = 16k", 335, 455, "step −8.2%"), ("B = 32, C = 16k", 320, 436, "step −6.4%"), ("B = 8, C = 64k", 330, 453, "step −18%")]
+    rows = [("B = 8, C = 16k", 335, 455, "step −8.2%"), ("B = 32, C = 16k", 320, 436, "step −6.4%"), ("B = 8, C = 64k", 330, 453, "step −18.0%")]
     return dumbbell(rows, 0, 700, [0, 100, 200, 300, 400, 500, 600, 700], lambda v: f"{v:.0f}", [(638, "ceiling 638")],
                     "global attention, TFLOP/s: FlashAttention 4 (open) → pair kernel (filled)")
 
 
 def t_moe():
     return table("Table 15. The expert path per denoising pass in the engine, vLLM's kernel against the new one, and its efficiency against the empirical roofline at the measured routing. These are dedicated runs of the expert kernel (three per arm), separate from the grid of Parts 8–11, so their efficiencies differ slightly from Table 17's.",
-                 ["TD point (B, C)", "expert path per pass", "fraction of empirical roofline", "TD step"],
-                 [["(8, 1k)", "15.03 → 12.23 ms (−19%)", "0.27 → 0.33", "43.56 → 40.07 ms (−8.0%)"],
-                  ["(32, 1k)", "46.60 → 34.26 ms (−26%)", "0.34 → 0.47", "158.75 → 147.81 ms (−6.9%)"],
-                  ["(32, 16k)", "45.59 → 33.37 ms (−27%)", "0.35 → 0.48", "227.44 → 217.54 ms (−4.4%)"],
-                  ["(64, 1k)", "85.78 → 61.61 ms (−28%)", "0.37 → 0.52", "326.30 → 299.23 ms (−8.3%)"]], fold="Figure 34")
+                 ["TD point (B, C)", "expert path per pass (ms)", "fraction of empirical roofline", "TD step (ms)"],
+                 [["(8, 1k)", "15.03 → 12.23 (−19%)", "0.27 → 0.33", "43.56 → 40.07 (−8.0%)"],
+                  ["(32, 1k)", "46.60 → 34.26 (−26%)", "0.34 → 0.47", "158.75 → 147.81 (−6.9%)"],
+                  ["(32, 16k)", "45.59 → 33.37 (−27%)", "0.35 → 0.48", "227.44 → 217.54 (−4.4%)"],
+                  ["(64, 1k)", "85.78 → 61.61 (−28%)", "0.37 → 0.52", "326.30 → 299.23 (−8.3%)"]], fold="Figure 34")
 
 
 def t_attn():
     return table("Table 16. Global attention in the engine, TFLOP/s and fraction of the 638 TFLOP/s attention ceiling, one run each; the last column is the TD step with FA4 at 64-token pages against the pair kernel at 80-token pages.",
-                 ["(B, C)", "FA4, page 64", "pair kernel, page 80", "TD step"],
-                 [["(8, 16k)", "335 (0.52)", "455 (0.71)", "58.05 → 53.27 ms (−8.2%)"],
-                  ["(32, 16k)", "320 (0.50)", "436 (0.68)", "222.37 → 208.24 ms (−6.4%)"],
-                  ["(8, 64k)", "330 (0.52)", "453 (0.71)", "107.92 → 88.47 ms (−18.0%)"]], fold="Figure 37")
+                 ["TD point (B, C)", "FA4, page 64: TFLOP/s (fraction of ceiling)", "pair kernel, page 80: TFLOP/s (fraction of ceiling)", "TD step (ms)"],
+                 [["(8, 16k)", "335 (0.52)", "455 (0.71)", "58.05 → 53.27 (−8.2%)"],
+                  ["(32, 16k)", "320 (0.50)", "436 (0.68)", "222.37 → 208.24 (−6.4%)"],
+                  ["(8, 64k)", "330 (0.52)", "453 (0.71)", "107.92 → 88.47 (−18.0%)"]], fold="Figure 37")
 
 
 def t_recover(d):
@@ -836,23 +851,23 @@ def fig_prop1(d, C=1024):
     Y = lambda v: H - mb - v / ymax * (H - mb - mt)
     s = []
     for v in range(0, ymax + 1, 2):
-        s.append(f'<line x1="{ml}" y1="{Y(v):.1f}" x2="{W - mr}" y2="{Y(v):.1f}" stroke="{RULE}"/><text x="{ml - 7}" y="{Y(v) + 4:.1f}" text-anchor="end" font-size="11" fill="{MUT}">{v}</text>')
-    s.append(f'<line x1="{ml}" y1="{Y(1):.1f}" x2="{W - mr}" y2="{Y(1):.1f}" stroke="{MUT}" stroke-dasharray="3 4"/><text x="{ml + 4}" y="{Y(1) + 14:.1f}" font-size="10.5" fill="{MUT}">parity, Γ = 1</text>')
+        s.append(f'<line x1="{ml}" y1="{Y(v):.1f}" x2="{W - mr}" y2="{Y(v):.1f}" stroke="{RULE}"/><text x="{ml - 7}" y="{Y(v) + 4:.1f}" text-anchor="end" font-size="12" fill="{MUT}">{v}</text>')
+    s.append(f'<line x1="{ml}" y1="{Y(1):.1f}" x2="{W - mr}" y2="{Y(1):.1f}" stroke="{MUT}" stroke-dasharray="3 4"/><text x="{ml + 4}" y="{Y(1) + 14:.1f}" font-size="12" fill="{MUT}">parity, Γ = 1</text>')
     for i, B in enumerate(Bs):
-        s.append(f'<text x="{X(i):.1f}" y="{H - mb + 16}" text-anchor="middle" font-size="11" fill="{MUT}">{B}</text>')
-    s.append(f'<text x="{(ml + W - mr) / 2}" y="{H - 8}" text-anchor="middle" font-size="11.5" fill="{INK}">batch B, at context {kc(C)}</text>')
-    s.append(f'<text x="13" y="{(mt + H - mb) / 2}" text-anchor="middle" font-size="11.5" fill="{INK}" transform="rotate(-90 13 {(mt + H - mb) / 2})">gain Γ</text>')
-    series = [("Prop. 1, routing of A2", [p[f"{B},{C}"]["gain_ind"] for B in Bs], MUT, ' stroke-dasharray="6 4"', 1.8),
-              ("Prop. 1, measured routing", [p[f"{B},{C}"]["gain_meas"] for B in Bs], INK, "", 2),
-              ("measured gain", [g[f"{B},{C}"]["measured"] for B in Bs], TD, "", 2.6)]
+        s.append(f'<text x="{X(i):.1f}" y="{H - mb + 16}" text-anchor="middle" font-size="12" fill="{MUT}">{B}</text>')
+    s.append(f'<text x="{(ml + W - mr) / 2}" y="{H - 8}" text-anchor="middle" font-size="12" fill="{INK}">batch B, at context {kc(C)}</text>')
+    s.append(f'<text x="13" y="{(mt + H - mb) / 2}" text-anchor="middle" font-size="12" fill="{INK}" transform="rotate(-90 13 {(mt + H - mb) / 2})">gain Γ</text>')
+    series = [("Prop. 1, independent", [p[f"{B},{C}"]["gain_ind"] for B in Bs], MUT, ' stroke-dasharray="6 4"', 1.8),
+              ("Prop. 1, measured routing", [p[f"{B},{C}"]["gain_meas"] for B in Bs], INK2, ' stroke-dasharray="2 3"', 2),
+              ("measured gain", [g[f"{B},{C}"]["measured"] for B in Bs], MEAS, "", 2.6)]
     ends = spread([Y(vals[-1]) for _, vals, _, _, _ in series])
     for (name, vals, col, dash, sw), ye in zip(series, ends):
         pts = " ".join(f"{X(i):.1f},{Y(v):.1f}" for i, v in enumerate(vals))
         s.append(f'<polyline points="{pts}" fill="none" stroke="{col}" stroke-width="{sw}" stroke-linejoin="round"{dash}/>')
         for i, v in enumerate(vals):
             s.append(f'<circle cx="{X(i):.1f}" cy="{Y(v):.1f}" r="3.2" fill="{col}"><title>{name}, B = {Bs[i]}: {v:.2f}</title></circle>')
-        lab_col, bold = ("var(--bdr-ink-2)" if col == MUT else col), (' font-weight="600"' if col == TD else "")
-        s.append(f'<text x="{W - mr + 10}" y="{ye + 4:.1f}" font-size="11" fill="{lab_col}"{bold}>{fits(name, 11, mr - 12, "prop1")}</text>')
+        lab_col, bold = ("var(--bdr-ink-2)" if col == MUT else col), (' font-weight="600"' if col == MEAS else "")
+        s.append(f'<text x="{W - mr + 10}" y="{ye + 4:.1f}" font-size="12" fill="{lab_col}"{bold}>{fits(name, 12, mr - 12, "prop1")}</text>')
     return svg(W, H, "Gain against batch at context 1k: Proposition 1 under independent routing, Proposition 1 at the measured routing, and the measured gain", "".join(s))
 
 
@@ -860,25 +875,25 @@ def cell_grid(rows, cols, val, fmtv, scale, col=TD, label_w=176, cw=52, ch=28, h
     """A grid of values with one row per (key, name) of `rows` and one column per (key, name) of `cols`."""
     ml, mt = label_w, 30
     W, H = ml + cw * len(cols) + 6, mt + ch * len(rows) + 6
-    s = [f'<text x="{ml - 8}" y="{mt - 10}" text-anchor="end" font-size="11" fill="{MUT}">{head}</text>']
+    s = [f'<text x="{ml - 8}" y="{mt - 10}" text-anchor="end" font-size="12" fill="{MUT}">{head}</text>']
     for j, (_, cn) in enumerate(cols):
-        s.append(f'<text x="{ml + j * cw + cw / 2}" y="{mt - 10}" text-anchor="middle" font-size="11.5" fill="{MUT}">{cn}</text>')
+        s.append(f'<text x="{ml + j * cw + cw / 2}" y="{mt - 10}" text-anchor="middle" font-size="12" fill="{MUT}">{cn}</text>')
     for i, (rk, rn) in enumerate(rows):
         y = mt + i * ch
-        s.append(f'<text x="{ml - 8}" y="{y + ch / 2 + 4}" text-anchor="end" font-size="11.5" fill="{INK}">{fits(rn, 11.5, ml - 12, "grid")}</text>')
+        s.append(f'<text x="{ml - 8}" y="{y + ch / 2 + 4}" text-anchor="end" font-size="12" fill="{INK}">{fits(rn, 12, ml - 12, "grid")}</text>')
         for j, (ck, cn) in enumerate(cols):
             v, x = val(rk, ck), ml + j * cw
             if v is None:
-                s.append(f'<rect x="{x + 1}" y="{y + 1}" width="{cw - 2}" height="{ch - 2}" rx="2" fill="{RULE}" fill-opacity="0.5"/><text x="{x + cw / 2}" y="{y + ch / 2 + 4}" text-anchor="middle" font-size="11.5" fill="{MUT}">–</text>')
+                s.append(f'<rect x="{x + 1}" y="{y + 1}" width="{cw - 2}" height="{ch - 2}" rx="2" fill="{RULE}" fill-opacity="0.5"/><text x="{x + cw / 2}" y="{y + ch / 2 + 4}" text-anchor="middle" font-size="12" fill="{MUT}">–</text>')
                 continue
             a = max(0.05, min(1, v / scale))
             txt = "var(--bdr-bg)" if a > 0.55 else INK
             s.append(f'<rect x="{x + 1}" y="{y + 1}" width="{cw - 2}" height="{ch - 2}" rx="2" fill="{col}" fill-opacity="{a:.2f}"><title>{rn}, {cn}: {fmtv(v)}</title></rect>'
-                     f'<text x="{x + cw / 2}" y="{y + ch / 2 + 4}" text-anchor="middle" font-size="11.5" style="fill:{txt};font-weight:{600 if a > 0.55 else 400}">{fmtv(v)}</text>')
+                     f'<text x="{x + cw / 2}" y="{y + ch / 2 + 4}" text-anchor="middle" font-size="12" style="fill:{txt};font-weight:{600 if a > 0.55 else 400}">{fmtv(v)}</text>')
     return svg(W, H, head or "grid of values", "".join(s))
 
 
-RECOVER_ROWS = [("experts", "experts"), ("dense", "dense layers"), ("attnG", "global attention"), ("attnW", "window attention"),
+RECOVER_ROWS = [("experts", "experts"), ("dense", "dense GEMMs and router"), ("attnG", "global attention"), ("attnW", "window attention"),
                 ("head", "head, sampler, self-cond."), ("outside", "outside the model"), ("idle", "idle")]
 
 
@@ -912,17 +927,17 @@ def blocks():
                         "One sequence, DiffusionGemma's setting: a canvas of \\(b = 256\\) positions, \\(S = 14\\) denoising passes and one commit pass, so \\(\\omega = 15\\) passes per canvas and \\(\\mathrm{TPF} = b/\\omega = 17.1\\) tokens per forward pass. Each TD pass processes 256 positions instead of one, so it does more FLOPs and its positions touch more experts; Parts 1–5 weigh these costs against the shared read of the weights."),
         "map": fig("fig-map", "Figure 2 · interactive", "The book in two halves: bounds on paper, then measurements on one H200.", "", fig_map(),
                    "Parts 1–7 derive the gain \\(\\Gamma\\) as a ratio of roofline bounds and map it over batch and context. Parts 8–11 take the inputs of those bounds from measurements, time every kernel of both decoders in vLLM, rewrite the two kernels that lag most, and compare the measured gain with the bound. Select a box to open its chapter."),
-        "ladder": fig("fig-ladder", "Figure 3 · interactive", "From the book's bound to the measured gain: three changes of input, then the measurement.", "Choose a context; hover over or tap a batch to read the four values.",
+        "ladder": fig("fig-ladder", "Figure 3 · interactive", "From the book's bound to the measured gain: two measured inputs, then the measurement.", "Choose a context; hover over or tap a batch to read the four values.",
                       '<div data-mfig="ladder" data-series="a,b,c,d"></div>',
-                      "DiffusionGemma (TD) against Gemma 4 26B-A4B (AR) on one H200, FP8 weights, at the 25 measured points. (a) is the book's exact accounting, vocabulary included, with the kernel-by-kernel timing rule of Part 5, at FP8, with datasheet rates and independent routing, evaluated at the context of the measured windows. (b) uses the ceilings measured on this H200, (c) also the expert counts measured in the same runs, and (d) is the measured gain. Part 8 explains (a) to (c), and Part 11 compares (c) with (d)."),
+                      "DiffusionGemma (TD) against Gemma 4 26B-A4B (AR) on one H200, FP8 weights, at the 25 measured points. (a) is the book's exact accounting, vocabulary included, with the kernel-by-kernel timing rule of Part 5, at FP8, with datasheet rates and independent routing, evaluated at the context of the measured windows. (b) uses the ceilings measured on this H200, (c) also the expert counts measured in the same runs, and (d) is the measured gain, in magenta. Part 8 explains (a) to (c), and Part 11 compares (c) with (d). The batch axis is logarithmic: the measured sizes 1, 2, 4, …, 64 are equally spaced."),
         "roofline": fig("fig-eff-roofline", "Figure 23", "The measured roofline sits below the datasheet's, more in compute than in bandwidth.", "", fig_eff_roofline(d),
-                        "Attainable throughput \\(\\min(\\pi, I\\beta)\\) against arithmetic intensity, log–log, for FP8 linear layers. Dashed: datasheet (1,979 TFLOP/s, 4.8 TB/s). Solid orange: empirical ceilings of Table 11. Blue: the attention ceiling, which applies to attention kernels whatever their intensity. The ridge point, where a kernel turns compute-bound, moves from 412 to 340 FLOP/byte."),
+                        "Attainable throughput \\(\\min(\\pi, I\\beta)\\) against arithmetic intensity, log–log, for FP8 linear layers. Grey, dashed: datasheet (1,979 TFLOP/s, 4.8 TB/s). Magenta, solid: the empirical ceilings of Table 11. Black, dotted: the attention ceiling, which applies to attention kernels whatever their intensity. The ridge point, where a kernel turns compute-bound, moves from 412 to 340 FLOP/byte."),
         "routing": fig("fig-eff-routing", "Figure 24 · interactive", "Both decoders touch fewer experts than independent routing predicts, for different reasons.", "Choose the decoder and the context; hover over or tap a batch to read the counts.",
                        '<div data-mfig="routing"></div>',
-                       "Distinct experts per MoE layer and forward pass \\(U\\), averaged over the 30 layers and the timed passes, against batch size: the median of three repeats with different prompts, and the band spanning them. Dotted: independent tokens with uniform routing, \\(U_{E,k}(N)\\) of Definition 1. Dashed: independent tokens with each expert's measured popularity (Definition 6). AR follows the dashed curve; TD lies below it."),
-        "maps_abc": fig("fig-eff-maps", "Figure 26 · interactive", "The gain bound moves with each measured input, and routing moves it most.", "Choose a context; hover over or tap a batch to read the three bounds.",
+                       "Distinct experts per MoE layer and forward pass \\(U\\), averaged over the 30 layers and the timed passes, against batch size: the median of three repeats with different prompts, and the band spanning them. Dotted: independent tokens with uniform routing (A5), \\(U_{E,k}(N)\\) of Definition 1. Dashed: independent tokens with each expert's measured popularity (Definition 6). Solid: the measured count, in the decoder's colour. AR follows the dashed curve; TD lies below it. The batch axis is logarithmic: the measured sizes 1, 2, 4, …, 64 are equally spaced."),
+        "maps_abc": fig("fig-eff-maps", "Figure 26 · interactive", "Measured routing raises the bound at batch 1–2 and lowers it from batch 8 on.", "Choose a context; hover over or tap a batch to read the three bounds.",
                         '<div data-mfig="ladder" data-series="a,b,c"></div>',
-                        "Roofline bound on \\(\\Gamma\\) against batch, with FP8 weights, at the measured points; each curve changes one input of the previous one. (a) the book's exact accounting with datasheet rates and independent routing (A2); (b) the empirical ceilings of Table 11; (c) the expert counts measured in the same runs. Below the parity line AR is faster. Missing points were not measured: the grid keeps \\(BC \\le 2^{21}\\) tokens, and TD's batches at \\((32, 64\\text{k})\\) and \\((64, 16\\text{k})\\) did not fit in memory."),
+                        "Roofline bound on \\(\\Gamma\\) against batch, with FP8 weights, at the measured points; each curve changes one input of the previous one. (a) the book's exact accounting with datasheet rates and independent routing (A5); (b) the empirical ceilings of Table 11; (c) the expert counts measured in the same runs. The measured ceilings lower the bound at every point, by 0.08–0.53; the measured routing then raises it at batch 1–2, changes it by at most 0.06 at batch 4, and lowers it from batch 8 on. Below the parity line AR is faster. Missing points were not measured: the grid keeps \\(BC \\le 2^{21}\\) tokens, and TD's batches at \\((32, 64\\text{k})\\) and \\((64, 16\\text{k})\\) did not fit in memory. The batch axis is logarithmic: the measured sizes 1, 2, 4, …, 64 are equally spaced."),
         "eager": fig("fig-eager", "Figure 27", "In eager mode the GPU waits for each launch; a CUDA graph runs the kernels of a pass back to back.", "", fig_eager(),
                      "Four kernels of one forward pass, as in Part 8's small GEMMs: launching a kernel costs the CPU a few µs, and with 64 tokens or fewer a projection runs for 5–12 µs, so in eager mode the GPU waits a large share of the time. A CUDA graph replays the recorded sequence of kernels with one launch."),
         "stack": fig("fig-stack", "Figure 28", "Each term of a component's efficiency is read at a different level of the serving stack.", "", fig_stack(),
@@ -933,34 +948,34 @@ def blocks():
                       "A stretch of one layer, with simplified kernel names. In the eager run each kernel is recorded inside the profiler range of the module that launched it; in the graph run only inside the range of the whole pass. The same kernel can serve several modules, as the FP8 GEMM does here, so the match counts occurrences. Each module then belongs to one component. The compiler fuses the norm with its neighbours into a kernel of another name, which has no eager match and counts as outside the model."),
         "flags": fig("fig-flags", "Figure 31", "A replayed CUDA graph reads the memory it saw at capture, so a tensor recreated at every step is never read.", "", fig_flags(),
                      "DiffusionGemma passes a causal flag per sequence to the attention kernel: 0 for a bidirectional denoising pass, 1 for the causal commit pass. In vLLM 0.28 the flags lived in a bool buffer converted to int32 at every step; under CUDA graphs the attention kernels kept reading the copy made at capture."),
-        "moe": fig("fig-moe", "Figure 33", "The new expert path runs six kernels where vLLM's runs nine; its two GEMMs are as fast as vLLM's.", "", fig_moe(),
-                   "One MoE layer at TD batch 32 (\\(Nk = 65{,}536\\) rows, each a (token, expert) pair). Each box is one step of the path, one kernel unless marked, in order; the orange number is what it writes to memory, read back by the next step. The new path also zeroes \\(y\\) before the atomic additions, its sixth kernel."),
-        "pair": fig("fig-pair", "Figure 35", "Each thread block of the pair holds half of the head dimension; the only traffic between the two SMs is the partial score tile.", "", fig_pair(),
-                    "Both blocks process the same 128 query rows. The orange arrows are the exchange: each block writes its \\(T_q \\times T_k\\) partial scores into the partner's shared memory and waits for the partner's before the softmax."),
-        "smem": fig("fig-smem", "Figure 36", "Splitting the head dimension frees shared memory, for a second pipeline stage or for larger tiles of keys.", "", fig_smem(),
+        "moe": fig("fig-moe", "Figure 33", "The new expert path runs six kernels where vLLM's runs nine.", "", fig_moe(),
+                   "One MoE layer at TD batch 32 (\\(Nk = 65{,}536\\) rows, each a (token, expert) pair). Each box is one step of the path, one kernel unless marked, in order; the number to the right of a box is what it writes to memory, read back by the next step. The new path zeroes \\(y\\) before the second GEMM adds its rows into it atomically, each row scaled by its routing weight \\(p\\)."),
+        "pair": fig("fig-pair", "Figure 35", "The two thread blocks of the pair exchange only their partial score tiles.", "", fig_pair(),
+                    "Each thread block holds half of the head dimension. Both blocks process the same 128 query rows. The crossing arrows are the exchange: each block writes its \\(M_q \\times M_k\\) partial scores into the partner's shared memory and waits for the partner's before the softmax."),
+        "smem": fig("fig-smem", "Figure 36", "Splitting the head dimension leaves room for a second pipeline stage.", "", fig_smem(),
                     "Shared memory per thread block, in KB, against the 227 KB of one SM. FA4 at head dimension 512 holds full-width tiles and fits one stage; a block of the pair holds half-width tiles and fits two stages of 64 keys plus two exchange buffers. With 80-token KV pages the fastest configuration uses the room differently, for one stage of 80-key tiles loaded by TMA (Table 16)."),
         "maps_cd": fig("fig-conc-maps", "Figure 41 · interactive", "The measured gain exceeds the bound up to batch 8 and falls below it from batch 16 on.", "Choose a context; hover over or tap a batch to read both.",
                        '<div data-mfig="ladder" data-series="c,d"></div>',
-                       "The bound (c) of Figure 26 and the measured gain (d), TD's tokens per second over AR's at equal \\(B\\) and \\(C\\), medians of three repeats. Proposition 9 says why the two differ."),
+                       "The bound (c) of Figure 26, in black, and the measured gain (d), in magenta: TD's tokens per second over AR's at equal \\(B\\) and \\(C\\), medians of three repeats. Proposition 9 says why the two differ. The batch axis is logarithmic: the measured sizes 1, 2, 4, …, 64 are equally spaced."),
         "dev": fig("fig-conc-dev", "Figure 42 · interactive", "The bound is conservative while TD runs closer to its roofline than AR, up to batch 8, and optimistic from batch 16 on.", "Choose a context; hover over or tap a batch to read the two efficiencies and their ratio.",
                    '<div data-mfig="eff"></div>',
-                   "Step efficiency \\(\\eta_X = \\tau_X/t_X\\) of each decoder, its empirical roofline time over its measured step time, medians of three repeats. By Proposition 9 the measured gain over the bound is \\(\\eta_{TD}/\\eta_{AR}\\): the band between the curves is orange where the measured gain exceeds the bound and blue where it falls short. AR's efficiency rises with the batch and TD's barely moves."),
+                   "Step efficiency \\(\\eta_X = \\tau_X/t_X\\) of each decoder, its empirical roofline time over its measured step time, medians of three repeats. By Proposition 9 the measured gain over the bound is \\(\\eta_{TD}/\\eta_{AR}\\): the band between the curves is orange where the measured gain exceeds the bound and blue where it falls short. From batch 1 to the largest measured batch, AR's efficiency rises from 0.27–0.32 to 0.62–0.69, while TD's stays between 0.42 and 0.61. The batch axis is logarithmic: the measured sizes 1, 2, 4, …, 64 are equally spaced."),
         "eta_maps": fig("fig-eta-maps", "Figure 38 · interactive", "After the kernel work, every component of TD's step runs at half its roofline or more from batch 8 on, the experts aside.", "Choose the decoder, highlight a component and choose a context; hover over or tap a batch to read every component.",
                         '<div data-mfig="comp" data-src="eta3"></div>',
-                        "Efficiency \\(\\eta_c = \\tau_c/t_c\\) of each component, its empirical roofline time over its measured kernel time, medians of three repeats; dashed, the whole step \\(\\eta_X = \\tau_X/t_X\\), which also counts time outside the model and idle time. The choice TD with vLLM kernels repeats Figure 32 for comparison."),
+                        "Efficiency \\(\\eta_c = \\tau_c/t_c\\) of each component, its empirical roofline time over its measured kernel time, medians of three repeats; dashed, the whole step \\(\\eta_X = \\tau_X/t_X\\), which also counts time outside the model and idle time. The highlighted component is drawn in its decoder's colour, and the dotted line is its target efficiency \\(\\eta^\\star_c\\) of Definition 7. The choice TD with vLLM kernels repeats Figure 32 for comparison. The batch axis is logarithmic: the measured sizes 1, 2, 4, …, 64 are equally spaced."),
         "prop1": fig("fig-prop1", "Figure 25 · interactive", "At contexts 1k–4k, Proposition 1 underestimates the measured gain at batch 1–2 and overestimates it from batch 4 on, at either routing.", "Choose a context; hover over or tap a batch to read the penalties and gains.",
                      '<div data-mfig="prop1"></div>',
-                     "Gain against batch with FP8 weights and the empirical ceilings: the values of Table 13 at context 1k. Dashed: Proposition 1 under A2, independent uniform routing. Black: Proposition 1 with the measured expert counts of both decoders. Purple: the measured gain, median of three repeats. At small batch the measured routing raises the bound, since a canvas touches fewer experts than A2 predicts, and at batch 1–2 the measurement is higher still (Part 11). From batch 8 on it lowers the bound, since AR's count falls further below A2's prediction than TD's, and Proposition 1 still overestimates the measured gain, because it leaves out the vocabulary head."),
+                     "Gain against batch with FP8 weights and the empirical ceilings: the values of Table 13 at context 1k. Grey, dashed: Proposition 1 under independent uniform routing (A5). Dark grey, dotted: Proposition 1 with the measured expert counts of both decoders. Magenta: the measured gain, median of three repeats. At small batch the measured routing raises the bound, since a canvas touches fewer experts than independent routing predicts, and at batch 1–2 the measurement is higher still (Part 11). From batch 8 on it lowers the bound, since AR's count falls further below the prediction of independent routing than TD's, and Proposition 1 still overestimates the measured gain, because it leaves out the vocabulary head. The batch axis is logarithmic: the measured sizes 1, 2, 4, …, 64 are equally spaced."),
         "eta_stock": fig("fig-eta-stock", "Figure 32 · interactive", "With vLLM's own kernels, the experts and global attention are the furthest from their rooflines from batch 8 on.", "Highlight a component and choose a context; hover over or tap a batch to read every component.",
                          '<div data-mfig="comp" data-src="eta2"></div>',
-                         "Efficiency \\(\\eta_c = \\tau_c/t_c\\) of each component of TD's step with the three engine fixes and vLLM's own kernels, one run per point; dashed, the whole step, \\(\\eta = \\tau/t\\), which also counts time outside the model and idle time. Table 14 gives the ranges, and Figure 38 the same curves after the kernel work of Part 10."),
+                         "Efficiency \\(\\eta_c = \\tau_c/t_c\\) of each component of TD's step with the three engine fixes and vLLM's own kernels, one run per point; dashed, the whole step, \\(\\eta = \\tau/t\\), which also counts time outside the model and idle time. The highlighted component is drawn in TD's colour, and the dotted line is its target efficiency \\(\\eta^\\star_c\\) of Definition 7. Table 14 gives the ranges, and Figure 38 the same curves after the kernel work of Part 10. The batch axis is logarithmic: the measured sizes 1, 2, 4, …, 64 are equally spaced."),
         "vs2": fig("fig-vs2", "Figure 39 · interactive", "The two kernels raise TD's throughput at every measured point, by 4% to 22%, most at long context.", "Hover over or tap a batch to read the four contexts.",
                    '<div data-mfig="vs2"></div>',
-                   "TD's tokens per second with the kernels of this chapter over its tokens per second with vLLM's kernels, at the same batch and context: the median of three repeats, each on its own prompts, over one run on the first repeat's prompts. Table 18 gives the ranges."),
-        "recover": fig("fig-recover", "Figure 40 · interactive", "The recoverable time that remains sits mostly in the experts at batch 2–8, and outside the model from batch 16 on.", "Choose a context and a batch.",
+                   "TD's tokens per second with the kernels of this chapter over its tokens per second with vLLM's kernels, at the same batch and context: the median of three repeats, each on its own prompts, over one run on the first repeat's prompts. Table 18 gives the ranges. The batch axis is logarithmic: the measured sizes 1, 2, 4, …, 64 are equally spaced."),
+        "recover": fig("fig-recover", "Figure 40 · interactive", "After the kernel work, the largest recoverable share of TD's step is the experts' at batch 2–8 and the time outside the model from batch 16 on.", "Choose a context and a batch.",
                        '<div data-mfig="recover"></div>',
-                       "Each component's share of TD's step after the kernel work, split into the time its target kernel would keep and the recoverable rest (Definition 7); time outside the model and idle time count in full. At batch 1 and context 64k global attention leads, at 17% of the step. Table 19 lists the two largest entries at contexts 1k and 64k."),
-        "moe_eff": fig("fig-moe-eff", "Figure 34", "The new expert path raises the experts to 0.33–0.52 of their roofline at every point, short of the 0.81 that cuBLAS reaches.", "",
+                       "Each component's share of TD's step after the kernel work, split into the time its target kernel would keep and the recoverable rest (Definition 7); time outside the model and idle time count in full. Grey: the time the component would take at its target efficiency \\(\\eta^\\star_c\\); orange: the recoverable rest; the number is the recoverable share of the step. At batch 1 the dense layers lead at contexts 1k–16k, with 8–10% of the step, and global attention at 64k, with 17%. Table 19 lists the two largest entries at contexts 1k and 64k."),
+        "moe_eff": fig("fig-moe-eff", "Figure 34", "The new expert path raises the experts to 0.33–0.52 of their roofline at the four measured points, short of the 0.81 that cuBLAS reaches.", "",
                        fig_moe_eff(),
                        "Efficiency of the expert path against its empirical roofline at the measured routing, in dedicated runs of the kernel, three per arm and separate from the grid of Parts 8–11; the label gives the change in time per pass. The dashed line is the stacked cuBLAS reference at batch 32, the target of Definition 7. Table 15 gives the times."),
         "attn_eff": fig("fig-attn-eff", "Figure 37", "The pair kernel raises global attention from about half to about 0.7 of the attention ceiling.", "",

@@ -2,7 +2,8 @@
 // cost model (window.BDModel) and helpers (window.BDR, exposed by note.js).
 //
 // The figures of Parts 3-5 on experts, weights, the KV cache and thresholds (figExperts ... figThresholds)
-// use the model as the propositions do: no vocabulary, independent uniform routing and selections (A2).
+// use the model as the propositions do: no vocabulary, independent uniform routing (A5) and
+// independent uniform selections in sparse layers.
 // Their toy grids (experts of one layer, cached tokens of one sequence) show one random draw; the
 // readout next to each gives the expectation that the propositions use.
 //
@@ -37,11 +38,11 @@
   const g2 = (x) => (x >= 10 ? x.toFixed(1) : x.toFixed(2));
   const kctx = (C) => (C >= 1 << 20 ? `${fmt(C / (1 << 20))}M` : `${fmt(C / 1024)}k`);
   const pct = (x) => (x >= 0.995 ? '100%' : x >= 0.1 ? `${Math.round(x * 100)}%` : `${fmt(x * 100, 2)}%`);
-  const sub = (base, s) => `${base}<tspan baseline-shift="sub" font-size="8.5">${s}</tspan>`;
+  const sub = (base, s) => `${base}<tspan baseline-shift="sub" font-size="0.8em">${s}</tspan>`;
   const hsub = (base, s) => { const t = `<i>${base}</i><sub>${s}</sub>`; return s === 'AR' || s === 'TD' ? `<span class="q-${s.toLowerCase()}">${t}</span>` : t; };
   const colors = () => ({
     ar: css('--bdr-ar'), td: css('--bdr-td'), ink: css('--ink'), muted: css('--bdr-muted'), rule: css('--rule'),
-    bg: css('--bdr-bg'), surface: css('--bdr-surface'), accent: css('--accent'), soft: css('--bdr-accent-soft'),
+    bg: css('--bdr-bg'), surface: css('--bdr-surface'), hi: css('--bdr-hi'), soft: css('--bdr-accent-soft'),
   });
   function scale(d0, d1, r0, r1, log = true) {
     const f = log ? Math.log10 : (v) => v, a = f(d0), b = f(d1);
@@ -62,14 +63,23 @@
     input.addEventListener('input', sync); sync();
     return { lab, input, get value() { return values[+input.value]; }, get index() { return +input.value; }, set(v) { input.value = nearestIndex(values, v); sync(); } };
   }
-  function seg(options, current, onPick) {
-    const box = el('<div class="seg" role="group"></div>');
+  function seg(options, current, onPick, name = '') {
+    const box = el(`<div class="seg" role="group"${name ? ` aria-label="${name}"` : ''}></div>`);
     for (const [value, text] of options) {
       const b = el(`<button type="button" aria-pressed="${value === current}">${text}</button>`);
       b.addEventListener('click', () => { box.querySelectorAll('button').forEach((x) => x.setAttribute('aria-pressed', String(x === b))); onPick(value); });
       box.appendChild(b);
     }
     return box;
+  }
+  // A captioned button group: role=group named by its caption (a <label> would forward clicks to its first button).
+  let groupId = 0;
+  function groupOf(text, s, cls = 'wide') {
+    const id = `bdr-grp-${++groupId}`;
+    const g = el(`<div class="ctl ${cls}" role="group" aria-labelledby="${id}"><span id="${id}">${text}</span><span class="segbox"></span></div>`);
+    s.removeAttribute('role'); s.removeAttribute('aria-label');
+    g.querySelector('.segbox').appendChild(s);
+    return g;
   }
   // Drag a vertical marker along a log axis (pointer, touch, arrow keys). The handlers sit on the
   // container, which survives redraws; the SVG and its .drag group are rebuilt on every move.
@@ -111,7 +121,7 @@
     flush();
     return s;
   }
-  // SVGs are drawn at the width they are shown at, so that 11px text stays 11px on a phone.
+  // SVGs are drawn at the width they are shown at, so that 12px text stays 12px on a phone.
   const widthOf = (box, lo = 330, hi = 1000) => Math.max(lo, Math.min(hi, Math.round(box.clientWidth || 640)));
   function watchWidth(box, draw) {
     let last = box.clientWidth;
@@ -123,16 +133,22 @@
   // The accelerator is shared by Figures 5, 9, 13 and 16: choosing one in a figure sets it in all.
   const ACCEL = ['h20', 'rtx5090', 'a100', 'h200', 'v5e', 'b200', 'mi355x', 'h100pcie', 'spark', 'v6e'];
   const SHORT = { h20: 'H20', rtx5090: 'RTX 5090', a100: 'A100', h200: 'H200', v5e: 'TPU v5e', b200: 'B200', mi355x: 'MI355X', h100pcie: 'H100 PCIe', spark: 'DGX Spark', v6e: 'TPU v6e' };
-  // The choice is remembered across the pages of the book (a per-viewer convenience).
-  const HW_KEY = 'bdr-hw';
-  let savedHw = null;
-  try { savedHw = localStorage.getItem(HW_KEY); } catch (e) { /* storage unavailable */ }
-  const shared = { hw: savedHw && HWBYID[savedHw] && ACCEL.includes(savedHw) ? savedHw : 'h200', subs: [] };
+  // labels of Figure 16's dots on narrow screens
+  const NARROW = { rtx5090: 'RTX5090', v5e: 'v5e', h100pcie: 'H100P', spark: 'Spark', v6e: 'v6e' };
+  // The choice is shared within the page only: every page opens on the H200, the accelerator the text quotes.
+  const shared = { hw: 'h200', subs: [] };
   function setHw(id) {
     if (!HWBYID[id] || id === shared.hw) return;
     shared.hw = id;
-    try { localStorage.setItem(HW_KEY, id); } catch (e) { /* storage unavailable */ }
     shared.subs.forEach((f) => f(id));
+  }
+  // A line under a figure's controls, shown while the shared accelerator is not the H200.
+  function hwNote() {
+    const box = el('<div class="hw-note" aria-live="polite" hidden><span></span><button type="button" class="fig-btn">Show the H200</button></div>');
+    const sync = (id) => { box.hidden = id === 'h200'; box.querySelector('span').textContent = `Showing the ${SHORT[id] || HWBYID[id].label}; the text quotes the H200.`; };
+    box.querySelector('button').addEventListener('click', () => setHw('h200'));
+    shared.subs.push(sync); sync(shared.hw);
+    return box;
   }
   function hwControl() {
     const lab = el(`<label class="sel">accelerator<select>${ACCEL.map((id) => `<option value="${id}"${id === shared.hw ? ' selected' : ''}>${HWBYID[id].label}</option>`).join('')}</select></label>`);
@@ -182,7 +198,7 @@
     for (let e = 0; e <= 4; e++) s += `<text x="${xs(10 ** e)}" y="${H - m.b + 15}" text-anchor="middle">${10 ** e >= 1000 ? `${10 ** (e - 3)}k` : 10 ** e}</text>`;
     if (!mini) {
       s += `<text x="${(m.l + W - m.r) / 2}" y="${H - 6}" text-anchor="middle" class="ink">arithmetic intensity, FLOP per byte</text>`;
-      s += `<text x="4" y="13" class="ink">TFLOP/s</text>`;
+      s += `<text x="4" y="13" class="ink">attainable FLOP rate, TFLOP/s</text>`;
     }
     s += `<line x1="${xs(Is)}" x2="${xs(Is)}" y1="${ys(pk)}" y2="${H - m.b}" stroke="${c.muted}" stroke-dasharray="3 4"/>`;
     s += `<text x="${xs(Is) + 5}" y="${H - m.b - 6}">${mini ? 'I* ' : 'ridge I* = '}${fmt(Is)}</text>`;
@@ -201,17 +217,15 @@
     return `${s}</svg>`;
   }
 
-  // ---------------------------------------------------------------- Figure 4: byte reuse and the MoE penalty
+  // ---------------------------------------------------------------- Figure 4: byte reuse and the linear penalty
   function figReuse(root) {
     const st = { b: 64, S: 14, t: 0, timer: 0, model: 'dense' };
     const ctl = el('<div class="fig-controls"></div>');
-    const mSeg = el('<label class="wide"><span>model</span><span class="segbox"></span></label>');
-    mSeg.querySelector('.segbox').appendChild(seg([['dense', 'dense'], ['moe', 'MoE: DiffusionGemma']], st.model, (v) => { st.model = v; reset(); }));
-    const bSeg = el('<label class="wide"><span>canvas length <i>b</i></span><span class="segbox"></span></label>');
-    bSeg.querySelector('.segbox').appendChild(seg([16, 32, 64, 128, 256].map((v) => [v, String(v)]), st.b, (v) => { st.b = v; reset(); }));
+    const mSeg = groupOf('model', seg([['dense', 'dense'], ['moe', 'MoE: DiffusionGemma']], st.model, (v) => { st.model = v; reset(); }));
+    const bSeg = groupOf('canvas length <i>b</i>', seg([16, 32, 64, 128, 256].map((v) => [v, String(v)]), st.b, (v) => { st.b = v; reset(); }));
     const sS = slider('denoising passes <i>S</i>', Array.from({ length: 32 }, (_, i) => i + 1), st.S - 1, (v) => `${v}  (ω = ${v + 1})`);
     sS.input.addEventListener('input', () => { st.S = sS.value; reset(); });
-    const btns = el('<div class="seg"><button type="button" class="fig-btn primary" data-a="play">Play</button><button type="button" class="fig-btn" data-a="step">Step</button><button type="button" class="fig-btn" data-a="reset">Reset</button></div>');
+    const btns = el('<div class="seg" role="group" aria-label="animation"><button type="button" class="fig-btn primary" data-a="play">Play</button><button type="button" class="fig-btn" data-a="step">Step</button><button type="button" class="fig-btn" data-a="reset">Reset</button></div>');
     ctl.append(mSeg, bSeg, sS.lab, btns);
     const pic = el('<div></div>'), out = el('<div class="readout" aria-live="polite"></div>');
     root.append(ctl, pic, out);
@@ -233,16 +247,16 @@
       }
     });
     function draw() {
-      const c = colors(), W = widthOf(pic), x0 = W < 480 ? 118 : 150, x1 = W - 16, w = x1 - x0, n = om(), t = st.t, b = st.b, Pi = penalty();
+      const c = colors(), W = widthOf(pic), x0 = W < 480 ? 136 : 160, x1 = W - 16, w = x1 - x0, n = om(), t = st.t, b = st.b, Pi = penalty();
       const cell = w / Math.max(b, n), committed = t >= n;
       let s = `<svg viewBox="0 0 ${W} 240" role="img" aria-label="After ${t} of ${n} passes: AR has ${t} tokens, TD ${committed ? b : 0}">`;
       // shared time axis: one slot per pass
-      s += `<text x="0" y="27" class="ink">forward passes</text><text x="0" y="41">one weight read each</text>`;
+      s += `<text x="0" y="27" class="ink">forward passes</text>${W < 480 ? '' : '<text x="0" y="41">one weight read each</text>'}`;
       const sw = w / n;
       for (let j = 0; j < n; j++) {
         const done = j < t, last = j === n - 1;
         s += `<rect x="${x0 + j * sw + 1}" y="18" width="${Math.max(2, sw - 2)}" height="22" rx="2" fill="${done ? c.ink : 'none'}" fill-opacity="${done ? 0.82 : 0}" stroke="${c.muted}" stroke-opacity="0.6"/>`;
-        if (sw > 22) s += `<text x="${x0 + j * sw + sw / 2}" y="33" text-anchor="middle" style="fill:${done ? c.bg : c.muted};font-size:10px">${last ? (sw >= 46 ? 'commit' : '+1') : j + 1}</text>`;
+        if (sw > 22) s += `<text x="${x0 + j * sw + sw / 2}" y="33" text-anchor="middle" style="fill:${done ? c.bg : c.muted};font-size:11px">${last ? (sw >= 46 ? 'commit' : '+1') : j + 1}</text>`;
       }
       // bytes read by one pass: the TD bar is Π_lin times the AR bar
       const unit = Math.min(60, w / 8.2);
@@ -264,7 +278,7 @@
       const moe = st.model === 'moe' ? ` A canvas of ${b} positions touches ${fmt(M.distinctExperts(DG, b))} of 128 experts per layer and one token touches 8, so a TD pass reads ${hsub('Π', 'lin')} = ${fmt(Pi)} times the weights of an AR step.` : '';
       out.innerHTML = t < n
         ? `After <b>${t}</b> of <b>${n}</b> passes: <span class="ar">AR</span> has committed ${t} token${t === 1 ? '' : 's'}, <span class="td">TD</span> none yet.${moe}`
-        : `<span class="big">In ${n} passes, <span class="ar">AR</span> commits ${n} tokens and <span class="td">TD</span> commits ${b}: TPF = ${b}/${n} = <b>${fmt(tpf)}</b>.</span><br>${moe} Per token, TD reads ${Pi === 1 ? `1/TPF = ${fmt(1 / tpf)}` : `${hsub('Π', 'lin')}/TPF = ${fmt(Pi / tpf)}`} times the weight bytes of AR and performs ${n} times its FLOPs. If both passes are memory-bound, <b>Γ = ${Pi === 1 ? `TPF = ${fmt(gain)}` : `TPF/${hsub('Π', 'lin')} = ${fmt(tpf)}/${fmt(Pi)} = ${fmt(gain)}`}</b>${gain < 1 ? ': the canvas is too short to pay for what it reads, and TD loses' : ''}.${Pi === 1 && b > 206 ? ` A dense TD pass over ${b} positions has an intensity of about ${b}, above the ridge of an H200 (206): there it is compute-bound, and the gain is capped at <i>I</i>*/(ω ${hsub('I', 'AR')}) (Corollary 1, Figure 5).` : ''}`;
+        : `<span class="big">In ${n} passes, <span class="ar">AR</span> commits ${n} tokens and <span class="td">TD</span> commits ${b}: TPF = ${b}/${n} = <b>${fmt(tpf)}</b>.</span><br>${moe} Per token, TD reads ${Pi === 1 ? `1/TPF = ${fmt(1 / tpf)}` : `${hsub('Π', 'lin')}/TPF = ${fmt(Pi / tpf)}`} times the weight bytes of AR and performs ${n} times its FLOPs. If both passes are memory-bound, <b>Γ = ${Pi === 1 ? `TPF = ${fmt(gain)}` : `TPF/${hsub('Π', 'lin')} = ${fmt(tpf)}/${fmt(Pi)} = ${fmt(gain)}`}</b>${gain < 1 ? ': TPF is below the penalty, so AR is faster' : ''}.${Pi === 1 && b > 206 ? ` A dense TD pass over ${b} positions has an intensity of about ${b}, above the ridge of an H200 (206): there it is compute-bound, and the gain is capped at <i>I</i>*/(ω ${hsub('I', 'AR')}) (Corollary 1, Figure 5).` : ''}`;
     }
     reset();
     onTheme(draw);
@@ -278,10 +292,10 @@
     const sC = slider('context <i>C</i>', CONTEXTS, 0, kctx);
     const presets = seg([['r1', 'batch 1, context 1k'], ['r2', 'batch 8, context 1k'], ['r6', 'batch 4, context 1M']], 'r1', (p) => {
       const [B, C] = { r1: [1, 1024], r2: [8, 1024], r6: [4, 1 << 20] }[p]; sB.set(B); sC.set(C); draw();
-    });
+    }, 'settings');
     ctl.append(hwControl(), sB.lab, sC.lab, presets);
     const pic = el('<div></div>'), out = el('<div class="readout" aria-live="polite"></div>');
-    root.append(ctl, pic, out);
+    root.append(ctl, hwNote(), pic, out);
     const clearPresets = () => presets.querySelectorAll('button').forEach((x) => x.setAttribute('aria-pressed', 'false'));
     sB.input.addEventListener('input', () => { clearPresets(); draw(); });
     sC.input.addEventListener('input', () => { clearPresets(); draw(); });
@@ -331,23 +345,23 @@
     const st = { i: nearestIndex(BSCAN, 64), revealed: false, rule: 'whole' };
     const ctl = el('<div class="fig-controls"></div>');
     const rev = el('<div class="seg"><button type="button" class="fig-btn primary">Reveal the curve</button></div>');
-    const rule = el('<label class="wide"><span>timing of a pass</span><span class="segbox"></span></label>');
-    rule.querySelector('.segbox').appendChild(seg([['whole', 'one overlapped kernel (A1)'], ['sum', 'kernels one after another']], st.rule, (v) => { st.rule = v; draw(); }));
+    const rule = groupOf('timing of a pass', seg([['whole', 'one overlapped kernel (A1)'], ['sum', 'kernels one after another']], st.rule, (v) => { st.rule = v; draw(); }));
     ctl.append(hwControl(), rule, rev);
-    const pic = el('<div></div>'), out = el('<div class="readout"></div>');
-    root.append(ctl, pic, out);
+    const pic = el('<div></div>'), out = el('<div class="readout" aria-live="polite"></div>');
+    root.append(ctl, hwNote(), pic, out);
     rev.querySelector('button').addEventListener('click', (ev) => { st.revealed = !st.revealed; ev.target.textContent = st.revealed ? 'Hide the curve' : 'Reveal the curve'; ev.target.classList.toggle('primary', !st.revealed); draw(); });
     out.addEventListener('click', (ev) => { if (ev.target.closest('[data-calc]')) { ev.preventDefault(); openCalculator(shared.hw, BSCAN[st.i], st.rule); } });
     function draw() {
-      const c = colors(), W = widthOf(pic), H = 300, m = { l: 48, r: 18, t: 18, b: 40 }, sum = st.rule === 'sum';
+      const c = colors(), W = widthOf(pic), H = 310, m = { l: 48, r: 18, t: 28, b: 40 }, sum = st.rule === 'sum';
       const cur = gainCurve(shared.hw, st.rule), pts = cur.pts, B = BSCAN[st.i], P = pts[st.i];
       const xs = scale(1, 1024, m.l, W - m.r);
       const ylo = Math.min(0.25, ...pts.map((p) => p.g)) * 0.9, yhi = Math.max(8, ...pts.map((p) => p.g)) * 1.25, ys = scale(ylo, yhi, H - m.b, m.t);
       let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Gain against batch">`;
       if (st.revealed && cur.bstar) s += `<rect x="${m.l}" y="${m.t}" width="${xs(cur.bstar) - m.l}" height="${H - m.b - m.t}" fill="${c.soft}" opacity="0.8"/>`;
       s += logGrid(ys, m.l, W - m.r, ylo, yhi, (v) => `${v}×`, c);
-      for (let e = 0; e <= 10; e += 1) s += `<text x="${xs(2 ** e)}" y="${H - m.b + 15}" text-anchor="middle">${2 ** e}</text>`;
-      s += `<text x="${(m.l + W - m.r) / 2}" y="${H - 6}" text-anchor="middle" class="ink">batch B</text>`;
+      for (let e = 0; e <= 10; e += W < 480 ? 2 : 1) s += `<text x="${xs(2 ** e)}" y="${H - m.b + 15}" text-anchor="middle">${2 ** e}</text>`;
+      s += `<text x="${(m.l + W - m.r) / 2}" y="${H - 6}" text-anchor="middle" class="ink">batch B (log scale)</text>`;
+      s += `<text x="4" y="13" class="ink">roofline gain Γ, TD over AR</text>`;
       s += `<line x1="${m.l}" x2="${W - m.r}" y1="${ys(1)}" y2="${ys(1)}" stroke="${c.muted}" stroke-width="1.5"/><text x="${m.l + 6}" y="${ys(1) + 15}">parity, Γ = 1: below it AR is faster</text>`;
       if (st.revealed) {
         if (cur.bstar) {
@@ -356,19 +370,19 @@
           if (!sum) s += `<text x="${xs(cur.bstar) - 6}" y="${H - m.b - 8}" text-anchor="end" class="td halo">${sub('B*', 'TD')} = ${cur.bstar}</text>`;
         }
         s += dashedLine(pts, (p) => `${xs(p.B)},${ys(p.g)}`, (p) => p.fit, `stroke="${c.ink}" stroke-width="2.2" stroke-linejoin="round"`);
-        s += `<circle cx="${xs(cur.best.B)}" cy="${ys(cur.best.g)}" r="6" fill="${c.td}" stroke="${c.bg}" stroke-width="2"/>`;
+        s += `<circle cx="${xs(cur.best.B)}" cy="${ys(cur.best.g)}" r="6" fill="${c.ink}" stroke="${c.bg}" stroke-width="2"/>`;
         s += `<text class="strong halo" x="${xs(cur.best.B) + (xs(cur.best.B) < m.l + 190 ? 10 : -10)}" y="${ys(cur.best.g) - 12}" text-anchor="${xs(cur.best.B) < m.l + 190 ? 'start' : 'end'}">best: ${g2(cur.best.g)}× at B = ${cur.best.B}</text>`;
         if (cur.parity) s += `<circle cx="${xs(cur.parity)}" cy="${ys(1)}" r="4.5" fill="${c.bg}" stroke="${c.ink}" stroke-width="2"/><text class="halo" x="${xs(cur.parity) - 8}" y="${ys(1) + 17}" text-anchor="end">${sub('B', '×')} ≈ ${Math.round(cur.parity)}</text>`;
-        s += `<circle cx="${xs(B)}" cy="${ys(P.g)}" r="4" fill="${c.accent}"/>`;
+        s += `<circle cx="${xs(B)}" cy="${ys(P.g)}" r="4.5" fill="${c.bg}" stroke="${c.hi}" stroke-width="2"/>`;
       } else {
         s += `<text x="${m.l + 8}" y="${m.t + 14}" class="ink">the curve Γ(B) is hidden</text>`;
       }
       // the marker
       s += `<g class="drag" tabindex="0" role="slider" aria-label="Batch" aria-valuemin="1" aria-valuemax="1024" aria-valuenow="${B}" aria-valuetext="batch ${B}${st.revealed ? `, gain ${g2(P.g)}` : ''}">`;
       s += `<rect x="${m.l}" y="${m.t}" width="${W - m.r - m.l}" height="${H - m.b - m.t}" fill="transparent"/>`;
-      s += `<line x1="${xs(B)}" x2="${xs(B)}" y1="${m.t}" y2="${H - m.b}" stroke="${c.accent}" stroke-width="2"/>`;
-      s += `<path d="M${xs(B) - 7},${H - m.b} l7,-11 l7,11 z" fill="${c.accent}"/>`;
-      s += `<text x="${xs(B)}" y="${H - m.b - 16}" text-anchor="${xs(B) > W - 120 ? 'end' : 'middle'}" class="halo" style="fill:${c.accent}">${st.revealed ? 'B' : 'your guess: B'} = ${B}</text></g>`;
+      s += `<line x1="${xs(B)}" x2="${xs(B)}" y1="${m.t}" y2="${H - m.b}" stroke="${c.hi}" stroke-width="2"/>`;
+      s += `<path d="M${xs(B) - 7},${H - m.b} l7,-11 l7,11 z" fill="${c.hi}"/>`;
+      s += `<text x="${xs(B)}" y="${H - m.b - 16}" text-anchor="${xs(B) > W - 120 ? 'end' : 'middle'}" class="halo" style="fill:${c.hi}">${st.revealed ? 'B' : 'your guess: B'} = ${B}</text></g>`;
       pic.innerHTML = `${s}</svg>`;
       st.xs = xs;
       if (!st.revealed) {
@@ -381,7 +395,7 @@
           : `a TD pass is compute-bound from ${hsub('B*', 'TD')} = ${cur.bstar}`;
         out.innerHTML = `<span class="big">Best roofline gain: <b>${g2(cur.best.g)}× at B = ${cur.best.B}</b>; ${turn}${cur.parity ? `; AR catches up near ${hsub('B', '×')} ≈ ${Math.round(cur.parity)}` : '; AR does not catch up by batch 1024'}.</span><br>`
           + `${lastFit ? (lastFit.B < 1024 ? `Dashed: batches above ${lastFit.B} do not fit in ${HWBYID[shared.hw].gb} GB. ` : '') : `The model does not fit in ${HWBYID[shared.hw].gb} GB at any batch. `}`
-          + `At the marker, B = ${B}: Γ = ${off}; an <span class="ar">AR step uses ${pct(P.uAR)}</span> of the peak compute and a <span class="td">TD pass ${pct(P.uTD)}</span>; MoE penalty ${hsub('Π', 'lin')} = ${fmt(P.Pi)}. <a href="${document.getElementById('calc') ? '#calc' : calcHref(shared.hw, B, st.rule)}" data-calc>Open this setting in the calculator</a>.`;
+          + `At the marker, B = ${B}: Γ = ${off}; an <span class="ar">AR step uses ${pct(P.uAR)}</span> of the peak compute and a <span class="td">TD pass ${pct(P.uTD)}</span>; linear penalty ${hsub('Π', 'lin')} = ${fmt(P.Pi)}. <a href="${document.getElementById('calc') ? '#calc' : calcHref(shared.hw, B, st.rule)}" data-calc>Open this setting in the calculator</a>.`;
       }
     }
     draggable(pic, () => st.xs, BSCAN, () => st.i, (i) => { st.i = i; draw(); });
@@ -398,8 +412,8 @@
     const st = { i: CSCAN.indexOf(1 << 20) };
     const ctl = el('<div class="fig-controls"></div>');
     ctl.append(hwControl());
-    const pic = el('<div></div>'), out = el('<div class="readout"></div>');
-    root.append(ctl, pic, out);
+    const pic = el('<div></div>'), out = el('<div class="readout" aria-live="polite"></div>');
+    root.append(ctl, hwNote(), pic, out);
     // The intensities do not depend on the accelerator; only the ridge and the memory limit do.
     const curves = CBATCH.map((B) => CSCAN.map((C) => { const p = prop1(DG, hwOf('h200'), B, C); return { B, C, IAR: p.IAR, ITD: p.ITD }; }));
     draggable(pic, () => st.xs, CSCAN, () => st.i, (i) => { st.i = i; draw(); });
@@ -411,14 +425,14 @@
       s += `<rect x="${m.l}" y="${m.t}" width="${W - m.r - m.l}" height="${ys(Is) - m.t}" fill="${c.soft}" opacity="0.7"/>`;
       s += logGrid(ys, m.l, W - m.r, ylo, yhi, (v) => (v >= 1000 ? `${v / 1000}k` : v), c, [1]);
       for (const C2 of [1024, 4096, 16384, 65536, 262144, 1 << 20]) s += `<text x="${xs(C2)}" y="${H - m.b + 15}" text-anchor="middle">${kctx(C2)}</text>`;
-      s += `<text x="${(m.l + W - m.r) / 2}" y="${H - 6}" text-anchor="middle" class="ink">context C, tokens in the KV cache</text>`;
-      s += `<text x="4" y="13" class="ink">FLOP per byte</text>`;
+      s += `<text x="${(m.l + W - m.r) / 2}" y="${H - 6}" text-anchor="middle" class="ink">${W < 480 ? 'context C, tokens' : 'context C, tokens in the KV cache'}</text>`;
+      s += `<text x="4" y="13" class="ink">arithmetic intensity, FLOP per byte</text>`;
       s += `<line x1="${m.l}" x2="${W - m.r}" y1="${ys(Is)}" y2="${ys(Is)}" stroke="${c.ink}" stroke-width="1.5"/>`;
       s += `<text class="ink halo" x="${W - m.r - 4}" y="${ys(Is) - 6}" text-anchor="end">ridge I* = ${fmt(Is)}: compute-bound above</text>`;
       const op = [0.4, 0.6, 0.8, 1];
-      // AR curves start close together: lift each label at least 13px above the one of the batch below.
+      // AR curves start close together: lift each label at least 15px above the one of the batch below.
       const arY = [];
-      curves.forEach((pts, k) => { const y = ys(pts[0].IAR) - 6; arY.push(k ? Math.min(y, arY[k - 1] - 13) : y); });
+      curves.forEach((pts, k) => { const y = ys(pts[0].IAR) - 6; arY.push(k ? Math.min(y, arY[k - 1] - 15) : y); });
       curves.forEach((pts, k) => {
         s += dashedLine(pts, (p) => `${xs(p.C)},${ys(p.ITD)}`, ok, `stroke="${c.td}" stroke-opacity="${op[k]}" stroke-width="2.2"`);
         s += dashedLine(pts, (p) => `${xs(p.C)},${ys(p.IAR)}`, ok, `stroke="${c.ar}" stroke-opacity="${op[k]}" stroke-width="2.2"`);
@@ -459,9 +473,9 @@
     const ISCAN = [...new Set([...Array.from({ length: 31 }, (_, i) => 25 * 32 ** (i / 30)), ...Object.values(RIDGES)])].sort((a, b) => a - b);
     const st = { mode: 'short', i: ISCAN.indexOf(RIDGES[shared.hw]) };
     const ctl = el('<div class="fig-controls"></div>');
-    ctl.append(seg([['short', 'short context, best batch'], ['long', 'long context, C = 1M, batch 1']], st.mode, (v) => { st.mode = v; draw(); }));
-    const pic = el('<div></div>'), out = el('<div class="readout"></div>');
-    root.append(ctl, pic, out);
+    ctl.append(seg([['short', 'short context, best batch'], ['long', 'long context, C = 1M, batch 1']], st.mode, (v) => { st.mode = v; draw(); }, 'context'));
+    const pic = el('<div></div>'), out = el('<div class="readout" aria-live="polite"></div>');
+    root.append(ctl, hwNote(), pic, out);
     let data = null;
     function compute() {
       const Ikv = M.compact(DG, W0, O0, hwOf('h200')).Ikv;
@@ -484,27 +498,46 @@
       s += logGrid(ys, m.l, W - m.r, ylo, yhi, (v) => `${v}×`, c);
       for (const v of [25, 50, 100, 200, 400, 800]) s += `<text x="${xs(v)}" y="${H - m.b + 15}" text-anchor="middle">${v}</text>`;
       s += `<text x="${(m.l + W - m.r) / 2}" y="${H - 6}" text-anchor="middle" class="ink">ridge point I* = π/β, FLOP per byte</text>`;
-      s += `<text x="4" y="13" class="ink">${short ? 'best roofline gain Γ over the batch, context 1k' : 'roofline gain Γ at batch 1, context 1M'}</text>`;
+      s += `<text x="4" y="13" class="ink">${short ? (W < 480 ? 'best gain Γ over the batch, context 1k' : 'best roofline gain Γ over the batch, context 1k') : 'roofline gain Γ at batch 1, context 1M'}</text>`;
       s += `<line x1="${m.l}" x2="${W - m.r}" y1="${ys(1)}" y2="${ys(1)}" stroke="${c.muted}" stroke-width="1.5"/><text x="${W - m.r - 4}" y="${ys(1) + 15}" text-anchor="end">parity, Γ = 1</text>`;
       if (!short) {
         const f = (Is) => Is / (OM * data.Ikv), xa = Math.max(25, ylo * OM * data.Ikv);
-        s += `<line x1="${xs(xa)}" x2="${xs(800)}" y1="${ys(f(xa))}" y2="${ys(f(800))}" stroke="${c.td}" stroke-width="1.5" stroke-dasharray="5 4"/>`;
-        s += `<text class="td halo" x="${xs(640)}" y="${ys(f(640)) + 18}" text-anchor="end">C → ∞: I*/(ω ${sub('I', 'attn')})</text>`;
+        s += `<line x1="${xs(xa)}" x2="${xs(800)}" y1="${ys(f(xa))}" y2="${ys(f(800))}" stroke="${c.muted}" stroke-width="1.5" stroke-dasharray="5 4"/>`;
+        s += `<text class="ink halo" x="${xs(640)}" y="${ys(f(640)) + 18}" text-anchor="end">C → ∞: I*/(ω ${sub('I', 'attn')})</text>`;
       }
       s += `<polyline fill="none" stroke="${c.ink}" stroke-width="2.2" stroke-linejoin="round" points="${data.pts.map((p) => `${xs(p.Is)},${ys(val(p))}`).join(' ')}"/>`;
       // marker, under the dots so that a dot stays clickable
       s += `<g class="drag" tabindex="0" role="slider" aria-label="Ridge point" aria-valuemin="25" aria-valuemax="800" aria-valuenow="${Math.round(P.Is)}" aria-valuetext="ridge point ${fmt(P.Is)}, gain ${g2(val(P))}"><rect x="${m.l}" y="${m.t}" width="${W - m.r - m.l}" height="${H - m.b - m.t}" fill="transparent"/>`;
-      s += `<line x1="${xs(P.Is)}" x2="${xs(P.Is)}" y1="${m.t}" y2="${H - m.b}" stroke="${c.accent}" stroke-width="2"/><path d="M${xs(P.Is) - 7},${H - m.b} l7,-11 l7,11 z" fill="${c.accent}"/></g>`;
+      s += `<line x1="${xs(P.Is)}" x2="${xs(P.Is)}" y1="${m.t}" y2="${H - m.b}" stroke="${c.hi}" stroke-width="2"/><path d="M${xs(P.Is) - 7},${H - m.b} l7,-11 l7,11 z" fill="${c.hi}"/></g>`;
+      // every dot is labelled: in ridge order, each label takes the first free slot above or below its dot,
+      // with a leader line when it is not the nearest slot
+      const placed = [], narrowDots = W < 560;
+      const name = (id) => (narrowDots ? NARROW[id] || SHORT[id] : SHORT[id]);
+      const slots = [-13, 22, -28, 37, -43, 52];
+      const free = (b) => b.x0 >= 2 && b.x1 <= W - 2 && b.y0 >= m.t - 14 && b.y1 <= H - m.b && placed.every((q) => b.x1 < q.x0 - 3 || b.x0 > q.x1 + 3 || b.y1 < q.y0 - 1 || b.y0 > q.y1 + 1);
+      const order = data.dots.map((d, k) => k).sort((a, b) => data.dots[a].p.Is - data.dots[b].p.Is);
+      data.dots.forEach((d) => { const x = xs(d.p.Is), y = ys(val(d.p)); placed.push({ x0: x - 8, x1: x + 8, y0: y - 8, y1: y + 8 }); });
+      const labels = [];
+      for (const k of order) {
+        const d = data.dots[k], x = xs(d.p.Is), y = ys(val(d.p)), on = d.id === shared.hw && RIDGES[d.id] === P.Is;
+        const w = name(d.id).length * 7.4 * (on ? 1.05 : 1);
+        let pick = null;
+        for (const dy of slots) { const b = { x0: x - w / 2, x1: x + w / 2, y0: y + dy - 11, y1: y + dy + 2 }; if (free(b)) { pick = { dy, b }; break; } }
+        if (!pick) pick = { dy: slots[0], b: { x0: x - w / 2, x1: x + w / 2, y0: y - 24, y1: y - 11 } };
+        placed.push(pick.b);
+        labels[k] = { x, y, dy: pick.dy, on };
+      }
       data.dots.forEach((d, k) => {
-        const fit = short ? d.fitShort : d.fitLong, on = d.id === shared.hw && RIDGES[d.id] === P.Is;
-        const x = xs(d.p.Is), y = ys(val(d.p)), up = k % 2 === 0;
+        const fit = short ? d.fitShort : d.fitLong, { x, y, dy, on } = labels[k];
         s += `<g class="dot" data-id="${d.id}" tabindex="0" role="button" aria-pressed="${on}" aria-label="${HWBYID[d.id].label}" style="cursor:pointer">`;
         s += `<circle cx="${x}" cy="${y}" r="14" fill="transparent"/>`;
-        s += `<circle cx="${x}" cy="${y}" r="${on ? 7.5 : 6}" fill="${fit ? c.td : c.bg}" stroke="${on ? c.ink : c.td}" stroke-width="${on ? 2.5 : 2}"/>`;
-        if (W >= 560 || on || ['h20', 'h200', 'spark'].includes(d.id)) s += `<text class="${on ? 'strong' : ''} halo" x="${x}" y="${up ? y - 13 : y + 21}" text-anchor="middle">${SHORT[d.id]}</text>`;
+        if (Math.abs(dy) > 22) s += `<line x1="${x}" x2="${x}" y1="${y + (dy < 0 ? -7 : 7)}" y2="${y + (dy < 0 ? dy + 3 : dy - 12)}" stroke="${c.muted}" stroke-width="0.8"/>`;
+        if (on) s += `<circle cx="${x}" cy="${y}" r="10.5" fill="none" stroke="${c.hi}" stroke-width="2"/>`;
+        s += `<circle cx="${x}" cy="${y}" r="${on ? 6.5 : 5.5}" fill="${fit ? c.ink : c.bg}" stroke="${c.ink}" stroke-width="2"/>`;
+        s += `<text class="${on ? 'strong' : 'ink'} halo" x="${x}" y="${y + dy}" text-anchor="middle">${name(d.id)}</text>`;
         s += '</g>';
       });
-      s += `<circle cx="${xs(P.Is)}" cy="${ys(val(P))}" r="3.5" fill="${c.accent}" pointer-events="none"/>`;
+      s += `<circle cx="${xs(P.Is)}" cy="${ys(val(P))}" r="3.5" fill="${c.hi}" pointer-events="none"/>`;
       pic.innerHTML = `${s}</svg>`;
       st.xs = xs;
       pic.querySelectorAll('.dot').forEach((g) => {
@@ -527,8 +560,8 @@
   // ---------------------------------------------------------------- helpers of the figures of Parts 3-5 below
   const gx = (x) => (x >= 100 ? String(Math.round(x)) : x >= 10 ? x.toFixed(1) : x.toFixed(2));
   const gbs = (x) => (x / 1e9 >= 10 ? (x / 1e9).toFixed(1) : (x / 1e9).toFixed(2));
-  const segLabel = (text, s) => { const lab = el(`<label class="wide"><span>${text}</span><span class="segbox"></span></label>`); lab.querySelector('.segbox').appendChild(s); return lab; };
-  const marker = (xs, v, y0, y1, c) => `<line x1="${xs(v)}" x2="${xs(v)}" y1="${y0}" y2="${y1}" stroke="${c.accent}" stroke-width="2"/><path d="M${xs(v) - 7},${y1} l7,-11 l7,11 z" fill="${c.accent}"/>`;
+  const segLabel = (text, s) => groupOf(text, s);
+  const marker = (xs, v, y0, y1, c) => `<line x1="${xs(v)}" x2="${xs(v)}" y1="${y0}" y2="${y1}" stroke="${c.hi}" stroke-width="2"/><path d="M${xs(v) - 7},${y1} l7,-11 l7,11 z" fill="${c.hi}"/>`;
   // A small deterministic generator, so that a random draw can be repeated and redrawn on resize.
   function rng(seed) { let a = seed >>> 0; return () => { a = (a + 0x6D2B79F5) >>> 0; let t = a; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
   // k distinct values of 0..n-1, uniformly.
@@ -602,7 +635,7 @@
     function draw() {
       const c = colors(), W = widthOf(pic), { B, b } = lin, w = weights(B, b), narrow = W < 480;
       const m = { l: narrow ? 8 : 92, r: 16 }, xs = scale(0, 52e9, m.l, W - m.r, false), bh = 30;
-      const rowsY = narrow ? [44, 122] : [30, 92], H = rowsY[1] + bh + 46;
+      const rowsY = narrow ? [44, 136] : [30, 92], H = rowsY[1] + bh + 46;
       let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Weights read by one pass at batch ${B}: AR step ${gbs(w.WAR)} GB, TD pass ${gbs(w.WTD)} GB">`;
       for (const v of [0, 10, 20, 30, 40, 50]) s += `<line x1="${xs(v * 1e9)}" x2="${xs(v * 1e9)}" y1="${rowsY[0] - 10}" y2="${rowsY[1] + bh + 8}" stroke="${c.rule}"/><text x="${xs(v * 1e9)}" y="${rowsY[1] + bh + 22}" text-anchor="middle">${v}</text>`;
       s += `<text x="${(m.l + W - m.r) / 2}" y="${H - 6}" text-anchor="middle" class="ink">weights read by one pass, GB${narrow ? '' : ' (BF16, no vocabulary)'}</text>`;
@@ -619,10 +652,11 @@
       s += row(rowsY[1], 'TD pass', 'td', c.td, w.eTD, w.WTD);
       const ly = (rowsY[0] + bh + rowsY[1]) / 2 + (narrow ? -12 : 4);
       s += `<rect x="${xs(0)}" y="${ly - 9}" width="10" height="10" fill="${c.muted}" fill-opacity="0.55"/><text x="${xs(0) + 15}" y="${ly}">read by every token: ${gbs(w.dense)} GB</text>`;
-      if (!narrow) s += `<rect x="${xs(0) + 230}" y="${ly - 9}" width="10" height="10" fill="${c.ar}"/><rect x="${xs(0) + 242}" y="${ly - 9}" width="10" height="10" fill="${c.td}"/><text x="${xs(0) + 257}" y="${ly}">experts touched</text>`;
+      const ex = narrow ? [xs(0), ly + 15] : [xs(0) + 250, ly];
+      s += `<rect x="${ex[0]}" y="${ex[1] - 9}" width="10" height="10" fill="${c.ar}"/><rect x="${ex[0] + 12}" y="${ex[1] - 9}" width="10" height="10" fill="${c.td}"/><text x="${ex[0] + 27}" y="${ex[1]}">experts touched</text>`;
       pic.innerHTML = `${s}</svg>`;
       out.innerHTML = `At batch ${B}, both passes read the ${gbs(w.dense)} GB that every token uses (attention and dense layers, routers). An <span class="ar">AR step</span> adds ${gbs(w.eAR)} GB of experts and a <span class="td">TD pass</span> of ${b} positions per sequence ${gbs(w.eTD)} GB, ${hsub('Π', 'E')} = ${gx(w.PiE)} times as much.<br>`
-        + `<span class="big">${hsub('Π', 'lin')} = ${hsub('W', 'TD')}/${hsub('W', 'AR')} = ${gbs(w.WTD)}/${gbs(w.WAR)} = <b>${gx(w.Pi)}</b>.</span> ${w.Pi < 1.1 ? 'The batch alone touches almost every expert, and the penalty is gone.' : `The shared ${gbs(w.dense)} GB dilute the expert ratio ${gx(w.PiE)} to ${gx(w.Pi)}.`}`;
+        + `<span class="big">${hsub('Π', 'lin')} = ${hsub('W', 'TD')}/${hsub('W', 'AR')} = ${gbs(w.WTD)}/${gbs(w.WAR)} = <b>${gx(w.Pi)}</b>.</span> ${w.Pi < 1.1 ? 'The batch alone touches almost every expert, and the penalty is below 1.1.' : `The shared ${gbs(w.dense)} GB dilute the expert ratio ${gx(w.PiE)} to ${gx(w.Pi)}.`}`;
     }
     lin.subs.push(draw);
     draw(); onTheme(draw); watchWidth(pic, draw);
@@ -754,7 +788,7 @@
       s += `<rect x="${xs(m)}" y="${mg.t}" width="${xs(b * m) - xs(m)}" height="${H - mg.b - mg.t}" fill="${c.soft}" opacity="0.6"/>`;
       for (const v of [1, 10, 100]) s += `<line x1="${mg.l}" x2="${W - mg.r}" y1="${ys(v)}" y2="${ys(v)}" stroke="${c.rule}"/><text x="${mg.l - 6}" y="${ys(v) + 4}" text-anchor="end">${v}</text>`;
       for (const v of [1 << 10, 1 << 14, 1 << 18, 1 << 22, 1 << 26]) s += `<text x="${xs(v)}" y="${H - mg.b + 15}" text-anchor="middle">${kctx(v)}</text>`;
-      s += `<text x="${(mg.l + W - mg.r) / 2}" y="${H - 6}" text-anchor="middle" class="ink">context C, tokens in the KV cache (log scale)</text>`;
+      s += `<text x="${(mg.l + W - mg.r) / 2}" y="${H - 6}" text-anchor="middle" class="ink">${W < 480 ? 'context C, tokens (log scale)' : 'context C, tokens in the KV cache (log scale)'}</text>`;
       s += `<text x="4" y="13" class="ink">penalty (log scale)</text>`;
       for (const [v, t, anchor] of [[m, 'm', 'end'], [b * m, 'bm', 'start']]) s += `<line x1="${xs(v)}" x2="${xs(v)}" y1="${mg.t}" y2="${H - mg.b}" stroke="${c.muted}" stroke-dasharray="3 4"/><text x="${xs(v) + (anchor === 'end' ? -4 : 4)}" y="${mg.t + 11}" text-anchor="${anchor}" class="ink">C = ${t}</text>`;
       s += `<line x1="${mg.l}" x2="${W - mg.r}" y1="${ys(b)}" y2="${ys(b)}" stroke="${c.muted}" stroke-dasharray="3 4"/><text x="${W - mg.r - 4}" y="${ys(b) - 5}" text-anchor="end">b = ${b}</text>`;
@@ -791,7 +825,7 @@
       let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Share of attention in the bytes of an AR step, for batches ${SHB.join(', ')}, and in the FLOPs of a position, against context">`;
       for (const v of [0, 0.25, 0.5, 0.75, 1]) s += `<line x1="${m.l}" x2="${W - m.r}" y1="${ys(v)}" y2="${ys(v)}" stroke="${v === 0.5 ? c.muted : c.rule}"${v === 0.5 ? ' stroke-dasharray="3 4"' : ''}/><text x="${m.l - 6}" y="${ys(v) + 4}" text-anchor="end">${v * 100}%</text>`;
       for (const v of [1024, 4096, 16384, 65536, 262144, 1 << 20]) s += `<text x="${xs(v)}" y="${H - m.b + 15}" text-anchor="middle">${v >= 1 << 20 ? '1M' : `${v / 1024}k`}</text>`;
-      s += `<text x="${(m.l + W - m.r) / 2}" y="${H - 6}" text-anchor="middle" class="ink">context C, tokens in the KV cache (log scale)</text>`;
+      s += `<text x="${(m.l + W - m.r) / 2}" y="${H - 6}" text-anchor="middle" class="ink">${W < 480 ? 'context C, tokens (log scale)' : 'context C, tokens in the KV cache (log scale)'}</text>`;
       s += `<text x="4" y="13" class="ink">share taken by attention</text>`;
       const op = [1, 0.75, 0.55, 0.38];
       SHB.forEach((B, k) => {
@@ -830,19 +864,27 @@
     }).sort((a, b) => a.Is - b.Is);
     function draw() {
       const c = colors(), W = widthOf(pic), rows = rowsOf(), narrow = W < 520, rh = narrow ? 34 : 26;
-      const m = { l: narrow ? 8 : 150, r: 16, t: 30, b: 40 }, H = m.t + rows.length * rh + m.b;
+      // key: one item per line on phones, two per line otherwise
+      const KEY = [
+        (x, y) => `<rect x="${x}" y="${y - 9}" width="18" height="10" rx="2" fill="${c.td}" fill-opacity="0.55"/><text x="${x + 24}" y="${y}" class="td">TD ahead, up to the parity batch ${sub('B', '×')}</text>`,
+        (x, y) => `<path d="M${x + 9},${y - 12} l5,8 l-5,8 l-5,-8 z" fill="${c.td}"/><text x="${x + 24}" y="${y}">${sub('B*', 'TD')}: TD compute-bound from here</text>`,
+        (x, y) => `<line x1="${x}" x2="${x + 18}" y1="${y - 4}" y2="${y - 4}" stroke="${c.ar}" stroke-width="2"/><text x="${x + 24}" y="${y}" class="ar">AR ahead, still memory-bound</text>`,
+        (x, y) => `<circle cx="${x + 9}" cy="${y - 4}" r="4" fill="${c.ar}"/><text x="${x + 24}" y="${y}">${sub('B*', 'AR')}: AR compute-bound from here</text>`,
+      ];
+      const keyOne = W < 620, keyLines = keyOne ? 4 : 2, top = 18 + 18 * keyLines;
+      const m = { l: narrow ? 8 : 150, r: 16, t: top, b: 40 }, H = m.t + rows.length * rh + m.b;
       const xs = scale(1, 4096, m.l, W - m.r);
       let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="For each accelerator, the batches at which TD is ahead of AR under Proposition 1, the best batch and the parity batch">`;
+      KEY.forEach((f, k) => { s += keyOne ? f(8, 14 + 18 * k) : f(k % 2 ? Math.max(330, W / 2) : 8, 14 + 18 * Math.floor(k / 2)); });
       for (const v of [1, 4, 16, 64, 256, 1024, 4096]) s += `<line x1="${xs(v)}" x2="${xs(v)}" y1="${m.t - 6}" y2="${H - m.b}" stroke="${c.rule}"/><text x="${xs(v)}" y="${H - m.b + 15}" text-anchor="middle">${v}</text>`;
       s += `<text x="${(m.l + W - m.r) / 2}" y="${H - 6}" text-anchor="middle" class="ink">batch B (log scale)</text>`;
-      s += `<text x="${xs(1)}" y="14" class="td">TD ahead up to the parity batch ${sub('B', '×')}</text>`;
       rows.forEach((r, k) => {
         const y = m.t + k * rh + (narrow ? 12 : 0), on = r.id === st.id, mid = y + 9;
         s += `<g class="row" data-id="${r.id}" tabindex="0" role="button" aria-pressed="${on}" aria-label="${r.h.label}" style="cursor:pointer"><rect x="0" y="${m.t + k * rh}" width="${W}" height="${rh}" fill="${on ? c.soft : 'transparent'}" opacity="0.7"/>`;
         s += narrow ? `<text x="${m.l}" y="${y - 2}" class="${on ? 'strong' : 'ink'}">${r.h.label}</text>` : `<text x="${m.l - 10}" y="${mid + 4}" text-anchor="end" class="${on ? 'strong' : 'ink'}">${r.h.label}</text>`;
         s += `<rect x="${xs(1)}" y="${mid - 5}" width="${Math.max(2, xs(r.bX) - xs(1))}" height="10" rx="2" fill="${c.td}" fill-opacity="0.55"/>`;
         s += `<line x1="${xs(r.bX)}" x2="${xs(Math.min(4096, r.bAR))}" y1="${mid}" y2="${mid}" stroke="${c.ar}" stroke-width="2"/>`;
-        s += `<path d="M${xs(r.bTD)},${mid - 8} l5,8 l-5,8 l-5,-8 z" fill="${c.ink}"/>`;
+        s += `<path d="M${xs(r.bTD)},${mid - 8} l5,8 l-5,8 l-5,-8 z" fill="${c.td}" stroke="${c.bg}" stroke-width="1"/>`;
         if (r.bAR <= 4096) s += `<circle cx="${xs(r.bAR)}" cy="${mid}" r="4" fill="${c.ar}" stroke="${c.bg}" stroke-width="1.5"/>`;
         s += '</g>';
       });
@@ -887,19 +929,19 @@
       s += `<text x="${W - m.r + 30}" y="${m.t - 12}" text-anchor="middle" class="ink">Π(1)</text>`;
       // legend, drawn with the markers themselves
       const lx = m.l, ly = 12;
-      s += `<circle cx="${lx + 5}" cy="${ly}" r="5" fill="${c.td}"/><text x="${lx + 15}" y="${ly + 4}">batch 1</text>`;
-      s += `<circle cx="${lx + 85}" cy="${ly}" r="4.5" fill="${c.bg}" stroke="${c.td}" stroke-width="2"/><text x="${lx + 95}" y="${ly + 4}">batch 64</text>`;
-      s += `<path d="M${lx + 172},${ly - 6} l5,6 l-5,6 l-5,-6 z" fill="${c.ink}"/><text x="${lx + 182}" y="${ly + 4}">1M context${narrow ? '' : ', batch 1'}</text>`;
+      s += `<circle cx="${lx + 5}" cy="${ly}" r="5" fill="${c.ink}"/><text x="${lx + 15}" y="${ly + 4}">batch 1</text>`;
+      s += `<circle cx="${lx + 92}" cy="${ly}" r="4.5" fill="${c.bg}" stroke="${c.ink}" stroke-width="2"/><text x="${lx + 102}" y="${ly + 4}">batch 64</text>`;
+      s += `<path d="M${lx + 186},${ly - 6} l5,6 l-5,6 l-5,-6 z" fill="${c.ink}"/><text x="${lx + 196}" y="${ly + 4}">${narrow ? '1M, batch 1' : '1M context, batch 1'}</text>`;
       rows.forEach((r, k) => {
         const y0 = m.t + k * rh, y = y0 + (narrow ? 24 : rh / 2), on = r.id === st.id, cx = (g) => xs(Math.max(0.2, Math.min(20, g)));
         const op = (p) => (p.fit ? 1 : 0.4);
         s += `<g class="row" data-id="${r.id}" tabindex="0" role="button" aria-pressed="${on}" aria-label="${r.label}" style="cursor:pointer"><rect x="0" y="${y0}" width="${W}" height="${rh}" fill="${on ? c.soft : 'transparent'}" opacity="0.7"/>`;
         s += narrow ? `<text x="${m.l}" y="${y0 + 12}" class="${on ? 'strong' : 'ink'}">${r.label}</text>` : `<text x="${m.l - 10}" y="${y + 4}" text-anchor="end" class="${on ? 'strong' : 'ink'}">${r.label}</text>`;
         s += `<text x="${W - m.r + 30}" y="${y + 4}" text-anchor="middle">${r.Pi.toFixed(1)}</text>`;
-        s += `<line x1="${cx(r.pts[0].g)}" x2="${cx(r.pts[1].g)}" y1="${y}" y2="${y}" stroke="${c.td}" stroke-opacity="0.45" stroke-width="2"/>`;
+        s += `<line x1="${cx(r.pts[0].g)}" x2="${cx(r.pts[1].g)}" y1="${y}" y2="${y}" stroke="${c.muted}" stroke-opacity="0.6" stroke-width="2"/>`;
         s += `<path d="M${cx(r.pts[2].g)},${y - 6} l5,6 l-5,6 l-5,-6 z" fill="${c.ink}" opacity="${op(r.pts[2])}"/>`;
-        s += `<circle cx="${cx(r.pts[1].g)}" cy="${y}" r="4.5" fill="${c.bg}" stroke="${c.td}" stroke-width="2" opacity="${op(r.pts[1])}"/>`;
-        s += `<circle cx="${cx(r.pts[0].g)}" cy="${y}" r="5" fill="${c.td}" opacity="${op(r.pts[0])}"/></g>`;
+        s += `<circle cx="${cx(r.pts[1].g)}" cy="${y}" r="4.5" fill="${c.bg}" stroke="${c.ink}" stroke-width="2" opacity="${op(r.pts[1])}"/>`;
+        s += `<circle cx="${cx(r.pts[0].g)}" cy="${y}" r="5" fill="${c.ink}" opacity="${op(r.pts[0])}"/></g>`;
       });
       pic.innerHTML = `${s}</svg>`;
       pic.querySelectorAll('.row').forEach((g) => {
@@ -923,15 +965,15 @@
     { hw: 'h200', m: DG, model: 'DiffusionGemma 26B-A4B', B: 1, C: 1024,
       note: 'Both decoders are limited by the bytes they read, and per token TD reads fewer: Γ = TPF/Π = 17.1/7.7, with Π the overall penalty at this context.' },
     { hw: 'h20', m: DG, model: 'DiffusionGemma 26B-A4B', B: 16, C: 1024,
-      note: 'The ridge of the H20 is low, I* = 37, so TD has little idle compute to spend: under the exact accounting a TD pass is compute-bound from batch 1, and AR catches up by batch 5.' },
+      note: 'The ridge of the H20 is low, I* = 37, so an AR step leaves little compute unused: under the exact accounting a TD pass is compute-bound from batch 1, and AR catches up by batch 5.' },
     { hw: 'h200', m: LL, model: 'Llama 3.1 8B and its TD twin', B: 32, C: 1024,
       note: 'All the weights of a dense model are shared by the batch, so the intensity of AR grows in proportion to it: at batch 32 an AR step already uses 12% of the peak, more than the 1/ω = 6.7% that leaves room for TD.' },
     { hw: 'h200', m: LL, model: 'Llama 3.1 8B and its TD twin', B: 1, C: 1024,
-      note: 'A dense model pays no MoE penalty: a canvas reads the same weights as one token, so a TD pass is past the ridge at batch 1 while AR uses 0.5% of the peak. Γ is then the compute cap I*/(ω I_AR).' },
+      note: 'A dense model has no linear penalty (Π_lin = 1): a canvas reads the same weights as one token, so a TD pass is past the ridge at batch 1 while AR uses 0.5% of the peak. Γ is then the compute cap I*/(ω I_AR).' },
     { hw: 'h200', m: DG, model: 'DiffusionGemma 26B-A4B', B: 4, C: 1 << 20,
       note: 'At 1M context the KV cache is 85% of the bytes of an AR step. TD reads it once for 256 queries and passes the ridge; AR reads it for one query and stays near I_AR = 7.' },
     { hw: 'h20', m: DG, model: 'DiffusionGemma 26B-A4B', B: 1, C: 1 << 20,
-      note: 'A long context does not rescue a low ridge: Γ tends to I*/(ω I_attn) = 37/(15 × 8) = 0.31, below 1 at any batch.' },
+      note: 'At long context the gain tends to I*/(ω I_attn) = 37/(15 × 8) = 0.31, below 1 at any batch.' },
   ];
   function figQuiz(root) {
     const st = { k: 0, answers: [] };
@@ -941,7 +983,7 @@
     });
     const box = el('<div></div>');
     root.appendChild(box);
-    const tex = (t) => t.replaceAll('I_AR', 'I<sub>AR</sub>').replaceAll('I_attn', 'I<sub>attn</sub>');
+    const tex = (t) => t.replaceAll('I_AR', 'I<sub>AR</sub>').replaceAll('I_attn', 'I<sub>attn</sub>').replaceAll('Π_lin', 'Π<sub>lin</sub>');
     function draw() {
       const q = data[st.k], ans = st.answers[st.k], done = ans !== undefined, td = q.gain > 1, p = q.p;
       const answered = st.answers.filter((a) => a !== undefined).length, score = st.answers.filter((a, i) => a === (data[i].gain > 1)).length;
@@ -966,7 +1008,7 @@
         </div>
         <div class="quiz-reveal" ${done ? '' : 'hidden'}>
           <div>
-            <div class="quiz-verdict ${ans === td ? 'ok' : 'no'}">${ans === td ? 'Right' : 'Not quite'}: under the roofline ${td ? 'TD' : 'AR'} is faster, Γ = ${g2(q.gain)}.</div>
+            <div class="quiz-verdict ${ans === td ? 'ok' : 'no'}">${ans === td ? 'Right' : 'Not quite'}: under the roofline ${td ? 'TD' : 'AR'} is faster, Γ = ${g2(q.gain)} (exact accounting).</div>
             <p class="quiz-why">Proposition 1: <span class="ar">AR</span> is ${bound(p.IAR)}-bound (I<sub>AR</sub> = ${fmt(p.IAR)}) and <span class="td">TD</span> is ${bound(p.ITD)}-bound (I<sub>TD</sub> = ${fmt(p.ITD)}), with the ridge at I* = ${fmt(p.Is)}. The FLOPs of TD run ×${fmt(p.speed)} faster and it does ω = ${p.om} times as many, so Γ = ${g2(p.gain)}; the exact accounting, with the vocabulary${q.m.selfCond ? ' and self-conditioning' : ''}, gives ${g2(q.gain)}. ${tex(q.note)}${thin}</p>
           </div>
           <div class="quiz-mini">${done ? rooflineSvg({ hw: q.hw, IAR: p.IAR, ITD: p.ITD, W: Math.min(340, widthOf(box)), H: 220, mini: true }) : ''}</div>
@@ -974,7 +1016,7 @@
         <div class="quiz-nav">
           <button type="button" class="fig-btn" data-n="-1" ${st.k ? '' : 'disabled'}>Previous</button>
           <button type="button" class="fig-btn ${done ? 'primary' : ''}" data-n="1" ${st.k < data.length - 1 ? '' : 'disabled'}>Next</button>
-          <span class="quiz-dots">${data.map((d, i) => `<span class="${st.answers[i] === undefined ? '' : st.answers[i] === (d.gain > 1) ? 'ok' : 'no'} ${i === st.k ? 'cur' : ''}"></span>`).join('')}</span>
+          <span class="quiz-dots">${data.map((d, i) => { const a = st.answers[i], v = a === undefined ? '' : a === (d.gain > 1) ? 'ok' : 'no'; return `<span role="img" aria-label="setting ${i + 1}: ${v === 'ok' ? 'right' : v === 'no' ? 'wrong' : 'not answered'}${i === st.k ? ', shown' : ''}" class="${v} ${i === st.k ? 'cur' : ''}"></span>`; }).join('')}</span>
           ${answered === data.length ? '<button type="button" class="fig-btn" data-r="1">Start again</button>' : ''}
         </div>`;
       box.querySelectorAll('.quiz-choices button').forEach((b) => {
@@ -1039,13 +1081,13 @@
     let s = `<svg class="spark" viewBox="0 0 ${W} ${H}" role="img" aria-label="Curve of the quantity against the slider's variable">`;
     if (spec.ref !== undefined) s += `<line x1="${m.l}" x2="${W - m.r}" y1="${y(spec.ref)}" y2="${y(spec.ref)}" style="stroke:var(--bdr-muted)" stroke-dasharray="3 3"/>`;
     s += `<polyline fill="none" style="stroke:var(--ink)" stroke-width="1.8" stroke-linejoin="round" points="${ys.map((v, k) => `${x(k)},${y(v)}`).join(' ')}"/>`;
-    s += `<line x1="${x(i)}" x2="${x(i)}" y1="${m.t - 4}" y2="${H - m.b + 4}" style="stroke:var(--accent)" stroke-opacity="0.5"/>`;
-    s += `<circle cx="${x(i)}" cy="${y(ys[i])}" r="4.5" style="fill:var(--accent);stroke:var(--bdr-surface)" stroke-width="1.5"/>`;
+    s += `<line x1="${x(i)}" x2="${x(i)}" y1="${m.t - 4}" y2="${H - m.b + 4}" style="stroke:var(--bdr-hi)" stroke-opacity="0.5"/>`;
+    s += `<circle cx="${x(i)}" cy="${y(ys[i])}" r="4.5" style="fill:var(--bdr-hi);stroke:var(--bdr-surface)" stroke-width="1.5"/>`;
     s += `<text x="${W - m.r + 8}" y="${Math.max(m.t + 8, Math.min(H - m.b, y(ys[i]) + 4))}" class="strong">${spec.ylab} = ${(spec.fmtY || fmt)(ys[i])}</text>`;
     return `${s}</svg>`;
   }
   function initMicro(box) {
-    const spec = MICRO[box.dataset.micro](), out = el('<div class="readout"></div>'), pic = el('<div class="micro-pic"></div>');
+    const spec = MICRO[box.dataset.micro](), out = el('<div class="readout" aria-live="polite"></div>'), pic = el('<div class="micro-pic"></div>');
     const sl = slider(spec.label, spec.values, spec.i, spec.show);
     const ys = spec.values.map(spec.y);
     const sync = () => { pic.innerHTML = spark(spec, ys, sl.index); out.innerHTML = spec.read(sl.value); };
@@ -1061,12 +1103,15 @@
         card.classList.toggle('open', on);
         card.querySelector('.card-more').hidden = !on;
         card.querySelector('.card-toggle').setAttribute('aria-expanded', String(on));
-        card.querySelector('.card-toggle').textContent = on ? 'less −' : 'more +';
+        const t = card.querySelector('.card-toggle');
+        t.textContent = on ? 'less −' : 'more +';
+        t.setAttribute('aria-label', `${on ? 'less' : 'more'} on ${t.dataset.subject}`);
         if (on) card.querySelectorAll('[data-micro]:empty').forEach(initMicro);
       };
       for (const card of cards) {
         card.classList.add('has-more');
-        const t = el('<button type="button" class="card-toggle" aria-expanded="false">more +</button>');
+        const k = card.querySelector('.card-k'), subject = (k ? k.textContent.split(',')[0].trim() : 'this card').toLowerCase();
+        const t = el(`<button type="button" class="card-toggle" aria-expanded="false" data-subject="${subject}" aria-label="more on ${subject}">more +</button>`);
         card.insertBefore(t, card.querySelector('.card-more'));
         card.addEventListener('click', (ev) => {
           if (ev.target.closest('.card-more') || ev.target.closest('a, input, select')) return;
@@ -1080,6 +1125,18 @@
     });
   }
   initCards();
+
+  // Figure 19 has one title per tab (bin/build-roofline.py writes all of them): show the selected tab's.
+  document.querySelectorAll('.bdr .tabs-title').forEach((title) => {
+    const spans = title.querySelectorAll('[data-tab-title]'), tabs = title.nextElementSibling;
+    if (!spans.length || !tabs || !tabs.classList.contains('tabs')) return;
+    const sync = () => {
+      const on = tabs.querySelector('[aria-selected="true"]'), id = on ? on.dataset.tab : spans[0].dataset.tabTitle;
+      spans.forEach((sp) => { sp.hidden = sp.dataset.tabTitle !== id; });
+    };
+    new MutationObserver(sync).observe(tabs, { subtree: true, attributes: true, attributeFilter: ['aria-selected'] });
+    sync();
+  });
 
   // ---------------------------------------------------------------- mount
   const FIGS = {

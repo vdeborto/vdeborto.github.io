@@ -14,7 +14,10 @@
     const meta = JSON.parse(document.getElementById('bdr-book').textContent);
     if (meta.ids) {
       const id = decodeURIComponent(location.hash.slice(1)), calc = meta.chapters.find((c) => c.slug === 'calculator');
-      if (location.search && calc) { location.replace(calc.url + location.search + (location.hash || '#calc')); return; }
+      // Old single-page links carried the calculator's state in the query (?B=64); forward those, and
+      // only those, so that tracking or sign-in parameters (utm_*, giscus) leave the reader where they are.
+      const CALC_KEY = /^(hw|peak8?|bw|mem|prec|kern|model|route|P|G|b|S|r|B|lt|la|bl|rho|actl2|kvonce|win|s-\w+|m-\w+)$/;
+      if (calc && [...new URLSearchParams(location.search).keys()].some((k) => CALC_KEY.test(k))) { location.replace(calc.url + location.search + (location.hash || '#calc')); return; }
       if (id && !document.getElementById(id) && meta.ids[id] !== undefined) {
         const to = meta.chapters.find((c) => c.slug === meta.ids[id]);
         if (to) { location.replace(to.url + location.hash); return; }
@@ -37,10 +40,10 @@
   }
   for (const box of page.querySelectorAll('.box.prop, .box.def')) {
     const gist = box.querySelector('.gist');
-    if (gist) gist.after(foldButton(box, 'the statement'));
+    if (gist) gist.after(foldButton(box, box.classList.contains('def') ? 'the definition' : 'the statement'));
   }
   for (const wrap of page.querySelectorAll('section .table-wrap:not(.nofold)')) {
-    if (!wrap.querySelector('caption') || wrap.closest('.box, .calc, .bdr-fig, .card-more, details.numbers')) continue;
+    if (!wrap.querySelector('caption') || wrap.closest('.box, .calc, .bdr-fig, .card-more, details.numbers, details.answer')) continue;
     wrap.classList.add('foldable');
     wrap.appendChild(foldButton(wrap, 'the table'));
   }
@@ -72,6 +75,8 @@
   const chapters = book ? book.chapters : [];
   const here = book ? chapters.find((c) => c.slug === book.current) : null;
   const labelOf = (c) => (c.num && c.slug ? `${c.num} · ${c.title}` : c.title);
+  // The site's layout titles a page "Chapter | site"; name the book in the browser tab instead.
+  if (here && here.slug) document.title = `${here.title} · ${book.title}`;
   const rail = el(`<nav class="bdr-rail" aria-label="Contents"><div class="rail-progress"><i></i></div><a class="rail-top" href="${book ? book.home : '#top'}">${book ? book.title : 'Contents'}</a><ol></ol></nav>`);
   const ol = rail.querySelector('ol');
   for (const c of chapters) {
@@ -80,7 +85,7 @@
     ol.appendChild(li);
   }
   // The current chapter lists its sections, and the one being read is highlighted.
-  const heads = [...page.querySelectorAll('section h3[id]')].filter((h) => h.textContent.trim());
+  const heads = [...page.querySelectorAll('section h3[id]')].filter((h) => h.textContent.trim() && !h.closest('.book-comments, .book-cite'));
   let subLinks = [];
   if (here && heads.length > 1) {
     const sub = el('<ol class="rail-sub"></ol>');
@@ -171,6 +176,22 @@
     [/\\nu_/, 'ν', 'KV-cache bytes per cached token (G: global, W: windowed, S: sparse layers, I: indexer)'],
     [/\\alpha_/, 'α', 'attention FLOPs per query and per cached token (same subscripts as ν)'],
     [/s_w/, S('s', 'w'), 'bytes per weight (2 in BF16)'],
+    [/I_\{\\mathrm\{lin\}\}/, S('I', 'lin'), 'linear part of an AR step\'s intensity, <i>I</i><sup>AR</sup><sub>lin</sub>: the batch <i>B</i> in BF16'],
+    [/I_\{\\mathrm\{win\}\}/, S('I', 'win'), 'attention FLOPs per cache byte for one query on a window layer (2 for DiffusionGemma)'],
+    [/I_\{\\mathrm\{idx\}\}/, S('I', 'idx'), 'FLOPs per cache byte of a sparse layer\'s index scan for one query'],
+    [/\\Pi_\{\\mathrm\{sel\}\}/, S('Π', 'sel'), 'selection penalty: cached tokens a canvas selects in a sparse layer over those one query selects'],
+    [/W_\{\\mathrm\{ne\}\}/, S('W', 'ne'), 'non-expert parameters of all layers (1.66B for DiffusionGemma)'],
+    [/W\^e/, '<i>W</i><sup>e</sup>', 'parameters of one expert in one layer (5.95M)'],
+    [/(^|[^\\A-Za-z_])E(?![A-Za-z_])/, '<i>E</i>', 'experts per MoE layer (128)'],
+    [/(^|[^\\A-Za-z_])k(?![A-Za-z^_])/, '<i>k</i>', 'experts each token selects (8)'],
+    [/(^|[^\\A-Za-z_])L(?![A-Za-z_])/, '<i>L</i>', 'layers (30)'],
+    [/(^|[^\\A-Za-z_])m(?![A-Za-z])/, '<i>m</i>', 'cached tokens each query selects in a sparse layer'],
+    [/(^|[^\\A-Za-z_])w(?![A-Za-z])/, '<i>w</i>', 'window of a sliding-window layer, in tokens (1,023)'],
+    [/C_F/, S('C', 'F'), 'context at which global attention alone matches the linear FLOPs (37.6k)'],
+    [/\\sigma/, 'σ', 'window layers\' FLOPs per query over the linear FLOPs, α<sub>W</sub><i>w</i>/(2<i>N</i><sub>act</sub>) (6.8%)'],
+    [/\\zeta/, 'ζ', 'independent fraction of a canvas\'s selections: 1 when independent, 1/<i>b</i> when every query selects the same tokens'],
+    [/\\kappa/, 'κ<sup>c</sup>', 'cached tensors per KV head on the global layers (2: keys and values stored separately)'],
+    [/b_c/, S('b', 'c'), 'critical canvas length <i>I</i>*/<i>I</i><sub>attn</sub>: above it a longer context helps TD reach the ridge'],
     [/\\pi(?![A-Za-z])/, 'π', 'peak FLOPs per second of the accelerator', 'T'],
     [/\\beta(?![A-Za-z])/, 'β', 'memory bandwidth of the accelerator, in bytes per second', 'T'],
     [/(^|[^\\A-Za-z_])B(?![A-Za-z^_])/, '<i>B</i>', 'batch: sequences decoded together'],
@@ -179,22 +200,21 @@
     [/(^|[^\\A-Za-z_])S(?![A-Za-z_])/, '<i>S</i>', 'denoising passes per canvas', 'T'],
     [/(^|[^\\A-Za-z_])r(?![A-Za-z])/, '<i>r</i>', 'cost of a denoising pass, as a fraction of a forward pass', 'T'],
     // Parts 8-11 (measurements)
-    [/\\Gamma_\{\\mathrm\{meas\}\}/, 'Γ<sub>meas</sub>', 'measured gain: TD tokens per second over AR tokens per second', 'P'],
-    [/\\Gamma_\{\\mathrm\{roof\}\}/, 'Γ<sub>roof</sub>', 'roofline gain at the measured ceilings and routing', 'P'],
-    [/\\tau/, 'τ', 'empirical roofline time: max(<i>F</i>/π̂, <i>Q</i>/β̂), of a component <i>c</i> or of a whole step <i>X</i>', 'P'],
-    [/\\hat\{?\\pi/, 'π̂', 'empirical compute ceiling: the highest FLOP rate measured on this H200 (FP8 1,468, BF16 781, attention 638 TFLOP/s)', 'P'],
-    [/\\hat\{?\\beta/, 'β̂', 'empirical bandwidth: 4.32 TB/s measured on this H200', 'P'],
-    [/\\eta/, 'η', 'efficiency: roofline time over measured time (1 means at the roofline)', 'P'],
-    [/(^|[^\\A-Za-z_])t_\{?(X|AR|TD|c)/, '<i>t</i>', 'measured time of a step (<i>t</i><sub>AR</sub>, <i>t</i><sub>TD</sub>) or of a component (<i>t</i><sub>c</sub>)', 'P'],
+    [/\\Gamma_\{\\mathrm\{meas\}\}/, 'Γ<sub>meas</sub>', 'measured gain: TD tokens per second over AR tokens per second'],
+    [/\\Gamma_\{\\mathrm\{roof\}\}/, 'Γ<sub>roof</sub>', 'roofline gain at the measured ceilings and routing'],
+    [/\\tau/, 'τ', 'empirical roofline time: max(<i>F</i>/π̂, <i>Q</i>/β̂), of a component <i>c</i> or of a whole step <i>X</i>'],
+    [/\\hat\{?\\pi/, 'π̂', 'empirical compute ceiling: the highest FLOP rate measured on this H200 (FP8 1,468, BF16 781, attention 638 TFLOP/s)'],
+    [/\\hat\{?\\beta/, 'β̂', 'empirical bandwidth: 4.32 TB/s measured on this H200'],
+    [/\\eta/, 'η', 'efficiency: roofline time over measured time (1 means at the roofline)'],
+    [/(^|[^\\A-Za-z_])t_\{?(X|AR|TD|c)/, '<i>t</i>', 'measured time of a step (<i>t</i><sub>AR</sub>, <i>t</i><sub>TD</sub>) or of a component (<i>t</i><sub>c</sub>)'],
     [/(^|[^\\A-Za-z_])n_\{?(X|AR|TD)/, '<i>n</i>', 'tokens a step commits: <i>B</i> for AR, <i>Bb</i>/ω for TD', 'P'],
     [/U\^\{\\mathrm\{meas\}\}/, '<i>U</i><sup>meas</sup>', 'distinct experts per layer that a pass touches, measured', 'P'],
     [/U\^\{\\mathrm\{freq\}\}/, '<i>U</i><sup>freq</sup>', 'distinct experts predicted from the measured expert frequencies, tokens independent', 'P'],
     [/N\^\{\\mathrm\{eff\}\}/, '<i>N</i><sup>eff</sup>', 'effective independent tokens: the <i>N</i> at which <i>U</i><sub>E,k</sub>(<i>N</i>) equals the measured count', 'P'],
     [/\\rho_/, 'ρ<sub>e</sub>', 'frequency with which a token selects expert <i>e</i>', 'P'],
-    [/\\bar\{?m/, '<i>m̄</i>', 'rows per touched expert, <i>Nk</i>/<i>U</i>', 'P'],
+    [/\\mu(?![A-Za-z])/, 'μ', 'rows per touched expert, <i>Nk</i>/<i>U</i>', 'P'],
     [/f_E/, S('f', 'E'), 'width of one expert (704)', 'P'],
-    [/L_q|L_k/, '<i>L</i><sub>q</sub>, <i>L</i><sub>k</sub>', 'queries and keys per sequence in one global-attention call', 'P'],
-    [/T_q|T_k/, '<i>T</i><sub>q</sub>, <i>T</i><sub>k</sub>', 'query rows and keys of one attention tile', 'P'],
+    [/M_q|M_k|M_\{?[qk]/, '<i>M</i><sub>q</sub>, <i>M</i><sub>k</sub>', 'query rows and keys of one attention tile', 'P'],
     [/n_q|n_\{kv/, '<i>n</i><sub>q</sub>, <i>n</i><sub>kv</sub>', 'query heads and KV heads of a layer (16 and 2 on the global layers)'],
     [/\\mathbf\{Z\}/, '<b>Z</b>', 'attention scores <b>QK</b><sup>⊤</sup> of one tile', 'P'],
     [/(^|[^\\A-Za-z_])h(?![A-Za-z_])/, '<i>h</i>', 'head dimension of a global layer (512)', 'P'],
@@ -218,7 +238,8 @@
     if (!src) return;
     const tex = src.replace(/\\text\{[^}]*\}/g, ''); // \text{B} is "billion", not the batch
     const sec = mj.closest('section'), scope = sec && PRACTICE.has(sec.id) ? 'P' : 'T';
-    const hits = SYMBOLS.filter(([re, , , sc]) => (!sc || sc === scope) && re.test(tex)).slice(0, 14);
+    const plain = tex.replace(/\\hat\{?\\(pi|beta)\}?/g, 'HAT');
+    const hits = SYMBOLS.filter(([re, , , sc]) => (!sc || sc === scope) && re.test(re.source.includes('hat') ? tex : plain)).slice(0, 14);
     if (!hits.length) return;
     key.innerHTML = `<dl>${hits.map(([, sym, what]) => `<dt>${sym}</dt><dd>${what}</dd>`).join('')}</dl>`;
     key.hidden = false;
@@ -287,7 +308,7 @@
     let opened = false;
     for (let e = t; e && e !== document.body; e = e.parentElement) {
       if (e.tagName === 'DETAILS' && !e.open) { e.open = true; opened = true; }
-      if (e.classList.contains('foldable') && !e.classList.contains('open')) {
+      if ((e.classList.contains('foldable') || e.matches('.box.prop, .box.def')) && !e.classList.contains('open') && page.classList.contains('intuition')) {
         const btn = e.querySelector(':scope > .box-more');
         if (btn) btn.click(); else e.classList.add('open');
         opened = true;

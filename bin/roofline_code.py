@@ -23,6 +23,13 @@ REPO = "vdeborto/roofscope"
 CLONE = Path.home() / "code/roofscope"
 SHA = "1b49abb4ba0a24949b1dd7ef6c7dcdbf72612d02"
 GH = f"https://github.com/{REPO}"
+# While the repository is private its GitHub links would 404 for readers: print the commit and
+# line numbers as plain text, and set PUBLIC = True (then rebuild) once it is public.
+PUBLIC = False
+
+
+def _a(href: str, text: str) -> str:
+    return f'<a href="{href}">{text}</a>' if PUBLIC else text
 
 
 def logo(size: int, uid: str, label: bool = False) -> str:
@@ -183,7 +190,7 @@ def card(name: str) -> str:
         if k:
             parts.append('<span class="cl gap"><span class="ln" aria-hidden="true">⋮</span> </span>')
         parts.append(_rows([l[ind:] for l in src[a:b + 1]], py, list(range(a + 1, b + 2))))
-        links.append(f'<a href="{GH}/blob/{SHA}/{path}#L{a + 1}-L{b + 1}">lines {a + 1}–{b + 1}</a>')
+        links.append(_a(f"{GH}/blob/{SHA}/{path}#L{a + 1}-L{b + 1}", f"lines {a + 1}–{b + 1}"))
     d, f = path.rsplit("/", 1)
     nlines = sum(b - a + 1 for a, b in spans)
     return (f'<details class="code-card" id="code-{name}"{" open" if is_open else ""}>'
@@ -191,17 +198,18 @@ def card(name: str) -> str:
             f'<span class="code-dir">{d}/</span>{f}</span><span class="code-n">{nlines} lines</span></span>'
             f'<span class="code-cap">{caption}</span></summary>'
             f'<div class="code-body mathjax_ignore tex2jax_ignore"><pre><code>{"".join(parts)}</code></pre></div>'
-            f'<div class="code-foot">On GitHub at <a href="{GH}/tree/{SHA}"><code>{SHA[:7]}</code></a>: {" · ".join(links)}</div>'
+            f'<div class="code-foot">{"On GitHub at" if PUBLIC else "roofscope at commit"} {_a(f"{GH}/tree/{SHA}", f"<code>{SHA[:7]}</code>")}: {" · ".join(links)}</div>'
             '</details>\n')
 
 
 def repo_card() -> str:
     return ('<div class="repo-card">' + logo(52, "rsl-repo", label=True) +
-            f'<div><div class="repo-name"><a href="{GH}/tree/{SHA}">roofscope</a></div>'
+            f'<div><div class="repo-name">{_a(f"{GH}/tree/{SHA}", "roofscope")}</div>'
             '<div class="repo-desc">The harness behind Parts 8–11: it runs vLLM on Modal, records every '
             'kernel and every routing decision, and turns them into the components, rooflines and '
             'efficiencies of these chapters. The code excerpts quote it at commit '
-            f'<code>{SHA[:7]}</code>, each with a link to its lines.</div></div></div>\n')
+            f'<code>{SHA[:7]}</code>, with their line numbers'
+            + (', each linked to GitHub.' if PUBLIC else '; the repository is not yet public.') + '</div></div></div>\n')
 
 
 def repro_card() -> str:
@@ -211,7 +219,7 @@ def repro_card() -> str:
             '<span class="code-cap">From the GPU runs to the numbers of Parts 8–11. Raw traces and routing '
             'arrays stay on the Modal volume; the repository keeps the analysed summaries.</span></summary>'
             f'<div class="code-body nolines mathjax_ignore tex2jax_ignore"><pre><code>{_rows(REPRO.split(chr(10)), BashLexer(), None)}</code></pre></div>'
-            f'<div class="code-foot">On GitHub: <a href="{GH}/tree/{SHA}#readme">the README at <code>{SHA[:7]}</code></a></div>'
+            f'<div class="code-foot">{_a(f"{GH}/tree/{SHA}#readme", f"the README of roofscope at commit <code>{SHA[:7]}</code>")}</div>'
             '</details>\n')
 
 

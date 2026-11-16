@@ -57,19 +57,19 @@ BASE = f"/notes/{SLUG}/"
 TITLE = "Block Diffusion Rooflines"
 # (page slug, part number, title, source element id, one-line description); "" is the first page.
 CHAPTERS = [
-    ("", "0", "Introduction", "intro", "what the book does, how it is organised, and how to read it."),
-    ("summary", "", "Summary", "tldr", "a quiz, the headline numbers, the symbols, what moves the gain, and the three regimes that matter in practice."),
+    ("", "0", "Introduction", "intro", "what is already measured, the question, the measurement setting, how the book is organised and how to read it."),
+    ("summary", "", "Summary", "tldr", "the headline numbers, a quiz, four takeaways, the symbols, what moves the gain, and the three regimes that occur."),
     ("setup", "1", "Setup", "setup", "notation, costs, intensities, penalties."),
     ("gain", "2", "The gain", "gain", "Proposition 1, and the split of each intensity into a linear part and an attention part."),
-    ("linear", "3", "The linear part", "linear", "the MoE penalty, when the linear layers dominate, and the gain in that regime."),
-    ("attention", "4", "The attention part", "attention", "dense, windowed and sparse attention; the selection penalty as the twin of the MoE penalty; when attention dominates, and the gain there."),
-    ("whole", "5", "The whole picture", "whole", "when TD wins, the batch needed to saturate compute, the eight regimes, the exact maps."),
+    ("linear", "3", "The linear part", "linear", "the expert and linear penalties, when the linear layers dominate, and the gain in that regime."),
+    ("attention", "4", "The attention part", "attention", "dense, windowed and sparse attention; the selection penalty as the twin of the expert penalty; when attention dominates, and the gain there."),
+    ("whole", "5", "The whole picture", "whole", "when TD wins, the batch needed to saturate compute, the eight regimes, other accelerators and models, the exact maps."),
     ("calculator", "6", "Calculator", "calc", "any accelerator, model, attention layout and decoding setup, with the exact accounting."),
     ("examples", "7", "Worked examples", "examples", "a smaller canvas, a dense model, a low-ridge accelerator."),
-    ("effective", "8", "Effective rooflines", "effective", "the ceilings one H200 sustains, the experts each decoder actually touches, and the bound they give."),
-    ("stack", "9", "The measurement stack", "stack", "how every kernel of a step is timed and attributed, and three defects of the stock engine."),
-    ("kernels", "10", "Kernels", "kernelwork", "two rewrites, of the experts and of global attention, and what they change in efficiency and throughput."),
-    ("conclusion", "11", "Conclusion", "conclusion", "the bound against the measurement, what the roofline gets right, limitations, related work, open problems."),
+    ("effective", "8", "Empirical rooflines", "effective", "the ceilings one H200 sustains, the experts each decoder actually touches, and the bound they give."),
+    ("stack", "9", "The measurement stack", "stack", "how every kernel of a step is timed and attributed, three defects of the stock engine and one of the harness, and where the stock kernels stand."),
+    ("kernels", "10", "Kernels", "kernelwork", "two rewrites, of the experts and of global attention, and what they change in efficiency, throughput and quality."),
+    ("conclusion", "11", "Conclusion", "conclusion", "the bound against the measurement, what the roofline gets right, limitations, code and data, related work, open problems."),
     ("appendix", "A", "Appendix", "appendix", "the exact accounting, a check against measurements, sources."),
 ]
 # Citation, and the comment threads (ids from https://giscus.app for the repository and category).
@@ -198,7 +198,8 @@ TAKEAWAY_FIGS = [("fig-reuse", "Figure 4"), ("fig-bestbatch", "Figure 9"), ("fig
 
 
 def link_takeaways(body):
-    """Each of the four takeaways ends with a link to the figure that shows it."""
+    """Each of the four takeaways ends with a link to the figure that shows it; the figure's number is
+    filled in by number_figures once the numbering is known (placeholder {fig:ID})."""
     m = re.search(r'<div class="takeaways">.*?</ol>', body, re.S)
     if not m or m.group(0).count("</li>") != len(TAKEAWAY_FIGS):
         problems.append("takeaways block not found or not four items")
@@ -291,14 +292,15 @@ def main():
     body = sub_once(body, "  <h3>Across accelerators and models</h3>\n", "  <h3>Across accelerators and models</h3>\n" + figs["accel"], "accel anchor")
     # Parts 3-5: experts and weights (Proposition 3), where the weights dominate (Table 2), what a pass reads of
     # the cache (Table 4), the sparse penalty (Proposition 5), attention's shares (Table 5), thresholds (Table 8).
+    # A figure whose numbers are in a folded table goes before the fold, so that it is shown.
     for name, anchor in (("experts", "  <p>For DiffusionGemma, \\(E/k = 16\\)"),
                          ("weights", '  <div class="box prop" id="prop4">'),
-                         ("linmap", '  <div class="table-wrap"><table>\n    <caption>Table 2. '),
+                         ("linmap", '  <details class="numbers"><summary>Table 2: '),
                          ("attnread", '  <div class="box prop" id="prop5">'),
                          ("sparse", '  <div class="box prop" id="prop6">'),
-                         ("share", '  <div class="table-wrap"><table>\n    <caption>Table 5. '),
-                         ("thresholds", '  <div class="table-wrap"><table>\n    <caption>Table 8. '),
-                         ("models", '  <div class="table-wrap"><table>\n    <caption>Table 9. ')):
+                         ("share", '  <details class="numbers"><summary>Table 5: '),
+                         ("thresholds", '  <details class="numbers"><summary>Table 8: '),
+                         ("models", '  <details class="numbers"><summary>Table 9: ')):
         body = sub_once(body, anchor, figs[name] + anchor, f"{name} anchor")
     body = card_legacy_figures(body)
     body = add_practice(body)
@@ -358,6 +360,12 @@ def main():
         seen = [int(n) for ch in CHAPTERS for n in re.findall(rx, pages.get(ch[0], ""))]
         if seen != list(range(1, len(seen) + 1)):
             problems.append(f"{kind} numbers not in reading order: {seen}")
+    # The takeaways name their figures by number: check the names against the numbering.
+    alltext = "".join(pages.values())
+    for fid, name in TAKEAWAY_FIGS:
+        m = re.search(rf'id="{fid}".*?<div class="fig-k">(Figure \d+)', alltext, re.S)
+        if not m or m.group(1) != name:
+            problems.append(f"takeaway link {fid} says {name}, the figure is {m.group(1) if m else 'missing'}")
     pages = {k: name_headings(v) for k, v in pages.items()}
     pages = link_references(pages)
     if problems:
@@ -366,6 +374,13 @@ def main():
         return 1
     total = 0
     for slug, text in pages.items():
+        # The front matter is YAML: undo any cross-reference link that landed in its description.
+        if text.startswith("---\n"):
+            end = text.index("\n---\n", 4)
+            front = re.sub(r'<a class="xref" href="[^"]*">(.*?)</a>', r"\1", text[:end])
+            if '<' in front or front.count('"') % 2:
+                problems.append(f"front matter of {slug or 'first page'} is not plain text")
+            text = front + text[end:]
         path = BOOK / slug / "index.html" if slug else BOOK / "index.html"
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(text)
@@ -382,11 +397,15 @@ def url_of(slug):
 # of figures.js: a kicker with the number, a title that states the figure's claim, and the
 # original caption as a subtitle.
 LEGACY_CLAIMS = {
-    14: "A long canvas needs a smaller batch to saturate compute as the context grows; AR needs a larger one, and no batch at all beyond 135 tokens.",
-    19: "AR catches up only above batch 100 at short context; the gain peaks where a TD pass turns compute-bound and flattens to 1.7 at long context.",
-    20: "With a 32-token canvas AR is faster at small batch; TD overtakes it near batch 9 and peaks at about 1.8.",
-    21: "A dense model gives TD its largest gain at batch 1, about 13 times AR's; AR catches up near batch 15 at short context, and TD wins at every batch at long context.",
-    22: "On an H20, whose ridge point is low, the gain is about 2 at batch 1 and falls below 1 at long context.",
+    14: "As the context grows, the batch at which a pass turns compute-bound falls for a canvas of 256 and rises for AR (Proposition 8).",
+    # Figure 19 has four tabs, each with its own claim; figures.js shows the title of the selected tab.
+    19: ('<span data-tab-title="m-gain">At context 1k AR catches up with TD at batch 110, and at a larger batch as the context grows, beyond 1,024 from 64k tokens on.</span>'
+         '<span data-tab-title="m-ar" hidden>An AR step never reaches the ridge, and at long context its intensity tends to 8 whatever the batch.</span>'
+         '<span data-tab-title="m-td" hidden>A TD canvas crosses the ridge at a batch that falls as the context grows, from 5 at 1k to 1 at 256k, and its intensity tends to 2,048.</span>'
+         '<span data-tab-title="m-sparse" hidden>With sparse global layers, AR catches up with TD near batch 90–110 at every context up to 1M tokens.</span>'),
+    20: "With a 32-token canvas, TD is faster than AR only between batch 9 and batch 110 at context 1k.",
+    21: "For a dense model, the gain at context 1k is about 13 at batch 1 and falls like 1/B, to parity at batch 15.",
+    22: "On an H20, whose ridge point is 37, TD is faster than AR only up to batch 4 at short context.",
 }
 
 
@@ -543,8 +562,7 @@ def bibtex(url):
     return ("@misc{debortoli2026rooflines,\n"
             f"  title = {{{TITLE}}},\n"
             f"  author = {{{AUTHOR[0]}, {AUTHOR[1]}}},\n"
-            "  howpublished = {Online},\n"
-            f"  note = {{Retrieved from {url}}},\n"
+            f"  howpublished = {{\\url{{{url}}}}},\n"
             f"  year = {{{YEAR}}}\n"
             "}")
 
@@ -553,7 +571,7 @@ def cite_block():
     """How to cite the book, at the end of its first page."""
     return (f'<section class="book-cite" id="cite">\n  <h3>Citation</h3>\n'
             f'  <p>For attribution in academic contexts, please cite this work as:</p>\n'
-            f'  <div class="cite-entry"><pre class="cite-text">{AUTHOR[0]}, "{TITLE}", online, {YEAR}.</pre></div>\n'
+            f'  <div class="cite-entry"><pre class="cite-text">{AUTHOR[0]}, {AUTHOR[1][0]}. ({YEAR}). {TITLE}. {SITE + BASE}</pre></div>\n'
             f'  <p>or as a BibTeX entry:</p>\n'
             f'  <div class="cite-entry"><button type="button" class="cite-copy">Copy</button><pre class="cite-bib">{html.escape(bibtex(SITE + BASE))}</pre></div>\n'
             f'</section>\n')
@@ -649,7 +667,9 @@ def split_book(body):
         foot = '<nav class="book-nav" aria-label="Chapters">' + "".join(
             f'<a class="{r}" href="{url_of(c[0])}"><span>{w}</span>{label_of(c)}</a>' for c, r, w in ((prev, "prev", "Previous"), (nxt, "next", "Next")) if c) + "</nav>\n"
         # A chapter opens with its introduction, so the layout's subtitle would repeat it.
-        desc_line = "" if slug else f'description: "{desc}"\n'
+        # Chapters get a description for link previews; the layout's subtitle is hidden with _styles.
+        desc_line = (f'description: "{f'Part {num} of' if num.isdigit() else f'{title} of'} {TITLE}: {what}"\n_styles: ".post-header .post-description {{ display: none; }}"\n'
+                     if slug else f'description: "{desc}"\n')
         meta = dict(book, current=slug)
         if not slug:  # forwards old single-page anchors and calculator links
             meta["ids"] = {i: c[0] for i, c in home.items() if c[0]}
