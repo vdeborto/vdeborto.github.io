@@ -355,7 +355,40 @@ def fig_decoders():
     xc = x0 + 14 * (sw + gap) + sw / 2
     s.append(f'<line x1="{xc}" y1="200" x2="{xc}" y2="152" stroke="{TD}" marker-end="url(#pa0)"/>')
     s.append(f'<text x="{xc}" y="216" text-anchor="middle" font-size="11" fill="{INK}">commit pass</text>')
+    wide = svg(W, H, "In the same 15 passes AR commits 15 tokens and TD commits a canvas of 256", "".join(s))
+    return f'<div class="v-wide">{wide}</div><div class="v-narrow">{fig_decoders_narrow()}</div>'
+
+
+def fig_decoders_narrow():
+    """Figure 1 for a phone: the same two rows of 15 passes, with the counts under each row."""
+    W, H, x0, sw, gap, n = 360, 214, 30, 18, 3, 15
+    s = [arrow_defs(30)]
+    s.append(f'<text x="{x0}" y="13" font-size="11" fill="{MUT}">passes in time order; each reads the weights</text>')
+    for row, (name, col, y) in enumerate((("AR", AR, 22), ("TD", TD, 92))):
+        s.append(f'<text x="{x0 - 6}" y="{y + 17}" text-anchor="end" font-size="11.5" font-weight="600" fill="{col}">{name}</text>')
+        for i in range(n):
+            x = x0 + i * (sw + gap)
+            solid = row == 0 or i == n - 1
+            s.append(f'<rect x="{x + 0.6}" y="{y + 0.6}" width="{sw - 1.2}" height="24.8" rx="3" fill="{col}" fill-opacity="{0.85 if solid else 0.16}"'
+                     f'{"" if solid else f" stroke=\"{col}\" stroke-width=\"1.2\""}/>')
+    s.append(f'<text x="{x0}" y="66" font-size="11" fill="{INK}">15 tokens, one per pass</text>')
+    s.append(f'<path d="M{x0},124 v5 h{14 * (sw + gap) - gap} v-5" fill="none" stroke="{TD}" stroke-width="1.2"/>')
+    s.append(f'<text x="{x0}" y="145" font-size="11" fill="{INK}">S = 14 denoising passes</text>')
+    xc = x0 + 14 * (sw + gap) + sw / 2
+    s.append(f'<line x1="{xc}" y1="160" x2="{xc}" y2="122" stroke="{TD}" marker-end="url(#pa30)"/>')
+    s.append(f'<text x="{xc}" y="174" text-anchor="end" font-size="11" fill="{INK}">commit pass</text>')
+    s.append(f'<text x="{x0}" y="200" font-size="11" fill="{INK}">256 tokens, one canvas</text>')
     return svg(W, H, "In the same 15 passes AR commits 15 tokens and TD commits a canvas of 256", "".join(s))
+
+
+def fig_map_narrow(base=BOOK_URL):
+    """Figure 2 for a phone: the parts as a list of links."""
+    top = [p for _, _, parts in MAP_TOP for p in parts]
+    li = lambda slug, part, title, lines: (f'<li><a href="{base}{slug}/"><span class="mn-p">{part.title()}</span> '
+                                           f'<b>{title}</b>{(" · " + " ".join(lines)) if lines else ""}</a></li>')
+    return ('<div class="map-narrow"><div class="mn-h">On paper · Parts 1–7</div><ol>' + "".join(li(*p) for p in top) + '</ol>'
+            '<div class="mn-h">On an H200 · Parts 8–11</div><ol class="mn-h200">' + "".join(li(*p) for p in MAP_BOT) + '</ol>'
+            '<div class="mn-also">Also: ' + ", ".join(f'<a href="{base}{slug}/">{t}</a> ({w})' for slug, t, w in MAP_SIDE) + '</div></div>')
 
 
 # The book map: one box per part, every box a link to its chapter.
@@ -431,7 +464,8 @@ def fig_map(base=BOOK_URL):
         cx += w + 12
     if cx > W:
         FIT.append(f"map: the chips need {cx} px, have {W}")
-    return svg(W, H, "Map of the book, each box a link to its chapter: Parts 1 to 7 bound the gain on paper; Parts 8 to 11 measure it on an H200 and compare", "".join(s))
+    wide = svg(W, H, "Map of the book, each box a link to its chapter: Parts 1 to 7 bound the gain on paper; Parts 8 to 11 measure it on an H200 and compare", "".join(s))
+    return f'<div class="v-wide">{wide}</div><div class="v-narrow">{fig_map_narrow(base)}</div>'
 
 
 def fig_ladder(d):

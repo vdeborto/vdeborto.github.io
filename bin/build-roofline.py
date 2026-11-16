@@ -441,7 +441,7 @@ def link_references(pages):
                         stack.pop()
                     elif not m.group(1) and skip_open.match(part) and not part.endswith('/>'):
                         stack.append(name)
-                    elif not m.group(1) and name == 'div' and 'class="fig-k"' in part:
+                    elif not m.group(1) and name == 'div' and ('class="fig-k"' in part or 'class="mn-h"' in part):
                         stack.append('div')
                     elif not m.group(1) and name == 'span' and 'class="tag"' in part:
                         stack.append('span')
