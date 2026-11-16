@@ -357,10 +357,16 @@ By doing so, we will be able to establish the arithmetic intensities of both mod
 </tr>
         <tr>
 <td>\(2N_{\mathrm{act}}\), with \(N_{\mathrm{act}} = W_{\mathrm{ne}} + L\,k\,W^e\)</td>
-<td class="l">linear-layer FLOPs per position, whatever the context; \(N_{\mathrm{act}}\) is the number of parameters active per token (3.08B for DiffusionGemma, without the vocabulary)</td>
+<td class="l">linear-layer FLOPs per position, whatever the context; \(N_{\mathrm{act}}\) is the number of parameters active per token (3.08B for DiffusionGemma, without the vocabulary)<sup class="fn-ref" id="fnref-two-flops"><a href="#fn-two-flops" title="\(2N_{\mathrm{act}}\) and not just \(N_{\mathrm{act}}\), because a matrix multiply costs one multiplication and one addition per weight.">3</a></sup>
+</td>
 </tr>
       </tbody>
     </table></div>
+
+
+
+
+
     <h4>Attention</h4>
     <div class="table-wrap"><table class="defs">
       <tbody>
@@ -378,7 +384,7 @@ By doing so, we will be able to establish the arithmetic intensities of both mod
 </tr>
         <tr>
 <td>\(\alpha_I = 2\,|\mathcal S|\,H_Ih_I\)</td>
-<td class="l">the same, for the indexer, the scan that selects a sparse layer's tokens: \(H_I\) heads of dimension \(h_I\) per sparse layer (<a class="xref" href="/notes/block-diffusion-rooflines-6f924020/attention/">Part 4</a>)</td>
+<td class="l">the same, for the indexer, the scan that selects a sparse layer's tokens (<a class="xref" href="/notes/block-diffusion-rooflines-6f924020/attention/">Part 4</a>)</td>
 </tr>
         <tr>
 <td>\(\nu_G = s_{kv}\sum_{\ell\in\mathcal G}\kappa^cn_{kv,\ell}h_\ell\)</td>
@@ -394,7 +400,7 @@ By doing so, we will be able to establish the arithmetic intensities of both mod
 </tr>
         <tr>
 <td>\(\nu_I = |\mathcal S|\,s_Ih_I\)</td>
-<td class="l">bytes per cached token of the scan's own cache: one index key of \(h_I\) elements at \(s_I\) bytes per element, per sparse layer</td>
+<td class="l">bytes per cached token of the scan's own cache (<a class="xref" href="/notes/block-diffusion-rooflines-6f924020/attention/">Part 4</a>)</td>
 </tr>
         <tr>
 <td>\(U_{C,m}(N) = C\bigl[1-(1-\tfrac{m}{C})^{N}\bigr]\) for \(C \ge m\), and \(C\) for \(C \le m\)</td>
@@ -515,6 +521,8 @@ By doing so, we will be able to establish the arithmetic intensities of both mod
 <li id="fn-ar-parallel">As emphasized in the introduction, we do not consider parallel decoding techniques for AR such as Multi-Token Prediction (MTP) or Speculative Sampling (SS). We will discuss those works in the Conclusion. <a href="#fnref-ar-parallel" class="fn-back" aria-label="Back to the text">↩</a>
 </li>
 <li id="fn-r-one">In the case of DiffusionGemma we always have \(r=1\), but one could get creative regarding the encoder-decoder architecture. <a href="#fnref-r-one" class="fn-back" aria-label="Back to the text">↩</a>
+</li>
+<li id="fn-two-flops">\(2N_{\mathrm{act}}\) and not just \(N_{\mathrm{act}}\), because a matrix multiply costs one multiplication and one addition per weight. <a href="#fnref-two-flops" class="fn-back" aria-label="Back to the text">↩</a>
 </li>
 </ol></section>
 </section>
