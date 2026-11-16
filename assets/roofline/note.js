@@ -1022,8 +1022,8 @@
     const series = [
       { n: 1, label: 'AR', color: '--bdr-ar' },
       { n: 256, label: 'TD, b = 256', color: '--bdr-td' },
-      { n: 32, label: 'TD, b = 32', color: '--bdr-s3' },
-      { n: 16, label: 'TD, b = 16', color: '--bdr-s4' },
+      { n: 32, label: 'TD, b = 32', color: '--bdr-td', dash: '7 4' },
+      { n: 16, label: 'TD, b = 16', color: '--bdr-td', dash: '2 3' },
     ].map((sr) => {
       const c = M.compact(m0, { ...st.w, b: sr.n }, ob, st.hw);
       const W = (B) => (sr.n === 1 ? c.WAR(B) : c.WTD(B));
@@ -1064,7 +1064,7 @@
       const pts = []; const segs = [];
       Cs.forEach((C, k) => { const B = sr.ys[k]; if (isFinite(B) && B <= 2 ** y1) pts.push(`${X(C).toFixed(1)},${Y(B).toFixed(1)}`); else if (pts.length) { segs.push(pts.splice(0)); } });
       if (pts.length) segs.push(pts);
-      for (const sg of segs) s += `<polyline fill="none" stroke="${col}" stroke-width="2.25" stroke-linejoin="round" points="${sg.join(' ')}"/>`;
+      for (const sg of segs) s += `<polyline fill="none" stroke="${col}" stroke-width="2.25" stroke-linejoin="round" ${sr.dash ? `stroke-dasharray="${sr.dash}"` : ''} points="${sg.join(' ')}"/>`;
       if (isFinite(sr.zero) && sr.zero > 16 && sr.zero < 2 ** 20) {
         s += `<line x1="${X(sr.zero)}" x2="${X(sr.zero)}" y1="${mg.t}" y2="${H - mg.b}" stroke="${col}" stroke-width="1.25" stroke-dasharray="3 4"/>`;
         s += `<text class="clbl" x="${X(sr.zero) + 4}" y="${mg.t + 12}">${sr.label}: none beyond ${kTok(sr.zero)}</text>`;
@@ -1075,7 +1075,7 @@
     }
     s += `<line class="cross" x1="0" x2="0" y1="${mg.t}" y2="${H - mg.b}" stroke="${muted}" stroke-width="1" visibility="hidden"/></svg><div class="tip" hidden></div>`;
     el.innerHTML = s;
-    legendEl.innerHTML = data.map((sr) => `<span><span class="swatch" style="background:var(${sr.color})"></span>${sr.label}</span>`).join('') + '<span class="muted">vertical dashes: no batch is enough beyond this context · grey: does not fit in memory</span>';
+    legendEl.innerHTML = data.map((sr) => `<span><svg width="24" height="10" aria-hidden="true" style="vertical-align:middle;margin-right:4px"><line x1="1" x2="23" y1="5" y2="5" stroke="${css(sr.color)}" stroke-width="2.25" ${sr.dash ? `stroke-dasharray="${sr.dash}"` : ''}/></svg>${sr.label}</span>`).join('') + '<span class="muted">thin vertical lines: no batch is enough beyond this context · grey: does not fit in memory</span>';
     const svg = el.querySelector('svg'), tip = el.querySelector('.tip'), cross = el.querySelector('.cross');
     ['pointermove', 'pointerdown'].forEach((type) => svg.addEventListener(type, (ev) => {
       const pt = svg.createSVGPoint(); pt.x = ev.clientX; pt.y = ev.clientY;
