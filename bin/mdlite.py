@@ -98,11 +98,18 @@ def _chunk(c: str, wrap: bool) -> str:
     # A "</li>" left at the end of an item, from text that was HTML before, is dropped.
     lines = [re.sub(r"\s*</li>\s*$", "", ln) if ITEM.match(ln) else ln for ln in lines]
     first = next((i for i, ln in enumerate(lines) if ITEM.match(ln)), None)
-    if first is not None and not BLOCK_TAG.search("\n".join(lines[first:])) and \
-            all(ITEM.match(ln) or ln.startswith((" ", "\t")) for ln in lines[first + 1:] if ln.strip()):
-        head = "\n".join(lines[:first])
-        ul = indent + _list([ln for ln in lines[first:] if ln.strip()])
-        return (_chunk(head, wrap) + "\n" + ul) if head.strip() else ul
+    if first is not None:
+        # The list runs to the first line that opens with HTML or a comment (a figure's placeholder,
+        # a <p>): that line and the ones after it are a chunk of their own.
+        last = first + 1
+        while last < len(lines) and (ITEM.match(lines[last]) or (lines[last].startswith((" ", "\t")) and not lines[last].lstrip().startswith(("<", "\x00")))):
+            last += 1
+        body, tail = lines[first:last], "\n".join(lines[last:])
+        if not BLOCK_TAG.search("\n".join(body)) and (not tail.strip() or tail.lstrip().startswith(("<", "\x00"))):
+            head = "\n".join(lines[:first])
+            ul = indent + _list([ln for ln in body if ln.strip()])
+            out = (_chunk(head, wrap) + "\n" + ul) if head.strip() else ul
+            return out + ("\n" + _chunk(tail, wrap) if tail.strip() else "")
     out = inline(c)
     has_block = BLOCK_TAG.search(s) or "\x00" in s
     if not has_block:
