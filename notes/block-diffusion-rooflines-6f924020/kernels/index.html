@@ -324,7 +324,8 @@
 
   <h3 id="kern-experts">The experts</h3>
   <p>An MoE layer of DiffusionGemma has hidden size \(d = 2816\), \(E = 128\) experts of width \(f_E = 704\), and \(k = 8\) experts per token. For a token \(x_t\) routed to expert \(e\) with weight \(g_{t,e}\),</p>
-  <div class="eq">\[ a_{t,e} = \mathrm{gelu}\bigl(x_t W_{g,e}^{\top}\bigr) \odot \bigl(x_t W_{u,e}^{\top}\bigr), \qquad y_t = \sum_{e} g_{t,e}\, a_{t,e} W_{d,e}^{\top}: \]</div>
+  <div class="eq eq-wide">\[ a_{t,e} = \mathrm{gelu}\bigl(x_t W_{g,e}^{\top}\bigr) \odot \bigl(x_t W_{u,e}^{\top}\bigr), \qquad y_t = \sum_{e} g_{t,e}\, a_{t,e} W_{d,e}^{\top}: \]</div>
+  <div class="eq eq-narrow">\[ \begin{gathered} a_{t,e} = \mathrm{gelu}\bigl(x_t W_{g,e}^{\top}\bigr) \odot \bigl(x_t W_{u,e}^{\top}\bigr),\\[4pt] y_t = \sum_{e} g_{t,e}\, a_{t,e} W_{d,e}^{\top}: \end{gathered} \]</div>
   <p>a first GEMM with the gate and up matrices \(W_g, W_u\) and a second with the down matrix \(W_d\). For \(N\) tokens touching \(U\) experts, with \(\bar m = Nk/U\) rows per touched expert on average, the layer does \(F = 6Nk\,d f_E\) FLOPs and reads \(Q = 3U d f_E\) bytes of FP8 weights, so its intensity is \(F/Q = 2\bar m\). The empirical ridge point is 340 FLOP/byte, so the layer is compute-bound above about 170 rows per expert. At the measured routing TD reaches it from batch 16 on, and at batch 8 at context 64k.</p>
   <p>vLLM's two expert GEMMs are not slow: profiled at batch 32, they take the same time as the replacement's. The time is lost between them, in passes that write intermediate tensors to memory and read them back.</p>
   <div class="bdr-fig pfig" id="fig-moe">
@@ -399,7 +400,8 @@
   <div class="eq eq-narrow">\[ \begin{gathered} \underbrace{3 \times 64 \cdot 512 \cdot 2}_{\text{queries, keys, values}} + \underbrace{64 \cdot 64 \cdot 2}_{\text{scores}}\\[4pt] = 200\ \text{KB}, \end{gathered} \]</div>
   <p>so a second stage does not fit in 227 KB, loading cannot overlap compute, and Nsight Compute finds the tensor cores busy 36% of the time.</p>
   <p>The pair kernel, <code>attn512</code>, splits the head dimension across the two CTAs of a cluster. With the query, key and value tiles \(\mathbf Q = [\mathbf Q_0\ \mathbf Q_1]\), \(\mathbf K = [\mathbf K_0\ \mathbf K_1]\), \(\mathbf V = [\mathbf V_0\ \mathbf V_1]\) split at column 256,</p>
-  <div class="eq">\[ \mathbf Z = \mathbf Q\mathbf K^{\top} = \mathbf Q_0\mathbf K_0^{\top} + \mathbf Q_1\mathbf K_1^{\top}, \qquad \mathbf O_i = \mathrm{softmax}(\mathbf Z)\,\mathbf V_i \quad (i = 0, 1). \]</div>
+  <div class="eq eq-wide">\[ \mathbf Z = \mathbf Q\mathbf K^{\top} = \mathbf Q_0\mathbf K_0^{\top} + \mathbf Q_1\mathbf K_1^{\top}, \qquad \mathbf O_i = \mathrm{softmax}(\mathbf Z)\,\mathbf V_i \quad (i = 0, 1). \]</div>
+  <div class="eq eq-narrow">\[ \begin{gathered} \mathbf Z = \mathbf Q\mathbf K^{\top} = \mathbf Q_0\mathbf K_0^{\top} + \mathbf Q_1\mathbf K_1^{\top},\\[4pt] \mathbf O_i = \mathrm{softmax}(\mathbf Z)\,\mathbf V_i \quad (i = 0, 1). \end{gathered} \]</div>
   <div class="bdr-fig pfig" id="fig-pair">
     <div class="fig-k">Figure 35</div>
     <p class="fig-title">Each thread block of the pair holds half of the head dimension; the only traffic between the two SMs is the partial score tile.</p>

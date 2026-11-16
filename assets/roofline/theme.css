@@ -418,3 +418,16 @@ html { scroll-behavior: smooth; }
 .bdr .rc.td .rid { color: var(--bdr-td); }
 .bdr .rc.na { background: repeating-linear-gradient(135deg, transparent 0 6px, color-mix(in srgb, var(--rule) 55%, transparent) 6px 7px); }
 .bdr .rc.na .rf, .bdr .rc.na .rn { opacity: .75; }
+/* tables inside definition boxes fit the column: fixed shares, wrapping values */
+.bdr .box .table-wrap { overflow-x: auto; }
+.bdr table.defs.ints { table-layout: fixed; width: 100%; }
+.bdr #def3 table.ints td:first-child, .bdr #def3 table.ints th:first-child { width: 42%; }
+.bdr #def3 table.ints td.num, .bdr #def3 table.ints th:last-child { width: 20%; white-space: normal; text-align: right; }
+.bdr #def4 table.ints th:first-child, .bdr #def4 table.ints td:first-child { width: 24%; }
+.bdr #def4 table.ints th:last-child, .bdr #def4 table.ints td:last-child { width: 30%; }
+.bdr .eq-wide.eq-off { display: none !important; }
+.bdr .eq-narrow.eq-on { display: block !important; }
+.bdr #def4 table.ints th:first-child, .bdr #def4 table.ints td:first-child { width: 30%; white-space: normal; }
+.bdr table.defs.ints td, .bdr table.defs.ints th { white-space: normal; }
+/* a display equation that still does not fit scrolls sideways instead of being clipped */
+.bdr .eq { max-width: 100%; overflow-x: auto; overflow-y: hidden; scrollbar-width: thin; }
