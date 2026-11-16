@@ -130,10 +130,10 @@
   const rerenders = [];
   const onTheme = (f) => rerenders.push(f);
 
-  // The accelerator is shared by Figures 5, 9, 13 and 16: choosing one in a figure sets it in all.
+  // The accelerator is shared by Figures 6, 10, 14 and 17: choosing one in a figure sets it in all.
   const ACCEL = ['h20', 'rtx5090', 'a100', 'h200', 'v5e', 'b200', 'mi355x', 'h100pcie', 'spark', 'v6e'];
   const SHORT = { h20: 'H20', rtx5090: 'RTX 5090', a100: 'A100', h200: 'H200', v5e: 'TPU v5e', b200: 'B200', mi355x: 'MI355X', h100pcie: 'H100 PCIe', spark: 'DGX Spark', v6e: 'TPU v6e' };
-  // labels of Figure 16's dots on narrow screens
+  // labels of Figure 17's dots on narrow screens
   const NARROW = { rtx5090: 'RTX5090', v5e: 'v5e', h100pcie: 'H100P', spark: 'Spark', v6e: 'v6e' };
   // The choice is shared within the page only: every page opens on the H200, the accelerator the text quotes.
   const shared = { hw: 'h200', subs: [] };
@@ -164,8 +164,8 @@
   function figAccounting(root) {
     const hw = hwOf('h200');
     const rows = [
-      { name: 'Proposition 1', what: 'closed form of Part 2: no vocabulary, context fixed at 1k (at zero context, as in the closed forms of Part 3 and Table 8, TD is ahead up to batch 109)', used: 'Figures 5 and 13, the rooflines of the quiz and Table 3 (Figure 17 and Table 8 use it at zero context)', g: (B) => prop1(DG, hw, B, 1024).gain },
-      { name: 'Exact, fixed context', what: 'every FLOP and byte of the appendix, vocabulary included, context fixed at 1k', used: 'Figures 9, 16 and 18, the quiz verdicts, the maps', g: (B) => steady(DG, hw, B, 1024).gain },
+      { name: 'Proposition 1', what: 'closed form of Part 2: no vocabulary, context fixed at 1k (at zero context, as in the closed forms of Part 3 and Table 8, TD is ahead up to batch 109)', used: 'Figures 6 and 14, the rooflines of the quiz and Table 3 (Figure 18 and Table 8 use it at zero context)', g: (B) => prop1(DG, hw, B, 1024).gain },
+      { name: 'Exact, fixed context', what: 'every FLOP and byte of the appendix, vocabulary included, context fixed at 1k', used: 'Figures 10, 17 and 19, the quiz verdicts, the maps', g: (B) => steady(DG, hw, B, 1024).gain },
       { name: 'Exact, whole generation', what: 'the same accounting summed over a 1k prompt and 8k generated tokens: the context grows from 1k to 9k', used: 'the headline tiles above, the calculator', g: (B) => M.generate(DG, { ...W0, B }, O0, hw).gainDecode, slow: true },
     ];
     // short rows of numbers, then what each accounting is, as a list
@@ -183,7 +183,7 @@
     });
   }
 
-  // ---------------------------------------------------------------- roofline renderer (Figure 5, quiz)
+  // ---------------------------------------------------------------- roofline renderer (Figure 6, quiz)
   // One accelerator's roofline with an AR dot and a TD dot at their intensities; the bracket on the
   // right is the ratio of their attainable FLOP rates, min(I_TD, I*) / min(I_AR, I*).
   function rooflineSvg({ hw, IAR, ITD, W = 640, H = 300, mini = false }) {
@@ -217,7 +217,7 @@
     return `${s}</svg>`;
   }
 
-  // ---------------------------------------------------------------- Figure 4: byte reuse and the linear penalty
+  // ---------------------------------------------------------------- Figure 5: byte reuse and the linear penalty
   function figReuse(root) {
     const st = { b: 64, S: 14, t: 0, timer: 0, model: 'dense' };
     const ctl = el('<div class="fig-controls"></div>');
@@ -278,14 +278,14 @@
       const moe = st.model === 'moe' ? ` A canvas of ${b} positions touches ${fmt(M.distinctExperts(DG, b))} of 128 experts per layer and one token touches 8, so a TD pass reads ${hsub('Π', 'lin')} = ${fmt(Pi)} times the weights of an AR step.` : '';
       out.innerHTML = t < n
         ? `After <b>${t}</b> of <b>${n}</b> passes: <span class="ar">AR</span> has committed ${t} token${t === 1 ? '' : 's'}, <span class="td">TD</span> none yet.${moe}`
-        : `<span class="big">In ${n} passes, <span class="ar">AR</span> commits ${n} tokens and <span class="td">TD</span> commits ${b}: TPF = ${b}/${n} = <b>${fmt(tpf)}</b>.</span><br>${moe} Per token, TD reads ${Pi === 1 ? `1/TPF = ${fmt(1 / tpf)}` : `${hsub('Π', 'lin')}/TPF = ${fmt(Pi / tpf)}`} times the weight bytes of AR and performs ${n} times its FLOPs. If both passes are memory-bound, <b>Γ = ${Pi === 1 ? `TPF = ${fmt(gain)}` : `TPF/${hsub('Π', 'lin')} = ${fmt(tpf)}/${fmt(Pi)} = ${fmt(gain)}`}</b>${gain < 1 ? ': TPF is below the penalty, so AR is faster' : ''}.${Pi === 1 && b > 206 ? ` A dense TD pass over ${b} positions has an intensity of about ${b}, above the ridge of an H200 (206): there it is compute-bound, and the gain is capped at <i>I</i>*/(ω ${hsub('I', 'AR')}) (Corollary 1, Figure 5).` : ''}`;
+        : `<span class="big">In ${n} passes, <span class="ar">AR</span> commits ${n} tokens and <span class="td">TD</span> commits ${b}: TPF = ${b}/${n} = <b>${fmt(tpf)}</b>.</span><br>${moe} Per token, TD reads ${Pi === 1 ? `1/TPF = ${fmt(1 / tpf)}` : `${hsub('Π', 'lin')}/TPF = ${fmt(Pi / tpf)}`} times the weight bytes of AR and performs ${n} times its FLOPs. If both passes are memory-bound, <b>Γ = ${Pi === 1 ? `TPF = ${fmt(gain)}` : `TPF/${hsub('Π', 'lin')} = ${fmt(tpf)}/${fmt(Pi)} = ${fmt(gain)}`}</b>${gain < 1 ? ': TPF is below the penalty, so AR is faster' : ''}.${Pi === 1 && b > 206 ? ` A dense TD pass over ${b} positions has an intensity of about ${b}, above the ridge of an H200 (206): there it is compute-bound, and the gain is capped at <i>I</i>*/(ω ${hsub('I', 'AR')}) (Corollary 1, Figure 6).` : ''}`;
     }
     reset();
     onTheme(draw);
     watchWidth(pic, draw);
   }
 
-  // ---------------------------------------------------------------- Figure 5: live roofline (Proposition 1)
+  // ---------------------------------------------------------------- Figure 6: live roofline (Proposition 1)
   function figRoofline(root) {
     const ctl = el('<div class="fig-controls"></div>');
     const sB = slider('batch <i>B</i>', BATCHES, 0, (v) => String(v));
@@ -312,7 +312,7 @@
     watchWidth(pic, draw);
   }
 
-  // ---------------------------------------------------------------- Figure 9: find the best batch (exact, fixed context)
+  // ---------------------------------------------------------------- Figure 10: find the best batch (exact, fixed context)
   const BSCAN = [...new Set([...Array.from({ length: 40 }, (_, i) => i + 1), ...Array.from({ length: 60 }, (_, i) => Math.round(40 * 1.056 ** (i + 1))), 64, 128, 256, 512, 1024])].filter((B) => B <= 1024).sort((a, b) => a - b);
   const curveCache = new Map();
   function gainCurve(hwId, rule) {
@@ -405,7 +405,7 @@
     watchWidth(pic, draw);
   }
 
-  // ---------------------------------------------------------------- Figure 13: both intensities become independent of the batch (Proposition 1)
+  // ---------------------------------------------------------------- Figure 14: both intensities become independent of the batch (Proposition 1)
   const CSCAN = Array.from({ length: 41 }, (_, i) => Math.round(1024 * 2 ** (i / 4)));
   const CBATCH = [1, 4, 16, 64];
   function figContext(root) {
@@ -465,7 +465,7 @@
     watchWidth(pic, draw);
   }
 
-  // ---------------------------------------------------------------- Figure 16: the gain is a function of the ridge point (exact)
+  // ---------------------------------------------------------------- Figure 17: the gain is a function of the ridge point (exact)
   // Scaling peak and bandwidth together scales every pass time alike, so the gain depends on the
   // accelerator only through I* = peak / bandwidth. The curve is drawn for a chip with unlimited memory.
   function figAccel(root) {
@@ -1126,7 +1126,7 @@
   }
   initCards();
 
-  // Figure 19 has one title per tab (bin/build-roofline.py writes all of them): show the selected tab's.
+  // Figure 20 has one title per tab (bin/build-roofline.py writes all of them): show the selected tab's.
   document.querySelectorAll('.bdr .tabs-title').forEach((title) => {
     const spans = title.querySelectorAll('[data-tab-title]'), tabs = title.nextElementSibling;
     if (!spans.length || !tabs || !tabs.classList.contains('tabs')) return;

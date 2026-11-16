@@ -197,7 +197,7 @@ def color_math(body):
     return MATH.sub(seg, body)
 
 
-TAKEAWAY_FIGS = [("fig-reuse", "Figure 4"), ("fig-bestbatch", "Figure 9"), ("fig-context", "Figure 13"), ("fig-accel", "Figure 16")]
+TAKEAWAY_FIGS = [("fig-reuse", "Figure 5"), ("fig-bestbatch", "Figure 10"), ("fig-context", "Figure 14"), ("fig-accel", "Figure 17")]
 
 
 def link_takeaways(body):
@@ -290,9 +290,9 @@ def main():
     if old_fig1:
         body = body.replace(old_fig1.group(0), figs["bestbatch"])
     else:
-        problems.append("old Figure 4 block not found")
+        problems.append("old Figure 5 block not found")
     body = sub_once(body, '  <div class="table-wrap breakout"><table class="cls t6">', figs["context"] + '  <div class="table-wrap breakout"><table class="cls t6">', "context anchor")
-    body = sub_once(body, "<figcaption>Figure 2. Smallest compute-bound batch", "<figcaption>Figure 14. Smallest compute-bound batch", "Figure 14 caption")
+    body = sub_once(body, "<figcaption>Figure 3. Smallest compute-bound batch", "<figcaption>Figure 15. Smallest compute-bound batch", "Figure 15 caption")
     body = sub_once(body, "  <h3>Across accelerators and models</h3>\n", "  <h3>Across accelerators and models</h3>\n" + figs["accel"], "accel anchor")
     # Parts 3-5: experts and weights (Proposition 3), where the weights dominate (Table 2), what a pass reads of
     # the cache (Table 4), the sparse penalty (Proposition 5), attention's shares (Table 5), thresholds (Table 8).
@@ -323,7 +323,7 @@ def main():
     js = "\n".join(scripts)
     js = sub_once(js, "    initTheme();\n", "", "initTheme call")
     js = sub_once(js, "    initRail();\n", "", "initRail call")
-    js = sub_once(js, "    rooflineIntuition($('roof-int'), REF.hw, REF.o, REF.w);\n", "", "Figure 4 call")
+    js = sub_once(js, "    rooflineIntuition($('roof-int'), REF.hw, REF.o, REF.w);\n", "", "Figure 5 call")
     js = sub_once(js, ".box[id] > .title, section.wide[id] > .col > h2", ".box[id] > .bdr-title, section.wide[id] > .bdr-col > h2", "anchor selector")
     js = sub_once(js, "  init();\n})();", "  window.BDR = { HW, HWBYID, REF, boe, omega, fmt, comma, kTok, css, model };\n  init();\n})();", "expose internals")
     # Each page holds one chapter: a missing element is a detached stand-in, the maps and charts
@@ -401,15 +401,15 @@ def url_of(slug):
 # of figures.js: a kicker with the number, a title that states the figure's claim, and the
 # original caption as a subtitle.
 LEGACY_CLAIMS = {
-    14: "As the context grows, the batch at which a pass turns compute-bound falls for a canvas of 256 and rises for AR (Proposition 8).",
-    # Figure 19 has four tabs, each with its own claim; figures.js shows the title of the selected tab.
-    19: ('<span data-tab-title="m-gain">At context 1k AR catches up with TD at batch 110, and at a larger batch as the context grows, beyond 1,024 from 64k tokens on.</span>'
+    15: "As the context grows, the batch at which a pass turns compute-bound falls for a canvas of 256 and rises for AR (Proposition 8).",
+    # Figure 20 has four tabs, each with its own claim; figures.js shows the title of the selected tab.
+    20: ('<span data-tab-title="m-gain">At context 1k AR catches up with TD at batch 110, and at a larger batch as the context grows, beyond 1,024 from 64k tokens on.</span>'
          '<span data-tab-title="m-ar" hidden>An AR step never reaches the ridge, and at long context its intensity tends to 8 whatever the batch.</span>'
          '<span data-tab-title="m-td" hidden>A TD canvas crosses the ridge at a batch that falls as the context grows, from 5 at 1k to 1 at 256k, and its intensity tends to 2,048.</span>'
          '<span data-tab-title="m-sparse" hidden>With sparse global layers, AR catches up with TD near batch 90–110 at every context up to 1M tokens.</span>'),
-    20: "With a 32-token canvas, TD is faster than AR only between batch 9 and batch 110 at context 1k.",
-    21: "For a dense model, the gain at context 1k is about 13 at batch 1 and falls like 1/B, to parity at batch 15.",
-    22: "On an H20, whose ridge point is 37, TD is faster than AR only up to batch 4 at short context.",
+    21: "With a 32-token canvas, TD is faster than AR only between batch 9 and batch 110 at context 1k.",
+    22: "For a dense model, the gain at context 1k is about 13 at batch 1 and falls like 1/B, to parity at batch 15.",
+    23: "On an H20, whose ridge point is 37, TD is faster than AR only up to batch 4 at short context.",
 }
 
 
@@ -427,11 +427,11 @@ def card_legacy_figures(body):
     for mm in re.finditer(r'<div class="bdr-card">.*?</figure>', body, re.S):
         out.append(body[pos:mm.end()] + "\n  </div>"); pos = mm.end()
     body = "".join(out) + body[pos:]
-    tabs = '<div class="fig-k">Figure 19 · interactive</div>'
+    tabs = '<div class="fig-k">Figure 20 · interactive</div>'
     if tabs in body:
-        body = body.replace(tabs, f'{tabs}\n  <p class="fig-title tabs-title">{LEGACY_CLAIMS[19]}</p>', 1)
+        body = body.replace(tabs, f'{tabs}\n  <p class="fig-title tabs-title">{LEGACY_CLAIMS[20]}</p>', 1)
     else:
-        problems.append("Figure 19 kicker not found")
+        problems.append("Figure 20 kicker not found")
     if k != 4:
         problems.append(f"legacy figures carded: {k}, expected 4")
     return body
@@ -509,7 +509,7 @@ def link_references(pages):
                 word = m.group(1)
                 kind = next(k for k in ("Figure", "Table", "Proposition", "Definition", "Corollary", "Remark", "Part") if word.startswith(k))
                 nums = num.findall(m.group(2))
-                if len(nums) == 1:  # "Figure 26": the whole reference is the link
+                if len(nums) == 1:  # "Figure 27": the whole reference is the link
                     h = href_of(kind, int(nums[0]))
                     return f'<a class="xref" href="{h}">{m.group(0)}</a>' if h else m.group(0)
                 def one(mm):
