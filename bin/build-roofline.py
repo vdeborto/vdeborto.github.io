@@ -634,6 +634,18 @@ def split_book(body):
             return f'href="{url_of(t[0])}' + ("" if i == t[3] else f"#{i}") + '"'
         chunks[src] = re.sub(r'href="#([\w-]+)"', relink, chunks[src])
 
+    def intro_html(t):
+        """One paragraph stays <p class="chapter-intro">. Blank lines separate paragraphs, and a
+        chunk that opens with a block tag (<ul>, <ol>, <p>, ...) is kept as written; the whole
+        intro is then a <div class="chapter-intro">, since a <p> cannot hold a list."""
+        parts = [c.strip() for c in re.split(r"\n\s*\n", t) if c.strip()]
+        block = re.compile(r"<(ul|ol|p|div|table|figure|blockquote|details|pre|h[1-6])\b", re.I)
+        if len(parts) == 1 and not block.search(parts[0]):
+            return f'<p class="chapter-intro">{parts[0]}</p>'
+        if any(block.search(c) and not block.match(c) for c in parts):
+            problems.append("chapter intro: put a list or other block after a blank line, not inside a sentence")
+        return '<div class="chapter-intro">' + "".join(c if block.match(c) else f"<p>{c}</p>" for c in parts) + "</div>"
+
     blocks = re.split(r"<!-- intro:([\w-]+) -->\n", INTROS.read_text())
     intros = {blocks[i]: blocks[i + 1].strip() for i in range(1, len(blocks), 2)}
     intros[""] = intros.pop("introduction", "")  # the Introduction is the first page
@@ -650,7 +662,7 @@ def split_book(body):
         # The page title replaces the section heading.
         text = re.sub(r"\s*<h2>.*?</h2>", "", text, count=1, flags=re.S)
         if intros.get(slug):
-            text = re.sub(r"(<section[^>]*>(?:\s*<div class=\"bdr-col\">)?)", lambda m: m.group(1) + "\n  <p class=\"chapter-intro\">" + color_math(intros[slug]) + "</p>", text, count=1)
+            text = re.sub(r"(<section[^>]*>(?:\s*<div class=\"bdr-col\">)?)", lambda m: m.group(1) + "\n  " + intro_html(color_math(intros[slug])), text, count=1)
         elif not re.search(r"<section[^>]*>\s*<p>", text):
             problems.append(f"chapter {slug!r} has no intro and does not open with a paragraph")
         else:

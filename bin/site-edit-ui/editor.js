@@ -137,7 +137,7 @@
     const notes = [];
     if (m.score < 0.75) notes.push('The match is approximate: check that this is the text you clicked, or pick another match.');
     if (m.kind === 'code') notes.push('This text sits in a program file: edit only the words inside the quotes.');
-    if (m.book) notes.push('Book text: saving rebuilds the book (a few seconds); a save that breaks the build is undone. Math is TeX between \\( \\) or \\[ \\].');
+    if (m.book) notes.push('Book text: saving rebuilds the book (a few seconds); a save that breaks the build is undone. Math is TeX between \\( \\) or \\[ \\]. This is HTML, not Markdown: a list is <ul><li>…</li><li>…</li></ul> after a blank line, bold is <b>…</b>, a link is <a href="…">…</a>.');
     if (m.kind === 'md') notes.push('Markdown: **bold**, *italic*, [text](link). A blank line starts a new paragraph.');
     if (m.kind === 'bib') notes.push('BibTeX: keep the braces and the comma at the end of each field.');
     noteEl.textContent = notes.join(' ');
