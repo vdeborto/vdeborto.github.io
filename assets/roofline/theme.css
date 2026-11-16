@@ -123,35 +123,6 @@ html { scroll-behavior: smooth; }
 .bdr .key-row { display: flex; flex-wrap: wrap; gap: 4px 16px; font: 12px var(--bdr-font-ui); color: var(--bdr-ink-2); margin: 0 0 4px; }
 .bdr .key-row i { display: inline-block; width: 14px; height: 3px; vertical-align: middle; margin-right: 6px; border-radius: 1px; }
 
-/* quiz */
-.bdr .quiz-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; font: 12px var(--bdr-font-ui); color: var(--bdr-muted); letter-spacing: .06em; text-transform: uppercase; }
-.bdr .quiz-case { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0; border: 1px solid var(--rule); border-radius: 3px; margin: 10px 0 12px; }
-.bdr .quiz-case > div { padding: 8px 12px; border-left: 1px solid var(--rule); min-width: 0; }
-.bdr .quiz-case > div:first-child { border-left: none; }
-.bdr .quiz-case .k { font: 11px var(--bdr-font-ui); letter-spacing: .06em; text-transform: uppercase; color: var(--bdr-muted); }
-.bdr .quiz-case .v { font: 500 14px/1.35 var(--bdr-font-ui); color: var(--ink); overflow-wrap: anywhere; }
-@media (max-width: 560px) { .bdr .quiz-case { grid-template-columns: repeat(2, minmax(0, 1fr)); } .bdr .quiz-case > div:nth-child(3) { border-left: none; } .bdr .quiz-case > div:nth-child(n+3) { border-top: 1px solid var(--rule); } }
-.bdr .quiz-q { font-size: 1.02rem; margin: 0 0 10px; }
-.bdr .quiz-choices { display: flex; gap: 10px; flex-wrap: wrap; }
-.bdr .quiz-choices button { flex: 1 1 200px; text-align: left; font: 500 13px/1.4 var(--bdr-font-ui); padding: 10px 14px; border: 1px solid var(--rule); border-radius: 3px; background: var(--bdr-surface); color: var(--ink); cursor: pointer; }
-.bdr .quiz-choices button:hover:not([disabled]) { border-color: var(--accent); }
-.bdr .quiz-choices button small { display: block; font-weight: 400; color: var(--bdr-muted); font-size: 11.5px; }
-.bdr .quiz-choices button.right { border-color: var(--bdr-int-mem); box-shadow: inset 3px 0 0 var(--bdr-int-mem); }
-.bdr .quiz-choices button.wrong { border-color: var(--bdr-critical); box-shadow: inset 3px 0 0 var(--bdr-critical); }
-.bdr .quiz-choices button[disabled] { cursor: default; }
-.bdr .quiz-reveal { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 300px); gap: 8px 22px; align-items: start; margin-top: 12px; }
-.bdr .quiz-reveal[hidden] { display: none; }
-@media (max-width: 640px) { .bdr .quiz-reveal { grid-template-columns: minmax(0, 1fr); } }
-.bdr .quiz-verdict { font: 500 15px var(--bdr-font-ui); color: var(--ink); margin-bottom: 6px; }
-.bdr .quiz-verdict.ok { color: var(--bdr-int-mem); }
-.bdr .quiz-verdict.no { color: var(--bdr-critical); }
-.bdr .quiz-why { font-size: .95rem; color: var(--bdr-ink-2); margin: 0 0 8px; }
-.bdr .quiz-nav { display: flex; gap: 8px; align-items: center; margin-top: 10px; }
-.bdr .quiz-dots { display: flex; gap: 5px; }
-.bdr .quiz-dots span { width: 9px; height: 9px; border-radius: 50%; border: 1px solid var(--bdr-muted); }
-.bdr .quiz-dots span.ok { background: var(--bdr-int-mem); border-color: var(--bdr-int-mem); }
-.bdr .quiz-dots span.no { background: var(--bdr-critical); border-color: var(--bdr-critical); }
-.bdr .quiz-dots span.cur { outline: 2px solid var(--bdr-hi); outline-offset: 1px; }
 
 /* Long inline math inside propositions scrolls within its box on narrow screens. */
 .bdr .box { overflow-x: auto; }
@@ -232,9 +203,11 @@ html { scroll-behavior: smooth; }
 
 /* ---------------------------------------------------------------- accounting table, takeaway links, card curves */
 .bdr table.acct td { white-space: normal; vertical-align: top; }
-.bdr table.acct td:first-child { min-width: 210px; width: 52%; }
+.bdr table.acct td:first-child { min-width: 0; width: auto; }
+.bdr table.acct th { white-space: normal; vertical-align: bottom; }
+.bdr table.acct td.num { white-space: nowrap; }
 .bdr table.acct .muted { font-size: 13px; }
-.bdr .tk-fig { font: 500 12px var(--bdr-font-ui); letter-spacing: .02em; white-space: nowrap; }
+.bdr .tk-fig, .bdr .takeaways li a[href*="#fig-"] { font: 500 12px var(--bdr-font-ui); letter-spacing: .02em; white-space: nowrap; }
 .bdr svg.spark { display: block; width: 100%; max-width: 340px; height: auto; overflow: visible; }
 .bdr svg.spark text { font: 500 12px var(--bdr-font-ui); fill: var(--ink); }
 .bdr .micro-pic { flex: 1 1 260px; min-width: 240px; }
@@ -257,6 +230,24 @@ html { scroll-behavior: smooth; }
 .sym-key dl { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 4px 12px; margin: 0; }
 .sym-key dt { font-weight: 600; white-space: nowrap; }
 .sym-key dd { margin: 0; color: var(--bdr-ink-2); }
+.sym-key .sym-all { display: block; margin-top: 8px; padding-top: 6px; border-top: 1px solid var(--rule); font: 500 11.5px var(--bdr-font-ui); letter-spacing: .04em; color: var(--accent); text-decoration: none; }
+.sym-key .sym-all:hover { text-decoration: underline; }
+/* The Symbols page: the same three columns in each group's table; on a phone, the place of
+   definition goes under the meaning. Its formulas do not open the key (the row is the entry). */
+.bdr table.sym-sheet { table-layout: fixed; width: 100%; }
+.bdr table.sym-sheet th:first-child { width: 8.5em; }
+.bdr table.sym-sheet th:last-child { width: 8.5em; }
+.bdr table.sym-sheet td.sym-in { white-space: nowrap; }
+.bdr .sym-sheet mjx-container { cursor: inherit; }
+@media (max-width: 560px) {
+  .bdr table.sym-sheet, .bdr table.sym-sheet tbody { display: block; }
+  .bdr table.sym-sheet thead { display: none; }
+  .bdr table.sym-sheet tr { display: grid; grid-template-columns: 6.5em minmax(0, 1fr); column-gap: 10px; }
+  .bdr table.sym-sheet td { border: 0; padding: 0; }
+  .bdr table.sym-sheet tr { padding: 8px 0; border-bottom: 1px solid var(--rule); }
+  .bdr table.sym-sheet td:first-child { grid-row: 1 / span 2; white-space: normal; }
+  .bdr table.sym-sheet td.sym-in { grid-column: 2; font-size: .88em; color: var(--bdr-muted); }
+}
 
 /* ---------------------------------------------------------------- contents sheet (below 1200px) */
 .rail-fab, .rail-backdrop { display: none; }
@@ -403,6 +394,8 @@ html { scroll-behavior: smooth; }
 .bdr details.numbers[open] > summary { margin-bottom: 6px; }
 /* the note's own static figures, carded like the figures of figures.js (bin/build-roofline.py) */
 .bdr .bdr-card { margin: 28px 0 30px; padding: 16px 0 6px; border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); }
+/* cards in a .cards grid (Summary, regimes) are boxes, not figures: their text keeps clear of the border */
+.bdr .cards > .bdr-card { margin: 0; padding: 14px 18px 10px; }
 .bdr .bdr-card > .fig-k, .bdr section > .fig-k { font: 500 11.5px var(--bdr-font-ui); letter-spacing: .1em; text-transform: uppercase; color: var(--accent); margin: 0 0 2px; }
 .bdr .bdr-card > .fig-title, .bdr .tabs-title { font: 600 1.12rem/1.35 var(--bdr-font-body); color: var(--ink); margin: 0 0 4px; }
 .bdr .bdr-card .fig-sub { font: 12.5px/1.5 var(--bdr-font-ui); color: var(--bdr-muted); margin: 0 0 8px; }
@@ -444,6 +437,8 @@ html { scroll-behavior: smooth; }
 .bdr table.defs.ints td, .bdr table.defs.ints th { white-space: normal; }
 /* a display equation that still does not fit scrolls sideways instead of being clipped */
 .bdr .eq { max-width: 100%; overflow-x: auto; overflow-y: hidden; scrollbar-width: thin; }
+/* display math scrolls sideways only, through .eq; never a vertical scrollbar of its own */
+.bdr mjx-container[display="true"] { overflow-y: hidden; padding: 3px 0; }
 /* the current chapter's sections in the contents rail */
 .bdr-rail .rail-sub { list-style: none; margin: 4px 0 8px; padding: 0 0 0 10px; border-left: 1px solid var(--rule); }
 .bdr-rail .rail-sub li { margin: 2px 0; }
@@ -591,3 +586,25 @@ html { scroll-behavior: smooth; }
 .bdr .rs-mention { white-space: nowrap; }
 .bdr a.rs-mention { text-decoration: none; border-bottom: 1px solid var(--rule); }
 .bdr .rs-mention .rs-logo { display: inline-block !important; width: 1.15em !important; height: 1.15em !important; max-width: none; vertical-align: -0.22em; margin: 0 0.18em 0 0 !important; }
+
+/* ---------------------------------------------------------------- right margin (reading.js): sidenotes and the
+   symbols of the formula being read, on screens with room to the right of the text column */
+.bdr-margin { position: absolute; top: 0; height: 0; z-index: 3; }
+.bdr-margin[hidden] { display: none; }
+.bdr-margin .sidenote, .bdr-margin .margin-sym { position: absolute; left: 0; width: 100%; box-sizing: border-box; font: 13.5px/1.55 var(--bdr-font-body); color: var(--bdr-ink-2); }
+.bdr-margin .sidenote { padding-left: 10px; border-left: 2px solid var(--rule); transition: border-color .3s; }
+.bdr-margin .sidenote.flash { border-left-color: var(--accent); }
+.bdr-margin .sn-num { font: 600 11.5px var(--bdr-font-ui); color: var(--ink); margin-right: 2px; }
+.bdr-margin .sidenote a { color: inherit; }
+.bdr-margin .margin-sym { padding: 8px 12px; background: var(--bdr-surface); border: 1px solid var(--rule); border-radius: 3px; transition: top .25s ease; }
+.bdr-margin .margin-sym[hidden] { display: none; }
+.bdr-margin .margin-sym .mk { font: 500 11px var(--bdr-font-ui); letter-spacing: .08em; text-transform: uppercase; color: var(--bdr-muted); margin-bottom: 4px; }
+.bdr-margin .margin-sym dl { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 3px 10px; margin: 0; }
+.bdr-margin .margin-sym dt { font-weight: 600; color: var(--ink); white-space: nowrap; }
+.bdr-margin .margin-sym dd { margin: 0; }
+.bdr.has-margin section.footnotes { display: none; }
+@media print { .bdr-margin { display: none !important; } .bdr.has-margin section.footnotes { display: block; } }
+.xref-card.in-margin { box-sizing: border-box; box-shadow: 0 4px 16px rgba(0, 0, 0, .08); }
+.bdr .readout .ro-p { margin: 3px 0 0; line-height: 1.5; }
+.bdr .chip-steps { display: inline-flex; gap: 6px; flex-wrap: wrap; }
+.bdr .fig-controls .ctl[hidden] { display: none; }

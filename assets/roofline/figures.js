@@ -164,9 +164,9 @@
   function figAccounting(root) {
     const hw = hwOf('h200');
     const rows = [
-      { name: 'Proposition 1', what: 'closed form of Part 2: no vocabulary, context fixed at 1k (at zero context, as in the closed forms of Part 3 and Table 8, TD is ahead up to batch 109)', used: 'Figures 6 and 14, the rooflines of the quiz and Table 3 (Figure 18 and Table 8 use it at zero context)', g: (B) => prop1(DG, hw, B, 1024).gain },
-      { name: 'Exact, fixed context', what: 'every FLOP and byte of the appendix, vocabulary included, context fixed at 1k', used: 'Figures 10, 17 and 19, the quiz verdicts, the maps', g: (B) => steady(DG, hw, B, 1024).gain },
-      { name: 'Exact, whole generation', what: 'the same accounting summed over a 1k prompt and 8k generated tokens: the context grows from 1k to 9k', used: 'the headline tiles above, the calculator', g: (B) => M.generate(DG, { ...W0, B }, O0, hw).gainDecode, slow: true },
+      { name: 'Proposition 1', what: 'closed form of Part 2: no vocabulary, context fixed at 1k (at zero context, as in the closed forms of Part 3 and Table 8, TD is ahead up to batch 109)', used: 'Figures 6 and 14 and Table 3 (Figure 18 and Table 8 use it at zero context)', g: (B) => prop1(DG, hw, B, 1024).gain },
+      { name: 'Exact, fixed context', what: 'every FLOP and byte of the appendix, vocabulary included, context fixed at 1k', used: 'Figures 10, 17 and 19 and the maps', g: (B) => steady(DG, hw, B, 1024).gain },
+      { name: 'Exact, whole generation', what: 'the same accounting summed over a 1k prompt and 8k generated tokens: the context grows from 1k to 9k', used: 'the headline tiles of the Summary and the calculator above', g: (B) => M.generate(DG, { ...W0, B }, O0, hw).gainDecode, slow: true },
     ];
     // short rows of numbers, then what each accounting is, as a list
     const table = el(`<div class="table-wrap nofold"><table class="acct"><thead><tr><th class="l">Accounting</th><th>Γ, batch 1</th><th>Γ, batch 5</th><th>Γ, batch 64</th><th>TD ahead up to batch</th></tr></thead><tbody>${rows.map((r) => `<tr><td class="l"><b>${r.name}</b></td><td class="num">…</td><td class="num">…</td><td class="num">…</td><td class="num">…</td></tr>`).join('')}</tbody></table></div>`);
@@ -183,7 +183,7 @@
     });
   }
 
-  // ---------------------------------------------------------------- roofline renderer (Figure 6, quiz)
+  // ---------------------------------------------------------------- roofline renderer (Figure 6)
   // One accelerator's roofline with an AR dot and a TD dot at their intensities; the bracket on the
   // right is the ratio of their attainable FLOP rates, min(I_TD, I*) / min(I_AR, I*).
   function rooflineSvg({ hw, IAR, ITD, W = 640, H = 300, mini = false }) {
@@ -955,83 +955,6 @@
     draw(); onTheme(draw); watchWidth(pic, draw);
   }
 
-  // ---------------------------------------------------------------- quiz
-  // Measured gains of Part 11, {"B,C": [measured, bound]}, written into the page by the build.
-  let MEAS = {};
-  try { MEAS = JSON.parse(document.getElementById('bdr-meas').textContent) || {}; } catch (e) { /* not on this page */ }
-  const MEAS_RANGE = (() => { const r = Object.values(MEAS).map(([g, b]) => g / b); return r.length ? [Math.min(...r), Math.max(...r)] : [1, 1]; })();
-  // Settings on which Proposition 1 and the exact accounting agree, and which fit in memory.
-  const QUIZ = [
-    { hw: 'h200', m: DG, model: 'DiffusionGemma 26B-A4B', B: 1, C: 1024,
-      note: 'Both decoders are limited by the bytes they read, and per token TD reads fewer: Γ = TPF/Π = 17.1/7.7, with Π the overall penalty at this context.' },
-    { hw: 'h20', m: DG, model: 'DiffusionGemma 26B-A4B', B: 16, C: 1024,
-      note: 'The ridge of the H20 is low, I* = 37, so an AR step leaves little compute unused: under the exact accounting a TD pass is compute-bound from batch 1, and AR catches up by batch 5.' },
-    { hw: 'h200', m: LL, model: 'Llama 3.1 8B and its TD twin', B: 32, C: 1024,
-      note: 'All the weights of a dense model are shared by the batch, so the intensity of AR grows in proportion to it: at batch 32 an AR step already uses 12% of the peak, more than the 1/ω = 6.7% that leaves room for TD.' },
-    { hw: 'h200', m: LL, model: 'Llama 3.1 8B and its TD twin', B: 1, C: 1024,
-      note: 'A dense model has no linear penalty (Π_lin = 1): a canvas reads the same weights as one token, so a TD pass is past the ridge at batch 1 while AR uses 0.5% of the peak. Γ is then the compute cap I*/(ω I_AR).' },
-    { hw: 'h200', m: DG, model: 'DiffusionGemma 26B-A4B', B: 4, C: 1 << 20,
-      note: 'At 1M context the KV cache is 85% of the bytes of an AR step. TD reads it once for 256 queries and passes the ridge; AR reads it for one query and stays near I_AR = 7.' },
-    { hw: 'h20', m: DG, model: 'DiffusionGemma 26B-A4B', B: 1, C: 1 << 20,
-      note: 'At long context the gain tends to I*/(ω I_attn) = 37/(15 × 8) = 0.31, below 1 at any batch.' },
-  ];
-  function figQuiz(root) {
-    const st = { k: 0, answers: [] };
-    const data = QUIZ.map((q) => {
-      const hw = hwOf(q.hw), p = prop1(q.m, hw, q.B, q.C);
-      return { ...q, hw, hwLabel: HWBYID[q.hw].label, gain: steady(q.m, hw, q.B, q.C).gain, p };
-    });
-    const box = el('<div></div>');
-    root.appendChild(box);
-    const tex = (t) => t.replaceAll('I_AR', 'I<sub>AR</sub>').replaceAll('I_attn', 'I<sub>attn</sub>').replaceAll('Π_lin', 'Π<sub>lin</sub>');
-    function draw() {
-      const q = data[st.k], ans = st.answers[st.k], done = ans !== undefined, td = q.gain > 1, p = q.p;
-      const answered = st.answers.filter((a) => a !== undefined).length, score = st.answers.filter((a, i) => a === (data[i].gain > 1)).length;
-      const bound = (I) => (I >= p.Is ? 'compute' : 'memory');
-      // Part 11 measured DiffusionGemma against Gemma 4 on an H200 in FP8 (vLLM with the kernel work of Part 10).
-      const mk = MEAS[`${q.B},${q.C}`];
-      const thin = q.m === DG && q.hwLabel.startsWith('H200') && mk
-        ? ` Measured on an H200 in FP8 (Part 11): Γ = ${mk[0].toFixed(2)}, against a bound of ${mk[1].toFixed(2)} at the measured routing and ceilings.`
-        : (td && q.gain < 3 ? ` This lead is thin: on the H200 grid of Part 11 the measured gain lies between ${MEAS_RANGE[0].toFixed(2)} and ${MEAS_RANGE[1].toFixed(2)} times the bound, so a lead this small can be lost.` : '');
-      box.innerHTML = `
-        <div class="quiz-head"><span>Setting ${st.k + 1} of ${data.length}</span><span>${answered ? `${score} of ${answered} right so far` : ''}</span></div>
-        <div class="quiz-case">
-          <div><div class="k">model</div><div class="v">${q.model}</div></div>
-          <div><div class="k">accelerator</div><div class="v">${q.hwLabel}</div></div>
-          <div><div class="k">batch</div><div class="v">${q.B}</div></div>
-          <div><div class="k">context</div><div class="v">${kctx(q.C)} tokens</div></div>
-        </div>
-        <p class="quiz-q">Canvas <i>b</i> = 256, <i>S</i> = 14 denoising passes. Which decoder does the roofline model make faster?</p>
-        <div class="quiz-choices">
-          <button type="button" data-a="td">TD is faster<small>block diffusion</small></button>
-          <button type="button" data-a="ar">AR is faster<small>autoregressive decoding</small></button>
-        </div>
-        <div class="quiz-reveal" ${done ? '' : 'hidden'}>
-          <div>
-            <div class="quiz-verdict ${ans === td ? 'ok' : 'no'}">${ans === td ? 'Right' : 'Not quite'}: under the roofline ${td ? 'TD' : 'AR'} is faster, Γ = ${g2(q.gain)} (exact accounting).</div>
-            <p class="quiz-why">Proposition 1: <span class="ar">AR</span> is ${bound(p.IAR)}-bound (I<sub>AR</sub> = ${fmt(p.IAR)}) and <span class="td">TD</span> is ${bound(p.ITD)}-bound (I<sub>TD</sub> = ${fmt(p.ITD)}), with the ridge at I* = ${fmt(p.Is)}. The FLOPs of TD run ×${fmt(p.speed)} faster and it does ω = ${p.om} times as many, so Γ = ${g2(p.gain)}; the exact accounting, with the vocabulary${q.m.selfCond ? ' and self-conditioning' : ''}, gives ${g2(q.gain)}. ${tex(q.note)}${thin}</p>
-          </div>
-          <div class="quiz-mini">${done ? rooflineSvg({ hw: q.hw, IAR: p.IAR, ITD: p.ITD, W: Math.min(340, widthOf(box)), H: 220, mini: true }) : ''}</div>
-        </div>
-        <div class="quiz-nav">
-          <button type="button" class="fig-btn" data-n="-1" ${st.k ? '' : 'disabled'}>Previous</button>
-          <button type="button" class="fig-btn ${done ? 'primary' : ''}" data-n="1" ${st.k < data.length - 1 ? '' : 'disabled'}>Next</button>
-          <span class="quiz-dots">${data.map((d, i) => { const a = st.answers[i], v = a === undefined ? '' : a === (d.gain > 1) ? 'ok' : 'no'; return `<span role="img" aria-label="setting ${i + 1}: ${v === 'ok' ? 'right' : v === 'no' ? 'wrong' : 'not answered'}${i === st.k ? ', shown' : ''}" class="${v} ${i === st.k ? 'cur' : ''}"></span>`; }).join('')}</span>
-          ${answered === data.length ? '<button type="button" class="fig-btn" data-r="1">Start again</button>' : ''}
-        </div>`;
-      box.querySelectorAll('.quiz-choices button').forEach((b) => {
-        const mine = b.dataset.a === 'td';
-        if (done) { b.disabled = true; if (mine === td) b.classList.add('right'); else if (mine === ans) b.classList.add('wrong'); }
-        b.addEventListener('click', () => { st.answers[st.k] = mine; draw(); });
-      });
-      box.querySelectorAll('[data-n]').forEach((b) => b.addEventListener('click', () => { st.k = Math.max(0, Math.min(data.length - 1, st.k + +b.dataset.n)); draw(); }));
-      const r = box.querySelector('[data-r]'); if (r) r.addEventListener('click', () => { st.k = 0; st.answers = []; draw(); });
-    }
-    draw();
-    onTheme(draw);
-    watchWidth(box, draw);
-  }
-
   // ---------------------------------------------------------------- expandable TL;DR cards
   // Each card with a .card-more panel opens in place, across the full row. Its slider, built on first
   // opening, moves a dot along a small curve of the quantity and updates a one-sentence readout.
@@ -1140,7 +1063,7 @@
 
   // ---------------------------------------------------------------- mount
   const FIGS = {
-    quiz: figQuiz, accounting: figAccounting, reuse: figReuse, roofline: figRoofline, bestbatch: figBestBatch, context: figContext, accel: figAccel,
+    accounting: figAccounting, reuse: figReuse, roofline: figRoofline, bestbatch: figBestBatch, context: figContext, accel: figAccel,
     experts: figExperts, weights: figWeights, linmap: figLinMap, attnread: figAttnRead, sparse: figSparse, share: figShare, thresholds: figThresholds, models: figModels,
   };
   document.querySelectorAll('[data-fig]').forEach((root) => {

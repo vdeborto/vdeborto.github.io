@@ -15,6 +15,8 @@ interactive figures kept in this repo:
                                 _roofline/practice-data.json (exported by roofscope's pages/book/export.py)
   assets/roofline/reading.js    contents rail, reading progress, the intuition / full-math switch, the
                                 steppers, the symbol key, the citation's copy button and the comment thread
+  _roofline/symbols.txt         every symbol of the book, once: bin/roofline_symbols.py makes the Symbols
+                                page (the last one) and the list of the symbol key from it
 Every AR quantity in the math (I_{AR}, W_{AR}, F^{AR}_{...}, B^\\star_{AR}, ...) is wrapped in
 \\class{mj-ar}{...} and every TD quantity in \\class{mj-td}{...}, so that it takes the figures' colours.
   assets/roofline/theme.css     the note's colour and font tokens mapped to the site's palette,
@@ -25,6 +27,7 @@ Every AR quantity in the math (I_{AR}, W_{AR}, F^{AR}_{...}, B^\\star_{AR}, ...)
 Generated (do not edit by hand; rerun this script):
   assets/roofline/note.css      the note's own CSS, scoped under .bdr, tokens renamed --bdr-*
   assets/roofline/note.js       the note's cost model, figures and calculator
+  assets/roofline/symbols.js    the symbol key's list, from _roofline/symbols.txt
   notes/block-diffusion-rooflines-6f924020/index.html          the book's first page: introduction
                                                                and contents
   notes/block-diffusion-rooflines-6f924020/<chapter>/index.html one page per section of the note
@@ -61,7 +64,7 @@ TITLE = "Block Diffusion Rooflines"
 # (page slug, part number, title, source element id, one-line description); "" is the first page.
 CHAPTERS = [
     ("", "0", "Introduction", "intro", "what is already measured, the question, the measurement setting, how the book is organised and how to read it."),
-    ("summary", "", "Summary", "tldr", "the headline numbers, a quiz, four takeaways, the symbols, what moves the gain, and the three regimes that occur."),
+    ("summary", "", "Summary", "tldr", "the headline numbers, four takeaways, what moves the gain, and the three regimes that occur."),
     ("setup", "1", "Setup", "setup", "notation, costs, intensities, penalties."),
     ("gain", "2", "The gain", "gain", "Proposition 1, and the split of each intensity into a linear part and an attention part."),
     ("linear", "3", "The linear part", "linear", "the expert and linear penalties, when the linear layers dominate, and the gain in that regime."),
@@ -74,6 +77,7 @@ CHAPTERS = [
     ("kernels", "10", "Kernels", "kernelwork", "two rewrites, of the experts and of global attention, and what they change in efficiency, throughput and quality."),
     ("conclusion", "11", "Conclusion", "conclusion", "the bound against the measurement, what the roofline gets right, limitations, code and data, related work, open problems."),
     ("appendix", "A", "Appendix", "appendix", "the exact accounting, a check against measurements, sources."),
+    ("symbols", "B", "Symbols", "symbols", "every symbol, its meaning and where it is defined."),  # made by add_symbols
 ]
 # Citation, and the comment threads (ids from https://giscus.app for the repository and category).
 CITATION = True  # the BibTeX citation at the end of the first page
@@ -198,20 +202,16 @@ def color_math(body):
     return MATH.sub(seg, body)
 
 
-TAKEAWAY_FIGS = [("fig-reuse", "Figure 5"), ("fig-bestbatch", "Figure 10"), ("fig-context", "Figure 14"), ("fig-accel", "Figure 17")]
-
-
 def link_takeaways(body):
-    """Each of the four takeaways ends with a link to the figure that shows it; the figure's number is
-    filled in by number_figures once the numbering is known (placeholder {fig:ID})."""
+    """Each of the four takeaways ends with a link to the figure that shows it, written in the text
+    as [Try it in Figure N](#fig-ID); the build only styles it (class tk-fig). A takeaway may have none;
+    the numbers are checked against the figures after numbering."""
     m = re.search(r'<div class="takeaways">.*?</ol>', body, re.S)
-    if not m or m.group(0).count("</li>") != len(TAKEAWAY_FIGS):
-        problems.append("takeaways block not found or not four items")
+    if not m:
+        problems.append("takeaways block not found")
         return body
-    parts = m.group(0).split("</li>")
-    for i, (fid, name) in enumerate(TAKEAWAY_FIGS):
-        parts[i] += f' <a class="tk-fig" href="#{fid}">Try it in {name}</a>'
-    return body.replace(m.group(0), "</li>".join(parts))
+    blk = re.sub(r'<a href="(#fig-[\w-]+)">(Try it in )', r'<a class="tk-fig" href="\1">\2', m.group(0))
+    return body.replace(m.group(0), blk)
 
 
 def add_practice(body):
@@ -265,6 +265,45 @@ def add_gists(body):
     return body
 
 
+def add_symbols(body):
+    """The Symbols chapter and the symbol key's list, both from _roofline/symbols.txt
+    (bin/roofline_symbols.py). The chapter goes after the last section of the note. Each symbol
+    names where it is defined; a formula of that part, or of that statement and the text up to the
+    next statement, has to use it."""
+    import roofline_symbols
+    intro, groups, entries, bad = roofline_symbols.load()
+    problems.extend(bad)
+    if bad:
+        return body
+    try:
+        outputs[ASSETS / "symbols.js"] = roofline_symbols.key_js(entries)
+    except ValueError as err:
+        problems.append(f"symbols.txt: {err}")
+        return body
+    sections = {m.group(1): m.group(0) for m in re.finditer(r'<section class="[^"]*" id="([\w-]+)">.*?\n</section>', body, re.S)}
+    parts = {c[1]: sections.get(c[3], "") for c in CHAPTERS}
+    tags = [(m.start(), m.group(1)) for m in re.finditer(r'<span class="tag">((?:Proposition|Definition|Corollary|Remark) \d+)</span>', body)]
+    for e in entries:
+        ref = e.get("in")
+        if not ref:
+            continue
+        m = re.fullmatch(r"Part (\d+)", ref)
+        if m:
+            where = parts.get(m.group(1))
+        else:
+            at = [k for k, (_, t) in enumerate(tags) if t == ref]
+            where = None
+            if len(at) == 1:
+                start = tags[at[0]][0]
+                stop = min([p for p, _ in tags if p > start] + [body.find("\n</section>", start)])
+                where = body[start:stop]
+        if where is None:
+            problems.append(f"symbols.txt line {e['line']} ({e['sym']}): no such place as {ref!r}")
+        elif not roofline_symbols.uses(e, where):
+            problems.append(f"symbols.txt line {e['line']} ({e['sym']}): no formula of {ref} uses it")
+    return body.rstrip() + "\n\n" + roofline_symbols.section(intro, groups, entries) + "\n"
+
+
 # Every output, written at the end and only where it changed: Jekyll then regenerates the site once
 # per build, not once for the first files and again for the rest.
 outputs = {}
@@ -301,11 +340,16 @@ def main():
     body = sub_once(body, "The page is self-contained: the cost model is the <code>BDModel</code> script embedded in it (view the page source), and the site lives in the private GitHub repository <code>vdeborto/diffusion-roofline</code>, whose history is the changelog.",
                     "The cost model is the <code>BDModel</code> script in <code>/assets/roofline/note.js</code>, which every chapter loads.", "private repo sentence")
     # Interactive figures, in reading order. Figure numbers follow the page.
-    body = sub_once(body, '  <div class="formula-card">', figs["quiz"] + '  <div class="formula-card">', "quiz anchor")
-    body = sub_once(body, '  <div class="takeaways">', figs["accounting"] + '  <div class="takeaways">', "accounting anchor")
+    # How the numbers are counted: method, not a result, so it closes the Calculator chapter.
+    i = body.find('<section class="wide" id="calc">')
+    j = body.find('</section>', i)
+    if i < 0 or j < 0:
+        problems.append("accounting anchor: calculator section not found")
+    else:
+        body = body[:j] + '  <div class="col">\n' + figs["accounting"] + '  </div>\n' + body[j:]
     body = link_takeaways(body)
-    body = sub_once(body, '  <div class="table-wrap"><table class="notation">', figs["reuse"] + '  <div class="table-wrap"><table class="notation">', "reuse anchor")
-    body = sub_once(body, '  <div class="box prop" id="cor1">', figs["roofline"] + '  <div class="box prop" id="cor1">', "roofline anchor")
+    body = sub_once(body, '  <h3 id="setup-notation">', figs["reuse"] + '  <h3 id="setup-notation">', "reuse anchor")
+    body = sub_once(body, '  <h3 id="gain-sides">', figs["roofline"] + '  <h3 id="gain-sides">', "roofline anchor")
     old_fig1 = re.search(r'  <figure class="mapfig">\n    <figcaption>Figure 1\. .*?</figure>\n', body, re.S)
     if old_fig1:
         body = body.replace(old_fig1.group(0), figs["bestbatch"])
@@ -331,7 +375,8 @@ def main():
     body = add_code(body)
     body = add_cards(body)
     body = add_gists(body)
-    body = sub_once(body, '  <div class="tiles hero-tiles">', '  <p class="math-key">In the equations, <span class="q-ar">AR quantities are in blue</span> and <span class="q-td">TD quantities in orange</span>, as in the figures. Select any formula to see what its symbols mean.</p>\n  <div class="tiles hero-tiles">', "math key anchor")
+    body = add_symbols(body)
+    body = sub_once(body, '  <div class="tiles hero-tiles">', '  <p class="math-key">In the equations, <span class="q-ar">AR quantities are in blue</span> and <span class="q-td">TD quantities in orange</span>, as in the figures. Click on the  formula to see what the symbols mean.</p>\n  <div class="tiles hero-tiles">', "math key anchor")
     body = color_math(body)
     body = rename_class_attr(rename_tokens(body))
 
@@ -376,8 +421,6 @@ def main():
         for p in problems:
             print("PROBLEM:", p)
         return 1
-    global MEAS
-    MEAS = measured_gains()
     pages = split_book(body)
     # Figures and tables are numbered in reading order: 1, 2, 3, ... across the chapters.
     for kind, rx in (("Figure", r'(?:<div class="fig-k">|<figcaption>)Figure (\d+)'), ("Table", r"<caption>Table (\d+)\.")):
@@ -386,7 +429,7 @@ def main():
             problems.append(f"{kind} numbers not in reading order: {seen}")
     # The takeaways name their figures by number: check the names against the numbering.
     alltext = "".join(pages.values())
-    for fid, name in TAKEAWAY_FIGS:
+    for fid, name in re.findall(r'<a class="tk-fig" href="[^"]*#(fig-[\w-]+)">Try it in (Figure \d+)</a>', alltext):
         m = re.search(rf'id="{fid}".*?<div class="fig-k">(Figure \d+)', alltext, re.S)
         if not m or m.group(1) != name:
             problems.append(f"takeaway link {fid} says {name}, the figure is {m.group(1) if m else 'missing'}")
@@ -415,7 +458,7 @@ def main():
             print("PROBLEM:", p)
         return 1
     changed = write_outputs()
-    print(f"wrote {len(pages)} pages under {BOOK.relative_to(ROOT)}/ ({total:,} bytes), assets/roofline/note.css, note.js; {changed} file(s) changed")
+    print(f"wrote {len(pages)} pages under {BOOK.relative_to(ROOT)}/ ({total:,} bytes), assets/roofline/note.css, note.js, symbols.js; {changed} file(s) changed")
     return 0
 
 
@@ -563,13 +606,6 @@ def label_of(ch):
     return f"{num} · {title}" if num and slug else title
 
 
-def measured_gains():
-    """Measured gains of Part 11 for the quiz: {"B,C": [measured, bound (c)]}."""
-    d = json.loads((ROOT / "_roofline" / "practice-data.json").read_text())
-    return json.dumps({k: [round(v["measured"], 2), round(v["roof"], 2)] for k, v in d["gains"].items()}, separators=(",", ":"))
-
-
-MEAS = None
 PRACTICE_SLUGS = {"", "effective", "stack", "kernels", "conclusion"}
 
 
@@ -631,8 +667,8 @@ def split_book(body):
         problems.append(f"sections {sorted(chunks)} do not match CHAPTERS {sorted(want)}")
         return {}
 
-    # The book opens on the Introduction; the note's header (quiz, formula, headline numbers,
-    # accounting, takeaways) leads the Summary, which states the results first.
+    # The book opens on the Introduction; the note's header (formula, headline numbers,
+    # takeaways) leads the Summary, which states the results first.
     top = chunks.pop("top")
     top, n = re.subn(r'\s*<h2 class="outline-title" id="outline">.*?</ol>\n', "\n", top, count=1, flags=re.S)
     if n != 1:
@@ -699,7 +735,7 @@ def split_book(body):
         # one line for the book, one for the previous chapter, one for the next
         links = "".join(f'<span class="bl-row">{w}: <a href="{url_of(c[0])}" rel="{r}">{label_of(c)}</a></span>' for c, r, w in ((prev, "prev", "Previous"), (nxt, "next", "Next")) if c)
         if slug:
-            part = f"Part {num} of" if num.isdigit() else ("The appendix of" if num == "A" else "The summary of")
+            part = f"Part {num} of" if num.isdigit() else {"A": "The appendix of", "B": "The symbols of"}.get(num, "The summary of")
             head = f'<p class="book-part">{part} <a href="{BASE}">{TITLE}</a><span class="book-links">{links}</span></p>\n'
             desc = ""
         else:
@@ -725,11 +761,11 @@ sitemap: false
 <link rel="stylesheet" href="/assets/roofline/note.css">
 <link rel="stylesheet" href="/assets/roofline/theme.css">
 <script type="application/json" id="bdr-book">{json.dumps(meta, separators=(",", ":"))}</script>
-<script type="application/json" id="bdr-meas">{MEAS}</script>
 {practice_tags(slug)}
 <script defer src="/assets/roofline/mathjax.js"></script>
 <script defer src="/assets/roofline/note.js"></script>
 <script defer src="/assets/roofline/figures.js"></script>
+<script defer src="/assets/roofline/symbols.js"></script>
 <script defer src="/assets/roofline/reading.js"></script>
 {{% raw %}}
 <div class="bdr book-chapter" id="top">

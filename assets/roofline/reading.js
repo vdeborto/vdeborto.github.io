@@ -5,6 +5,7 @@
 //  - the contents list: a rail in the left margin on wide screens, a sheet opened by a "Contents"
 //    button elsewhere, with the reading progress;
 //  - the symbol key: selecting a formula lists what its symbols mean.
+//  - the right margin on wide screens: sidenotes, and the symbols of the formula being read.
 //  - the citation block's copy button, and the comment thread under each chapter (giscus).
 (function () {
   'use strict';
@@ -104,8 +105,9 @@
   }
   // A chapter page without the rail's switch on narrow screens still gets one under its title.
   const partLine = page.querySelector('.book-part');
-  if (partLine) partLine.after(depthSwitch('depth-hero'));
-  rail.appendChild(depthSwitch('depth-rail'));
+  const folds = !(here && here.slug === 'symbols'); // the Symbols page has nothing to fold
+  if (partLine && folds) partLine.after(depthSwitch('depth-hero'));
+  if (folds) rail.appendChild(depthSwitch('depth-rail'));
   const fab = el('<button type="button" class="rail-fab" aria-expanded="false" aria-controls="bdr-contents">Contents <span></span></button>');
   const backdrop = el('<div class="rail-backdrop" hidden></div>');
   rail.id = 'bdr-contents';
@@ -145,80 +147,11 @@
   }
 
   // ---------------------------------------------------------------- symbol key
-  // [pattern in the TeX source, symbol as HTML, meaning]. Patterns avoid lookbehind (older Safari).
-  const S = (b, s) => `<i>${b}</i><sub>${s}</sub>`;
-  const SYMBOLS = [
-    [/\\Gamma/, 'Γ', 'throughput gain: tokens per second of TD over those of AR'],
-    [/\\omega/, 'ω = <i>Sr</i> + 1', 'forward passes that one canvas costs'],
-    [/\\mathrm\{TPF\}/, 'TPF = <i>b</i>/ω', 'tokens committed per forward pass'],
-    [/I\^\\star/, '<i>I</i>* = π/β', 'ridge point of the accelerator: a pass is compute-bound when its intensity reaches it (206 on an H200)'],
-    [/I_\{AR\}/, S('I', 'AR'), 'arithmetic intensity of one AR step: its FLOPs per byte read from memory'],
-    [/I_\{TD\}/, S('I', 'TD'), 'arithmetic intensity of one TD pass over a canvas of <i>b</i> positions'],
-    [/I\^(\{(AR|TD|X)\}|X)_\{\\mathrm\{lin\}\}/, '<i>I</i><sup>X</sup><sub>lin</sub>', 'linear part of an intensity: linear-layer FLOPs over weight bytes'],
-    [/I\^(\{(AR|TD|X)\}|X)_\{\\mathrm\{attn\}\}/, '<i>I</i><sup>X</sup><sub>attn</sub>', 'attention part of an intensity: attention FLOPs over KV-cache bytes'],
-    [/I_\{\\mathrm\{attn\}\}/, S('I', 'attn'), 'attention FLOPs per cache byte for one query on a global layer (8 for DiffusionGemma)'],
-    [/\\Pi_\{\\mathrm\{lin\}\}/, S('Π', 'lin'), 'linear penalty: weight bytes a TD pass reads over those an AR step reads (7.9 at batch 1, 1 at large batch)'],
-    [/\\Pi_\{\\mathrm\{attn\}\}/, S('Π', 'attn'), 'attention penalty: cache bytes a TD pass reads over those an AR step reads (1 for dense and windowed attention)'],
-    [/\\Pi_E/, S('Π', 'E'), 'distinct experts a TD pass touches over those an AR step touches'],
-    [/\\Pi(?![_A-Za-z])/, 'Π', 'overall penalty: bytes per sequence of a TD pass over those of an AR step'],
-    [/B\^\\star_\{TD\}/, '<i>B</i>*<sub>TD</sub>', 'smallest batch at which a TD pass is compute-bound'],
-    [/B\^\\star_\{AR\}/, '<i>B</i>*<sub>AR</sub>', 'smallest batch at which an AR step is compute-bound'],
-    [/B_\\times/, S('B', '×'), 'parity batch: beyond it AR is faster'],
-    [/N_\{\\mathrm\{act\}\}/, S('N', 'act'), 'parameters active per token (3.08B for DiffusionGemma, without the vocabulary)'],
-    [/W_\{\\mathrm\{tot\}\}/, S('W', 'tot'), 'all parameters (24.5B, without the vocabulary)'],
-    [/W_\{AR\}/, S('W', 'AR'), 'weights an AR step reads at batch <i>B</i>, in parameters'],
-    [/W_\{TD\}/, S('W', 'TD'), 'weights a TD pass reads at batch <i>B</i>, in parameters'],
-    [/U_\{E,k\}/, '<i>U</i><sub>E,k</sub>(<i>N</i>)', 'expected number of distinct experts that <i>N</i> positions touch in a layer (<i>E</i> = 128 experts, <i>k</i> = 8 per token)'],
-    [/U_\{C,m\}/, '<i>U</i><sub>C,m</sub>(<i>n</i>)', 'cached tokens that <i>n</i> queries read together in a sparse layer, each selecting <i>m</i>'],
-    [/\\theta_E/, S('θ', 'E'), 'expert share of the weights that an AR step reads'],
-    [/\\theta(?!_E)/, 'θ', 'share of the bytes of a pass carried by one of its parts'],
-    [/[FQ]\^(\{(AR|TD|X)\}|X)/, '<i>F</i>, <i>Q</i>', 'FLOPs and bytes of one pass, per sequence'],
-    [/\\nu_/, 'ν', 'KV-cache bytes per cached token (G: global, W: windowed, S: sparse layers, I: indexer)'],
-    [/\\alpha_/, 'α', 'attention FLOPs per query and per cached token (same subscripts as ν)'],
-    [/s_w/, S('s', 'w'), 'bytes per weight (2 in BF16)'],
-    [/I_\{\\mathrm\{lin\}\}/, S('I', 'lin'), 'linear part of an AR step\'s intensity, <i>I</i><sup>AR</sup><sub>lin</sub>: the batch <i>B</i> in BF16'],
-    [/I_\{\\mathrm\{win\}\}/, S('I', 'win'), 'attention FLOPs per cache byte for one query on a window layer (2 for DiffusionGemma)'],
-    [/I_\{\\mathrm\{idx\}\}/, S('I', 'idx'), 'FLOPs per cache byte of a sparse layer\'s index scan for one query'],
-    [/\\Pi_\{\\mathrm\{sel\}\}/, S('Π', 'sel'), 'selection penalty: cached tokens a canvas selects in a sparse layer over those one query selects'],
-    [/W_\{\\mathrm\{ne\}\}/, S('W', 'ne'), 'non-expert parameters of all layers (1.66B for DiffusionGemma)'],
-    [/W\^e/, '<i>W</i><sup>e</sup>', 'parameters of one expert in one layer (5.95M)'],
-    [/(^|[^\\A-Za-z_])E(?![A-Za-z_])/, '<i>E</i>', 'experts per MoE layer (128)'],
-    [/(^|[^\\A-Za-z_])k(?![A-Za-z^_])/, '<i>k</i>', 'experts each token selects (8)'],
-    [/(^|[^\\A-Za-z_])L(?![A-Za-z_])/, '<i>L</i>', 'layers (30)'],
-    [/(^|[^\\A-Za-z_])m(?![A-Za-z])/, '<i>m</i>', 'cached tokens each query selects in a sparse layer'],
-    [/(^|[^\\A-Za-z_])w(?![A-Za-z])/, '<i>w</i>', 'window of a sliding-window layer, in tokens (1,023)'],
-    [/C_F/, S('C', 'F'), 'context at which global attention alone matches the linear FLOPs (37.6k)'],
-    [/\\sigma/, 'σ', 'window layers\' FLOPs per query over the linear FLOPs, α<sub>W</sub><i>w</i>/(2<i>N</i><sub>act</sub>) (6.8%)'],
-    [/\\zeta/, 'ζ', 'independent fraction of a canvas\'s selections: 1 when independent, 1/<i>b</i> when every query selects the same tokens'],
-    [/\\kappa/, 'κ<sup>c</sup>', 'cached tensors per KV head on the global layers (2: keys and values stored separately)'],
-    [/b_c/, S('b', 'c'), 'critical canvas length <i>I</i>*/<i>I</i><sub>attn</sub>: above it a longer context helps TD reach the ridge'],
-    [/\\pi(?![A-Za-z])/, 'π', 'peak FLOPs per second of the accelerator', 'T'],
-    [/\\beta(?![A-Za-z])/, 'β', 'memory bandwidth of the accelerator, in bytes per second', 'T'],
-    [/(^|[^\\A-Za-z_])B(?![A-Za-z^_])/, '<i>B</i>', 'batch: sequences decoded together'],
-    [/(^|[^\\A-Za-z_])C(?![A-Za-z_])/, '<i>C</i>', 'context: tokens already in the KV cache of each sequence'],
-    [/(^|[^\\A-Za-z_])b(?![A-Za-z])/, '<i>b</i>', 'canvas length, in tokens'],
-    [/(^|[^\\A-Za-z_])S(?![A-Za-z_])/, '<i>S</i>', 'denoising passes per canvas', 'T'],
-    [/(^|[^\\A-Za-z_])r(?![A-Za-z])/, '<i>r</i>', 'cost of a denoising pass, as a fraction of a forward pass', 'T'],
-    // Parts 8-11 (measurements)
-    [/\\Gamma_\{\\mathrm\{meas\}\}/, 'Γ<sub>meas</sub>', 'measured gain: TD tokens per second over AR tokens per second'],
-    [/\\Gamma_\{\\mathrm\{roof\}\}/, 'Γ<sub>roof</sub>', 'roofline gain at the measured ceilings and routing'],
-    [/\\tau/, 'τ', 'empirical roofline time: max(<i>F</i>/π̂, <i>Q</i>/β̂), of a component <i>c</i> or of a whole step <i>X</i>'],
-    [/\\hat\{?\\pi/, 'π̂', 'empirical compute ceiling: the highest FLOP rate measured on this H200 (FP8 1,468, BF16 781, attention 638 TFLOP/s)'],
-    [/\\hat\{?\\beta/, 'β̂', 'empirical bandwidth: 4.32 TB/s measured on this H200'],
-    [/\\eta/, 'η', 'efficiency: roofline time over measured time (1 means at the roofline)'],
-    [/(^|[^\\A-Za-z_])t_\{?(X|AR|TD|c)/, '<i>t</i>', 'measured time of a step (<i>t</i><sub>AR</sub>, <i>t</i><sub>TD</sub>) or of a component (<i>t</i><sub>c</sub>)'],
-    [/(^|[^\\A-Za-z_])n_\{?(X|AR|TD)/, '<i>n</i>', 'tokens a step commits: <i>B</i> for AR, <i>Bb</i>/ω for TD', 'P'],
-    [/U\^\{\\mathrm\{meas\}\}/, '<i>U</i><sup>meas</sup>', 'distinct experts per layer that a pass touches, measured', 'P'],
-    [/U\^\{\\mathrm\{freq\}\}/, '<i>U</i><sup>freq</sup>', 'distinct experts predicted from the measured expert frequencies, tokens independent', 'P'],
-    [/N\^\{\\mathrm\{eff\}\}/, '<i>N</i><sup>eff</sup>', 'effective independent tokens: the <i>N</i> at which <i>U</i><sub>E,k</sub>(<i>N</i>) equals the measured count', 'P'],
-    [/\\rho_/, 'ρ<sub>e</sub>', 'frequency with which a token selects expert <i>e</i>', 'P'],
-    [/\\mu(?![A-Za-z])/, 'μ', 'rows per touched expert, <i>Nk</i>/<i>U</i>', 'P'],
-    [/f_E/, S('f', 'E'), 'width of one expert (704)', 'P'],
-    [/M_q|M_k|M_\{?[qk]/, '<i>M</i><sub>q</sub>, <i>M</i><sub>k</sub>', 'query rows and keys of one attention tile', 'P'],
-    [/n_q|n_\{kv/, '<i>n</i><sub>q</sub>, <i>n</i><sub>kv</sub>', 'query heads and KV heads of a layer (16 and 2 on the global layers)'],
-    [/\\mathbf\{Z\}/, '<b>Z</b>', 'attention scores <b>QK</b><sup>⊤</sup> of one tile', 'P'],
-    [/(^|[^\\A-Za-z_])h(?![A-Za-z_])/, '<i>h</i>', 'head dimension of a global layer (512)', 'P'],
-  ];
+  // [pattern on a formula's TeX, symbol as HTML, meaning, scope]: assets/roofline/symbols.js, which the
+  // build makes from _roofline/symbols.txt, the file behind the Symbols page as well.
+  // A scope keeps a letter that means two things to its chapters: T is Parts 1-7, P is Parts 8-11.
+  const SYMBOLS = (window.BDR_SYMBOLS || []).map(([re, sym, what, scope]) => [new RegExp(re), sym, what, scope]);
+  const sheet = chapters.find((c) => c.slug === 'symbols');
   const PRACTICE = new Set(['effective', 'stack', 'kernelwork', 'conclusion']);
   const key = el('<div class="sym-key" role="dialog" aria-label="Symbols in this formula" hidden></div>');
   document.body.appendChild(key);
@@ -229,19 +162,24 @@
     } catch (e) { /* MathJax not ready */ }
     return null;
   }
+  // the symbols of a formula that the key knows, in the order of SYMBOLS
+  function symbolsOf(mj, max = 14) {
+    const src = texOf(mj);
+    if (!src) return [];
+    const tex = src.replace(/\\text\{[^}]*\}/g, ''); // \text{B} is "billion", not the batch
+    const sec = mj.closest('section'), scope = sec && PRACTICE.has(sec.id) ? 'P' : 'T';
+    const plain = tex.replace(/\\hat\{?\\(pi|beta)\}?/g, 'HAT');
+    return SYMBOLS.filter(([re, , , sc]) => (!sc || sc === scope) && re.test(re.source.includes('hat') ? tex : plain)).slice(0, max);
+  }
+  const keyList = (hits) => `<dl>${hits.map(([, sym, what]) => `<dt>${sym}</dt><dd>${what}</dd>`).join('')}</dl>`;
   page.addEventListener('click', (ev) => {
     const mj = ev.target.closest('mjx-container');
     if (!mj) return;
     const card = mj.closest('.bdr-card');
-    if (mj.closest('summary, button, a') || (card && !mj.closest('.card-more'))) return;
-    const src = texOf(mj);
-    if (!src) return;
-    const tex = src.replace(/\\text\{[^}]*\}/g, ''); // \text{B} is "billion", not the batch
-    const sec = mj.closest('section'), scope = sec && PRACTICE.has(sec.id) ? 'P' : 'T';
-    const plain = tex.replace(/\\hat\{?\\(pi|beta)\}?/g, 'HAT');
-    const hits = SYMBOLS.filter(([re, , , sc]) => (!sc || sc === scope) && re.test(re.source.includes('hat') ? tex : plain)).slice(0, 14);
+    if (mj.closest('summary, button, a, .sym-sheet') || (card && !mj.closest('.card-more'))) return;
+    const hits = symbolsOf(mj);
     if (!hits.length) return;
-    key.innerHTML = `<dl>${hits.map(([, sym, what]) => `<dt>${sym}</dt><dd>${what}</dd>`).join('')}</dl>`;
+    key.innerHTML = keyList(hits) + (sheet ? `<a class="sym-all" href="${sheet.url}">All symbols</a>` : '');
     key.hidden = false;
     const r = mj.getBoundingClientRect(), w = key.offsetWidth, vw = document.documentElement.clientWidth;
     key.style.left = `${Math.max(8, Math.min(vw - w - 8, r.left + r.width / 2 - w / 2)) + scrollX}px`;
@@ -250,6 +188,119 @@
     ev.stopPropagation();
   });
   document.addEventListener('click', (ev) => { if (!key.hidden && !ev.target.closest('.sym-key, mjx-container')) closeKey(); });
+
+  // ---------------------------------------------------------------- the right margin (wide screens)
+  // Where the window leaves room to the right of the text column, two things go there:
+  //  - sidenotes: each footnote sits beside the sentence that cites it (the Notes list is then hidden);
+  //  - the symbols of the display formula nearest the reading line, beside that formula.
+  // Narrower windows keep the Notes list and the symbol key opened by selecting a formula.
+  const MARGIN_MIN = 230, GAP = 30, NOTE_W = 300;
+  const layer = el('<div class="bdr-margin"></div>');
+  document.body.appendChild(layer);
+  const symNote = el('<aside class="margin-sym" aria-label="Symbols in the formula beside" hidden><div class="mk">In this formula</div><div class="mb"></div></aside>');
+  layer.appendChild(symNote);
+  let sides = [], marginX = 0, marginW = 0, marginOn = false, symFor = null;
+  const docTop = (r) => r.top + scrollY;
+  // boxes that reach into the margin (a wide figure or table): notes are pushed below them
+  function obstacles(right) {
+    return [...page.querySelectorAll('section > *, .wide, .calc, figure, .bdr-fig, .table-wrap')]
+      .map((e) => e.getBoundingClientRect()).filter((r) => r.width && r.right > right + 4)
+      .map((r) => [docTop(r) - 6, docTop(r) + r.height + 6]);
+  }
+  function placeAll(items, obs) {
+    // items: [{node, want}] in reading order; each goes as near its anchor as the ones above allow
+    let floor = -Infinity;
+    for (const it of items) {
+      let y = Math.max(it.want, floor);
+      for (let moved = true; moved;) {
+        moved = false;
+        for (const [a, b] of obs) if (y < b && y + it.node.offsetHeight > a) { y = b; moved = true; }
+      }
+      it.node.style.top = `${y}px`;
+      floor = y + it.node.offsetHeight + 12;
+    }
+  }
+  function layoutMargin() {
+    const col = page.getBoundingClientRect(), vw = document.documentElement.clientWidth;
+    const room = vw - col.right - GAP - 16;
+    marginOn = room >= MARGIN_MIN && !!col.width;
+    page.classList.toggle('has-margin', marginOn);
+    // the contents' entry for the Notes list goes with the list
+    const nh = page.querySelector('section.footnotes h3[id]');
+    if (nh) document.querySelectorAll(`a[href$="#${nh.id}"]`).forEach((a) => { const li = a.closest('li') || a; li.hidden = marginOn; });
+    layer.hidden = !marginOn;
+    if (!marginOn) return;
+    marginX = col.right + scrollX + GAP;
+    marginW = Math.min(NOTE_W, room);
+    layer.style.left = `${marginX}px`;
+    layer.style.width = `${marginW}px`;
+    // sidenotes: one per visible footnote reference
+    const refs = [...page.querySelectorAll('sup.fn-ref')].filter((r) => r.offsetParent && !r.closest('.footnotes'));
+    sides.forEach((n) => n.remove());
+    sides = refs.map((ref) => {
+      const a = ref.querySelector('a'), lab = a ? decodeURIComponent(a.getAttribute('href').slice(1)) : '';
+      const li = lab && document.getElementById(lab);
+      const n = el(`<aside class="sidenote"><span class="sn-num">${a ? a.textContent : ''}</span> </aside>`);
+      if (li) { const c = li.cloneNode(true); c.querySelectorAll('.fn-back').forEach((x) => x.remove()); n.insertAdjacentHTML('beforeend', c.innerHTML); }
+      layer.appendChild(n);
+      return n;
+    });
+    const obs = obstacles(col.right);
+    placeAll(sides.map((n, i) => ({ node: n, want: docTop(refs[i].getBoundingClientRect()) - 4 })), obs);
+    placeSym();
+  }
+  // the display formula nearest the reading line (40% down the window), in the text column
+  function currentFormula() {
+    const line = innerHeight * 0.4, colR = page.getBoundingClientRect().right;
+    let best = null, bestD = Infinity;
+    page.querySelectorAll('mjx-container[display="true"]').forEach((mj) => {
+      if (!mj.offsetParent) return;
+      const r = mj.getBoundingClientRect();
+      if (r.bottom < 60 || r.top > innerHeight - 40 || r.right > colR + 4 || !r.height) return;
+      if (mj.closest('.bdr-card:not(.open), summary, .sym-key, .xref-card')) return;
+      const d = r.bottom < line ? line - r.bottom : r.top > line ? r.top - line : 0;
+      if (d < bestD) { bestD = d; best = mj; }
+    });
+    return best;
+  }
+  function placeSym() {
+    if (!marginOn) { symNote.hidden = true; return; }
+    const mj = currentFormula();
+    const hits = mj ? symbolsOf(mj, 10) : [];
+    if (!hits.length) { symNote.hidden = true; symFor = null; return; }
+    if (mj !== symFor) { symNote.querySelector('.mb').innerHTML = keyList(hits); symFor = mj; }
+    symNote.hidden = false;
+    const r = mj.getBoundingClientRect();
+    let want = docTop(r) + Math.max(0, (r.height - symNote.offsetHeight) / 2);
+    // keep it in the window: not under the site header, not past the bottom edge
+    want = Math.max(Math.min(want, scrollY + innerHeight - symNote.offsetHeight - 12), scrollY + 72);
+    // never over a sidenote or a wide box
+    const obs = obstacles(page.getBoundingClientRect().right).concat(sides.map((n) => [n.offsetTop - 10, n.offsetTop + n.offsetHeight + 10]));
+    placeAll([{ node: symNote, want }], obs);
+  }
+  // on wide screens a footnote number points at its sidenote, not at the hidden Notes list
+  page.addEventListener('click', (ev) => {
+    const a = ev.target.closest('sup.fn-ref a');
+    if (!a || !marginOn) return;
+    const i = [...page.querySelectorAll('sup.fn-ref')].filter((r) => r.offsetParent).indexOf(a.parentElement);
+    const n = sides[i];
+    if (!n) return;
+    ev.preventDefault();
+    n.classList.add('flash'); setTimeout(() => n.classList.remove('flash'), 1200);
+  });
+  let marginTick = 0;
+  const relayout = () => { if (!marginTick) marginTick = requestAnimationFrame(() => { marginTick = 0; layoutMargin(); }); };
+  addEventListener('resize', relayout);
+  addEventListener('scroll', () => { if (marginOn) requestAnimationFrame(placeSym); }, { passive: true });
+  if (window.ResizeObserver) new ResizeObserver(relayout).observe(page);
+  page.addEventListener('toggle', relayout, true);
+  page.addEventListener('click', () => setTimeout(relayout, 0));
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(relayout);
+  (function waitMath(k) {
+    const p = window.MathJax && MathJax.startup && MathJax.startup.promise;
+    if (p) p.then(() => { layoutMargin(); if (window.MathJax.typesetPromise) layer.querySelectorAll('.sidenote').length && MathJax.typesetPromise([layer]).catch(() => {}); });
+    else if (k < 50) setTimeout(() => waitMath(k + 1), 100);
+  })(0);
 
   // ---------------------------------------------------------------- citation: copy the BibTeX entry
   for (const btn of page.querySelectorAll('.cite-copy')) {
@@ -355,7 +406,7 @@
   const card = el('<div class="xref-card" role="tooltip" hidden></div>');
   document.body.appendChild(card);
   let hoverTimer = null, overCard = false, current = null;
-  const hideCard = () => { card.hidden = true; current = null; };
+  const hideCard = () => { card.hidden = true; current = null; symNote.style.visibility = ''; };
   page.addEventListener('pointerover', (ev) => {
     const a = ev.target.closest && ev.target.closest('a.xref');
     if (!a || ev.pointerType === 'touch' || a === current) return;
@@ -366,10 +417,22 @@
       const html = previewOf(doc, hash);
       if (!html || !a.matches(':hover')) return;
       current = a; card.innerHTML = html; card.hidden = false;
-      const r = a.getBoundingClientRect(), w = card.offsetWidth, vw = document.documentElement.clientWidth;
-      card.style.left = `${Math.max(8, Math.min(vw - w - 8, r.left)) + scrollX}px`;
-      const below = r.bottom + 10 + card.offsetHeight < innerHeight;
-      card.style.top = `${(below ? r.bottom + 8 : r.top - card.offsetHeight - 8) + scrollY}px`;
+      const r = a.getBoundingClientRect(), vw = document.documentElement.clientWidth;
+      card.classList.toggle('in-margin', marginOn);
+      if (marginOn) {
+        // wide windows: in the margin, level with the link, over the symbol note but never over the text
+        card.style.width = `${marginW}px`;
+        card.style.left = `${marginX}px`;
+        const y = Math.max(72, Math.min(r.top - 8, innerHeight - card.offsetHeight - 12));
+        card.style.top = `${y + scrollY}px`;
+        symNote.style.visibility = 'hidden';
+      } else {
+        card.style.width = '';
+        const w = card.offsetWidth;
+        card.style.left = `${Math.max(8, Math.min(vw - w - 8, r.left)) + scrollX}px`;
+        const below = r.bottom + 10 + card.offsetHeight < innerHeight;
+        card.style.top = `${(below ? r.bottom + 8 : r.top - card.offsetHeight - 8) + scrollY}px`;
+      }
       if (window.MathJax && MathJax.typesetPromise) MathJax.typesetPromise([card]).catch(() => {});
     }, 260);
   });
@@ -399,6 +462,8 @@
 
   // ---------------------------------------------------------------- wide diagrams on narrow screens
   // A diagram wider than the column scrolls sideways; say so, and fade the edge that hides more.
+  let remark = 0;
+  const sizeWatch = window.ResizeObserver ? new ResizeObserver(() => { if (!remark) remark = requestAnimationFrame(() => { remark = 0; markScrollers(); }); }) : null;
   function markScrollers() {
     page.querySelectorAll('.pfig-scroll, .mapfig .chart, .table-wrap, pre.envelope, .code-body').forEach((box) => {
       const over = box.scrollWidth > box.clientWidth + 4;
@@ -411,7 +476,11 @@
         box.classList.toggle('at-end', end); box.classList.toggle('at-start', box.scrollLeft <= 2);
         hint.hidden = !over || end;
       };
-      if (!box.dataset.watched) { box.dataset.watched = '1'; box.addEventListener('scroll', edge, { passive: true }); }
+      if (!box.dataset.watched) {
+        box.dataset.watched = '1'; box.addEventListener('scroll', edge, { passive: true });
+        // the content changes width after load (MathJax, web fonts, numbers filled in by script)
+        if (sizeWatch) { sizeWatch.observe(box); [...box.children].forEach((c) => sizeWatch.observe(c)); }
+      }
       edge();
     });
   }

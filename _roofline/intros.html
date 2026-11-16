@@ -1,7 +1,13 @@
 <!-- Opening paragraph of each chapter page, inserted by bin/build-roofline.py under the "Part N of" line.
      One <!-- intro:SLUG --> block per chapter; "examples" keeps the note's own first paragraph. -->
 <!-- intro:summary -->
-The later chapters of the blogpost derive the gain \(\Gamma\) of block text diffusion (TD) over autoregressive decoding (AR) one result at a time. In this chapter, we state the results first, so that each later chapter can be read as the proof of one of them. We give the headline numbers, a quiz, four takeaways, the symbols, the quantities that move \(\Gamma\), the three regimes that occur in practice, and what the roofline model leaves out.
+
+  <h3>Our main throughput result</h3>
+
+We start by giving our main result which is a compact formula for the throughput gain of TD over AR. 
+Of course, this formula is *idealized* as it works under some critical assumptions but we will see that it can faithfully acts as a guiding North start while navigating TD and AR inference. 
+
+You can click on any formula to see a definition of the symbols it uses.
 <!-- intro:setup -->
 To compare two decoders on a roofline, we need, for each of them, the FLOPs of a forward pass and the bytes it reads from memory. In this chapter, we define both for an AR step and for a TD pass over a canvas of \(b\) tokens. From them come the two quantities used in every later chapter. First, the arithmetic intensity of a pass decides whether it is compute- or memory-bound. Second, the penalty is the ratio of the bytes per sequence that a TD pass reads to those an AR step reads. It is above 1 because the \(b\) positions of a TD pass touch more experts and, in sparse layers, more cached tokens.
 <!-- intro:gain -->

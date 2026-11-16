@@ -481,7 +481,7 @@ MAP_BOT = [("effective", "PART 8", "Empirical rooflines", ["Measured ceilings", 
            ("stack", "PART 9", "Measurement stack", ["Time per component"]),
            ("kernels", "PART 10", "Kernels", ["TD kernel work"]),
            ("conclusion", "PART 11", "Conclusion", ["Everything together", ""])]
-MAP_SIDE = [("summary", "Summary", "Main results"), ("appendix", "Appendix", "Sources and Accounting")]
+MAP_SIDE = [("summary", "Summary", "Main results"), ("appendix", "Appendix", "Sources and Accounting"), ("symbols", "Symbols", "All notation")]
 
 
 def linkbox(x, y, w, h, href, part, title, lines, col, tip):
@@ -1003,7 +1003,7 @@ def blocks():
                         "", fig_decoders(),
                         "A canvas of \\(b = 256\\) positions, \\(S = 14\\) denoising passes and one commit pass, so \\(15\\) passes per canvas and \\(\\mathrm{TPF} = b/\\omega = 17.1\\) tokens per forward pass. "),
         "encdec": fig("fig-encdec", "Figure 2", "Encoder-decoder architecture of DiffusionGemma.", "", fig_encdec(),
-                      "An illustration of the inference in Diffusion Gemma. We briefly highlight the dependency of each step in the self-conditioning signal \\(s_t\\). We will discuss in "),
+                      "An illustration of the inference in Diffusion Gemma. We briefly highlight the dependency of each step in the self-conditioning signal \\(s_t\\). We will discuss the role of self-conditioning in more details when deriving rooflines. "),
         "map": fig("fig-map", "Figure 3 · interactive", "", "", fig_map(),
                    ""),
         "ladder": fig("fig-ladder", "Figure 4 · interactive", "From theoretical to measured gains", "",
@@ -1027,10 +1027,10 @@ def blocks():
                       "A stretch of one layer, with simplified kernel names. In the eager run each kernel is recorded inside the profiler range of the module that launched it; in the graph run only inside the range of the whole pass. The same kernel can serve several modules, as the FP8 GEMM does here, so the match counts occurrences. Each module then belongs to one component. The compiler fuses the norm with its neighbours into a kernel of another name, which has no eager match and counts as outside the model."),
         "flags": fig("fig-flags", "Figure 32", "A replayed CUDA graph reads the memory it saw at capture, so a tensor recreated at every step is never read.", "", fig_flags(),
                      "DiffusionGemma passes a causal flag per sequence to the attention kernel: 0 for a bidirectional denoising pass, 1 for the causal commit pass. In vLLM 0.28 the flags lived in a bool buffer converted to int32 at every step; under CUDA graphs the attention kernels kept reading the copy made at capture."),
-        "chip": fig("fig-chip", "Figure 34 · interactive", "The two rewrites keep data on the chip: the experts' intermediate tensors stay in registers and L2, and global attention fits a second pipeline stage by splitting its tiles across two SMs.",
-                    "Choose a kernel and a version; hover over or tap a part of the chip, a kernel or the exchange to read its numbers.",
+        "chip": fig("fig-chip", "Figure 34 · interactive", "Both rewrites keep data close to the processors: the experts' intermediate tensors stay on the chip, and splitting each attention head across two SMs frees room in shared memory.",
+                    "Choose a kernel and a version. For the experts, press ▶ or play to go through the kernels one at a time; hover over or tap any part to read what it is.",
                     '<div data-mfig="chip"></div>',
-                    "The H200 drawn schematically: 132 SMs, an L2 cache that all of them share, and 141 GB of HBM at 4.8 TB/s. <b>Experts</b>: the kernels of one MoE layer at TD batch 32, in order, with the bytes each writes to HBM (Figure 35 lists them side by side); in moe_ws the activation is applied in registers and the rows of every (token, expert) pair are added into the output in L2. <b>Global attention</b>: what one thread block holds in shared memory, against the 227 KB of an SM (Figure 38 gives the same bars); the pair kernel runs on two SMs of a cluster, each holding half of the head dimension, and they exchange partial scores once per tile of keys."),
+                    "The H200 drawn schematically: 132 SMs (the processors), an L2 cache on the chip that all of them share, and 141 GB of HBM next to the chip, the slowest level to reach. <b>Experts</b>: the kernels of one MoE layer at TD batch 32, in order, with what each writes to HBM; the totals add the sizes of Figure 35, which gives none for vLLM's quantisation of \\(x\\). <b>Global attention</b>: what one SM holds in shared memory against its 227 KB (as in Figure 38), and a timeline of three tiles of keys. The timeline of FlashAttention 4 is drawn from the 36% busy share of its tensor cores; that of the pair kernel from the per-tile timings of its exchange, measured with 64-key tiles and two stages."),
         "moe": fig("fig-moe", "Figure 35", "The new expert path runs six kernels where vLLM's runs nine.", "", fig_moe(),
                    "One MoE layer at TD batch 32 (\\(Nk = 65{,}536\\) rows, each a (token, expert) pair). Each box is one step of the path, one kernel unless marked, in order; the number to the right of a box is what it writes to memory, read back by the next step. The new path zeroes \\(y\\) before the second GEMM adds its rows into it atomically, each row scaled by its routing weight \\(p\\)."),
         "pair": fig("fig-pair", "Figure 37", "The two thread blocks of the pair exchange only their partial score tiles.", "", fig_pair(),

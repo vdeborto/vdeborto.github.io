@@ -1,0 +1,493 @@
+# The symbols of the Block Diffusion Rooflines book. One file, two uses (bin/roofline_symbols.py):
+#   - the Symbols page, the last page of the book: one table per "== Group", in this order;
+#   - the symbol key (a click on a formula lists the symbols it uses), for the entries with "match".
+# An entry is the symbol in TeX on its own line, then indented fields:
+#   what:   the meaning; math goes in \( \)
+#   in:     where the symbol is defined ("Part 3", "Definition 2", "Proposition 8"); the build links it
+#           and checks that a formula there uses the symbol
+#   match:  JavaScript regular expression on a formula's TeX (the symbol key)
+#   rank:   order in the symbol key, which keeps the 14 lowest ranks of a formula
+#   scope:  T = only in Parts 1-7, P = only in Parts 8-11
+#   key:    the symbol as the key shows it, when it differs from the page's
+#   page:   no = in the key only
+# A symbol that is not math is written "plain R1–R8". After a change: python3 -I bin/build-roofline.py
+
+intro: This page lists every symbol of the blogpost, with its meaning and the place where it is defined. The values in parentheses are those of DiffusionGemma 26B-A4B and of an H200. In the other chapters, a click on a formula lists the symbols that it uses.
+
+== Decoding
+
+\Gamma
+  what: throughput gain: tokens per second of TD over those of AR
+  in: Proposition 1
+  match: \\Gamma
+  rank: 10
+
+B
+  what: batch: sequences decoded together
+  in: Part 1
+  match: (^|[^\\A-Za-z_])B(?![A-Za-z^_])
+  rank: 470
+
+C
+  what: context: tokens already in the KV cache of each sequence
+  in: Part 1
+  match: (^|[^\\A-Za-z_])C(?![A-Za-z_])
+  rank: 480
+
+b
+  what: canvas length, in tokens
+  in: Part 1
+  match: (^|[^\\A-Za-z_])b(?![A-Za-z])
+  rank: 490
+
+S
+  what: denoising passes per canvas
+  in: Part 1
+  match: (^|[^\\A-Za-z_])S(?![A-Za-z_])
+  rank: 500
+  scope: T
+
+r
+  what: cost of a denoising pass, as a fraction of a forward pass
+  in: Part 1
+  match: (^|[^\\A-Za-z_])r(?![A-Za-z])
+  rank: 510
+  scope: T
+
+\omega = Sr + 1
+  what: forward passes that one canvas costs
+  in: Part 1
+  match: \\omega
+  rank: 20
+
+\mathrm{TPF} = b/\omega
+  what: tokens committed per forward pass
+  in: Part 1
+  match: \\mathrm\{TPF\}
+  rank: 30
+
+== Accelerator and precision
+
+\pi
+  what: peak FLOPs per second of the accelerator
+  in: Part 1
+  match: \\pi(?![A-Za-z])
+  rank: 450
+  scope: T
+
+\beta
+  what: memory bandwidth of the accelerator, in bytes per second
+  in: Part 1
+  match: \\beta(?![A-Za-z])
+  rank: 460
+  scope: T
+
+I^\star = \pi/\beta
+  what: ridge point of the accelerator: a pass is compute-bound when its intensity reaches it (206 on an H200)
+  in: Definition 3
+  match: I\^\\star
+  rank: 40
+
+s_w
+  what: bytes per weight (2 in BF16)
+  in: Part 1
+  match: s_w
+  rank: 280
+
+s_{kv}
+  what: bytes per element of the KV cache (2)
+  in: Part 1
+
+\kappa^c
+  what: cached tensors per KV head on the global layers (2: keys and values stored separately)
+  in: Part 1
+  match: \\kappa
+  rank: 430
+
+== Model
+
+L
+  what: layers (30)
+  in: Part 1
+  match: (^|[^\\A-Za-z_])L(?![A-Za-z_])
+  rank: 370
+
+d
+  what: hidden size (2816)
+  in: Part 1
+
+V
+  what: vocabulary size (262,144)
+  in: Part 1
+
+\mathcal G,\ \mathcal W
+  what: sets of the global-attention layers and of the sliding-window layers (5 and 25 layers)
+  in: Part 1
+
+w
+  what: window of a sliding-window layer, in tokens (1,023)
+  in: Part 1
+  match: (^|[^\\A-Za-z_])w(?![A-Za-z])
+  rank: 390
+
+n_q,\ n_{kv}
+  what: query heads and KV heads of a layer (16 and 2 on the global layers)
+  in: Part 1
+  match: n_q|n_\{kv
+  rank: 670
+
+h_\ell
+  what: head dimension of layer \(\ell\) (512 on the global layers, 256 on the window layers)
+  in: Part 1
+
+g
+  what: query heads per KV head on the global layers, \(n_q/n_{kv}\) (8)
+  in: Part 1
+
+E
+  what: experts per MoE layer (128)
+  in: Part 1
+  match: (^|[^\\A-Za-z_])E(?![A-Za-z_])
+  rank: 350
+
+k
+  what: experts each token selects (8)
+  in: Part 1
+  match: (^|[^\\A-Za-z_])k(?![A-Za-z^_])
+  rank: 360
+
+W^e
+  what: parameters of one expert in one layer (5.95M)
+  in: Part 1
+  match: W\^e
+  rank: 340
+
+f_E
+  what: width of one expert (704)
+  in: Part 1
+  match: f_E
+  rank: 650
+  scope: P
+
+W_{\mathrm{ne}}
+  what: non-expert parameters of all layers (1.66B for DiffusionGemma)
+  in: Part 1
+  match: W_\{\\mathrm\{ne\}\}
+  rank: 330
+
+N_{\mathrm{act}}
+  what: parameters active per token (3.08B for DiffusionGemma, without the vocabulary)
+  in: Part 1
+  match: N_\{\\mathrm\{act\}\}
+  rank: 170
+
+W_{\mathrm{tot}}
+  what: all parameters (24.5B, without the vocabulary)
+  in: Part 1
+  match: W_\{\\mathrm\{tot\}\}
+  rank: 180
+
+m
+  what: cached tokens each query selects in a sparse layer
+  in: Part 1
+  match: (^|[^\\A-Za-z_])m(?![A-Za-z])
+  rank: 380
+
+== Costs and intensities
+
+F,\ Q
+  what: FLOPs and bytes of one pass, per sequence
+  in: Definition 2
+  match: [FQ]\^(\{(AR|TD|X)\}|X)
+  rank: 250
+
+\nu
+  what: KV-cache bytes per cached token (G: global, W: windowed, S: sparse layers, I: indexer)
+  in: Definition 1
+  match: \\nu_
+  rank: 260
+
+\alpha
+  what: attention FLOPs per query and per cached token (same subscripts as \(\nu\))
+  in: Definition 1
+  match: \\alpha_
+  rank: 270
+
+W_{AR}
+  what: weights an AR step reads at batch \(B\), in parameters
+  in: Definition 1
+  match: W_\{AR\}
+  rank: 190
+
+W_{TD}
+  what: weights a TD pass reads at batch \(B\), in parameters
+  in: Definition 1
+  match: W_\{TD\}
+  rank: 200
+
+U_{E,k}(N)
+  what: expected number of distinct experts that \(N\) positions touch in a layer (\(E = 128\) experts, \(k = 8\) per token)
+  in: Definition 1
+  match: U_\{E,k\}
+  rank: 210
+
+U_{C,m}(n)
+  what: cached tokens that \(n\) queries read together in a sparse layer, each selecting \(m\)
+  in: Definition 1
+  match: U_\{C,m\}
+  rank: 220
+
+I_{AR}
+  what: arithmetic intensity of one AR step: its FLOPs per byte read from HBM
+  in: Definition 3
+  match: I_\{AR\}
+  rank: 50
+
+I_{TD}
+  what: arithmetic intensity of one TD pass over a canvas of \(b\) positions: its FLOPs per byte read from HBM
+  in: Definition 3
+  match: I_\{TD\}
+  rank: 60
+
+I^X_{\mathrm{lin}}
+  what: linear part of an intensity: linear-layer FLOPs over weight bytes
+  in: Definition 3
+  match: I\^(\{(AR|TD|X)\}|X)_\{\\mathrm\{lin\}\}
+  rank: 70
+
+I^X_{\mathrm{attn}}
+  what: attention part of an intensity: attention FLOPs over KV-cache bytes
+  in: Definition 3
+  match: I\^(\{(AR|TD|X)\}|X)_\{\\mathrm\{attn\}\}
+  rank: 80
+
+I_{\mathrm{lin}}
+  what: linear part of an AR step's intensity, \(I^{AR}_{\mathrm{lin}}\): the batch \(B\) in BF16
+  in: Definition 3
+  match: I_\{\\mathrm\{lin\}\}
+  rank: 290
+
+I_{\mathrm{attn}}
+  what: attention FLOPs per cache byte for one query on a global layer (8 for DiffusionGemma)
+  in: Definition 3
+  match: I_\{\\mathrm\{attn\}\}
+  rank: 90
+
+I_{\mathrm{win}}
+  what: attention FLOPs per cache byte for one query on a window layer (2 for DiffusionGemma)
+  in: Definition 3
+  match: I_\{\\mathrm\{win\}\}
+  rank: 300
+
+I_{\mathrm{idx}}
+  what: FLOPs per cache byte of a sparse layer's index scan for one query
+  in: Definition 3
+  match: I_\{\\mathrm\{idx\}\}
+  rank: 310
+
+\theta
+  what: share of the bytes of a pass carried by one of its parts
+  in: Proposition 2
+  match: \\theta(?!_E)
+  rank: 240
+
+\theta_E
+  what: expert share of the weights that an AR step reads
+  in: Proposition 3
+  match: \\theta_E
+  rank: 230
+
+\sigma
+  what: window layers' FLOPs per query over the linear FLOPs, \(\alpha_W w/(2N_{\mathrm{act}})\) (6.8%)
+  in: Proposition 6
+  match: \\sigma
+  rank: 410
+
+C_F
+  what: context at which global attention alone matches the linear FLOPs (37.6k)
+  in: Proposition 6
+  match: C_F
+  rank: 400
+
+== Penalties
+
+\Pi
+  what: overall penalty: bytes per sequence of a TD pass over those of an AR step
+  in: Definition 4
+  match: \\Pi(?![_A-Za-z])
+  rank: 130
+
+\Pi_{\mathrm{lin}}
+  what: linear penalty: weight bytes a TD pass reads over those an AR step reads (7.9 at batch 1, 1 at large batch)
+  in: Definition 4
+  match: \\Pi_\{\\mathrm\{lin\}\}
+  rank: 100
+
+\Pi_{\mathrm{attn}}
+  what: attention penalty: cache bytes a TD pass reads over those an AR step reads (1 for dense and windowed attention)
+  in: Definition 4
+  match: \\Pi_\{\\mathrm\{attn\}\}
+  rank: 110
+
+\Pi_E
+  what: distinct experts a TD pass touches over those an AR step touches
+  in: Definition 4
+  match: \\Pi_E
+  rank: 120
+
+\Pi_{\mathrm{sel}}
+  what: selection penalty: cached tokens a canvas selects in a sparse layer over those one query selects
+  in: Definition 4
+  match: \\Pi_\{\\mathrm\{sel\}\}
+  rank: 320
+
+\zeta
+  what: independent fraction of a canvas's selections: 1 when independent, \(1/b\) when every query selects the same tokens
+  in: Part 4
+  match: \\zeta
+  rank: 420
+
+== Thresholds and regimes
+
+B^\star_{TD}
+  what: smallest batch at which a TD pass is compute-bound
+  in: Part 3
+  match: B\^\\star_\{TD\}
+  rank: 140
+
+B^\star_{AR}
+  what: smallest batch at which an AR step is compute-bound
+  in: Part 3
+  match: B\^\\star_\{AR\}
+  rank: 150
+
+B_\times
+  what: parity batch: beyond it AR is faster
+  in: Part 3
+  match: B_\\times
+  rank: 160
+
+b_c
+  what: critical canvas length \(I^\star/I_{\mathrm{attn}}\): above it a longer context helps TD reach the ridge
+  in: Proposition 8
+  match: b_c
+  rank: 440
+
+plain R1–R8
+  what: the eight regimes (Figure 16)
+  in: Part 5
+
+plain A1–A5
+  what: the assumptions of Proposition 1
+  in: Part 2
+
+== Measurements
+
+\hat\pi
+  what: empirical compute ceiling: the highest FLOP rate measured on this H200 (FP8 1,468, BF16 781, attention 638 TFLOP/s)
+  in: Definition 5
+  match: \\hat\{?\\pi
+  rank: 550
+
+\hat\beta
+  what: empirical bandwidth: 4.32 TB/s measured on this H200
+  in: Definition 5
+  match: \\hat\{?\\beta
+  rank: 560
+
+\tau_X,\ \tau_c
+  what: empirical roofline time: \(\max(F/\hat\pi,\ Q/\hat\beta)\), of a component \(c\) or of a whole step \(X\)
+  in: Definition 5
+  key: \tau
+  match: \\tau
+  rank: 540
+
+t_X,\ t_c
+  what: measured time of a step (\(t_{AR}\), \(t_{TD}\)) or of a component (\(t_c\))
+  in: Definition 7
+  key: t
+  match: (^|[^\\A-Za-z_])t_\{?(X|AR|TD|c)
+  rank: 580
+
+\eta_X,\ \eta_c
+  what: efficiency: roofline time over measured time (1 means at the roofline)
+  in: Definition 7
+  key: \eta
+  match: \\eta
+  rank: 570
+
+n_X
+  what: tokens a step commits: \(B\) for AR, \(Bb/\omega\) for TD
+  in: Proposition 9
+  key: n
+  match: (^|[^\\A-Za-z_])n_\{?(X|AR|TD)
+  rank: 590
+  scope: P
+
+\Gamma_{\mathrm{meas}}
+  what: measured gain: TD tokens per second over AR tokens per second
+  in: Proposition 9
+  match: \\Gamma_\{\\mathrm\{meas\}\}
+  rank: 520
+
+\Gamma_{\mathrm{roof}}
+  what: roofline gain at the measured ceilings and routing
+  in: Proposition 9
+  match: \\Gamma_\{\\mathrm\{roof\}\}
+  rank: 530
+
+U^{\mathrm{meas}}
+  what: distinct experts per layer that a pass touches, measured
+  in: Definition 6
+  match: U\^\{\\mathrm\{meas\}\}
+  rank: 600
+  scope: P
+
+U^{\mathrm{freq}}
+  what: distinct experts predicted from the measured expert frequencies, tokens independent
+  in: Definition 6
+  match: U\^\{\\mathrm\{freq\}\}
+  rank: 610
+  scope: P
+
+N^{\mathrm{eff}}
+  what: effective independent tokens: the \(N\) at which \(U_{E,k}(N)\) equals the measured count
+  in: Definition 6
+  match: N\^\{\\mathrm\{eff\}\}
+  rank: 620
+  scope: P
+
+\rho_e
+  what: frequency with which a token selects expert \(e\)
+  in: Definition 6
+  match: \\rho_
+  rank: 630
+  scope: P
+
+\mu
+  what: rows per touched expert, \(Nk/U\)
+  in: Part 10
+  match: \\mu(?![A-Za-z])
+  rank: 640
+  scope: P
+
+M_q,\ M_k
+  what: query rows and keys of one attention tile
+  in: Part 10
+  match: M_q|M_k|M_\{?[qk]
+  rank: 660
+  scope: P
+
+\mathbf{Z}
+  what: attention scores \(\mathbf{Q}\mathbf{K}^\top\) of one tile
+  in: Part 10
+  match: \\mathbf(\{| )Z
+  rank: 680
+  scope: P
+
+h
+  what: head dimension of a global layer (512)
+  page: no
+  match: (^|[^\\A-Za-z_])h(?![A-Za-z_])
+  rank: 690
+  scope: P
