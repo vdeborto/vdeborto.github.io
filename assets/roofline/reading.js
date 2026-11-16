@@ -285,7 +285,7 @@
     const t = id && document.getElementById(id);
     if (!t) return;
     let opened = false;
-    for (let e = t.parentElement; e && e !== document.body; e = e.parentElement) {
+    for (let e = t; e && e !== document.body; e = e.parentElement) {
       if (e.tagName === 'DETAILS' && !e.open) { e.open = true; opened = true; }
       if (e.classList.contains('foldable') && !e.classList.contains('open')) {
         const btn = e.querySelector(':scope > .box-more');
@@ -369,6 +369,8 @@
   if (verdictEl) {
     const bar = el('<div class="calc-sticky" aria-hidden="true"></div>');
     verdictEl.closest('.calc').prepend(bar);
+    // shown only while the real verdict is off screen
+    new IntersectionObserver(([en]) => bar.classList.toggle('off', en.isIntersecting), { rootMargin: '-64px 0px 0px 0px' }).observe(verdictEl);
     const sync = () => { const h = verdictEl.firstElementChild; bar.textContent = h ? h.textContent.replace(/\s+/g, ' ').trim() : ''; };
     new MutationObserver(sync).observe(verdictEl, { childList: true, subtree: true, characterData: true });
     sync();
@@ -377,13 +379,17 @@
   // ---------------------------------------------------------------- wide diagrams on narrow screens
   // A diagram wider than the column scrolls sideways; say so, and fade the edge that hides more.
   function markScrollers() {
-    page.querySelectorAll('.pfig-scroll, .mapfig .chart').forEach((box) => {
+    page.querySelectorAll('.pfig-scroll, .mapfig .chart, .table-wrap, pre.envelope').forEach((box) => {
       const over = box.scrollWidth > box.clientWidth + 4;
       box.classList.toggle('can-scroll', over);
       let hint = box.previousElementSibling;
       if (!hint || !hint.classList.contains('scroll-hint')) { hint = el('<div class="scroll-hint">scroll sideways to see the whole figure →</div>'); box.before(hint); }
       hint.hidden = !over;
-      const edge = () => box.classList.toggle('at-end', box.scrollLeft + box.clientWidth >= box.scrollWidth - 4);
+      const edge = () => {
+        const end = box.scrollLeft + box.clientWidth >= box.scrollWidth - 4;
+        box.classList.toggle('at-end', end); box.classList.toggle('at-start', box.scrollLeft <= 2);
+        hint.hidden = !over || end;
+      };
       if (!box.dataset.watched) { box.dataset.watched = '1'; box.addEventListener('scroll', edge, { passive: true }); }
       edge();
     });

@@ -337,6 +337,7 @@ def main():
         seen = [int(n) for ch in CHAPTERS for n in re.findall(rx, pages.get(ch[0], ""))]
         if seen != list(range(1, len(seen) + 1)):
             problems.append(f"{kind} numbers not in reading order: {seen}")
+    pages = {k: name_headings(v) for k, v in pages.items()}
     pages = link_references(pages)
     if problems:
         for p in problems:
@@ -390,6 +391,20 @@ def card_legacy_figures(body):
     if k != 4:
         problems.append(f"legacy figures carded: {k}, expected 4")
     return body
+
+
+def name_headings(html):
+    """Give every h3 without an id one made from its text, so that the rail lists it and it can be linked."""
+    used = set(re.findall(r'id="([^"]+)"', html))
+    def one(m):
+        text = re.sub(r"<[^>]+>|\\\(.*?\\\)", "", m.group(2))
+        base = "s-" + (re.sub(r"[^a-z0-9]+", "-", text.lower()).strip("-")[:40] or "section")
+        k, i = base, 2
+        while k in used:
+            k, i = f"{base}-{i}", i + 1
+        used.add(k)
+        return f'<h3{m.group(1)} id="{k}">{m.group(2)}</h3>'
+    return re.sub(r'<h3((?:\s+(?!id=)[\w-]+="[^"]*")*)>(.*?)</h3>', one, html)
 
 
 def link_references(pages):

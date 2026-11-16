@@ -90,7 +90,7 @@
       ar.lo.forEach((l, i) => { const h = ar.hi[i]; if (l == null || h == null) flushA(); else seg.push([i, l, h]); });
       flushA();
     }
-    if (opt.ref) s += `<line x1="${m.l}" x2="${W - m.r}" y1="${Y(opt.ref.y)}" y2="${Y(opt.ref.y)}" stroke="${c.ink2}" stroke-width="1.3" stroke-dasharray="${opt.ref.dash || ''}"/><text x="${m.l + 6}" y="${Y(opt.ref.y) - 6}" class="halo">${opt.ref.label}</text>`;
+    if (opt.ref) s += `<line x1="${m.l}" x2="${W - m.r}" y1="${Y(opt.ref.y)}" y2="${Y(opt.ref.y)}" stroke="${c.ink2}" stroke-width="1.3" stroke-dasharray="${opt.ref.dash || ''}"/>`;
     const ends = [];
     for (const sr of series) {
       const pts = sr.ys.map((v, i) => (v == null ? null : [X(i), Y(v)]));
@@ -103,6 +103,8 @@
       const last = [...pts].reverse().find((p) => p);
       if (last && sr.label) ends.push({ x: last[0], y: last[1], sr });
     }
+    // the reference line's label goes last, over the curves, at the right end
+    if (opt.ref) s += opt.ref.at === 'right' ? `<text x="${W - m.r - 4}" y="${Y(opt.ref.y) - 6}" text-anchor="end" class="halo">${opt.ref.label}</text>` : `<text x="${m.l + 6}" y="${Y(opt.ref.y) - 6}" class="halo">${opt.ref.label}</text>`;
     // the selected batch: an enlarged point on every highlighted series
     s += '<g class="sel" pointer-events="none">';
     series.forEach((sr) => { if (sr.group) return; sr.pts.forEach((p, i) => { if (p) s += `<circle data-i="${i}" cx="${p[0]}" cy="${p[1]}" r="5.5" fill="${sr.color}" stroke="${c.bg}" stroke-width="2" visibility="hidden"/>`; }); });
@@ -110,7 +112,7 @@
     const lab = ends.filter((e) => !e.sr.group);
     const ly = spread(lab.map((e) => e.y + 4), 16, m.t + 6, H - m.b);
     if (!narrow) lab.forEach((e, k) => {
-      s += `<line x1="${e.x + 4}" x2="${W - m.r + 4}" y1="${e.y}" y2="${ly[k] - 4}" stroke="${e.sr.color}" stroke-opacity="0.5"/>`;
+      s += `<line x1="${e.x + 4}" x2="${W - m.r + 4}" y1="${e.y}" y2="${ly[k] - 4}" stroke="${e.sr.color}" stroke-opacity="0.35" stroke-dasharray="1.5 3"/>`;
       s += `<text x="${W - m.r + 8}" y="${ly[k]}" style="fill:${e.sr.labelColor || e.sr.color};font-weight:${e.sr.bold ? 600 : 400}">${e.sr.label}</text>`;
     });
     // hover columns
@@ -150,7 +152,12 @@
     });
     // the selection persists: it starts at the first batch and stays where the reader leaves it
     const first = series.find((sr) => !sr.group) ? Math.max(0, series.find((sr) => !sr.group).pts.findIndex((p) => p)) : 0;
-    show(pic.dataset.sel != null && pic.dataset.sel !== '' ? Math.min(n - 1, +pic.dataset.sel) : first);
+    // a kept selection that falls on a batch not measured here moves to the nearest measured one
+    const main = series.filter((sr) => !sr.group);
+    const has = (i) => main.some((sr) => sr.pts[i]);
+    let want = pic.dataset.sel != null && pic.dataset.sel !== '' ? Math.min(n - 1, +pic.dataset.sel) : first;
+    if (!has(want)) { for (let d = 1; d < n; d++) { if (want - d >= 0 && has(want - d)) { want -= d; break; } if (want + d < n && has(want + d)) { want += d; break; } } }
+    show(want);
   }
   // a readout: a heading and a short list of label, value pairs
   const ro = (head, items) => `<div class="ro-h">${head}</div><div class="ro-g">${items.map(([l, v, cls]) => `<span class="ro-l${cls ? ` ${cls}` : ''}">${l}</span><span class="ro-v${cls ? ` ${cls}` : ''}">${v}</span>`).join('')}</div>`;
@@ -240,7 +247,7 @@
       series.push({ label: fn, color: c.accent, width: 3, dots: true, bold: true, ys: Bs.map((B) => val(B, st.focus)) });
       lineChart(pic, series, {
         W: widthOf(pic), H: 310, y0: 0, y1: 1, ticks: [0, 0.2, 0.4, 0.6, 0.8, 1], yFmt: (v) => v.toFixed(1), yTitle: 'efficiency η = roofline / measured time',
-        ref: { y: 0.8, label: 'default target 0.8', dash: '3 3' }, out, aria: `${name}: efficiency of each component against batch`,
+        ref: { y: 0.8, label: 'default target 0.8', dash: '3 3', at: 'right' }, out, aria: `${name}: efficiency of each component against batch`,
         hover: (i) => {
           const r = (D[src][m] || {})[key(Bs[i], st.C)], head = `${name}, B = ${Bs[i]}, C = ${kc(st.C)}`;
           if (!r) return ro(head, [['not measured', '']]);
