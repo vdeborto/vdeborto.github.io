@@ -322,14 +322,14 @@
     <p>with \(\hat\pi_c\) the ceiling of its kind: FP8 GEMM for dense layers and experts, attention for attention, BF16 GEMM for the vocabulary head. The empirical roofline of a pass is \(\tau = \sum_c \tau_c\), the kernel-by-kernel rule of Part 5.</p>
   </div>
   <div class="bdr-fig pfig" id="fig-eff-roofline">
-    <div class="fig-k">Figure 23</div>
+    <div class="fig-k" id="figure-23">Figure 23</div>
     <p class="fig-title">The measured roofline sits below the datasheet's, more in compute than in bandwidth.</p>
     <div class="pfig-scroll"><svg viewbox="0 0 660 360" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="The empirical FP8 roofline lies below the datasheet one, more in compute than in bandwidth, so its ridge point moves left" class="pfig-svg pfig-wide" style="max-width:660px"><line x1="62.0" y1="24" x2="62.0" y2="310" stroke="var(--rule)"></line><text x="62.0" y="328" text-anchor="middle" style="font-size:12px;fill:var(--bdr-muted)">10</text><line x1="211.33333333333331" y1="24" x2="211.33333333333331" y2="310" stroke="var(--rule)"></line><text x="211.33333333333331" y="328" text-anchor="middle" style="font-size:12px;fill:var(--bdr-muted)">100</text><line x1="360.66666666666663" y1="24" x2="360.66666666666663" y2="310" stroke="var(--rule)"></line><text x="360.66666666666663" y="328" text-anchor="middle" style="font-size:12px;fill:var(--bdr-muted)">1,000</text><line x1="510.0" y1="24" x2="510.0" y2="310" stroke="var(--rule)"></line><text x="510.0" y="328" text-anchor="middle" style="font-size:12px;fill:var(--bdr-muted)">10,000</text><line x1="62" y1="295.21847565120635" x2="510" y2="295.21847565120635" stroke="var(--rule)"></line><text x="54" y="299.21847565120635" text-anchor="end" style="font-size:12px;fill:var(--bdr-muted)">50</text><line x1="62" y1="249.30286721707625" x2="510" y2="249.30286721707625" stroke="var(--rule)"></line><text x="54" y="253.30286721707625" text-anchor="end" style="font-size:12px;fill:var(--bdr-muted)">100</text><line x1="62" y1="203.38725878294613" x2="510" y2="203.38725878294613" stroke="var(--rule)"></line><text x="54" y="207.38725878294613" text-anchor="end" style="font-size:12px;fill:var(--bdr-muted)">200</text><line x1="62" y1="142.69012600002242" x2="510" y2="142.69012600002242" stroke="var(--rule)"></line><text x="54" y="146.69012600002242" text-anchor="end" style="font-size:12px;fill:var(--bdr-muted)">500</text><line x1="62" y1="96.77451756589231" x2="510" y2="96.77451756589231" stroke="var(--rule)"></line><text x="54" y="100.77451756589231" text-anchor="end" style="font-size:12px;fill:var(--bdr-muted)">1,000</text><line x1="62" y1="50.858909131762175" x2="510" y2="50.858909131762175" stroke="var(--rule)"></line><text x="54" y="54.858909131762175" text-anchor="end" style="font-size:12px;fill:var(--bdr-muted)">2,000</text><text x="286.0" y="350" text-anchor="middle" style="font-size:12px;fill:var(--bdr-muted)">arithmetic intensity I (FLOP per byte of HBM traffic)</text><text x="2" y="14" style="font-size:12px;fill:var(--bdr-muted)">attainable TFLOP/s</text><polyline points="62.0,297.9226152170315 303.20388048673414,51.5581298145562 510.0,51.5581298145562" fill="none" stroke="var(--bdr-muted)" stroke-width="2.2" stroke-dasharray="6 4"></polyline><circle cx="303.20388048673414" cy="51.5581298145562" r="3.5" fill="var(--bdr-muted)"></circle><text x="309.20388048673414" y="41.5581298145562" style="font-size:11.5px;fill:var(--bdr-muted)">ridge 412</text><text x="518" y="49.5581298145562" style="font-size:11.5px;fill:var(--bdr-muted)">datasheet FP8 1,979</text><polyline points="62.0,304.90791941971355 290.6851608675702,71.32999412833415 510.0,71.32999412833415" fill="none" stroke="var(--bdr-td)" stroke-width="2.2" stroke-dasharray=""></polyline><circle cx="290.6851608675702" cy="71.32999412833415" r="3.5" fill="var(--bdr-td)"></circle><text x="296.6851608675702" y="91.32999412833415" style="font-size:11.5px;fill:var(--bdr-td)">ridge 340</text><text x="518" y="81.32999412833415" style="font-size:11.5px;fill:var(--bdr-td)">empirical FP8 1,468</text><line x1="236.58107731975653" y1="126.59164528639964" x2="510" y2="126.59164528639964" stroke="var(--bdr-ar)" stroke-width="2"></line><text x="518" y="130.59164528639963" style="font-size:11.5px;fill:var(--bdr-ar)">attention 638</text><text x="68.18130765029495" y="69.91560843413012" style="font-size:11.5px;fill:var(--bdr-muted)">slope: bandwidth, 4.80 TB/s</text><text x="68.18130765029495" y="85.91560843413012" style="font-size:11.5px;fill:var(--bdr-muted)">datasheet, 4.32 empirical</text></svg></div>
-    <p class="fig-cap">Attainable throughput \(\min(\pi, I\beta)\) against arithmetic intensity, log–log, for FP8 linear layers. Dashed: datasheet (1,979 TFLOP/s, 4.8 TB/s). Solid orange: empirical ceilings of Table 11. Blue: the attention ceiling, which applies to attention kernels whatever their intensity. The ridge point, where a kernel turns compute-bound, moves from 412 to 340 FLOP/byte.</p>
+    <p class="fig-cap">Attainable throughput \(\min(\pi, I\beta)\) against arithmetic intensity, log–log, for FP8 linear layers. Dashed: datasheet (1,979 TFLOP/s, 4.8 TB/s). Solid orange: empirical ceilings of <a class="xref" href="#table-11">Table 11</a>. Blue: the attention ceiling, which applies to attention kernels whatever their intensity. The ridge point, where a kernel turns compute-bound, moves from 412 to 340 FLOP/byte.</p>
   </div>
   <details class="numbers"><summary>Table 11: the numbers behind Figure 23</summary>
   <div class="table-wrap nofold"><table class="pt">
-    <caption>Table 11. Datasheet and empirical ceilings of one H200 SXM. The empirical ceiling is the highest rate any measurement reached on random data; the ridge point for FP8 linear layers moves from 412 to 340 FLOP/byte.</caption>
+    <caption id="table-11">Table 11. Datasheet and empirical ceilings of one H200 SXM. The empirical ceiling is the highest rate any measurement reached on random data; the ridge point for FP8 linear layers moves from 412 to 340 FLOP/byte.</caption>
     <thead><tr>
 <th class="l">rate</th>
 <th class="l">datasheet</th>
@@ -395,7 +395,7 @@
     <p>Then \(U^{\mathrm{freq}}/U_{E,k}(N)\) measures the effect of uneven expert popularity, and \(U^{\mathrm{meas}}/U^{\mathrm{freq}}\) the effect of dependence between the tokens of a pass. Since the frequencies \(\rho_e\) are pooled over all sequences of a run, the second ratio also contains popularity that differs from one sequence to another.</p>
   </div>
   <div class="bdr-fig pfig" id="fig-eff-routing">
-    <div class="fig-k">Figure 24 · interactive</div>
+    <div class="fig-k" id="figure-24">Figure 24 · interactive</div>
     <p class="fig-title">Both decoders touch fewer experts than independent routing predicts, for different reasons.</p>
     <p class="fig-lede">Choose the decoder and the context; hover over or tap a batch to read the counts.</p>
     <div data-mfig="routing"></div>
@@ -411,7 +411,7 @@
 <b>Context barely moves TD's count up to 16k.</b> At batch 16, \(U^{\mathrm{meas}}\) is 104, 106 and 107 at 1k, 4k and 16k, and 84 at 64k, where the generated text degrades.</li>
   </ul>
   <div class="table-wrap nofold"><table class="pt">
-    <caption>Table 12. Effective number of independent tokens per pass, \(N^{\mathrm{eff}}\), the number of uniformly routed independent tokens that would touch the measured \(U\) (Definition 6). A TD pass holds \(256B\) positions, an AR step \(B\).</caption>
+    <caption id="table-12">Table 12. Effective number of independent tokens per pass, \(N^{\mathrm{eff}}\), the number of uniformly routed independent tokens that would touch the measured \(U\) (Definition 6). A TD pass holds \(256B\) positions, an AR step \(B\).</caption>
     <thead><tr>
 <th class="l"></th>
 <th class="l">TD, 1k</th>
@@ -481,15 +481,15 @@
     <p>and AR's linear intensity \(I_{\mathrm{lin}}(B) = 2BN_{\mathrm{act}}/(s_w\class{mj-ar}{W_{AR}}(B))\) changes with it, and so do the expert share \(\theta_E\), the parity batch and every threshold of Parts 3–5 that depends on \(\class{mj-ar}{W_{AR}}\). The FLOPs, the KV-cache bytes and the ceilings are unchanged.</p>
   </div>
   <div class="bdr-fig pfig" id="fig-prop1">
-    <div class="fig-k">Figure 25 · interactive</div>
+    <div class="fig-k" id="figure-25">Figure 25 · interactive</div>
     <p class="fig-title">Proposition 1 underestimates the measured gain at batch 1–2 and overestimates it from batch 4 on, at either routing.</p>
     <p class="fig-lede">Choose a context; hover over or tap a batch to read the penalties and gains.</p>
     <div data-mfig="prop1"></div>
-    <p class="fig-cap">Gain against batch with FP8 weights and the empirical ceilings: the values of Table 13 at context 1k. Dashed: Proposition 1 under A2, independent uniform routing. Black: Proposition 1 with the measured expert counts of both decoders. Orange: the measured gain, median of three repeats. At small batch the measured routing raises the bound, since a canvas touches fewer experts than A2 predicts, and at batch 1–2 the measurement is higher still (Part 11). From batch 8 on it lowers the bound, since AR's count falls further below A2's prediction than TD's, and Proposition 1 still overestimates the measured gain, because it leaves out the vocabulary head.</p>
+    <p class="fig-cap">Gain against batch with FP8 weights and the empirical ceilings: the values of <a class="xref" href="#table-13">Table 13</a> at context 1k. Dashed: Proposition 1 under A2, independent uniform routing. Black: Proposition 1 with the measured expert counts of both decoders. Orange: the measured gain, median of three repeats. At small batch the measured routing raises the bound, since a canvas touches fewer experts than A2 predicts, and at batch 1–2 the measurement is higher still (Part 11). From batch 8 on it lowers the bound, since AR's count falls further below A2's prediction than TD's, and Proposition 1 still overestimates the measured gain, because it leaves out the vocabulary head.</p>
   </div>
   <details class="numbers"><summary>Table 13: the numbers behind Figure 25</summary>
   <div class="table-wrap nofold"><table class="pt">
-    <caption>Table 13. Proposition 1 at independent and at measured routing, against the measured gain; DiffusionGemma against Gemma 4 26B-A4B on one H200, FP8 weights, empirical ceilings, context 1k. Proposition 1 leaves out the vocabulary head, activations and kernel efficiency.</caption>
+    <caption id="table-13">Table 13. Proposition 1 at independent and at measured routing, against the measured gain; DiffusionGemma against Gemma 4 26B-A4B on one H200, FP8 weights, empirical ceilings, context 1k. Proposition 1 leaves out the vocabulary head, activations and kernel efficiency.</caption>
     <thead><tr>
 <th class="l"></th>
 <th class="l">\(\Pi_{\mathrm{lin}}\), independent</th>
@@ -563,11 +563,11 @@
   <h3 id="eff-bound">The bound at measured inputs</h3>
   <p>The exact accounting includes the vocabulary head, activations and the KV cache. Evaluated pass by pass at each measured point, with the kernel-by-kernel rule, it gives the bound at the book's assumptions and at each measured input in turn.</p>
   <div class="bdr-fig pfig" id="fig-eff-maps">
-    <div class="fig-k">Figure 26 · interactive</div>
+    <div class="fig-k" id="figure-26">Figure 26 · interactive</div>
     <p class="fig-title">The gain bound moves with each measured input, and routing moves it most.</p>
     <p class="fig-lede">Choose a context; hover over or tap a batch to read the three bounds.</p>
     <div data-mfig="ladder" data-series="a,b,c"></div>
-    <p class="fig-cap">Roofline bound on \(\Gamma\) against batch, with FP8 weights, at the measured points; each curve changes one input of the previous one. (a) the book's exact accounting with datasheet rates and independent routing (A2); (b) the empirical ceilings of Table 11; (c) the expert counts measured in the same runs. Below the parity line AR is faster. Missing points were not measured: the grid keeps \(BC \le 2^{21}\) tokens, and TD's batches at \((32, 64\text{k})\) and \((64, 16\text{k})\) did not fit in memory.</p>
+    <p class="fig-cap">Roofline bound on \(\Gamma\) against batch, with FP8 weights, at the measured points; each curve changes one input of the previous one. (a) the book's exact accounting with datasheet rates and independent routing (A2); (b) the empirical ceilings of <a class="xref" href="#table-11">Table 11</a>; (c) the expert counts measured in the same runs. Below the parity line AR is faster. Missing points were not measured: the grid keeps \(BC \le 2^{21}\) tokens, and TD's batches at \((32, 64\text{k})\) and \((64, 16\text{k})\) did not fit in memory.</p>
   </div>
   <ul>
     <li>
