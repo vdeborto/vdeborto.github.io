@@ -57,15 +57,17 @@
   // opt: { W, H, y0, y1, ticks, yFmt, yTitle, ref: { y, label }, bands: [{ ys0, ys1, color }], hover(i) -> html, out }
   function lineChart(pic, series, opt) {
     const c = colors(), W = opt.W, H = opt.H || 300;
-    const labW = Math.min(196, Math.max(92, ...series.map((s) => 7.4 * s.label.length + 14)));
-    const m = { l: 46, r: labW + 8, t: 30, b: 42 };
+    // narrow screens: the series names go in a legend under the chart instead of the right margin
+    const narrow = W < 520;
+    const labW = narrow ? 0 : Math.min(196, Math.max(92, ...series.map((s) => 7.4 * s.label.length + 14)));
+    const m = { l: 40, r: narrow ? 12 : labW + 8, t: 30, b: 42 };
     const n = Bs.length, X = (i) => m.l + (i / (n - 1)) * (W - m.l - m.r);
     const Y = (v) => m.t + (1 - (v - opt.y0) / (opt.y1 - opt.y0)) * (H - m.t - m.b);
     let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${opt.aria || ''}">`;
     for (const t of opt.ticks) s += `<line x1="${m.l}" x2="${W - m.r}" y1="${Y(t)}" y2="${Y(t)}" stroke="${c.rule}"/><text x="${m.l - 7}" y="${Y(t) + 4}" text-anchor="end">${opt.yFmt(t)}</text>`;
     Bs.forEach((B, i) => { s += `<text x="${X(i)}" y="${H - m.b + 16}" text-anchor="middle">${B}</text>`; });
-    s += `<text x="${(m.l + W - m.r) / 2}" y="${H - 6}" text-anchor="middle" class="ink">batch B (measured sizes, equally spaced)</text>`;
-    s += `<text x="${m.l - 40}" y="14" class="ink">${opt.yTitle}</text>`;
+    s += `<text x="${(m.l + W - m.r) / 2}" y="${H - 6}" text-anchor="middle" class="ink">${narrow ? 'batch B' : 'batch B (measured sizes, equally spaced)'}</text>`;
+    s += `<text x="4" y="14" class="ink">${opt.yTitle}</text>`;
     for (const bd of opt.bands || []) {
       // fill between two series, split where they cross, coloured by which one is above
       for (let i = 0; i < n - 1; i++) {
@@ -94,7 +96,7 @@
       if (last && sr.label) ends.push({ x: last[0], y: last[1], sr });
     }
     const ly = spread(ends.map((e) => e.y + 4), 14, m.t + 6, H - m.b);
-    ends.forEach((e, k) => {
+    if (!narrow) ends.forEach((e, k) => {
       s += `<line x1="${e.x + 4}" x2="${W - m.r + 4}" y1="${e.y}" y2="${ly[k] - 4}" stroke="${e.sr.color}" stroke-opacity="0.5"/>`;
       s += `<text x="${W - m.r + 8}" y="${ly[k]}" style="fill:${e.sr.labelColor || e.sr.color};font-weight:${e.sr.bold ? 600 : 400}">${e.sr.label}</text>`;
     });
@@ -105,7 +107,12 @@
       s += `<rect data-i="${i}" x="${x0}" y="${m.t}" width="${x1 - x0}" height="${H - m.b - m.t}" fill="transparent"/>`;
     });
     s += `</g><line class="cross" pointer-events="none" x1="0" x2="0" y1="${m.t}" y2="${H - m.b}" stroke="${c.ink2}" stroke-width="1" visibility="hidden"/>`;
-    pic.innerHTML = `${s}</svg>`;
+    const leg = []; const seen = new Set();
+    for (const e of [...ends].reverse()) {
+      if (e.sr.group) { if (seen.has(e.sr.group)) continue; seen.add(e.sr.group); leg.push({ sr: { ...e.sr, label: e.sr.group } }); } else leg.push(e);
+    }
+    const legend = narrow ? `<div class="mlegend">${leg.map((e) => `<span><svg width="22" height="10" aria-hidden="true"><line x1="1" x2="21" y1="5" y2="5" stroke="${e.sr.color}" stroke-width="${Math.min(3, e.sr.width || 2)}" ${e.sr.dash ? `stroke-dasharray="${e.sr.dash}"` : ''}/></svg>${e.sr.label}</span>`).join('')}</div>` : '';
+    pic.innerHTML = `${s}</svg>${legend}`;
     const svg = pic.querySelector('svg'), cross = svg.querySelector('.cross');
     const show = (i) => {
       cross.setAttribute('x1', X(i)); cross.setAttribute('x2', X(i)); cross.setAttribute('visibility', 'visible');
@@ -199,7 +206,7 @@
     function draw() {
       const c = colors(), [src, m, name] = MODES[st.mode];
       const val = (B, comp) => { const r = (D[src][m] || {})[key(B, st.C)]; return r ? r[comp] ?? null : null; };
-      const series = COMPS.filter(([k]) => k !== st.focus).map(([k, n]) => ({ label: n, color: c.rule, labelColor: c.muted, width: 1.6, ys: Bs.map((B) => val(B, k)) }));
+      const series = COMPS.filter(([k]) => k !== st.focus).map(([k, n]) => ({ label: n, group: 'other components', color: c.rule, labelColor: c.muted, width: 1.6, ys: Bs.map((B) => val(B, k)) }));
       series.push({ label: 'whole step', color: c.ink2, width: 1.8, dash: '6 4', ys: Bs.map((B) => val(B, 'step')) });
       const fn = COMPS.find(([k]) => k === st.focus)[1];
       series.push({ label: fn, color: c.accent, width: 3, dots: true, bold: true, ys: Bs.map((B) => val(B, st.focus)) });
@@ -229,11 +236,12 @@
     function draw() {
       const c = colors(), W = widthOf(pic), sh = D.share.td[key(st.B, st.C)], rc = D.recoverable.td[key(st.B, st.C)];
       const rows = RCOMPS.map(([k, n]) => ({ k, n, s: sh[k] || 0, r: rc[k] || 0 })).sort((a, b) => b.r - a.r || b.s - a.s);
-      const lw = 196, m = { l: lw, r: 52, t: 22, b: 30 }, rh = 30, H = m.t + rows.length * rh + m.b;
+      const narrow = W < 520, lw = narrow ? 128 : 196, m = { l: lw, r: 44, t: 22, b: 30 }, rh = 30, H = m.t + rows.length * rh + m.b;
+      if (narrow) rows.forEach((x) => { x.n = x.n.replace('head, sampler, self-cond.', 'head, sampler…').replace('outside the model', 'outside model').replace('window attention', 'window attn.').replace('global attention', 'global attn.'); });
       const xmax = Math.max(0.2, Math.ceil(Math.max(...rows.map((x) => x.s)) * 10) / 10), X = (v) => m.l + (v / xmax) * (W - m.l - m.r);
       let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Share of TD's step by component, recoverable part highlighted">`;
-      for (let t = 0; t <= xmax + 1e-9; t += 0.1) s += `<line x1="${X(t)}" x2="${X(t)}" y1="${m.t - 4}" y2="${H - m.b}" stroke="${c.rule}"/><text x="${X(t)}" y="${H - m.b + 15}" text-anchor="middle">${pc(t)}</text>`;
-      s += `<text x="${m.l}" y="${m.t - 9}" class="ink">share of TD's step, B = ${st.B}, C = ${kc(st.C)}</text>`;
+      for (let t = 0; t <= xmax + 1e-9; t += narrow && xmax > 0.25 ? 0.2 : 0.1) s += `<line x1="${X(t)}" x2="${X(t)}" y1="${m.t - 4}" y2="${H - m.b}" stroke="${c.rule}"/><text x="${X(t)}" y="${H - m.b + 15}" text-anchor="middle">${pc(t)}</text>`;
+      s += `<text x="4" y="${m.t - 9}" class="ink">share of TD's step, B = ${st.B}, C = ${kc(st.C)}</text>`;
       rows.forEach((x, i) => {
         const y = m.t + i * rh + 5, h = rh - 10, keep = Math.max(0, x.s - x.r);
         s += `<text x="${m.l - 8}" y="${y + h / 2 + 4}" text-anchor="end" class="ink">${x.n}</text>`;

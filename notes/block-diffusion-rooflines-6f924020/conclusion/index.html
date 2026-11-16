@@ -23,13 +23,13 @@ sitemap: false
 <section class="bdr-col" id="conclusion">
   <p class="chapter-intro">This chapter sets the measured gain against the bound at measured inputs, shows that their ratio is the ratio of the two decoders' efficiencies, and states what the roofline model gets right, what it needs, and what remains open.</p>
   <h3 id="conc-bound">The bound against the measurement</h3>
-  <p>Part 8 gave the bound at measured ceilings and routing, map (c) of Figure 25; Parts 9 and 10 measured both decoders with every kernel attributed and the two worst kernels rewritten. The measured gain can now be set against the bound.</p>
+  <p>Part 8 gave the bound at measured ceilings and routing, map (c) of Figure 26; Parts 9 and 10 measured both decoders with every kernel attributed and the two worst kernels rewritten. The measured gain can now be set against the bound.</p>
   <div class="bdr-fig pfig" id="fig-conc-maps">
-    <div class="fig-k">Figure 40 · interactive</div>
+    <div class="fig-k">Figure 41 · interactive</div>
     <p class="fig-title">The measured gain against the bound at measured routing and empirical ceilings.</p>
     <p class="fig-lede">Choose a context; hover over or tap a batch to read both.</p>
     <div data-mfig="ladder" data-series="c,d"></div>
-    <p class="fig-cap">The bound (c) of Figure 25 and the measured gain (d), TD's tokens per second over AR's at equal \(B\) and \(C\), medians of three repeats. The measured gain lies above the bound up to batch 4 and below it from batch 16 on; Proposition 9 says why.</p>
+    <p class="fig-cap">The bound (c) of Figure 26 and the measured gain (d), TD's tokens per second over AR's at equal \(B\) and \(C\), medians of three repeats. The measured gain lies above the bound up to batch 4 and below it from batch 16 on; Proposition 9 says why.</p>
   </div>
   <div class="box prop" id="prop9">
     <div class="bdr-title"><span class="tag">Proposition 9</span>The measured gain is the bound times a ratio of efficiencies</div>
@@ -40,7 +40,7 @@ sitemap: false
     <details class="proof"><summary>Proof</summary><p>The tokens per step cancel: \(\Gamma_{\mathrm{meas}}/\Gamma_{\mathrm{roof}} = (\class{mj-td}{\tau_{TD}}/\class{mj-td}{t_{TD}})\,/\,(\class{mj-ar}{\tau_{AR}}/\class{mj-ar}{t_{AR}})\). \(\blacksquare\)</p></details>
   </div>
   <div class="bdr-fig pfig" id="fig-conc-dev">
-    <div class="fig-k">Figure 41 · interactive</div>
+    <div class="fig-k">Figure 42 · interactive</div>
     <p class="fig-title">The bound is conservative while TD runs closer to its roofline than AR, up to batch 8, and optimistic from batch 16 on.</p>
     <p class="fig-lede">Choose a context; hover over or tap a batch to read the two efficiencies and their ratio.</p>
     <div data-mfig="eff"></div>

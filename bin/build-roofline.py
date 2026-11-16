@@ -194,7 +194,7 @@ def color_math(body):
     return MATH.sub(seg, body)
 
 
-TAKEAWAY_FIGS = [("fig-reuse", "Figure 4"), ("fig-bestbatch", "Figure 9"), ("fig-context", "Figure 13"), ("fig-accel", "Figure 15")]
+TAKEAWAY_FIGS = [("fig-reuse", "Figure 4"), ("fig-bestbatch", "Figure 9"), ("fig-context", "Figure 13"), ("fig-accel", "Figure 16")]
 
 
 def link_takeaways(body):
@@ -360,10 +360,10 @@ def url_of(slug):
 # original caption as a subtitle.
 LEGACY_CLAIMS = {
     14: "A long canvas needs a smaller batch to saturate compute as the context grows; AR needs a larger one, and no batch at all beyond 135 tokens.",
-    18: "AR catches up only above batch 100 at short context; the gain peaks where a TD pass turns compute-bound and flattens to 1.7 at long context.",
-    19: "With a 32-token canvas AR is faster at small batch; TD overtakes it near batch 9 and peaks at about 1.8.",
-    20: "A dense model gives TD its largest gain at batch 1, about 13 times AR's; AR catches up near batch 15 at short context, and TD wins at every batch at long context.",
-    21: "On an H20, whose ridge point is low, the gain is about 2 at batch 1 and falls below 1 at long context.",
+    19: "AR catches up only above batch 100 at short context; the gain peaks where a TD pass turns compute-bound and flattens to 1.7 at long context.",
+    20: "With a 32-token canvas AR is faster at small batch; TD overtakes it near batch 9 and peaks at about 1.8.",
+    21: "A dense model gives TD its largest gain at batch 1, about 13 times AR's; AR catches up near batch 15 at short context, and TD wins at every batch at long context.",
+    22: "On an H20, whose ridge point is low, the gain is about 2 at batch 1 and falls below 1 at long context.",
 }
 
 
@@ -381,11 +381,11 @@ def card_legacy_figures(body):
     for mm in re.finditer(r'<div class="bdr-card">.*?</figure>', body, re.S):
         out.append(body[pos:mm.end()] + "\n  </div>"); pos = mm.end()
     body = "".join(out) + body[pos:]
-    tabs = '<div class="fig-k">Figure 18 · four maps, one shown at a time</div>'
+    tabs = '<div class="fig-k">Figure 19 · four maps, one shown at a time</div>'
     if tabs in body:
-        body = body.replace(tabs, f'{tabs}\n  <p class="fig-title tabs-title">{LEGACY_CLAIMS[18]}</p>', 1)
+        body = body.replace(tabs, f'{tabs}\n  <p class="fig-title tabs-title">{LEGACY_CLAIMS[19]}</p>', 1)
     else:
-        problems.append("Figure 18 kicker not found")
+        problems.append("Figure 19 kicker not found")
     if k != 4:
         problems.append(f"legacy figures carded: {k}, expected 4")
     return body
