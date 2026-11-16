@@ -145,12 +145,13 @@ html { scroll-behavior: smooth; }
 .bdr .card-more p { font-size: 15.5px; line-height: 1.6; color: var(--ink); }
 .bdr .card-more .eq { margin: 4px 0 12px; }
 .bdr .card-more .card-link { font: 12px var(--bdr-font-ui); letter-spacing: .02em; margin: 8px 0 0; }
-.bdr .fig-controls.micro { margin: 6px 0 2px; }
-.bdr .fig-controls.micro label { max-width: 320px; }
 
 /* ---------------------------------------------------------------- colour-coded math */
 .bdr mjx-container .mj-ar, .bdr .q-ar { color: var(--bdr-ar); }
 .bdr mjx-container .mj-td, .bdr .q-td { color: var(--bdr-td); }
+/* the symbol key and the margin note sit outside .bdr */
+.sym-key .mj-ar, .bdr-margin .mj-ar { color: var(--bdr-ar); }
+.sym-key .mj-td, .bdr-margin .mj-td { color: var(--bdr-td); }
 .bdr .math-key { font: 12.5px var(--bdr-font-ui); color: var(--bdr-ink-2); margin: -4px 0 14px; }
 .bdr .math-key .q-ar, .bdr .math-key .q-td { font-weight: 500; }
 
@@ -210,7 +211,6 @@ html { scroll-behavior: smooth; }
 .bdr .tk-fig, .bdr .takeaways li a[href*="#fig-"] { font: 500 12px var(--bdr-font-ui); letter-spacing: .02em; white-space: nowrap; }
 .bdr svg.spark { display: block; width: 100%; max-width: 340px; height: auto; overflow: visible; }
 .bdr svg.spark text { font: 500 12px var(--bdr-font-ui); fill: var(--ink); }
-.bdr .micro-pic { flex: 1 1 260px; min-width: 240px; }
 
 /* ---------------------------------------------------------------- intuition mode: folded tables, no outline */
 .bdr.intuition .table-wrap.foldable:not(.open) thead, .bdr.intuition .table-wrap.foldable:not(.open) tbody { display: none; }

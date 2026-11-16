@@ -147,7 +147,7 @@
   }
 
   // ---------------------------------------------------------------- symbol key
-  // [pattern on a formula's TeX, symbol as HTML, meaning, scope]: assets/roofline/symbols.js, which the
+  // [pattern on a formula's TeX, symbol in TeX, meaning, scope]: assets/roofline/symbols.js, which the
   // build makes from _roofline/symbols.txt, the file behind the Symbols page as well.
   // A scope keeps a letter that means two things to its chapters: T is Parts 1-7, P is Parts 8-11.
   const SYMBOLS = (window.BDR_SYMBOLS || []).map(([re, sym, what, scope]) => [new RegExp(re), sym, what, scope]);
@@ -155,7 +155,19 @@
   const PRACTICE = new Set(['effective', 'stack', 'kernelwork', 'conclusion']);
   const key = el('<div class="sym-key" role="dialog" aria-label="Symbols in this formula" hidden></div>');
   document.body.appendChild(key);
-  function closeKey() { key.hidden = true; }
+  let keyTurn = 0; // a key that is still being typeset is dropped when another click comes first
+  function closeKey() { key.hidden = true; keyTurn++; }
+  // The key and the margin show a symbol as the formulas do: MathJax typesets their TeX, one
+  // request at a time. show() replaces the content of a node and resolves once it is typeset.
+  let mjQueue = Promise.resolve();
+  function show(node, html) {
+    const MJ = window.MathJax;
+    try { MJ.typesetClear([node]); } catch (e) { /* nothing typeset there yet */ }
+    node.innerHTML = html;
+    if (!MJ || !MJ.typesetPromise) return Promise.resolve();
+    mjQueue = mjQueue.then(() => MJ.typesetPromise([node])).catch(() => {});
+    return mjQueue;
+  }
   function texOf(container) {
     try {
       for (const item of window.MathJax.startup.document.math) if (item.typesetRoot === container) return item.math;
@@ -171,7 +183,7 @@
     const plain = tex.replace(/\\hat\{?\\(pi|beta)\}?/g, 'HAT');
     return SYMBOLS.filter(([re, , , sc]) => (!sc || sc === scope) && re.test(re.source.includes('hat') ? tex : plain)).slice(0, max);
   }
-  const keyList = (hits) => `<dl>${hits.map(([, sym, what]) => `<dt>${sym}</dt><dd>${what}</dd>`).join('')}</dl>`;
+  const keyList = (hits) => `<dl>${hits.map(([, sym, what]) => `<dt>\\(${sym}\\)</dt><dd>${what}</dd>`).join('')}</dl>`;
   page.addEventListener('click', (ev) => {
     const mj = ev.target.closest('mjx-container');
     if (!mj) return;
@@ -179,13 +191,18 @@
     if (mj.closest('summary, button, a, .sym-sheet') || (card && !mj.closest('.card-more'))) return;
     const hits = symbolsOf(mj);
     if (!hits.length) return;
-    key.innerHTML = keyList(hits) + (sheet ? `<a class="sym-all" href="${sheet.url}">All symbols</a>` : '');
-    key.hidden = false;
-    const r = mj.getBoundingClientRect(), w = key.offsetWidth, vw = document.documentElement.clientWidth;
-    key.style.left = `${Math.max(8, Math.min(vw - w - 8, r.left + r.width / 2 - w / 2)) + scrollX}px`;
-    const below = r.bottom + 8 + key.offsetHeight < innerHeight || r.top < key.offsetHeight + 8;
-    key.style.top = `${(below ? r.bottom + 8 : r.top - key.offsetHeight - 8) + scrollY}px`;
     ev.stopPropagation();
+    const turn = ++keyTurn;
+    key.style.visibility = 'hidden'; // laid out, so that it can be measured, and shown once typeset
+    key.hidden = false;
+    show(key, keyList(hits) + (sheet ? `<a class="sym-all" href="${sheet.url}">All symbols</a>` : '')).then(() => {
+      if (turn !== keyTurn) return;
+      const r = mj.getBoundingClientRect(), w = key.offsetWidth, vw = document.documentElement.clientWidth;
+      key.style.left = `${Math.max(8, Math.min(vw - w - 8, r.left + r.width / 2 - w / 2)) + scrollX}px`;
+      const below = r.bottom + 8 + key.offsetHeight < innerHeight || r.top < key.offsetHeight + 8 + 64; // 64: the site's fixed header
+      key.style.top = `${(below ? r.bottom + 8 : r.top - key.offsetHeight - 8) + scrollY}px`;
+      key.style.visibility = '';
+    });
   });
   document.addEventListener('click', (ev) => { if (!key.hidden && !ev.target.closest('.sym-key, mjx-container')) closeKey(); });
 
@@ -268,7 +285,11 @@
     const mj = currentFormula();
     const hits = mj ? symbolsOf(mj, 10) : [];
     if (!hits.length) { symNote.hidden = true; symFor = null; return; }
-    if (mj !== symFor) { symNote.querySelector('.mb').innerHTML = keyList(hits); symFor = mj; }
+    if (mj !== symFor) { // typeset the new list, then place the note at its final height
+      symFor = mj;
+      symNote.style.visibility = 'hidden';
+      show(symNote.querySelector('.mb'), keyList(hits)).then(() => { if (symFor === mj) { symNote.style.visibility = ''; placeSym(); } });
+    }
     symNote.hidden = false;
     const r = mj.getBoundingClientRect();
     let want = docTop(r) + Math.max(0, (r.height - symNote.offsetHeight) / 2);

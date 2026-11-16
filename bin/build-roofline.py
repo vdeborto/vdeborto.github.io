@@ -275,11 +275,7 @@ def add_symbols(body):
     problems.extend(bad)
     if bad:
         return body
-    try:
-        outputs[ASSETS / "symbols.js"] = roofline_symbols.key_js(entries)
-    except ValueError as err:
-        problems.append(f"symbols.txt: {err}")
-        return body
+    outputs[ASSETS / "symbols.js"] = roofline_symbols.key_js(entries, color_math)
     sections = {m.group(1): m.group(0) for m in re.finditer(r'<section class="[^"]*" id="([\w-]+)">.*?\n</section>', body, re.S)}
     parts = {c[1]: sections.get(c[3], "") for c in CHAPTERS}
     tags = [(m.start(), m.group(1)) for m in re.finditer(r'<span class="tag">((?:Proposition|Definition|Corollary|Remark) \d+)</span>', body)]
@@ -348,7 +344,7 @@ def main():
     else:
         body = body[:j] + '  <div class="col">\n' + figs["accounting"] + '  </div>\n' + body[j:]
     body = link_takeaways(body)
-    body = sub_once(body, '  <h3 id="setup-notation">', figs["reuse"] + '  <h3 id="setup-notation">', "reuse anchor")
+    body = sub_once(body, '  <h3 id="setup-costs">', figs["reuse"] + '  <h3 id="setup-costs">', "reuse anchor")
     body = sub_once(body, '  <h3 id="gain-sides">', figs["roofline"] + '  <h3 id="gain-sides">', "roofline anchor")
     old_fig1 = re.search(r'  <figure class="mapfig">\n    <figcaption>Figure 1\. .*?</figure>\n', body, re.S)
     if old_fig1:

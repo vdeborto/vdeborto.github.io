@@ -3,7 +3,7 @@
 #   - the symbol key (a click on a formula lists the symbols it uses), for the entries with "match".
 # An entry is the symbol in TeX on its own line, then indented fields:
 #   what:   the meaning; math goes in \( \)
-#   in:     where the symbol is defined ("Part 3", "Definition 2", "Proposition 8"); the build links it
+#   in:     where the symbol is introduced ("Part 3", "Definition 2", "Proposition 8"); the build links it
 #           and checks that a formula there uses the symbol
 #   match:  JavaScript regular expression on a formula's TeX (the symbol key)
 #   rank:   order in the symbol key, which keeps the 14 lowest ranks of a formula
@@ -12,7 +12,7 @@
 #   page:   no = in the key only
 # A symbol that is not math is written "plain R1–R8". After a change: python3 -I bin/build-roofline.py
 
-intro: This page lists every symbol of the blogpost, with its meaning and the place where it is defined. The values in parentheses are those of DiffusionGemma 26B-A4B and of an H200. In the other chapters, a click on a formula lists the symbols that it uses.
+intro: This page lists every symbol of the blogpost, with its meaning and the place where it is introduced. The values in parentheses are those of DiffusionGemma 26B-A4B and of an H200. In the other chapters, a click on a formula lists the symbols that it uses.
 
 == Decoding
 
@@ -35,33 +35,33 @@ C
   rank: 480
 
 b
-  what: canvas length, in tokens
+  what: canvas length, in tokens (256)
   in: Part 1
   match: (^|[^\\A-Za-z_])b(?![A-Za-z])
   rank: 490
 
 S
-  what: denoising passes per canvas
+  what: denoising passes per canvas (14)
   in: Part 1
   match: (^|[^\\A-Za-z_])S(?![A-Za-z_])
   rank: 500
   scope: T
 
 r
-  what: cost of a denoising pass, as a fraction of a forward pass
+  what: cost of a denoising pass, as a fraction of a forward pass (1)
   in: Part 1
   match: (^|[^\\A-Za-z_])r(?![A-Za-z])
   rank: 510
   scope: T
 
 \omega = Sr + 1
-  what: forward passes that one canvas costs
+  what: forward passes that one canvas costs (15)
   in: Part 1
   match: \\omega
   rank: 20
 
 \mathrm{TPF} = b/\omega
-  what: tokens committed per forward pass
+  what: tokens committed per forward pass (17.07)
   in: Part 1
   match: \\mathrm\{TPF\}
   rank: 30
@@ -69,14 +69,14 @@ r
 == Accelerator and precision
 
 \pi
-  what: peak FLOPs per second of the accelerator
+  what: peak FLOPs per second of the accelerator, on matrix multiplications (989 TFLOP/s on an H200)
   in: Part 1
   match: \\pi(?![A-Za-z])
   rank: 450
   scope: T
 
 \beta
-  what: memory bandwidth of the accelerator, in bytes per second
+  what: memory bandwidth of the accelerator, in bytes per second (4.8 TB/s on an H200)
   in: Part 1
   match: \\beta(?![A-Za-z])
   rank: 460
@@ -89,7 +89,7 @@ I^\star = \pi/\beta
   rank: 40
 
 s_w
-  what: bytes per weight (2 in BF16)
+  what: bytes per weight (2 in BF16, 16-bit floats; 1 in FP8, 8-bit floats)
   in: Part 1
   match: s_w
   rank: 280
@@ -97,6 +97,8 @@ s_w
 s_{kv}
   what: bytes per element of the KV cache (2)
   in: Part 1
+  match: s_\{kv\}
+  rank: 514
 
 \kappa^c
   what: cached tensors per KV head on the global layers (2: keys and values stored separately)
@@ -114,24 +116,29 @@ L
 
 d
   what: hidden size (2816)
-  in: Part 1
+  in: Part 4
+  match: (^|[^\\A-Za-z_])d(?![A-Za-z_])
+  rank: 511
 
 V
   what: vocabulary size (262,144)
-  in: Part 1
+  in: Part 6
 
 \mathcal G,\ \mathcal W
   what: sets of the global-attention layers and of the sliding-window layers (5 and 25 layers)
   in: Part 1
+  match: \\mathcal ?\{?[GW]
+  rank: 516
+  scope: T
 
 w
-  what: window of a sliding-window layer, in tokens (1,023)
+  what: window of a sliding-window layer, which sees at most \(w\) earlier tokens (1,023)
   in: Part 1
   match: (^|[^\\A-Za-z_])w(?![A-Za-z])
   rank: 390
 
-n_q,\ n_{kv}
-  what: query heads and KV heads of a layer (16 and 2 on the global layers)
+n_q,\ n_{kv,\ell}
+  what: query heads and KV heads of a layer (16 query heads; 2 KV heads on the global layers, 8 on the window layers)
   in: Part 1
   match: n_q|n_\{kv
   rank: 670
@@ -139,10 +146,15 @@ n_q,\ n_{kv}
 h_\ell
   what: head dimension of layer \(\ell\) (512 on the global layers, 256 on the window layers)
   in: Part 1
+  match: h_\\ell
+  rank: 515
 
 g
-  what: query heads per KV head on the global layers, \(n_q/n_{kv}\) (8)
+  what: query heads per KV head on the global layers, \(n_q/n_{kv,\ell}\) (8)
   in: Part 1
+  match: (^|[^\\A-Za-z_])g(?![A-Za-z_])
+  rank: 513
+  scope: T
 
 E
   what: experts per MoE layer (128)
@@ -157,14 +169,14 @@ k
   rank: 360
 
 W^e
-  what: parameters of one expert in one layer (5.95M)
+  what: parameters of one expert in one layer, \(3d\,f_E\) (5.95M)
   in: Part 1
   match: W\^e
   rank: 340
 
 f_E
   what: width of one expert (704)
-  in: Part 1
+  in: Part 10
   match: f_E
   rank: 650
   scope: P
@@ -176,19 +188,19 @@ W_{\mathrm{ne}}
   rank: 330
 
 N_{\mathrm{act}}
-  what: parameters active per token (3.08B for DiffusionGemma, without the vocabulary)
+  what: parameters active per token, \(W_{\mathrm{ne}} + LkW^e\) (3.08B for DiffusionGemma, without the vocabulary)
   in: Part 1
   match: N_\{\\mathrm\{act\}\}
   rank: 170
 
 W_{\mathrm{tot}}
-  what: all parameters (24.5B, without the vocabulary)
-  in: Part 1
+  what: all parameters, \(W_{\mathrm{ne}} + LEW^e\) (24.5B, without the vocabulary)
+  in: Part 3
   match: W_\{\\mathrm\{tot\}\}
   rank: 180
 
 m
-  what: cached tokens each query selects in a sparse layer
+  what: cached tokens each query selects in a sparse layer (2048 in the sparse variant)
   in: Part 1
   match: (^|[^\\A-Za-z_])m(?![A-Za-z])
   rank: 380

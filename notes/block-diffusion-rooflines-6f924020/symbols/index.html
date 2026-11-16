@@ -22,58 +22,58 @@ sitemap: false
 <noscript><p>This page needs JavaScript for its equations, figures and calculator.</p></noscript>
 <p class="book-part">The symbols of <a href="/notes/block-diffusion-rooflines-6f924020/">Block Diffusion Rooflines</a><span class="book-links"><span class="bl-row">Previous: <a href="/notes/block-diffusion-rooflines-6f924020/appendix/" rel="prev">A · Appendix</a></span></span></p>
 <section class="bdr-col" id="symbols">
-  <p class="chapter-intro">This page lists every symbol of the blogpost, with its meaning and the place where it is defined. The values in parentheses are those of DiffusionGemma 26B-A4B and of an H200. In the other chapters, a click on a formula lists the symbols that it uses.</p>
+  <p class="chapter-intro">This page lists every symbol of the blogpost, with its meaning and the place where it is introduced. The values in parentheses are those of DiffusionGemma 26B-A4B and of an H200. In the other chapters, a click on a formula lists the symbols that it uses.</p>
   <h3 id="s-decoding">Decoding</h3>
   <div class="table-wrap"><table class="symbols-table sym-sheet">
-    <thead><tr><th class="l">Symbol</th><th class="l">Meaning</th><th class="l">Defined in</th></tr></thead>
+    <thead><tr><th class="l">Symbol</th><th class="l">Meaning</th><th class="l">Introduced</th></tr></thead>
     <tbody>
       <tr><td>\(\Gamma\)</td><td class="l">throughput gain: tokens per second of TD over those of AR</td><td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/gain/#prop1">Proposition 1</a></td></tr>
       <tr><td>\(B\)</td><td class="l">batch: sequences decoded together</td><td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/">Part 1</a></td></tr>
       <tr><td>\(C\)</td><td class="l">context: tokens already in the KV cache of each sequence</td><td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/">Part 1</a></td></tr>
-      <tr><td>\(b\)</td><td class="l">canvas length, in tokens</td><td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/">Part 1</a></td></tr>
-      <tr><td>\(S\)</td><td class="l">denoising passes per canvas</td><td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/">Part 1</a></td></tr>
-      <tr><td>\(r\)</td><td class="l">cost of a denoising pass, as a fraction of a forward pass</td><td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/">Part 1</a></td></tr>
-      <tr><td>\(\omega = Sr + 1\)</td><td class="l">forward passes that one canvas costs</td><td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/">Part 1</a></td></tr>
-      <tr><td>\(\mathrm{TPF} = b/\omega\)</td><td class="l">tokens committed per forward pass</td><td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/">Part 1</a></td></tr>
+      <tr><td>\(b\)</td><td class="l">canvas length, in tokens (256)</td><td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/">Part 1</a></td></tr>
+      <tr><td>\(S\)</td><td class="l">denoising passes per canvas (14)</td><td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/">Part 1</a></td></tr>
+      <tr><td>\(r\)</td><td class="l">cost of a denoising pass, as a fraction of a forward pass (1)</td><td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/">Part 1</a></td></tr>
+      <tr><td>\(\omega = Sr + 1\)</td><td class="l">forward passes that one canvas costs (15)</td><td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/">Part 1</a></td></tr>
+      <tr><td>\(\mathrm{TPF} = b/\omega\)</td><td class="l">tokens committed per forward pass (17.07)</td><td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/">Part 1</a></td></tr>
     </tbody>
   </table></div>
   <h3 id="s-accelerator-and-precision">Accelerator and precision</h3>
   <div class="table-wrap"><table class="symbols-table sym-sheet">
-    <thead><tr><th class="l">Symbol</th><th class="l">Meaning</th><th class="l">Defined in</th></tr></thead>
+    <thead><tr><th class="l">Symbol</th><th class="l">Meaning</th><th class="l">Introduced</th></tr></thead>
     <tbody>
-      <tr><td>\(\pi\)</td><td class="l">peak FLOPs per second of the accelerator</td><td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/">Part 1</a></td></tr>
-      <tr><td>\(\beta\)</td><td class="l">memory bandwidth of the accelerator, in bytes per second</td><td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/">Part 1</a></td></tr>
+      <tr><td>\(\pi\)</td><td class="l">peak FLOPs per second of the accelerator, on matrix multiplications (989 TFLOP/s on an H200)</td><td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/">Part 1</a></td></tr>
+      <tr><td>\(\beta\)</td><td class="l">memory bandwidth of the accelerator, in bytes per second (4.8 TB/s on an H200)</td><td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/">Part 1</a></td></tr>
       <tr><td>\(I^\star = \pi/\beta\)</td><td class="l">ridge point of the accelerator: a pass is compute-bound when its intensity reaches it (206 on an H200)</td><td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/#def3">Definition 3</a></td></tr>
-      <tr><td>\(s_w\)</td><td class="l">bytes per weight (2 in BF16)</td><td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/">Part 1</a></td></tr>
+      <tr><td>\(s_w\)</td><td class="l">bytes per weight (2 in BF16, 16-bit floats; 1 in FP8, 8-bit floats)</td><td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/">Part 1</a></td></tr>
       <tr><td>\(s_{kv}\)</td><td class="l">bytes per element of the KV cache (2)</td><td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/">Part 1</a></td></tr>
       <tr><td>\(\kappa^c\)</td><td class="l">cached tensors per KV head on the global layers (2: keys and values stored separately)</td><td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/">Part 1</a></td></tr>
     </tbody>
   </table></div>
   <h3 id="s-model">Model</h3>
   <div class="table-wrap"><table class="symbols-table sym-sheet">
-    <thead><tr><th class="l">Symbol</th><th class="l">Meaning</th><th class="l">Defined in</th></tr></thead>
+    <thead><tr><th class="l">Symbol</th><th class="l">Meaning</th><th class="l">Introduced</th></tr></thead>
     <tbody>
       <tr><td>\(L\)</td><td class="l">layers (30)</td><td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/">Part 1</a></td></tr>
-      <tr><td>\(d\)</td><td class="l">hidden size (2816)</td><td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/">Part 1</a></td></tr>
-      <tr><td>\(V\)</td><td class="l">vocabulary size (262,144)</td><td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/">Part 1</a></td></tr>
+      <tr><td>\(d\)</td><td class="l">hidden size (2816)</td><td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/attention/">Part 4</a></td></tr>
+      <tr><td>\(V\)</td><td class="l">vocabulary size (262,144)</td><td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/calculator/">Part 6</a></td></tr>
       <tr><td>\(\mathcal G,\ \mathcal W\)</td><td class="l">sets of the global-attention layers and of the sliding-window layers (5 and 25 layers)</td><td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/">Part 1</a></td></tr>
-      <tr><td>\(w\)</td><td class="l">window of a sliding-window layer, in tokens (1,023)</td><td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/">Part 1</a></td></tr>
-      <tr><td>\(n_q,\ n_{kv}\)</td><td class="l">query heads and KV heads of a layer (16 and 2 on the global layers)</td><td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/">Part 1</a></td></tr>
+      <tr><td>\(w\)</td><td class="l">window of a sliding-window layer, which sees at most \(w\) earlier tokens (1,023)</td><td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/">Part 1</a></td></tr>
+      <tr><td>\(n_q,\ n_{kv,\ell}\)</td><td class="l">query heads and KV heads of a layer (16 query heads; 2 KV heads on the global layers, 8 on the window layers)</td><td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/">Part 1</a></td></tr>
       <tr><td>\(h_\ell\)</td><td class="l">head dimension of layer \(\ell\) (512 on the global layers, 256 on the window layers)</td><td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/">Part 1</a></td></tr>
-      <tr><td>\(g\)</td><td class="l">query heads per KV head on the global layers, \(n_q/n_{kv}\) (8)</td><td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/">Part 1</a></td></tr>
+      <tr><td>\(g\)</td><td class="l">query heads per KV head on the global layers, \(n_q/n_{kv,\ell}\) (8)</td><td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/">Part 1</a></td></tr>
       <tr><td>\(E\)</td><td class="l">experts per MoE layer (128)</td><td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/">Part 1</a></td></tr>
       <tr><td>\(k\)</td><td class="l">experts each token selects (8)</td><td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/">Part 1</a></td></tr>
-      <tr><td>\(W^e\)</td><td class="l">parameters of one expert in one layer (5.95M)</td><td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/">Part 1</a></td></tr>
-      <tr><td>\(f_E\)</td><td class="l">width of one expert (704)</td><td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/">Part 1</a></td></tr>
+      <tr><td>\(W^e\)</td><td class="l">parameters of one expert in one layer, \(3d\,f_E\) (5.95M)</td><td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/">Part 1</a></td></tr>
+      <tr><td>\(f_E\)</td><td class="l">width of one expert (704)</td><td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/kernels/">Part 10</a></td></tr>
       <tr><td>\(W_{\mathrm{ne}}\)</td><td class="l">non-expert parameters of all layers (1.66B for DiffusionGemma)</td><td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/">Part 1</a></td></tr>
-      <tr><td>\(N_{\mathrm{act}}\)</td><td class="l">parameters active per token (3.08B for DiffusionGemma, without the vocabulary)</td><td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/">Part 1</a></td></tr>
-      <tr><td>\(W_{\mathrm{tot}}\)</td><td class="l">all parameters (24.5B, without the vocabulary)</td><td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/">Part 1</a></td></tr>
-      <tr><td>\(m\)</td><td class="l">cached tokens each query selects in a sparse layer</td><td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/">Part 1</a></td></tr>
+      <tr><td>\(N_{\mathrm{act}}\)</td><td class="l">parameters active per token, \(W_{\mathrm{ne}} + LkW^e\) (3.08B for DiffusionGemma, without the vocabulary)</td><td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/">Part 1</a></td></tr>
+      <tr><td>\(W_{\mathrm{tot}}\)</td><td class="l">all parameters, \(W_{\mathrm{ne}} + LEW^e\) (24.5B, without the vocabulary)</td><td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/linear/">Part 3</a></td></tr>
+      <tr><td>\(m\)</td><td class="l">cached tokens each query selects in a sparse layer (2048 in the sparse variant)</td><td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/">Part 1</a></td></tr>
     </tbody>
   </table></div>
   <h3 id="s-costs-and-intensities">Costs and intensities</h3>
   <div class="table-wrap"><table class="symbols-table sym-sheet">
-    <thead><tr><th class="l">Symbol</th><th class="l">Meaning</th><th class="l">Defined in</th></tr></thead>
+    <thead><tr><th class="l">Symbol</th><th class="l">Meaning</th><th class="l">Introduced</th></tr></thead>
     <tbody>
       <tr><td>\(F,\ Q\)</td><td class="l">FLOPs and bytes of one pass, per sequence</td><td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/#def2">Definition 2</a></td></tr>
       <tr><td>\(\nu\)</td><td class="l">KV-cache bytes per cached token (G: global, W: windowed, S: sparse layers, I: indexer)</td><td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/#def1">Definition 1</a></td></tr>
@@ -98,7 +98,7 @@ sitemap: false
   </table></div>
   <h3 id="s-penalties">Penalties</h3>
   <div class="table-wrap"><table class="symbols-table sym-sheet">
-    <thead><tr><th class="l">Symbol</th><th class="l">Meaning</th><th class="l">Defined in</th></tr></thead>
+    <thead><tr><th class="l">Symbol</th><th class="l">Meaning</th><th class="l">Introduced</th></tr></thead>
     <tbody>
       <tr><td>\(\Pi\)</td><td class="l">overall penalty: bytes per sequence of a TD pass over those of an AR step</td><td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/#def4">Definition 4</a></td></tr>
       <tr><td>\(\Pi_{\mathrm{lin}}\)</td><td class="l">linear penalty: weight bytes a TD pass reads over those an AR step reads (7.9 at batch 1, 1 at large batch)</td><td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/#def4">Definition 4</a></td></tr>
@@ -110,7 +110,7 @@ sitemap: false
   </table></div>
   <h3 id="s-thresholds-and-regimes">Thresholds and regimes</h3>
   <div class="table-wrap"><table class="symbols-table sym-sheet">
-    <thead><tr><th class="l">Symbol</th><th class="l">Meaning</th><th class="l">Defined in</th></tr></thead>
+    <thead><tr><th class="l">Symbol</th><th class="l">Meaning</th><th class="l">Introduced</th></tr></thead>
     <tbody>
       <tr><td>\(\class{mj-td}{B^\star_{TD}}\)</td><td class="l">smallest batch at which a TD pass is compute-bound</td><td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/linear/">Part 3</a></td></tr>
       <tr><td>\(\class{mj-ar}{B^\star_{AR}}\)</td><td class="l">smallest batch at which an AR step is compute-bound</td><td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/linear/">Part 3</a></td></tr>
@@ -122,7 +122,7 @@ sitemap: false
   </table></div>
   <h3 id="s-measurements">Measurements</h3>
   <div class="table-wrap"><table class="symbols-table sym-sheet">
-    <thead><tr><th class="l">Symbol</th><th class="l">Meaning</th><th class="l">Defined in</th></tr></thead>
+    <thead><tr><th class="l">Symbol</th><th class="l">Meaning</th><th class="l">Introduced</th></tr></thead>
     <tbody>
       <tr><td>\(\hat\pi\)</td><td class="l">empirical compute ceiling: the highest FLOP rate measured on this H200 (FP8 1,468, BF16 781, attention 638 TFLOP/s)</td><td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/effective/#def5">Definition 5</a></td></tr>
       <tr><td>\(\hat\beta\)</td><td class="l">empirical bandwidth: 4.32 TB/s measured on this H200</td><td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/effective/#def5">Definition 5</a></td></tr>

@@ -956,68 +956,7 @@
   }
 
   // ---------------------------------------------------------------- expandable TL;DR cards
-  // Each card with a .card-more panel opens in place, across the full row. Its slider, built on first
-  // opening, moves a dot along a small curve of the quantity and updates a one-sentence readout.
-  const CTX4 = [...CONTEXTS, 2 << 20, 4 << 20];
-  const H200 = hwOf('h200');
-  const bestOverBatch = (b) => { let tdc = null, best = { g: 0, B: 1 }; for (let B = 1; B <= 256; B++) { const r = steady(DG, H200, B, 1024, O0, { b }); if (tdc === null && r.tdCompute) tdc = B; if (r.gain > best.g) best = { g: r.gain, B }; } return { tdc, best }; };
-  const memo = (f) => { const c = new Map(); return (v) => { if (!c.has(v)) c.set(v, f(v)); return c.get(v); }; };
-  const MICRO = {
-    omega: () => {
-      const f = memo((S) => [1, 8].map((B) => prop1(DG, H200, B, 1024, { S }).gain));
-      return { label: 'denoising passes <i>S</i>', values: Array.from({ length: 32 }, (_, i) => i + 1), i: 13, show: String, ylab: 'Γ at batch 1', y: (S) => f(S)[0],
-        read: (S) => `ω = ${S + 1}; Proposition 1 on an H200: Γ = <b>${g2(f(S)[0])}</b> at batch 1, <b>${g2(f(S)[1])}</b> at batch 8.` };
-    },
-    canvas: () => {
-      const f = memo(bestOverBatch);
-      return { label: 'canvas length <i>b</i>', values: [32, 64, 128, 256, 512, 1024], i: 3, show: String, ylab: 'best Γ', y: (b) => f(b).best.g,
-        read: (b) => `TPF = ${b}/15 = <b>${fmt(b / 15)}</b>; a TD pass is compute-bound from batch <b>${f(b).tdc ?? '> 256'}</b>; best Γ = <b>${g2(f(b).best.g)}</b> at batch ${f(b).best.B} (exact, H200, context 1k).` };
-    },
-    lin: () => {
-      const f = memo((B) => prop1(DG, H200, B, 1024).Pi);
-      return { label: 'batch <i>B</i>', values: BATCHES, i: 0, show: String, ylab: sub('Π', 'lin'), y: f,
-        read: (B) => `An AR step touches ${fmt(M.distinctExperts(DG, B))} of 128 experts per layer, a canvas ${fmt(M.distinctExperts(DG, B * W0.b))}: ${hsub('Π', 'lin')} = <b>${fmt(f(B))}</b>.` };
-    },
-    attn: () => {
-      const c = prop1(M.MODELS.dgemma_sparse.build(), H200, 1, 1024).c, f = (C) => c.qkvTD(C) / c.qkv(C);
-      return { label: 'context <i>C</i>', values: CTX4, i: 7, show: kctx, ylab: sub('Π', 'attn'), y: f,
-        read: (C) => `With sparse global layers (<i>m</i> = 2048), a canvas reads the union of ${comma(c.unionRead(C, W0.b))} cached tokens per sparse layer where one query reads ${comma(Math.min(C, c.msel))}; over all attention layers ${hsub('Π', 'attn')} = <b>${fmt(f(C))}</b>.` };
-    },
-    batch: () => {
-      const f = memo((B) => steady(DG, H200, B, 1024));
-      return { label: 'batch <i>B</i>', values: BATCHES, i: 0, show: String, ylab: 'Γ', y: (B) => f(B).gain, ref: 1,
-        read: (B) => { const r = f(B); return `An <span class="q-ar">AR step uses <b>${pct(util(r.ar))}</b></span> of the peak compute and a <span class="q-td">TD pass <b>${pct(util(r.d1))}</b></span>: TD is ${r.tdCompute ? 'compute' : 'memory'}-bound, Γ = <b>${g2(r.gain)}</b> (exact, H200, context 1k).${fits(DG, H200, B, 1024) ? '' : ' This batch does not fit in 141 GB.'}`; } };
-    },
-    context: () => {
-      // cache share of the bytes of an AR step under Proposition 1: θ_attn of Proposition 2
-      const f = memo((C) => { const p = prop1(DG, H200, 4, C), q = p.c.qkv(C); return { p, share: q / (p.c.WAR(4) / 4 + q), exact: steady(DG, H200, 4, C).gain }; });
-      return { label: 'context <i>C</i>', values: CONTEXTS, i: 0, show: kctx, ylab: 'cache share', y: (C) => f(C).share, log: false, fmtY: pct,
-        read: (C) => { const { p, share, exact } = f(C); return `Proposition 1 at batch 4 (<i>I</i>* = 206): the cache is <b>${pct(share)}</b> of the bytes of an AR step, ${hsub('I', 'AR')} = <b>${fmt(p.IAR)}</b>, ${hsub('I', 'TD')} = <b>${fmt(p.ITD)}</b>, Γ = <b>${g2(p.gain)}</b>. Exact accounting: Γ = <b>${g2(exact)}</b>.`; } };
-    },
-  };
-  // A small curve of spec.y over the slider's values, with a dot at the current one.
-  function spark(spec, ys, i) {
-    const W = 340, H = 70, m = { l: 6, r: 124, t: 10, b: 10 }, log = spec.log !== false;
-    const lo = Math.min(...ys, spec.ref ?? Infinity), hi = Math.max(...ys, spec.ref ?? -Infinity), pad = hi / lo < 1.001 || hi - lo < 1e-9;
-    const y = scale(pad ? lo * 0.9 || -0.1 : lo, pad ? hi * 1.1 || 0.1 : hi, H - m.b, m.t, log && lo > 0);
-    const x = (k) => m.l + (k / (ys.length - 1)) * (W - m.l - m.r);
-    let s = `<svg class="spark" viewBox="0 0 ${W} ${H}" role="img" aria-label="Curve of the quantity against the slider's variable">`;
-    if (spec.ref !== undefined) s += `<line x1="${m.l}" x2="${W - m.r}" y1="${y(spec.ref)}" y2="${y(spec.ref)}" style="stroke:var(--bdr-muted)" stroke-dasharray="3 3"/>`;
-    s += `<polyline fill="none" style="stroke:var(--ink)" stroke-width="1.8" stroke-linejoin="round" points="${ys.map((v, k) => `${x(k)},${y(v)}`).join(' ')}"/>`;
-    s += `<line x1="${x(i)}" x2="${x(i)}" y1="${m.t - 4}" y2="${H - m.b + 4}" style="stroke:var(--bdr-hi)" stroke-opacity="0.5"/>`;
-    s += `<circle cx="${x(i)}" cy="${y(ys[i])}" r="4.5" style="fill:var(--bdr-hi);stroke:var(--bdr-surface)" stroke-width="1.5"/>`;
-    s += `<text x="${W - m.r + 8}" y="${Math.max(m.t + 8, Math.min(H - m.b, y(ys[i]) + 4))}" class="strong">${spec.ylab} = ${(spec.fmtY || fmt)(ys[i])}</text>`;
-    return `${s}</svg>`;
-  }
-  function initMicro(box) {
-    const spec = MICRO[box.dataset.micro](), out = el('<div class="readout" aria-live="polite"></div>'), pic = el('<div class="micro-pic"></div>');
-    const sl = slider(spec.label, spec.values, spec.i, spec.show);
-    const ys = spec.values.map(spec.y);
-    const sync = () => { pic.innerHTML = spark(spec, ys, sl.index); out.innerHTML = spec.read(sl.value); };
-    sl.input.addEventListener('input', sync);
-    const row = el('<div class="fig-controls micro"></div>'); row.append(sl.lab, pic);
-    box.append(row, out); sync();
-  }
+  // Each card with a .card-more panel opens in place, across the full row.
   function initCards() {
     document.querySelectorAll('.bdr .cards').forEach((grid) => {
       const cards = [...grid.querySelectorAll('.bdr-card')].filter((c) => c.querySelector('.card-more'));
@@ -1029,7 +968,6 @@
         const t = card.querySelector('.card-toggle');
         t.textContent = on ? 'less −' : 'more +';
         t.setAttribute('aria-label', `${on ? 'less' : 'more'} on ${t.dataset.subject}`);
-        if (on) card.querySelectorAll('[data-micro]:empty').forEach(initMicro);
       };
       for (const card of cards) {
         card.classList.add('has-more');
