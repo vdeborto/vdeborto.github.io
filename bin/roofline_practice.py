@@ -64,7 +64,7 @@ def arrow_defs(i, color="currentColor"):
 
 def fig(fid, kicker, title, lede, inner, cap, wide=False):
     return (f'  <div class="bdr-fig pfig{" breakout" if wide else ""}" id="{fid}">\n'
-            f'    <div class="fig-k">{kicker}</div>\n    <p class="fig-title">{title}</p>\n'
+            f'    <div class="fig-k">{kicker}</div>\n' + (f'    <p class="fig-title">{title}</p>\n' if title else "")
             + (f'    <p class="fig-lede">{lede}</p>\n' if lede else "")
             + f'    {inner}\n    <p class="fig-cap">{cap}</p>\n  </div>\n')
 
@@ -1002,7 +1002,7 @@ def blocks():
         "decoders": fig("fig-decoders", "Figure 1", "AR and TD: two different paradigms.",
                         "", fig_decoders(),
                         "A canvas of \\(b = 256\\) positions, \\(S = 14\\) denoising passes and one commit pass, so \\(15\\) passes per canvas and \\(\\mathrm{TPF} = b/\\omega = 17.1\\) tokens per forward pass. "),
-        "encdec": fig("fig-encdec", "Figure 2", "Encoder-decoder architecture of Diffusion Gemma.", "", fig_encdec(),
+        "encdec": fig("fig-encdec", "Figure 2", "Encoder-decoder architecture of DiffusionGemma.", "", fig_encdec(),
                       "An illustration of the inference in Diffusion Gemma. We briefly highlight the dependency of each step in the self-conditioning signal \\(s_t\\). We will discuss in "),
         "map": fig("fig-map", "Figure 3 · interactive", "", "", fig_map(),
                    ""),
