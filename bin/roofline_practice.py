@@ -386,23 +386,23 @@ def mask(x, y, cell, causal):
 def fig_encdec():
     """DiffusionGemma's two modes of the same weights (technical report, Section 3): the causal encoder
     writes the KV cache, the bidirectional decoder refines the canvas against it and writes nothing."""
-    W, H, cell = 764, 340, 12
+    W, H, cell = 650, 336, 12
     s = [arrow_defs(40), arrow_defs(41, TD)]
-    ex, dx, bw, by, bh = 16, 494, 216, 92, 160
+    ex, dx, bw, by, bh = 8, 408, 176, 92, 160
     # the two passes: same weights, two masks
-    for x, name, mode, causal, note in ((ex, "Encoder", "causal mask", True, "writes the keys and values"),
-                                        (dx, "Decoder", "bidirectional on the canvas", False, "writes nothing to the cache")):
+    for x, name, mode, causal, note in ((ex, "Encoder", "causal mask", True, "writes keys, values"),
+                                        (dx, "Decoder", "bidirectional mask", False, "writes nothing")):
         s.append(f'<rect x="{x}" y="{by}" width="{bw}" height="{bh}" rx="8" fill="var(--bdr-surface)" stroke="{INK}" stroke-width="1.3"/>')
-        s.append(f'<text x="{x + 14}" y="{by + 22}" font-size="13" font-weight="600" fill="{INK}">{name}</text>')
-        s.append(f'<text x="{x + 14}" y="{by + 38}" font-size="12" fill="{MUT}">{mode}</text>')
+        s.append(f'<text x="{x + 12}" y="{by + 22}" font-size="13" font-weight="600" fill="{INK}">{name}</text>')
+        s.append(f'<text x="{x + 12}" y="{by + 38}" font-size="12" fill="{MUT}">{mode}</text>')
         s.append(mask(x + (bw - 10 * cell - 6) / 2, by + 50, cell, causal))
         s.append(f'<text x="{x + bw / 2}" y="{by + bh - 14}" text-anchor="middle" font-size="12" fill="{INK2}">{note}</text>')
     # the KV cache between them
-    kx, ky, kw = 296, 150, 134
+    kx, ky, kw = 236, 150, 120
     s.append(f'<text x="{kx + kw / 2}" y="{ky - 12}" text-anchor="middle" font-size="13" font-weight="600" fill="{INK}">KV cache</text>')
     for i in range(8):
         appended = i >= 6
-        s.append(f'<rect x="{kx + 2 + i * 16}" y="{ky}" width="13" height="22" rx="2" fill="{TD if appended else MUT}" fill-opacity="{0.85 if appended else 0.45}"/>')
+        s.append(f'<rect x="{kx + 1 + i * 15}" y="{ky}" width="12" height="22" rx="2" fill="{TD if appended else MUT}" fill-opacity="{0.85 if appended else 0.45}"/>')
     s.append(f'<text x="{kx + kw / 2}" y="{ky + 40}" text-anchor="middle" font-size="12" fill="{MUT}">prompt and</text>')
     s.append(f'<text x="{kx + kw / 2}" y="{ky + 55}" text-anchor="middle" font-size="12" fill="{MUT}">committed canvases</text>')
     s.append(f'<line x1="{ex + bw}" y1="{ky + 11}" x2="{kx - 4}" y2="{ky + 11}" stroke="{INK}" stroke-width="1.3" marker-end="url(#pa40)"/>')
@@ -413,26 +413,26 @@ def fig_encdec():
     cy, cx0 = 294, dx + 14
     for i in range(8):
         s.append(f'<rect x="{cx0 + i * 17}" y="{cy}" width="14" height="20" rx="2" fill="{TD}" fill-opacity="0.16" stroke="{TD}" stroke-width="1.1"/>')
-    s.append(f'<rect x="{cx0 + 148}" y="{cy}" width="34" height="20" rx="3" fill="none" stroke="{INK2}" stroke-width="1.1" stroke-dasharray="3 2"/>')
-    s.append(f'<text x="{cx0 + 165}" y="{cy + 14.5}" text-anchor="middle" font-size="12" fill="{INK2}">{sub("s", "t")}</text>')
-    s.append(f'<text x="{cx0}" y="{cy + 38}" font-size="12" fill="{INK}">noisy canvas {sub("x", "t")}, b = 256 positions</text>')
+    s.append(f'<rect x="{cx0 + 146}" y="{cy}" width="32" height="20" rx="3" fill="none" stroke="{INK2}" stroke-width="1.1" stroke-dasharray="3 2"/>')
+    s.append(f'<text x="{cx0 + 162}" y="{cy + 14.5}" text-anchor="middle" font-size="12" fill="{INK2}">{sub("s", "t")}</text>')
+    s.append(f'<text x="{cx0}" y="{cy + 38}" font-size="12" fill="{INK}">noisy canvas {sub("x", "t")}, b positions</text>')
     s.append(f'<line x1="{dx + bw / 2}" y1="{cy - 2}" x2="{dx + bw / 2}" y2="{by + bh + 4}" stroke="{TD}" stroke-width="1.3" marker-end="url(#pa41)"/>')
     # decoder output and the loop of S denoising passes
     oy = 64
     s.append(f'<line x1="{dx + bw / 2}" y1="{by - 2}" x2="{dx + bw / 2}" y2="{oy + 8}" stroke="{TD}" stroke-width="1.3" marker-end="url(#pa41)"/>')
     s.append(f'<text x="{dx + bw / 2}" y="{oy}" text-anchor="middle" font-size="12" fill="{INK}">next canvas {sub("x", "t−Δt")}, {sub("s", "t−Δt")}</text>')
-    lx = dx + bw + 22
-    s.append(f'<path d="M{dx + bw / 2 + 74},{oy - 4} H{lx} V{cy + 10} H{cx0 + 186}" fill="none" stroke="{TD}" stroke-width="1.3" marker-end="url(#pa41)"/>')
+    lx = 626
+    s.append(f'<path d="M{dx + bw / 2 + 88},{oy - 4} H{lx} V{cy + 10} H{cx0 + 182}" fill="none" stroke="{TD}" stroke-width="1.3" marker-end="url(#pa41)"/>')
     s.append(f'<text x="{lx + 8}" y="{(oy + cy) / 2}" font-size="12" fill="{TD}" transform="rotate(90 {lx + 8} {(oy + cy) / 2})" text-anchor="middle">S denoising passes</text>')
     # the commit pass: the finished canvas goes back through the encoder
-    ty = 30
-    s.append(f'<path d="M{dx + bw / 2 - 74},{oy - 4} V{ty} H{ex + bw / 2} V{by - 4}" fill="none" stroke="{TD}" stroke-width="1.3" marker-end="url(#pa41)"/>')
-    s.append(f'<text x="{(ex + bw / 2 + dx + bw / 2 - 74) / 2}" y="{ty - 8}" text-anchor="middle" font-size="12" fill="{INK}">after the last pass, the clean canvas {sup("x", "0")}: one commit pass</text>')
+    ty, cs = 30, dx + bw / 2 - 88
+    s.append(f'<path d="M{cs},{oy - 4} V{ty} H{ex + bw / 2} V{by - 4}" fill="none" stroke="{TD}" stroke-width="1.3" marker-end="url(#pa41)"/>')
+    s.append(f'<text x="{(ex + bw / 2 + cs) / 2}" y="{ty - 8}" text-anchor="middle" font-size="12" fill="{INK}">after the last pass, the clean canvas {sup("x", "0")}: one commit pass</text>')
     # encoder input: the prompt, once
     py = 294
     for i in range(6):
-        s.append(f'<rect x="{ex + 50 + i * 17}" y="{py}" width="14" height="20" rx="2" fill="{MUT}" fill-opacity="0.45"/>')
-    s.append(f'<text x="{ex + 50}" y="{py + 38}" font-size="12" fill="{INK}">prompt, once (prefill)</text>')
+        s.append(f'<rect x="{ex + 40 + i * 17}" y="{py}" width="14" height="20" rx="2" fill="{MUT}" fill-opacity="0.45"/>')
+    s.append(f'<text x="{ex + 40}" y="{py + 38}" font-size="12" fill="{INK}">prompt, once (prefill)</text>')
     s.append(f'<line x1="{ex + bw / 2}" y1="{py - 2}" x2="{ex + bw / 2}" y2="{by + bh + 4}" stroke="{INK}" stroke-width="1.3" marker-end="url(#pa40)"/>')
     return svg(W, H, "DiffusionGemma runs the same weights as a causal encoder, which writes the KV cache, and as a bidirectional decoder, which refines the canvas and only reads the cache", "".join(s))
 
@@ -998,11 +998,11 @@ def blocks():
     sc4 = gain_scale(d, ["roof_ind_ds", "roof_ind", "roof", "measured"])
     m4 = lambda specs: '<div class="pfig-grid">' + "".join(f"<div>{heat(d, k, t, sc4)}</div>" for k, t in specs) + "</div>"
     out = {
-        "decoders": fig("fig-decoders", "Figure 1", "In the same number of passes, AR commits one token per pass and TD a whole canvas.",
+        "decoders": fig("fig-decoders", "Figure 1", "AR and TD: two different paradigms.",
                         "", fig_decoders(),
                         "One sequence, DiffusionGemma's setting: a canvas of \\(b = 256\\) positions, \\(S = 14\\) denoising passes and one commit pass, so \\(\\omega = 15\\) passes per canvas and \\(\\mathrm{TPF} = b/\\omega = 17.1\\) tokens per forward pass. Each TD pass processes 256 positions instead of one, so it does more FLOPs and its positions touch more experts; Parts 1–5 weigh these costs against the shared read of the weights."),
         "encdec": fig("fig-encdec", "Figure 2", "One set of weights, two masks: the encoder writes the KV cache, the decoder only reads it.", "", fig_encdec(),
-                      "DiffusionGemma, after Section 3 of its technical report. Both boxes are the same transformer, Gemma 4 26B-A4B's weights, run with two attention masks; each grid shows a mask, with one row per canvas position and one column per key, the cache's keys first, and a filled cell where the position attends. The encoder is causal: it writes the keys and values of the prompt once, then those of each finished canvas, in the commit pass. The decoder starts from a canvas of uniformly random tokens and refines all its positions together, attending to the whole canvas and to the cache; a self-conditioning signal \\(s_t\\) feeds its previous prediction back in, and it writes nothing to the cache. A canvas therefore costs \\(S\\) decoder passes and one encoder pass, \\(\\omega = S + 1\\) forward passes over the same weights.", wide=True),
+                      "DiffusionGemma, after Section 3 of its technical report. Both boxes are the same transformer, Gemma 4 26B-A4B's weights, run with two attention masks; each grid shows a mask, with one row per canvas position and one column per key, the cache's keys first, and a filled cell where the position attends. The encoder is causal: it writes the keys and values of the prompt once, then those of each finished canvas, in the commit pass. The decoder starts from a canvas of uniformly random tokens and refines all its positions together, attending to the whole canvas and to the cache; a self-conditioning signal \\(s_t\\) feeds its previous prediction back in, and it writes nothing to the cache. A canvas therefore costs \\(S\\) decoder passes and one encoder pass, \\(\\omega = S + 1\\) forward passes over the same weights."),
         "map": fig("fig-map", "Figure 3 · interactive", "The book in two halves: bounds on paper, then measurements on one H200.", "", fig_map(),
                    "Parts 1–7 derive the gain \\(\\Gamma\\) as a ratio of roofline bounds and map it over batch and context. Parts 8–11 take the inputs of those bounds from measurements, time every kernel of both decoders in vLLM, rewrite the two kernels that lag most, and compare the measured gain with the bound. Select a box to open its chapter."),
         "ladder": fig("fig-ladder", "Figure 4 · interactive", "From the book's bound to the measured gain: two measured inputs, then the measurement.", "Choose a context; hover over or tap a batch to read the four values.",
