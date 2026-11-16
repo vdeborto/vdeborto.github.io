@@ -465,7 +465,9 @@ html { scroll-behavior: smooth; }
 @media (max-width: 520px) { .bdr .readout .ro-g { grid-template-columns: 1fr; } .bdr .readout .ro-v { margin-bottom: 3px; } }
 /* wide diagrams that scroll on narrow screens */
 .bdr .scroll-hint { font: 11.5px var(--bdr-font-ui); color: var(--bdr-muted); margin: 0 0 4px; }
-.bdr .pfig-scroll.can-scroll:not(.at-end) { -webkit-mask-image: linear-gradient(to right, #000 80%, transparent); mask-image: linear-gradient(to right, #000 80%, transparent); }
+.bdr .can-scroll:not(.at-end) { -webkit-mask-image: linear-gradient(to right, #000 80%, transparent); mask-image: linear-gradient(to right, #000 80%, transparent); }
+.bdr .can-scroll:not(.at-start).at-end { -webkit-mask-image: linear-gradient(to left, #000 80%, transparent); mask-image: linear-gradient(to left, #000 80%, transparent); }
+.bdr .can-scroll:not(.at-start):not(.at-end) { -webkit-mask-image: linear-gradient(to right, transparent, #000 12%, #000 85%, transparent); mask-image: linear-gradient(to right, transparent, #000 12%, #000 85%, transparent); }
 @media (max-width: 600px) {
   .bdr .mapfig .chart { overflow-x: auto; -webkit-overflow-scrolling: touch; }
   .bdr .mapfig .chart > svg { min-width: 540px; }
@@ -482,8 +484,16 @@ html { scroll-behavior: smooth; }
 /* calculator: the verdict's headline sticks to the top on phones */
 .bdr .calc-sticky { display: none; }
 @media (max-width: 760px) {
-  .bdr .calc-sticky { display: block; position: sticky; top: 56px; z-index: 4; margin: -16px -16px 12px; padding: 8px 16px;
+  .bdr .calc-sticky { display: block; position: sticky; top: 64px; z-index: 4; margin: -16px -16px 12px; padding: 8px 16px;
     background: var(--bdr-surface); border-bottom: 1px solid var(--accent); font: 600 14px var(--bdr-font-body); color: var(--ink); }
 }
 .bdr .acct-list { font-size: .92rem; color: var(--bdr-ink-2); margin: 6px 0 4px; padding-left: 1.1em; }
 .bdr .acct-list li { margin: 3px 0; }
+
+@media (max-width: 760px) { .bdr .calc-sticky.off { visibility: hidden; } }
+.bdr pre.envelope { overflow-x: auto; }
+/* long inline equations on phones scroll inside themselves instead of widening the page */
+@media (max-width: 600px) {
+  .bdr mjx-container:not([display="true"]) { display: inline-block; max-width: 100%; overflow-x: auto; overflow-y: hidden; vertical-align: middle; scrollbar-width: none; }
+  .bdr details.answer, .bdr details.proof { overflow-x: hidden; }
+}
