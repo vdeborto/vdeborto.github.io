@@ -382,7 +382,7 @@ def card_legacy_figures(body):
     for mm in re.finditer(r'<div class="bdr-card">.*?</figure>', body, re.S):
         out.append(body[pos:mm.end()] + "\n  </div>"); pos = mm.end()
     body = "".join(out) + body[pos:]
-    tabs = '<div class="fig-k">Figure 19 · four maps, one shown at a time</div>'
+    tabs = '<div class="fig-k">Figure 19 · interactive</div>'
     if tabs in body:
         body = body.replace(tabs, f'{tabs}\n  <p class="fig-title tabs-title">{LEGACY_CLAIMS[19]}</p>', 1)
     else:
@@ -456,7 +456,12 @@ def link_references(pages):
                 def one(mm):
                     h = href_of(kind, int(mm.group(0)))
                     return f'<a class="xref" href="{h}">{mm.group(0)}</a>' if h else mm.group(0)
-                return m.group(1) + num.sub(one, m.group(2))
+                # "Parts 3 and 4": the word goes with the first number, so that each target is wide enough
+                first = num.search(m.group(2))
+                h0 = href_of(kind, int(first.group(0)))
+                head = m.group(1) + m.group(2)[:first.end()]
+                head = f'<a class="xref" href="{h0}">{head}</a>' if h0 else head
+                return head + num.sub(one, m.group(2)[first.end():])
             out.append(ref.sub(link, part))
         pages[slug] = "".join(out)
     return pages

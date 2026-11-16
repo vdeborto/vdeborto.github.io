@@ -475,13 +475,14 @@
     draggable(pic, () => st.xs, ISCAN, () => st.i, (i) => { st.i = i; const hit = ACCEL.find((id) => RIDGES[id] === ISCAN[i]); if (hit) setHw(hit); draw(); });
     function draw() {
       if (!data) compute();
-      const c = colors(), W = widthOf(pic), H = 320, m = { l: 48, r: 22, t: 18, b: 42 }, short = st.mode === 'short';
+      const c = colors(), W = widthOf(pic), H = 330, m = { l: 48, r: 22, t: 28, b: 42 }, short = st.mode === 'short';
       const xs = scale(25, 800, m.l, W - m.r), ylo = 0.25, yhi = 14, ys = scale(ylo, yhi, H - m.b, m.t);
       const val = (p) => (short ? p.best.g : p.long), P = data.pts[st.i];
       let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Gain against ridge point">`;
       s += logGrid(ys, m.l, W - m.r, ylo, yhi, (v) => `${v}×`, c);
       for (const v of [25, 50, 100, 200, 400, 800]) s += `<text x="${xs(v)}" y="${H - m.b + 15}" text-anchor="middle">${v}</text>`;
       s += `<text x="${(m.l + W - m.r) / 2}" y="${H - 6}" text-anchor="middle" class="ink">ridge point I* = π/β, FLOP per byte</text>`;
+      s += `<text x="4" y="13" class="ink">${short ? 'best roofline gain Γ over the batch, context 1k' : 'roofline gain Γ at batch 1, context 1M'}</text>`;
       s += `<line x1="${m.l}" x2="${W - m.r}" y1="${ys(1)}" y2="${ys(1)}" stroke="${c.muted}" stroke-width="1.5"/><text x="${W - m.r - 4}" y="${ys(1) + 15}" text-anchor="end">parity, Γ = 1</text>`;
       if (!short) {
         const f = (Is) => Is / (OM * data.Ikv), xa = Math.max(25, ylo * OM * data.Ikv);

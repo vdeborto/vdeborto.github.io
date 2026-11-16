@@ -565,9 +565,9 @@
     const a = rgb.match(/\d+/g).map(Number), mid = hexRGB(css('--bdr-div-mid'));
     return `rgb(${a.map((v, k) => Math.round(0.25 * v + 0.75 * mid[k])).join(',')})`;
   }
-  const memNote = (hw, any, who = 'the decoder') => (any ? `<div class="note">Grey cells, past the thin dashed line: ${who}'s weights, the batch's KV cache and one pass's logits exceed ${fmt(hw.mem / 1e9)} GB.</div>` : '');
+  const memNote = (hw, any, who = 'the decoder') => (any ? `<div class="note">Faded cells, past the thin dashed line: ${who}'s weights, the batch's KV cache and one pass's logits exceed ${fmt(hw.mem / 1e9)} GB.</div>` : '');
   // Gain maps: grey where TD does not fit, hatched where neither decoder does.
-  const memNoteBoth = (hw, anyTD, anyBoth) => (anyTD ? `<div class="note">Grey cells, past the dashed line: TD's weights, KV cache and one canvas's logits (<i>b</i>·<i>V</i> per sequence) exceed ${fmt(hw.mem / 1e9)} GB, so the gain there compares TD at a batch it cannot run.${anyBoth ? ' Hatched cells, past the dotted line: AR does not fit either.' : ''} With chunked logits (λ<sub>TD</sub> = 0) the two limits coincide.</div>` : '');
+  const memNoteBoth = (hw, anyTD, anyBoth) => (anyTD ? `<div class="note">Faded cells, past the dashed line: TD's weights, KV cache and one canvas's logits (<i>b</i>·<i>V</i> per sequence) exceed ${fmt(hw.mem / 1e9)} GB, so the gain there compares TD at a batch it cannot run.${anyBoth ? ' Hatched cells, past the dotted line: AR does not fit either.' : ''} With chunked logits (λ<sub>TD</sub> = 0) the two limits coincide.</div>` : '');
   const HATCH = '<defs><pattern id="oomHatch" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="6" stroke="currentColor" stroke-opacity="0.35" stroke-width="1.6"/></pattern></defs>';
 
 
@@ -744,7 +744,7 @@
 
   function lineChart(el, series, opts) {
     if (!el.isConnected) return;
-    const W = 520, H = 280, m = { l: 56, r: 16, t: 12, b: 34 };
+    const W = 520, H = 280, m = { l: 56, r: 16, t: opts.yLabel ? 24 : 12, b: 34 };
     const xs = series[0].points.map((p) => p.x);
     const ys = series.flatMap((s) => s.points.map((p) => p.y)).concat(opts.refY ? [opts.refY] : []);
     const lx = (x) => Math.log2(x), ly = (y) => Math.log10(y);
@@ -755,6 +755,7 @@
     const Y = (y) => H - m.b - ((ly(y) - y0) / (y1 - y0)) * (H - m.t - m.b);
     const grid = css('--rule'), muted = css('--bdr-muted'), surface = css('--bdr-surface');
     let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${opts.aria}">`;
+    if (opts.yLabel) s += `<text class="lbl" x="4" y="12">${opts.yLabel}</text>`;
     for (let e = Math.ceil(y0); e <= Math.floor(y1); e++) {
       for (const k of [1, 2, 5]) {
         const v = k * 10 ** e; if (ly(v) < y0 || ly(v) > y1) continue;
@@ -771,10 +772,10 @@
     if (opts.refX) s += `<line x1="${X(opts.refX)}" x2="${X(opts.refX)}" y1="${m.t}" y2="${H - m.b}" stroke="${muted}" stroke-width="1" stroke-dasharray="2 4"/>`;
     for (const se of series) {
       const col = css(se.color);
-      s += `<polyline fill="none" stroke="${col}" stroke-width="2" stroke-linejoin="round" points="${se.points.map((p) => `${X(p.x)},${Y(p.y)}`).join(' ')}"/>`;
+      s += `<polyline fill="none" stroke="${col}" stroke-width="2" stroke-linejoin="round" ${se.dash ? `stroke-dasharray="${se.dash}"` : ''} points="${se.points.map((p) => `${X(p.x)},${Y(p.y)}`).join(' ')}"/>`;
       for (const p of se.points) {
         const big = p.x === opts.current;
-        if (opts.dots === false && !big) continue;
+        if ((opts.dots === false || se.dash) && !big) continue;
         s += `<circle cx="${X(p.x)}" cy="${Y(p.y)}" r="${big ? 6 : 4}" fill="${p.oom ? surface : col}" stroke="${p.oom ? col : surface}" stroke-width="2"/>`;
       }
       const last = se.points[se.points.length - 1];
@@ -1049,7 +1050,7 @@
     for (const e of [0, 2, 4, 6, 8, 10, 12, 14]) s += `<line x1="${mg.l}" x2="${W0 - mg.r}" y1="${Y(2 ** e)}" y2="${Y(2 ** e)}" stroke="${grid}"/><text x="${mg.l - 6}" y="${Y(2 ** e) + 4}" text-anchor="end">${2 ** e >= 1024 ? `${2 ** (e - 10)}k` : 2 ** e}</text>`;
     for (const [C, t] of [[16, '16'], [128, '128'], [1024, '1k'], [8192, '8k'], [65536, '64k'], [524288, '512k']]) s += `<text x="${X(C)}" y="${H - mg.b + 16}" text-anchor="middle">${t}</text>`;
     s += `<text class="lbl" x="${(mg.l + W0 - mg.r) / 2}" y="${H - 6}" text-anchor="middle">context C (tokens)</text>`;
-    s += `<text class="lbl" transform="translate(14 ${(mg.t + H - mg.b) / 2}) rotate(-90)" text-anchor="middle">smallest compute-bound batch</text>`;
+    s += `<text class="lbl" transform="translate(14 ${(mg.t + H - mg.b) / 2}) rotate(-90)" text-anchor="middle">smallest compute-bound batch (sequences)</text>`;
     const data = series.map((sr) => ({ ...sr, ys: Cs.map((C) => sr.bstar(C)) }));
     // Largest batch whose weights and KV cache fit; the region above it is shaded.
     const need = memNeed(model, st.o, st.w), wBytes = need(0, 0);
@@ -1374,9 +1375,9 @@
     });
     const thrFmt = (v) => (v >= 1000 ? `${v / 1000}k` : `${v}`);
     lineChart($('ch-thr'), [
-      { color: '--bdr-ar', label: 'AR', points: pts.map((p) => ({ x: p.B, y: p.ar, oom: p.oomA })) },
-      { color: '--bdr-td', label: 'TD', points: pts.map((p) => ({ x: p.B, y: p.td, oom: p.oomT })) },
-    ], { aria: 'Decode throughput of AR and TD against batch size', current: w.B, yFmt: thrFmt,
+      { color: '--bdr-ar', label: '', points: pts.map((p) => ({ x: p.B, y: p.ar, oom: p.oomA })) },
+      { color: '--bdr-td', label: '', points: pts.map((p) => ({ x: p.B, y: p.td, oom: p.oomT })) },
+    ], { aria: 'Decode throughput of AR and TD against batch size', current: w.B, yFmt: thrFmt, yLabel: 'decode throughput, tokens per second',
       tip: (i) => `<b>batch ${pts[i].B}</b><br><span class="swatch" style="background:var(--bdr-td)"></span>TD ${comma(pts[i].td)} tok/s${pts[i].oomT ? ' <span class="oom">over memory</span>' : ''}<br><span class="swatch" style="background:var(--bdr-ar)"></span>AR ${comma(pts[i].ar)} tok/s${pts[i].oomA ? ' <span class="oom">over memory</span>' : ''}` });
     const Cm = Math.round(w.P + w.G / 2);
     const us = Bs.map((B) => { const e = perToken(m, { ...w, B }, o, hw, Cm); return { B, ar: e.ar.util, td: e.td.util }; });
@@ -1384,11 +1385,11 @@
       { color: '--bdr-ar', label: '', points: us.map((u, i) => ({ x: u.B, y: Math.max(1e-4, u.ar), oom: pts[i].oomA })) },
       { color: '--bdr-ar', label: '', dash: '5 4', points: us.map((u, i) => ({ x: u.B, y: Math.max(1e-4, omega(w) * u.ar), oom: pts[i].oomA })) },
       { color: '--bdr-td', label: '', points: us.map((u, i) => ({ x: u.B, y: Math.max(1e-4, u.td), oom: pts[i].oomT })) },
-    ], { aria: 'Share of the accelerator peak used by AR and TD against batch size', current: w.B, refY: 1, yFmt: (v) => `${v >= 1 ? v * 100 : +(v * 100).toPrecision(2)}%`,
+    ], { aria: 'Share of the accelerator peak used by AR and TD against batch size', current: w.B, refY: 1, yLabel: 'share of the peak FLOP rate (dashed: ω times AR\'s share)', yFmt: (v) => `${v >= 1 ? v * 100 : +(v * 100).toPrecision(2)}%`,
       tip: (i) => `<b>batch ${us[i].B}</b><br><span class="swatch" style="background:var(--bdr-td)"></span>TD ${(100 * us[i].td).toFixed(1)}% of peak<br><span class="swatch" style="background:var(--bdr-ar)"></span>AR ${(100 * us[i].ar).toFixed(2)}% of peak<br>ω × AR = ${(100 * omega(w) * us[i].ar).toFixed(1)}%` });
     lineChart($('ch-gain'), [
       { color: '--accent', label: '', points: pts.map((p) => ({ x: p.B, y: p.gain, oom: p.oomA || p.oomT })) },
-    ], { aria: 'TD over AR gain against batch size', current: w.B, refY: 1, yFmt: (v) => `${v}×`,
+    ], { aria: 'TD over AR gain against batch size', current: w.B, refY: 1, yFmt: (v) => `${v}×`, yLabel: 'gain Γ, TD throughput over AR\'s',
       tip: (i) => `<b>batch ${pts[i].B}</b><br>Γ = ${pts[i].gain.toFixed(2)}×` });
 
     if (withMaps) {

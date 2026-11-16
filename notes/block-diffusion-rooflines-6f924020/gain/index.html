@@ -20,7 +20,7 @@ sitemap: false
 <noscript><p>This page needs JavaScript for its equations, figures and calculator.</p></noscript>
 <p class="book-part">Part 2 of <a href="/notes/block-diffusion-rooflines-6f924020/">Block Diffusion Rooflines</a><span class="book-links"><span class="bl-row">Previous: <a href="/notes/block-diffusion-rooflines-6f924020/setup/" rel="prev">1 · Setup</a></span><span class="bl-row">Next: <a href="/notes/block-diffusion-rooflines-6f924020/linear/" rel="next">3 · The linear part</a></span></span></p>
 <section class="bdr-col" id="gain">
-  <p class="chapter-intro">With the costs of <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/">Part 1</a>, the roofline model bounds the time of each pass, and hence the throughput of each decoder. <a class="xref" href="#prop1">Proposition 1</a> gives their ratio: the FLOP rates the two decoders attain, divided by the \(\omega = Sr + 1\) passes that a canvas costs. <a class="xref" href="#cor1">Corollary 1</a> reads off which decoder wins, and <a class="xref" href="#prop2">Proposition 2</a> splits each intensity into a linear part and an attention part, which Parts <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/linear/">3</a> and <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/attention/">4</a> treat separately.</p>
+  <p class="chapter-intro">With the costs of <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/">Part 1</a>, the roofline model bounds the time of each pass, and hence the throughput of each decoder. <a class="xref" href="#prop1">Proposition 1</a> gives their ratio: the FLOP rates the two decoders attain, divided by the \(\omega = Sr + 1\) passes that a canvas costs. <a class="xref" href="#cor1">Corollary 1</a> reads off which decoder wins, and <a class="xref" href="#prop2">Proposition 2</a> splits each intensity into a linear part and an attention part, which <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/linear/">Parts 3</a> and <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/attention/">4</a> treat separately.</p>
   <div class="box prop" id="prop1">
     <div class="bdr-title"><span class="tag">Proposition 1</span>TD/AR throughput gain</div>
     <p class="gist"><span>In short.</span> The gain is the ratio of the two decoders' attainable FLOP rates, divided by the \(\omega\) passes a canvas costs.</p>
@@ -32,7 +32,7 @@ sitemap: false
     </dl>
     <p>Then TD's throughput over AR's is</p>
     <div class="eq">\[
-    \boxed{\begin{gathered}\Gamma = \frac{1}{\omega}\cdot\frac{\min(\class{mj-td}{I_{TD}},\,I^\star)}{\min(\class{mj-ar}{I_{AR}},\,I^\star)},\\[4pt] \omega = S\,r+1,\qquad \class{mj-td}{I_{TD}} = \frac{b}{\Pi}\,\class{mj-ar}{I_{AR}}.\end{gathered}}
+    \boxed{\;\begin{gathered}\Gamma = \frac{1}{\omega}\cdot\frac{\min(\class{mj-td}{I_{TD}},\,I^\star)}{\min(\class{mj-ar}{I_{AR}},\,I^\star)},\\[6pt] \omega = S\,r+1,\qquad \class{mj-td}{I_{TD}} = \frac{b}{\Pi}\,\class{mj-ar}{I_{AR}}.\end{gathered}\;}
     \]</div>
     <details class="proof">
       <summary>Proof</summary>
@@ -55,7 +55,7 @@ sitemap: false
   <div class="box prop" id="cor1">
     <div class="bdr-title"><span class="tag">Corollary 1</span>Which side wins</div>
     <p class="gist"><span>In short.</span> If AR is compute-bound TD loses; otherwise the gain is the smaller of \(\mathrm{TPF}/\Pi\), set by bytes, and \(I^\star/(\omega \class{mj-ar}{I_{AR}})\), set by the compute AR leaves idle.</p>
-    <p>If AR is compute-bound (\(\class{mj-ar}{I_{AR}} \ge I^\star\)), then \(\Gamma \le 1/\omega\), with equality whenever \(\Pi \le b\), which holds under (A2) (Propositions <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/linear/#prop3">3</a> and <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/attention/#prop5">5</a>) and gives \(\class{mj-td}{I_{TD}} \ge \class{mj-ar}{I_{AR}}\). Otherwise</p>
+    <p>If AR is compute-bound (\(\class{mj-ar}{I_{AR}} \ge I^\star\)), then \(\Gamma \le 1/\omega\), with equality whenever \(\Pi \le b\), which holds under (A2) (<a class="xref" href="/notes/block-diffusion-rooflines-6f924020/linear/#prop3">Propositions 3</a> and <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/attention/#prop5">5</a>) and gives \(\class{mj-td}{I_{TD}} \ge \class{mj-ar}{I_{AR}}\). Otherwise</p>
     <div class="eq">\[ \Gamma = \min\Bigl(\frac{\mathrm{TPF}}{\Pi},\ \frac{I^\star}{\omega\,\class{mj-ar}{I_{AR}}}\Bigr),\quad \mathrm{TPF} = \frac{b}{\omega}. \]</div>
     <details class="proof"><summary>Proof</summary><p>If \(\class{mj-ar}{I_{AR}} \ge I^\star\) the denominator of <a class="xref" href="#prop1">Proposition 1</a> is \(I^\star\) and the numerator at most \(I^\star\). Otherwise \(\min(b\class{mj-ar}{I_{AR}}/\Pi,\,I^\star)/\class{mj-ar}{I_{AR}} = \min(b/\Pi,\,I^\star/\class{mj-ar}{I_{AR}})\); divide by \(\omega\). \(\blacksquare\)</p></details>
   </div>

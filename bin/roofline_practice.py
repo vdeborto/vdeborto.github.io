@@ -341,8 +341,9 @@ def fig_decoders():
         s.append(f'<text x="{x0 - 10}" y="{y + 21}" text-anchor="end" font-size="12" font-weight="600" fill="{col}">{name}</text>')
         for i in range(n):
             x = x0 + i * (sw + gap)
-            op = 0.85 if row == 0 or i == n - 1 else 0.28
-            s.append(f'<rect x="{x}" y="{y}" width="{sw}" height="32" rx="3" fill="{col}" fill-opacity="{op}"/>')
+            solid = row == 0 or i == n - 1  # a denoising pass is outlined: it commits nothing
+            s.append(f'<rect x="{x + 0.6}" y="{y + 0.6}" width="{sw - 1.2}" height="30.8" rx="3" fill="{col}" fill-opacity="{0.85 if solid else 0.16}"'
+                     f'{"" if solid else f" stroke=\"{col}\" stroke-width=\"1.2\""}/>')
             if row == 0:
                 s.append(f'<text x="{x + sw / 2}" y="{y + 20}" text-anchor="middle" font-size="10.5" style="fill:#fff">1</text>')
         xr = x0 + n * (sw + gap) + 6
@@ -875,7 +876,7 @@ def blocks():
         "decoders": fig("fig-decoders", "Figure 1", "In the same number of passes, AR commits one token per pass and TD a whole canvas.",
                         "", fig_decoders(),
                         "One sequence, DiffusionGemma's setting: a canvas of \\(b = 256\\) positions, \\(S = 14\\) denoising passes and one commit pass, so \\(\\omega = 15\\) passes per canvas and \\(\\mathrm{TPF} = b/\\omega = 17.1\\) tokens per forward pass. Each TD pass processes 256 positions instead of one, so it does more FLOPs and its positions touch more experts; Parts 1–5 weigh these costs against the shared read of the weights."),
-        "map": fig("fig-map", "Figure 2 · every box is a link", "The book in two halves: bounds on paper, then measurements on one H200.", "", fig_map(),
+        "map": fig("fig-map", "Figure 2 · interactive", "The book in two halves: bounds on paper, then measurements on one H200.", "", fig_map(),
                    "Parts 1–7 derive the gain \\(\\Gamma\\) as a ratio of roofline bounds and map it over batch and context. Parts 8–11 take the inputs of those bounds from measurements, time every kernel of both decoders in vLLM, rewrite the two kernels that lag most, and compare the measured gain with the bound. Select a box to open its chapter."),
         "ladder": fig("fig-ladder", "Figure 3", "From the book's bound to the measured gain in four steps.", "", fig_ladder(d),
                       "DiffusionGemma (TD) against Gemma 4 26B-A4B (AR) on one H200, FP8 weights, at two of the 25 measured points. (a) is the book's exact accounting, vocabulary included, with the kernel-by-kernel timing rule of Part 5, at FP8, with datasheet rates and independent routing, evaluated at the context of the measured windows. Each later column changes one input. Part 8 maps (a)–(c) over batch and context, and Part 11 maps (c) and (d)."),

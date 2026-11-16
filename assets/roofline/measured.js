@@ -99,11 +99,17 @@
       pts.forEach((p) => { if (p) run.push(`${p[0]},${p[1]}`); else flush(); });
       flush();
       if (sr.dots) pts.forEach((p) => { if (p) s += `<circle cx="${p[0]}" cy="${p[1]}" r="${sr.width > 2 ? 3.6 : 3}" fill="${sr.color}" stroke="${c.bg}" stroke-width="1.5"/>`; });
+      sr.pts = pts;
       const last = [...pts].reverse().find((p) => p);
       if (last && sr.label) ends.push({ x: last[0], y: last[1], sr });
     }
-    const ly = spread(ends.map((e) => e.y + 4), 14, m.t + 6, H - m.b);
-    if (!narrow) ends.forEach((e, k) => {
+    // the selected batch: an enlarged point on every highlighted series
+    s += '<g class="sel" pointer-events="none">';
+    series.forEach((sr) => { if (sr.group) return; sr.pts.forEach((p, i) => { if (p) s += `<circle data-i="${i}" cx="${p[0]}" cy="${p[1]}" r="5.5" fill="${sr.color}" stroke="${c.bg}" stroke-width="2" visibility="hidden"/>`; }); });
+    s += '</g>';
+    const lab = ends.filter((e) => !e.sr.group);
+    const ly = spread(lab.map((e) => e.y + 4), 16, m.t + 6, H - m.b);
+    if (!narrow) lab.forEach((e, k) => {
       s += `<line x1="${e.x + 4}" x2="${W - m.r + 4}" y1="${e.y}" y2="${ly[k] - 4}" stroke="${e.sr.color}" stroke-opacity="0.5"/>`;
       s += `<text x="${W - m.r + 8}" y="${ly[k]}" style="fill:${e.sr.labelColor || e.sr.color};font-weight:${e.sr.bold ? 600 : 400}">${e.sr.label}</text>`;
     });
@@ -118,31 +124,36 @@
     for (const e of [...ends].reverse()) {
       if (e.sr.group) { if (seen.has(e.sr.group)) continue; seen.add(e.sr.group); leg.push({ sr: { ...e.sr, label: e.sr.group } }); } else leg.push(e);
     }
-    const legend = narrow ? `<div class="mlegend">${leg.map((e) => `<span><svg width="22" height="10" aria-hidden="true"><line x1="1" x2="21" y1="5" y2="5" stroke="${e.sr.color}" stroke-width="${Math.min(3, e.sr.width || 2)}" ${e.sr.dash ? `stroke-dasharray="${e.sr.dash}"` : ''}/></svg>${e.sr.label}</span>`).join('')}</div>` : '';
+    const legItems = narrow ? leg : leg.filter((e) => series.some((sr) => sr.group === e.sr.label));
+    const legend = legItems.length ? `<div class="mlegend">${legItems.map((e) => `<span><svg width="22" height="10" aria-hidden="true"><line x1="1" x2="21" y1="5" y2="5" stroke="${e.sr.color}" stroke-width="${Math.min(3, e.sr.width || 2)}" ${e.sr.dash ? `stroke-dasharray="${e.sr.dash}"` : ''}/></svg>${e.sr.label}</span>`).join('')}</div>` : '';
     pic.innerHTML = `${s}</svg>${legend}`;
     const svg = pic.querySelector('svg'), cross = svg.querySelector('.cross');
     const show = (i) => {
+      pic.dataset.sel = i;
       cross.setAttribute('x1', X(i)); cross.setAttribute('x2', X(i)); cross.setAttribute('visibility', 'visible');
+      svg.querySelectorAll('.sel circle').forEach((c0) => c0.setAttribute('visibility', +c0.dataset.i === i ? 'visible' : 'hidden'));
       if (opt.out && opt.hover) opt.out.innerHTML = opt.hover(i);
     };
     svg.querySelectorAll('.hov rect').forEach((r) => {
       r.addEventListener('pointerenter', () => show(+r.dataset.i));
       r.addEventListener('pointerdown', () => show(+r.dataset.i));
     });
-    svg.addEventListener('pointerleave', () => { if (document.activeElement !== svg) { cross.setAttribute('visibility', 'hidden'); if (opt.out && opt.rest) opt.out.innerHTML = opt.rest(); } });
     // keyboard: focus the chart, then the arrow keys step through the batches
-    let ki = -1;
+    let ki = pic.dataset.sel != null ? +pic.dataset.sel : 0;
     svg.setAttribute('tabindex', '0');
     svg.addEventListener('keydown', (ev) => {
       const d = { ArrowRight: 1, ArrowLeft: -1, Home: -n, End: n }[ev.key];
       if (!d) return;
       ev.preventDefault();
-      ki = Math.max(0, Math.min(n - 1, (ki < 0 ? 0 : ki) + (ki < 0 && d > 0 ? 0 : d)));
+      ki = Math.max(0, Math.min(n - 1, +(pic.dataset.sel || 0) + d));
       show(ki);
     });
-    svg.addEventListener('blur', () => { cross.setAttribute('visibility', 'hidden'); if (opt.out && opt.rest) opt.out.innerHTML = opt.rest(); });
-    if (opt.out && opt.rest) opt.out.innerHTML = opt.rest();
+    // the selection persists: it starts at the first batch and stays where the reader leaves it
+    const first = series.find((sr) => !sr.group) ? Math.max(0, series.find((sr) => !sr.group).pts.findIndex((p) => p)) : 0;
+    show(pic.dataset.sel != null && pic.dataset.sel !== '' ? Math.min(n - 1, +pic.dataset.sel) : first);
   }
+  // a readout: a heading and a short list of label, value pairs
+  const ro = (head, items) => `<div class="ro-h">${head}</div><div class="ro-g">${items.map(([l, v, cls]) => `<span class="ro-l${cls ? ` ${cls}` : ''}">${l}</span><span class="ro-v${cls ? ` ${cls}` : ''}">${v}</span>`).join('')}</div>`;
   const frame = (root) => {
     const ctl = el('<div class="fig-controls mctl"></div>'), pic = el('<div class="mchart"></div>'), out = el('<div class="readout" aria-live="polite"></div>');
     root.append(ctl, pic, out);
@@ -175,11 +186,10 @@
         W: widthOf(pic), H: 310, y0: 0, y1, ticks: Array.from({ length: y1 + 1 }, (_, i) => i), yFmt: (v) => `${v}×`, yTitle: 'gain Γ, TD over AR',
         ref: { y: 1, label: 'parity: below it AR is faster' }, out, aria: `Gain against batch at context ${kc(st.C)}`,
         hover: (i) => {
-          const r = D.gains[key(Bs[i], st.C)];
-          if (!r) return `B = ${Bs[i]}, C = ${kc(st.C)}: not measured (the batch did not fit in memory).`;
-          return `<b>B = ${Bs[i]}, C = ${kc(st.C)}</b>: ` + keys.map((k) => `${LADDER[k].long} <b>${f2(r[LADDER[k].k])}</b>`).join('; ') + '.';
+          const r = D.gains[key(Bs[i], st.C)], head = `B = ${Bs[i]}, C = ${kc(st.C)}`;
+          if (!r) return ro(head, [['not measured', 'the batch did not fit in memory']]);
+          return ro(head, keys.map((k) => [LADDER[k].long, `${f2(r[LADDER[k].k])}×`, k === 'd' ? 'td' : '']));
         },
-        rest: () => `Context ${kc(st.C)}. Hover over or tap a batch to read the values.`,
       });
     }
     draw(); watch(pic, draw);
@@ -200,12 +210,12 @@
         W: widthOf(pic), H: 300, y0: 0, y1: 1, ticks: [0, 0.2, 0.4, 0.6, 0.8, 1], yFmt: (v) => v.toFixed(1), yTitle: 'efficiency η = roofline / measured time',
         bands: [{ ys0: td, ys1: ar, up: c.td, down: c.ar }], out, aria: `Step efficiencies of TD and AR against batch at context ${kc(st.C)}`,
         hover: (i) => {
-          const r = D.gains[key(Bs[i], st.C)];
-          if (!r) return `B = ${Bs[i]}, C = ${kc(st.C)}: not measured.`;
+          const r = D.gains[key(Bs[i], st.C)], head = `B = ${Bs[i]}, C = ${kc(st.C)}`;
+          if (!r) return ro(head, [['not measured', '']]);
           const q = r.eta_td / r.eta_ar;
-          return `<b>B = ${Bs[i]}, C = ${kc(st.C)}</b>: <span class="td">η<sub>TD</sub> = ${f2(r.eta_td)}</span>, <span class="ar">η<sub>AR</sub> = ${f2(r.eta_ar)}</span>, so the measured gain is ${f2(q)} times the bound (${f2(r.measured)} against ${f2(r.roof)}): the bound is ${q >= 1 ? 'conservative' : 'optimistic'} here.`;
+          return ro(head, [['TD step efficiency η<sub>TD</sub>', f2(r.eta_td), 'td'], ['AR step efficiency η<sub>AR</sub>', f2(r.eta_ar), 'ar'],
+            ['measured gain / bound = η<sub>TD</sub>/η<sub>AR</sub>', `${f2(q)}: the bound is ${q >= 1 ? 'conservative' : 'optimistic'} here (${f2(r.measured)} against ${f2(r.roof)})`]]);
         },
-        rest: () => 'Orange where TD runs closer to its roofline than AR, so that the measured gain exceeds the bound; blue where it falls short. Hover over or tap a batch.',
       });
     }
     draw(); watch(pic, draw);
@@ -232,12 +242,11 @@
         W: widthOf(pic), H: 310, y0: 0, y1: 1, ticks: [0, 0.2, 0.4, 0.6, 0.8, 1], yFmt: (v) => v.toFixed(1), yTitle: 'efficiency η = roofline / measured time',
         ref: { y: 0.8, label: 'default target 0.8', dash: '3 3' }, out, aria: `${name}: efficiency of each component against batch`,
         hover: (i) => {
-          const r = (D[src][m] || {})[key(Bs[i], st.C)];
-          if (!r) return `${name}, B = ${Bs[i]}, C = ${kc(st.C)}: not measured.`;
-          const parts = COMPS.map(([k, n]) => [n, r[k]]).filter(([, v]) => v != null).sort((a, b) => a[1] - b[1]);
-          return `<b>${name}, B = ${Bs[i]}, C = ${kc(st.C)}</b>: whole step ${f2(r.step)}; ` + parts.map(([n, v]) => `${n} ${f2(v)}`).join(', ') + ' (lowest first).';
+          const r = (D[src][m] || {})[key(Bs[i], st.C)], head = `${name}, B = ${Bs[i]}, C = ${kc(st.C)}`;
+          if (!r) return ro(head, [['not measured', '']]);
+          const parts = COMPS.map(([k, n]) => [n, r[k], k === st.focus]).filter(([, v]) => v != null).sort((a, b) => a[1] - b[1]);
+          return ro(head, [['whole step', f2(r.step)], ...parts.map(([n, v, on]) => [n, f2(v), on ? 'hi' : ''])]);
         },
-        rest: () => `${name}, context ${kc(st.C)}. The highlighted line is the ${fn}; choose another component above, or hover over a batch.`,
       });
     }
     draw(); watch(pic, draw);
@@ -269,7 +278,7 @@
       });
       pic.innerHTML = `${s}</svg>`;
       const top = rows[0], tot = rows.reduce((a, x) => a + x.r, 0);
-      out.innerHTML = `Bar length: the component's share of the step; <span class="td">orange</span>: its recoverable part, the time a target kernel would save (Definition 7), with time outside the model and idle time counted in full; grey: the time it would keep. Here <b>${top.n}</b> leads with ${pc(top.r)}, and the components together could save ${pc(tot)} of the step.`;
+      out.innerHTML = ro(`B = ${st.B}, C = ${kc(st.C)}`, [['largest recoverable share', `${top.n}, ${pc(top.r)} of the step`, 'td'], ['all components together', `${pc(tot)} of the step`]]);
     }
     draw(); watch(pic, draw);
   }
@@ -284,8 +293,7 @@
       lineChart(pic, series, {
         W: widthOf(pic), H: 290, y0: 1, y1: 1.3, ticks: [1, 1.05, 1.1, 1.15, 1.2, 1.25, 1.3], yFmt: (v) => `${v.toFixed(2)}×`, yTitle: 'throughput, new kernels / vLLM\'s',
         out, aria: 'TD speed-up from the two kernels against batch, one line per context',
-        hover: (i) => `<b>B = ${Bs[i]}</b>: ` + Cs.map((C) => { const r = D.vs2.td[key(Bs[i], C)]; return `${kc(C)} ${r ? `${f2(r.ratio)}×` : '–'}`; }).join(', ') + '.',
-        rest: () => 'Thicker lines are longer contexts. Hover over or tap a batch to read the values.',
+        hover: (i) => ro(`B = ${Bs[i]}: new kernels over vLLM's`, Cs.map((C) => { const r = D.vs2.td[key(Bs[i], C)]; return [`context ${kc(C)}`, r ? `${f2(r.ratio)}×` : 'not measured']; })),
       });
     }
     draw(); watch(pic, draw);
@@ -306,11 +314,10 @@
         W: widthOf(pic), H: 300, y0: 0, y1: 8, ticks: [0, 1, 2, 3, 4, 5, 6, 7, 8], yFmt: (v) => `${v}×`, yTitle: 'gain Γ, TD over AR',
         ref: { y: 1, label: 'parity: below it AR is faster' }, out, aria: `Proposition 1 and the measured gain against batch at context ${kc(st.C)}`,
         hover: (i) => {
-          const q = D.prop1[key(Bs[i], st.C)], r = D.gains[key(Bs[i], st.C)];
-          if (!q || !r) return `B = ${Bs[i]}, C = ${kc(st.C)}: not measured.`;
-          return `<b>B = ${Bs[i]}, C = ${kc(st.C)}</b>: under A2, Π<sub>lin</sub> = ${f2(q.Pi_ind)} and Proposition 1 gives ${f2(q.gain_ind)}; with the measured expert counts, Π<sub>lin</sub> = ${f2(q.Pi_meas)} and it gives ${f2(q.gain_meas)}; measured <b>${f2(r.measured)}</b>.`;
+          const q = D.prop1[key(Bs[i], st.C)], r = D.gains[key(Bs[i], st.C)], head = `B = ${Bs[i]}, C = ${kc(st.C)}`;
+          if (!q || !r) return ro(head, [['not measured', '']]);
+          return ro(head, [['Proposition 1, A2', `${f2(q.gain_ind)}× (Π<sub>lin</sub> = ${f2(q.Pi_ind)})`], ['Proposition 1, measured routing', `${f2(q.gain_meas)}× (Π<sub>lin</sub> = ${f2(q.Pi_meas)})`], ['measured', `${f2(r.measured)}×`, 'td']]);
         },
-        rest: () => `Context ${kc(st.C)}. Hover over or tap a batch to read the penalties and gains.`,
       });
     }
     draw(); watch(pic, draw);
@@ -332,11 +339,11 @@
         areas: [{ lo: Bs.map((B) => v(B, 'meas_lo')), hi: Bs.map((B) => v(B, 'meas_hi')), color: col }], out,
         aria: `Distinct experts per layer against batch, ${st.m.toUpperCase()}, context ${kc(st.C)}`,
         hover: (i) => {
-          const r = R[key(Bs[i], st.C)];
-          if (!r) return `B = ${Bs[i]}, C = ${kc(st.C)}: not measured.`;
-          return `<b>${st.m.toUpperCase()}, B = ${Bs[i]}, C = ${kc(st.C)}</b>, ${Math.round(r.N)} tokens per pass: measured U = <b>${r.meas.toFixed(1)}</b> (repeats ${r.meas_lo.toFixed(0)}–${r.meas_hi.toFixed(0)}), as many as ${r.neff != null ? r.neff.toFixed(1) : '–'} independent uniform tokens; independent tokens with the measured popularity would touch ${r.pop.toFixed(1)}, uniform ones ${r.uni.toFixed(1)}.`;
+          const r = R[key(Bs[i], st.C)], head = `${st.m.toUpperCase()}, B = ${Bs[i]}, C = ${kc(st.C)}`;
+          if (!r) return ro(head, [['not measured', '']]);
+          return ro(`${head}: ${Math.round(r.N)} tokens per pass`, [['measured U', `${r.meas.toFixed(1)} (repeats ${r.meas_lo.toFixed(0)}–${r.meas_hi.toFixed(0)})`, st.m],
+            ['as many as', `${r.neff != null ? r.neff.toFixed(1) : '–'} independent uniform tokens`], ['independent, measured popularity', r.pop.toFixed(1)], ['independent, uniform', r.uni.toFixed(1)]]);
         },
-        rest: () => 'The band spans the three repeats. Hover over or tap a batch to read the counts.',
       });
     }
     draw(); watch(pic, draw);

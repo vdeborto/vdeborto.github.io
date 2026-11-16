@@ -27,7 +27,7 @@ sitemap: false
     <div class="calc-grid">
       <div class="calc-controls">
         <label for="c-hw"><span>Accelerator</span><select id="c-hw"></select></label>
-        <label for="c-kern"><span>Timing rule</span><select id="c-kern"><option value="whole">Whole pass (the propositions)</option><option value="sum">Kernel by kernel (sum)</option></select></label>
+        <label for="c-kern"><span>Timing rule</span><select id="c-kern"><option value="whole">Whole pass (A1)</option><option value="sum">Kernel by kernel</option></select></label>
         <details class="specs"><summary>Accelerator specs</summary>
           <label for="c-peak"><span>Peak BF16 (TFLOP/s)</span><input id="c-peak" type="number" min="1" step="any"></label>
           <label for="c-peak8"><span>Peak FP8 (TFLOP/s)</span><input id="c-peak8" type="number" min="1" step="any"></label>
@@ -37,7 +37,7 @@ sitemap: false
           <button type="button" class="reset" id="c-reset">Reset to preset</button>
         </details>
         <label for="c-model"><span>Model</span><select id="c-model"></select></label>
-        <label class="check" for="c-route"><input id="c-route" type="checkbox">Expert counts measured on DiffusionGemma (<a class="xref" href="/notes/block-diffusion-rooflines-6f924020/effective/">Part 8</a>) instead of independent routing</label>
+        <label class="check" for="c-route"><input id="c-route" type="checkbox"><span>Measured expert counts (DiffusionGemma, <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/effective/">Part 8</a>) instead of independent routing</span></label>
         <details class="specs" id="c-mspecs"><summary>Model specs</summary>
           <div class="spec-grid"><label for="m-L"><span>Layers</span><input id="m-L" type="number" min="1" step="1"></label><label for="m-d"><span>Hidden size</span><input id="m-d" type="number" min="1" step="1"></label><label for="m-V"><span>Vocabulary</span><input id="m-V" type="number" min="0" step="1"></label><label for="m-nq"><span>Query heads</span><input id="m-nq" type="number" min="1" step="1"></label><label for="m-period"><span>Global every</span><input id="m-period" type="number" min="1" step="1"></label><label for="m-win"><span>Window</span><input id="m-win" type="number" min="1" step="1"></label><label for="m-gkv"><span>Global KV heads</span><input id="m-gkv" type="number" min="1" step="1"></label><label for="m-gh"><span>Global head dim</span><input id="m-gh" type="number" min="1" step="1"></label><label for="m-skv"><span>Window KV heads</span><input id="m-skv" type="number" min="1" step="1"></label><label for="m-sh"><span>Window head dim</span><input id="m-sh" type="number" min="1" step="1"></label><label for="m-E"><span>Experts</span><input id="m-E" type="number" min="0" step="1"></label><label for="m-k"><span>Active experts</span><input id="m-k" type="number" min="0" step="1"></label><label for="m-fE"><span>Expert width</span><input id="m-fE" type="number" min="0" step="1"></label><label for="m-fD"><span>Dense MLP width</span><input id="m-fD" type="number" min="0" step="1"></label></div>
           <p class="hint">Layer \(i\) is global when \(i\) is a multiple of "Global every" (1: all global). "Window" is in tokens.</p>
