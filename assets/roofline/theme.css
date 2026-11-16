@@ -336,10 +336,11 @@ html { scroll-behavior: smooth; }
 /* boxes of the book map are links to their chapters */
 .bdr .pfig a.pfig-link { cursor: pointer; }
 /* steppers: buttons choose the panel shown (reading.js); without JS every panel is shown */
-.bdr .pfig-step-buttons { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin: 4px 0 10px; font-family: var(--bdr-font-ui); font-size: 13px; }
-.bdr .pfig-step-buttons span { color: var(--bdr-muted); margin-right: 4px; }
-.bdr .pfig-step-buttons button { font: inherit; padding: 3px 10px; border-radius: 999px; border: 1px solid var(--rule); background: var(--bdr-surface); color: var(--ink); cursor: pointer; }
-.bdr .pfig-step-buttons button[aria-pressed="true"] { background: var(--ink); color: var(--bdr-surface); border-color: var(--ink); }
+.bdr .pfig-step-buttons { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin: 4px 0 10px; font-family: var(--bdr-font-ui); font-size: 12px; }
+.bdr .pfig-step-buttons span { color: var(--bdr-ink-2); margin-right: 8px; }
+.bdr .pfig-step-buttons button { font: 500 12.5px var(--bdr-font-ui); letter-spacing: .02em; padding: 3px 9px; border-radius: 3px; border: 1px solid var(--rule); background: transparent; color: var(--bdr-ink-2); cursor: pointer; }
+.bdr .pfig-step-buttons button:hover { border-color: var(--accent); color: var(--accent); }
+.bdr .pfig-step-buttons button[aria-pressed="true"] { background: var(--accent); color: var(--bdr-bg); border-color: var(--accent); }
 .bdr .pfig-steps:not(.js) .pfig-step-buttons { display: none; }
 .bdr .pfig-step[hidden] { display: none; }
 /* a figure label outside a figure card (the tabbed maps of Part 5) */
@@ -391,3 +392,10 @@ html { scroll-behavior: smooth; }
 .bdr details.numbers[open] > summary::before { content: "−"; }
 .bdr details.numbers > summary:hover { color: var(--accent); }
 .bdr details.numbers[open] > summary { margin-bottom: 6px; }
+/* the note's own static figures, carded like the figures of figures.js (bin/build-roofline.py) */
+.bdr .bdr-card { margin: 28px 0 30px; padding: 16px 0 6px; border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); }
+.bdr .bdr-card > .fig-k, .bdr section > .fig-k { font: 500 11.5px var(--bdr-font-ui); letter-spacing: .1em; text-transform: uppercase; color: var(--accent); margin: 0 0 2px; }
+.bdr .bdr-card > .fig-title, .bdr .tabs-title { font: 600 1.12rem/1.35 var(--bdr-font-body); color: var(--ink); margin: 0 0 4px; }
+.bdr .bdr-card .fig-sub { font: 12.5px/1.5 var(--bdr-font-ui); color: var(--bdr-muted); margin: 0 0 8px; }
+.bdr .bdr-card .mapfig { margin: 8px 0 4px; }
+.bdr section > .fig-k { margin-top: 30px; padding-top: 16px; border-top: 1px solid var(--rule); }
