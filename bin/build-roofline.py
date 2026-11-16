@@ -385,7 +385,6 @@ def cite_block():
             f'  <div class="cite-entry"><pre class="cite-text">{AUTHOR[0]}, "{TITLE}", online, {YEAR}.</pre></div>\n'
             f'  <p>or as a BibTeX entry:</p>\n'
             f'  <div class="cite-entry"><button type="button" class="cite-copy">Copy</button><pre class="cite-bib">{html.escape(bibtex(SITE + BASE))}</pre></div>\n'
-            f'  <p class="small">To cite one chapter, add its name, for example "Part 3, The linear part". The figures and the calculator recompute their numbers from the cost model of the appendix, so a citation of a number should give the setting it was read at.</p>\n'
             f'</section>\n')
 
 
@@ -397,8 +396,6 @@ def comments_block(ch):
     return (f'<section class="book-comments" id="bdr-comments" data-repo="{g["repo"]}" data-repo-id="{g["repo-id"]}" data-category="{g["category"]}" '
             f'data-category-id="{g["category-id"]}" data-term="{html.escape(term, quote=True)}">\n'
             f'  <h3>Comments</h3>\n'
-            f'  <p class="small">Questions and corrections on this chapter are welcome below. The thread is a GitHub Discussion of this site\'s repository, so posting needs a GitHub account. '
-            f'To cite the book, see the <a href="{BASE}#cite">citation</a> on its first page.</p>\n'
             f'  <div class="comments-frame"></div>\n'
             f'  <noscript><p class="small">The comment thread needs JavaScript.</p></noscript>\n'
             f'</section>\n')
