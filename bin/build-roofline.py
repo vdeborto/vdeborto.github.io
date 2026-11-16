@@ -711,8 +711,13 @@ def split_book(body):
             problems.append(f"intro for unknown chapter {slug!r}")
 
     book_defs = mdlite.collect(body)
+    def_labels = [m.group(1) for m in mdlite.DEFDIV.finditer(body)]
     for t in intros.values():
-        book_defs.update(mdlite.collect(mdlite.render(t)))
+        r = mdlite.render(t)
+        book_defs.update(mdlite.collect(r))
+        def_labels += [m.group(1) for m in mdlite.DEFDIV.finditer(r)]
+    for lab in sorted({l for l in def_labels if def_labels.count(l) > 1}):
+        problems.append(f"footnote [^{lab}] is defined {def_labels.count(lab)} times: give each note its own label")
     used, missing = set(), []
     book = {"title": TITLE, "home": BASE, "chapters": [{"slug": c[0], "num": c[1], "title": c[2], "url": url_of(c[0])} for c in CHAPTERS]}
     pages = {}

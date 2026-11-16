@@ -11,10 +11,8 @@
 <!-- fig:reuse -->
   <div class="bdr-fig" id="fig-reuse">
     <div class="fig-k">Figure 5 · interactive</div>
-    <p class="fig-title">Per committed token, TD reads \(\Pi_{\mathrm{lin}}/\mathrm{TPF}\) times the weight bytes of AR.</p>
-    <p class="fig-lede">Each slot is one forward pass, and every pass reads the weights once. Press play, change the canvas length \(b\) and the number of denoising passes \(S\), then switch the model from dense to MoE.</p>
+    <p class="fig-title">AR and TD generation</p>
     <div data-fig="reuse"></div>
-    <p class="fig-cap">One sequence, batch 1, short context, and both decoders assumed memory-bound, so that a pass takes the time to read its weights; this fails for a dense model once the canvas is longer than about \(I^\star\) positions, where Corollary 1 caps the gain. A canvas costs \(\omega = S + 1\) passes (here \(r = 1\)) and commits \(b\) tokens; in the same \(\omega\) passes AR commits \(\omega\) tokens. For a dense model both passes read the same weights, and per committed token TD reads \(\omega/b = 1/\mathrm{TPF}\) times the bytes of AR: \(\Gamma = \mathrm{TPF}\). For an MoE model a canvas touches more experts than one token does, a TD pass reads \(\Pi_{\mathrm{lin}}\) times the weights of an AR step (the two bars, Proposition 3), and \(\Gamma = \mathrm{TPF}/\Pi_{\mathrm{lin}}\).</p>
   </div>
 <!-- fig:roofline -->
   <div class="bdr-fig wide" id="fig-roofline">

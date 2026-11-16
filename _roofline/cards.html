@@ -8,9 +8,9 @@
 <!-- card:Canvas length, -->
 <div class="card-more" hidden>
   <div class="eq">\[ \begin{gathered} \mathrm{TPF} = \frac{b}{\omega},\qquad I_{TD} = \frac{b}{\Pi}\,I_{AR},\\[4pt] B^\star_{TD} \approx \frac{I^\star s_wW_{TD}}{2b\,N_{\mathrm{act}}}. \end{gathered} \]</div>
-  <p>While a TD pass is memory-bound, i.e., \(I_{TD} \leq I^\star\), we have that \(\Gamma = \mathrm{TPF}/\Pi\) and therefore the gain grows linearly with \(b\). Once it is compute-bound, \(\Gamma = I^\star/(\omega I_{AR})\) no longer depends on \(b\). Additionally, a longer canvas reaches that regime at a smaller batch[^1].</p>
+  <p>While a TD pass is memory-bound, i.e., \(I_{TD} \leq I^\star\), we have that \(\Gamma = \mathrm{TPF}/\Pi\) and therefore the gain grows linearly with \(b\). Once it is compute-bound, \(\Gamma = I^\star/(\omega I_{AR})\) no longer depends on \(b\). Additionally, a longer canvas reaches that regime at a smaller batch[^canvas-quality].</p>
 
-[^1]: One trade-off that we deliberately leave out of the analysis is that the longer the canvas, the harder it is for TD to reach the quality of AR.
+[^canvas-quality]: One trade-off that we deliberately leave out of the analysis is that the longer the canvas, the harder it is for TD to reach the quality of AR.
 </div>
 <!-- card:Linear penalty, -->
 <div class="card-more" hidden>

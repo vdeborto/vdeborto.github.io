@@ -22,16 +22,28 @@ sitemap: false
 <noscript><p>This page needs JavaScript for its equations, figures and calculator.</p></noscript>
 <p class="book-part">Part 1 of <a href="/notes/block-diffusion-rooflines-6f924020/">Block Diffusion Rooflines</a><span class="book-links"><span class="bl-row">Previous: <a href="/notes/block-diffusion-rooflines-6f924020/summary/" rel="prev">Summary</a></span><span class="bl-row">Next: <a href="/notes/block-diffusion-rooflines-6f924020/gain/" rel="next">2 · The gain</a></span></span></p>
 <section class="bdr-col" id="setup">
-  <p class="chapter-intro">To compare two decoders on a roofline, we need, for each of them, the FLOPs of a forward pass and the bytes it reads from memory. In this chapter, we define both for an AR step and for a TD pass over a canvas of \(b\) tokens. From them come the two quantities used in every later chapter. First, the arithmetic intensity of a pass decides whether it is compute- or memory-bound. Second, the penalty is the ratio of the bytes per sequence that a TD pass reads to those an AR step reads. It is above 1 because the \(b\) positions of a TD pass touch more experts and, in sparse layers, more cached tokens.</p>
-  <p>We consider a batch of \(B\) sequences, each with \(C\) tokens in its KV cache. An AR step is one forward pass and advances each sequence by one token. On the other hand, TD advances each sequence by a canvas of \(b\) tokens, in \(S\) denoising passes and one commit pass. This is block diffusion (<a href="https://arxiv.org/abs/2503.09573">Arriola et al., 2025</a>) with a KV cache over committed canvases. Throughout the blogpost, our running example is DiffusionGemma 26B-A4B (<a href="https://arxiv.org/abs/2608.00146">DiffusionGemma technical report</a>, 2026).</p>
-  <p>A denoising pass costs a fraction \(r\) of a forward pass. Hence, a canvas costs \(\omega = Sr + 1\) forward passes, and TD commits \(\mathrm{TPF} = b/\omega\) tokens per forward pass. For DiffusionGemma, \(b = 256\), \(S = 14\) and \(r = 1\), so that \(\omega = 15\) and \(\mathrm{TPF} = 17.07\). The other symbols of the model, of the decoding and of the accelerator are listed, with their values, on the <a href="/notes/block-diffusion-rooflines-6f924020/symbols/">Symbols</a> page.</p>
+  <div class="chapter-intro"><h3 id="what-we-need">What do we need to track?</h3>
+
+<p>In order for us to state our main result (<a class="xref" href="/notes/block-diffusion-rooflines-6f924020/gain/#prop1">Proposition 1</a>), we need to define the key quantities which govern the inference throughput of AR and TD. 
+To determine if moving bytes (weights and KV cache) or performing actually work (matrix multiply) is the limiting factor, i.e., if the model is memory or compute bound. 
+In order to do so we need to compute the FLOPs of a forward pass of an AR model and the ones of a TD model. 
+Similarly, we need to compute how many bytes are moved during forward pass of AR and TD models. 
+By doing so, we will be able to establish the arithmetic intensities of both models, i.e., "how many FLOPs are used for each byte that is moved by the model?".</p></div>
+  <p>We consider a batch of \(B\) sequences, each with \(C\) tokens in its KV cache. An AR step is one forward pass and advances each sequence by one token<sup class="fn-ref" id="fnref-ar-parallel"><a href="#fn-ar-parallel" title="As emphasized in the introduction, we do not consider parallel decoding techniques for AR such as Multi-Token Prediction (MTP) or Speculative Sampling (SS). We will discuss those works in the Conclusion.">1</a></sup>. On the other hand, TD advances each sequence by a canvas of \(b\) tokens, in \(S\) denoising passes and one commit pass. This is block diffusion (<a href="https://arxiv.org/abs/2503.09573">Arriola et al., 2025</a>) with a KV cache over committed canvases. Throughout the blogpost, our running example is DiffusionGemma 26B-A4B (<a href="https://arxiv.org/abs/2608.00146">DiffusionGemma technical report</a>, 2026).</p>
+
+
+
+
+  <p>A denoising pass costs a fraction \(r\) of a forward pass<sup class="fn-ref" id="fnref-r-one"><a href="#fn-r-one" title="In the case of DiffusionGemma we always have \(r=1\), but one could get creative regarding the encoder-decoder architecture.">2</a></sup>. Hence, a canvas costs \(\omega = Sr + 1\) forward passes, and TD commits \(\mathrm{TPF} = b/\omega\) tokens per forward pass.</p>
+
+
+
+
 
   <div class="bdr-fig" id="fig-reuse">
     <div class="fig-k" id="figure-5">Figure 5 · interactive</div>
-    <p class="fig-title">Per committed token, TD reads \(\Pi_{\mathrm{lin}}/\mathrm{TPF}\) times the weight bytes of AR.</p>
-    <p class="fig-lede">Each slot is one forward pass, and every pass reads the weights once. Press play, change the canvas length \(b\) and the number of denoising passes \(S\), then switch the model from dense to MoE.</p>
+    <p class="fig-title">AR and TD generation</p>
     <div data-fig="reuse"></div>
-    <p class="fig-cap">One sequence, batch 1, short context, and both decoders assumed memory-bound, so that a pass takes the time to read its weights; this fails for a dense model once the canvas is longer than about \(I^\star\) positions, where <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/gain/#cor1">Corollary 1</a> caps the gain. A canvas costs \(\omega = S + 1\) passes (here \(r = 1\)) and commits \(b\) tokens; in the same \(\omega\) passes AR commits \(\omega\) tokens. For a dense model both passes read the same weights, and per committed token TD reads \(\omega/b = 1/\mathrm{TPF}\) times the bytes of AR: \(\Gamma = \mathrm{TPF}\). For an MoE model a canvas touches more experts than one token does, a TD pass reads \(\Pi_{\mathrm{lin}}\) times the weights of an AR step (the two bars, <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/linear/#prop3">Proposition 3</a>), and \(\Gamma = \mathrm{TPF}/\Pi_{\mathrm{lin}}\).</p>
   </div>
   <h3 id="setup-costs">Costs of a pass</h3>
   <div class="box def widebox" id="def1">
@@ -127,6 +139,7 @@ sitemap: false
       <tr><td class="l"><b>Penalty</b></td><td class="l">\(\Pi_{\mathrm{lin}}(B)\): 7.9 at batch 1, 1.0 at batch 64</td><td class="l">\(\Pi_{\mathrm{attn}}\): 1</td></tr>
     </tbody>
   </table></div>
+<section class="footnotes" aria-label="Notes"><h3 id="s-notes">Notes</h3><ol><li id="fn-ar-parallel">As emphasized in the introduction, we do not consider parallel decoding techniques for AR such as Multi-Token Prediction (MTP) or Speculative Sampling (SS). We will discuss those works in the Conclusion. <a href="#fnref-ar-parallel" class="fn-back" aria-label="Back to the text">↩</a></li><li id="fn-r-one">In the case of DiffusionGemma we always have \(r=1\), but one could get creative regarding the encoder-decoder architecture. <a href="#fnref-r-one" class="fn-back" aria-label="Back to the text">↩</a></li></ol></section>
 </section>
 <nav class="book-nav" aria-label="Chapters"><a class="prev" href="/notes/block-diffusion-rooflines-6f924020/summary/"><span>Previous</span>Summary</a><a class="next" href="/notes/block-diffusion-rooflines-6f924020/gain/"><span>Next</span>2 · The gain</a></nav>
 <section class="book-comments" id="bdr-comments" data-repo="vdeborto/vdeborto.github.io" data-repo-id="MDEwOlJlcG9zaXRvcnkxMTY1OTk1ODA=" data-category="Announcements" data-category-id="DIC_kwDOBvMrHM4DLMnm" data-term="Block Diffusion Rooflines · Part 1 · Setup">

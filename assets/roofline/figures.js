@@ -217,21 +217,18 @@
     return `${s}</svg>`;
   }
 
-  // ---------------------------------------------------------------- Figure 5: byte reuse and the linear penalty
+  // ---------------------------------------------------------------- Figure 5: byte reuse (dense model)
   function figReuse(root) {
-    const st = { b: 64, S: 14, t: 0, timer: 0, model: 'dense' };
+    const st = { b: 64, S: 14, t: 0, timer: 0 };
     const ctl = el('<div class="fig-controls"></div>');
-    const mSeg = groupOf('model', seg([['dense', 'dense'], ['moe', 'MoE: DiffusionGemma']], st.model, (v) => { st.model = v; reset(); }));
     const bSeg = groupOf('canvas length <i>b</i>', seg([16, 32, 64, 128, 256].map((v) => [v, String(v)]), st.b, (v) => { st.b = v; reset(); }));
     const sS = slider('denoising passes <i>S</i>', Array.from({ length: 32 }, (_, i) => i + 1), st.S - 1, (v) => `${v}  (ω = ${v + 1})`);
     sS.input.addEventListener('input', () => { st.S = sS.value; reset(); });
     const btns = el('<div class="seg" role="group" aria-label="animation"><button type="button" class="fig-btn primary" data-a="play">Play</button><button type="button" class="fig-btn" data-a="step">Step</button><button type="button" class="fig-btn" data-a="reset">Reset</button></div>');
-    ctl.append(mSeg, bSeg, sS.lab, btns);
+    ctl.append(bSeg, sS.lab, btns);
     const pic = el('<div></div>'), out = el('<div class="readout" aria-live="polite"></div>');
     root.append(ctl, pic, out);
     const om = () => st.S + 1;
-    // Weights a TD pass reads over those an AR step reads, at batch 1 (Proposition 3); 1 for a dense model.
-    const penalty = () => (st.model === 'moe' ? prop1(DG, hwOf('h200'), 1, 0, { b: st.b, S: st.S }).Pi : 1);
     const stop = () => { clearInterval(st.timer); st.timer = 0; btns.querySelector('[data-a=play]').textContent = st.t >= om() ? 'Replay' : 'Play'; };
     const step = () => { if (st.t < om()) st.t += 1; draw(); if (st.t >= om()) stop(); };
     function reset() { stop(); st.t = 0; btns.querySelector('[data-a=play]').textContent = 'Play'; draw(); }
@@ -247,9 +244,9 @@
       }
     });
     function draw() {
-      const c = colors(), W = widthOf(pic), x0 = W < 480 ? 136 : 160, x1 = W - 16, w = x1 - x0, n = om(), t = st.t, b = st.b, Pi = penalty();
+      const c = colors(), W = widthOf(pic), x0 = W < 480 ? 136 : 160, x1 = W - 16, w = x1 - x0, n = om(), t = st.t, b = st.b;
       const cell = w / Math.max(b, n), committed = t >= n;
-      let s = `<svg viewBox="0 0 ${W} 240" role="img" aria-label="After ${t} of ${n} passes: AR has ${t} tokens, TD ${committed ? b : 0}">`;
+      let s = `<svg viewBox="0 0 ${W} 198" role="img" aria-label="After ${t} of ${n} passes: AR has ${t} tokens, TD ${committed ? b : 0}">`;
       // shared time axis: one slot per pass
       s += `<text x="0" y="27" class="ink">forward passes</text>${W < 480 ? '' : '<text x="0" y="41">one weight read each</text>'}`;
       const sw = w / n;
@@ -258,27 +255,21 @@
         s += `<rect x="${x0 + j * sw + 1}" y="18" width="${Math.max(2, sw - 2)}" height="22" rx="2" fill="${done ? c.ink : 'none'}" fill-opacity="${done ? 0.82 : 0}" stroke="${c.muted}" stroke-opacity="0.6"/>`;
         if (sw > 22) s += `<text x="${x0 + j * sw + sw / 2}" y="33" text-anchor="middle" style="fill:${done ? c.bg : c.muted};font-size:11px">${last ? (sw >= 46 ? 'commit' : '+1') : j + 1}</text>`;
       }
-      // bytes read by one pass: the TD bar is Π_lin times the AR bar
-      const unit = Math.min(60, w / 8.2);
-      s += `<text x="${x0}" y="56">weights read by one pass</text>`;
-      s += `<text x="0" y="71" class="ar">AR step: ${sub('W', 'AR')}</text><rect x="${x0}" y="63" width="${unit}" height="8" fill="${c.ar}"/>`;
-      s += `<text x="0" y="91" class="td">TD pass: ${Pi === 1 ? '' : `${fmt(Pi)} `}${sub('W', 'AR')}</text><rect x="${x0}" y="83" width="${unit * Pi}" height="8" fill="${c.td}"/>`;
       // AR: one token per pass
-      s += `<text x="0" y="126" class="ar">AR</text><text x="0" y="140">1 token per pass</text>`;
-      for (let j = 0; j < n; j++) s += `<rect x="${x0 + j * cell}" y="112" width="${Math.max(1, cell - (cell > 4 ? 1.5 : 0.4))}" height="26" fill="${j < t ? c.ar : 'none'}" stroke="${c.ar}" stroke-opacity="${j < t ? 1 : 0.3}" stroke-width="${cell > 4 ? 1 : 0.4}"/>`;
+      s += `<text x="0" y="84" class="ar">AR</text><text x="0" y="98">1 token per pass</text>`;
+      for (let j = 0; j < n; j++) s += `<rect x="${x0 + j * cell}" y="70" width="${Math.max(1, cell - (cell > 4 ? 1.5 : 0.4))}" height="26" fill="${j < t ? c.ar : 'none'}" stroke="${c.ar}" stroke-opacity="${j < t ? 1 : 0.3}" stroke-width="${cell > 4 ? 1 : 0.4}"/>`;
       // TD: a canvas of b positions, all updated by every pass, committed by the last one
-      s += `<text x="0" y="184" class="td">TD</text><text x="0" y="198">b positions</text>`;
+      s += `<text x="0" y="142" class="td">TD</text><text x="0" y="156">b positions</text>`;
       const shade = committed ? 1 : Math.min(t, st.S) / st.S * 0.75;
-      for (let j = 0; j < b; j++) s += `<rect x="${x0 + j * cell}" y="170" width="${Math.max(1, cell - (cell > 4 ? 1.5 : 0.4))}" height="26" fill="${c.td}" fill-opacity="${committed ? 1 : shade * 0.85}" stroke="${c.td}" stroke-opacity="${committed ? 1 : 0.35}" stroke-width="${cell > 4 ? 1 : 0.4}"/>`;
-      if (!committed && t > 0) s += `<text x="${x0}" y="216">denoising: every position refined by pass ${Math.min(t, st.S)} of ${st.S}</text>`;
-      if (committed) s += `<text x="${x0}" y="216" class="td">committed: ${b} tokens</text>`;
+      for (let j = 0; j < b; j++) s += `<rect x="${x0 + j * cell}" y="128" width="${Math.max(1, cell - (cell > 4 ? 1.5 : 0.4))}" height="26" fill="${c.td}" fill-opacity="${committed ? 1 : shade * 0.85}" stroke="${c.td}" stroke-opacity="${committed ? 1 : 0.35}" stroke-width="${cell > 4 ? 1 : 0.4}"/>`;
+      if (!committed && t > 0) s += `<text x="${x0}" y="174">denoising: every position refined by pass ${Math.min(t, st.S)} of ${st.S}</text>`;
+      if (committed) s += `<text x="${x0}" y="174" class="td">committed: ${b} tokens</text>`;
       s += '</svg>';
       pic.innerHTML = s;
-      const tpf = b / n, gain = tpf / Pi;
-      const moe = st.model === 'moe' ? ` A canvas of ${b} positions touches ${fmt(M.distinctExperts(DG, b))} of 128 experts per layer and one token touches 8, so a TD pass reads ${hsub('Π', 'lin')} = ${fmt(Pi)} times the weights of an AR step.` : '';
+      const tpf = b / n;
       out.innerHTML = t < n
-        ? `After <b>${t}</b> of <b>${n}</b> passes: <span class="ar">AR</span> has committed ${t} token${t === 1 ? '' : 's'}, <span class="td">TD</span> none yet.${moe}`
-        : `<span class="big">In ${n} passes, <span class="ar">AR</span> commits ${n} tokens and <span class="td">TD</span> commits ${b}: TPF = ${b}/${n} = <b>${fmt(tpf)}</b>.</span><br>${moe} Per token, TD reads ${Pi === 1 ? `1/TPF = ${fmt(1 / tpf)}` : `${hsub('Π', 'lin')}/TPF = ${fmt(Pi / tpf)}`} times the weight bytes of AR and performs ${n} times its FLOPs. If both passes are memory-bound, <b>Γ = ${Pi === 1 ? `TPF = ${fmt(gain)}` : `TPF/${hsub('Π', 'lin')} = ${fmt(tpf)}/${fmt(Pi)} = ${fmt(gain)}`}</b>${gain < 1 ? ': TPF is below the penalty, so AR is faster' : ''}.${Pi === 1 && b > 206 ? ` A dense TD pass over ${b} positions has an intensity of about ${b}, above the ridge of an H200 (206): there it is compute-bound, and the gain is capped at <i>I</i>*/(ω ${hsub('I', 'AR')}) (Corollary 1, Figure 6).` : ''}`;
+        ? `After <b>${t}</b> of <b>${n}</b> passes: <span class="ar">AR</span> has committed ${t} token${t === 1 ? '' : 's'}, <span class="td">TD</span> none yet.`
+        : `<span class="big">In ${n} passes, <span class="ar">AR</span> commits ${n} tokens and <span class="td">TD</span> commits ${b}: TPF = ${b}/${n} = <b>${fmt(tpf)}</b>.</span><br>Per token, TD reads 1/TPF = ${fmt(1 / tpf)} times the weight bytes of AR and performs ${n} times its FLOPs. If both passes are memory-bound, <b>Γ = TPF = ${fmt(tpf)}</b>${tpf < 1 ? ': TPF is below 1, so AR is faster' : ''}.${b > 206 ? ` A dense TD pass over ${b} positions has an intensity of about ${b}, above the ridge of an H200 (206): there it is compute-bound, and the gain is capped at <i>I</i>*/(ω ${hsub('I', 'AR')}) (Corollary 1, Figure 6).` : ''}`;
     }
     reset();
     onTheme(draw);
