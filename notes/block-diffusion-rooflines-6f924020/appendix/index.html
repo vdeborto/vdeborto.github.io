@@ -341,7 +341,7 @@
   <p>Model shapes come from each checkpoint's <code>config.json</code>. For DiffusionGemma, they also come from its safetensors headers, which give 25.25B text parameters, 3.08B active per token plus a 0.74B head.</p>
   <h3 id="s-check-against-measurement">Check against measurement</h3>
   <p>In <a href="/notes/block-diffusion-rooflines-6f924020/effective/">Parts 8–11</a>, we compare these bounds with throughput measured in vLLM 0.28.0 on one H200, and we attribute every kernel to a component.</p>
-  <h3 id="s-cost-model-and-changelog">Cost model and changelog</h3>
+  <h3 id="s-cost-model-and-last-update">Cost model and last update</h3>
   <p class="small">The cost model is the <code>BDModel</code> script in <code>/assets/roofline/note.js</code>, which every chapter loads. Last updated 16 November 2026: excerpts of the measurement code in <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/effective/">Parts 8</a>–<a class="xref" href="/notes/block-diffusion-rooflines-6f924020/conclusion/">11</a>.</p>
   <h3 id="s-sources">Sources</h3>
   <ul class="small">

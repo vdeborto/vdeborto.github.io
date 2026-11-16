@@ -345,7 +345,7 @@
     <li>
 <p><b>Long context.</b> Which regime, and what gain? What changes at \(b = 16\)?</p>
       <details class="answer"><summary>Answer</summary>
-        <p>\(b\,I_{\mathrm{attn}} = 256 \gt 206\), so the limit \(C \to \infty\) is R6 with \(\Gamma = I^\star/(\omega I_{\mathrm{attn}}) = 1.72\), independent of \(b\). This limit is not reached in memory: at 1M context a TD pass with \(b = 32\) is compute-bound only from batch 8.2 by <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/whole/#prop8">Proposition 8</a> (batch 9 in the exact accounting, <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/whole/#figure-15">Figure 15</a>), and at most 4 sequences fit. At batch 1 the weights still count in an AR step's bytes, \(\Pi = 2.3\) and \(\Gamma = \mathrm{TPF}/\Pi = 0.92\), so AR wins; at batch 4, \(\Gamma = 1.58\) (1.56 in the exact accounting). At \(b = 16\), \(b\,I_{\mathrm{attn}} = 128 \lt 206\): TD stays memory-bound (R5) and \(\Gamma \to \mathrm{TPF} = 16/15 = 1.07\). On the map: the right edge is about 1.7 only in the dimmed cells, which do not fit in memory; the cells that fit go from 0.9 at batch 1 to 1.6 at batch 4.</p></details>
+        <p>\(b\,I_{\mathrm{attn}} = 256 \gt 206\), so the limit \(C \to \infty\) is R6 with \(\Gamma = I^\star/(\omega I_{\mathrm{attn}}) = 1.72\), independent of \(b\). This limit is not reached in memory: at 1M context a TD pass with \(b = 32\) is compute-bound only from batch 8.1 by <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/whole/#prop8">Proposition 8</a> (<a class="xref" href="/notes/block-diffusion-rooflines-6f924020/whole/#figure-15">Figure 15</a>), and from batch 9 in the exact accounting, and at most 4 sequences fit. At batch 1 the weights still count in an AR step's bytes, \(\Pi = 2.3\) and \(\Gamma = \mathrm{TPF}/\Pi = 0.92\), so AR wins; at batch 4, \(\Gamma = 1.58\) (1.56 in the exact accounting). At \(b = 16\), \(b\,I_{\mathrm{attn}} = 128 \lt 206\): TD stays memory-bound (R5) and \(\Gamma \to \mathrm{TPF} = 16/15 = 1.07\). On the map: the right edge is about 1.7 only in the dimmed cells, which do not fit in memory; the cells that fit go from 0.9 at batch 1 to 1.6 at batch 4.</p></details>
 </li>
   </ol>
   <details class="answer">
@@ -381,7 +381,7 @@
     <li>
 <p><b>Where does AR catch up?</b></p>
       <details class="answer"><summary>Answer</summary>
-        <p>In R2, \(\Gamma = I^\star/(\omega B)\), so \(\Gamma = 1\) at \(B_\times = I^\star/\omega \approx 14\) (exact: 15). TD is compute-bound from batch 1, so batch 1 is also its best batch, and the gain only falls from there. On the map: the dashed line \(\Gamma = 1\). It starts near batch 15 at short context and turns sharply upward around 16k tokens, because at long context TD wins at every batch (next question).</p></details>
+        <p>In R2, \(\Gamma = I^\star/(\omega B)\), so \(\Gamma = 1\) at \(B_\times = I^\star/\omega \approx 14\) (exact: 15). TD is compute-bound from batch 1, so batch 1 is also its best batch, and the gain only falls from there. On the map: the dashed line \(\Gamma = 1\). It starts near batch 15 at short context and turns sharply upward around 16k tokens, because at long context TD wins at every batch (last question).</p></details>
 </li>
     <li>
 <p><b>Does AR ever become compute-bound at 1k context?</b></p>

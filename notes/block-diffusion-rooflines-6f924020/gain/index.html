@@ -22,7 +22,7 @@
   
 </title>
 <meta name="author" content="Valentin De Bortoli">
-<meta name="description" content="Part 2 of Block Diffusion Rooflines: Proposition 1, and the split of each intensity into a linear part and an attention part.">
+<meta name="description" content="Part 2 of Block Diffusion Rooflines: Proposition 1, what the formulas leave out, and the split of each intensity into a linear part and an attention part.">
 
   <meta name="keywords" content="diffusion models, generative modelling, optimal transport, Schrodinger bridge, sampling, Markov chain Monte Carlo, machine learning">
 
@@ -290,7 +290,7 @@
 <div class="post">
   <header class="post-header">
     <h1 class="post-title">The gain</h1>
-    <p class="post-description">Part 2 of Block Diffusion Rooflines: Proposition 1, and the split of each intensity into a linear part and an attention part.</p>
+    <p class="post-description">Part 2 of Block Diffusion Rooflines: Proposition 1, what the formulas leave out, and the split of each intensity into a linear part and an attention part.</p>
   </header>
 
   <article>
@@ -343,6 +343,22 @@
       </ol>
     </details>
   </div>
+
+  <h3 id="gain-leave-out">What the formulas leave out</h3>
+  <ul>
+    <li>
+<b>Vocabulary and self-conditioning.</b> With self-conditioning, each denoising pass feeds the token distribution predicted by the previous pass back in through the embedding matrix. Per token, TD therefore runs \(2S-1\) vocabulary-sized matrix multiplications against AR's one, and a smaller decoder does not shrink them. The formulas leave them out, but the maps and the calculator include them.</li>
+    <li>
+<b>Timing kernel by kernel.</b> Assumption (A1) times a pass as one kernel in which all of its compute and memory traffic overlap. If we instead time it kernel by kernel, DiffusionGemma's best batch on an H200 moves from 5 to 9 (<a class="xref" href="/notes/block-diffusion-rooflines-6f924020/whole/#kernels">Remark 2</a>, <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/whole/">Part 5</a>). The calculator offers both rules.</li>
+    <li>
+<b>Small effects.</b> The formulas leave out activations, KV writes, and the at most \(b\) keys inside the canvas. Activations stay in the processor's caches when consecutive operations are merged into one kernel.</li>
+    <li>
+<b>Keys equal to values on the global layers.</b> DiffusionGemma's global layers project one tensor that serves as both key and value. In this blogpost, like vLLM and the kernel of <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/kernels/">Part 10</a>, we cache it twice (\(\kappa^c = 2\)). On the other hand, a cache that stored it once would halve the global layers' bytes, double \(I_{\mathrm{attn}}\) to 16 and halve the long-context limit \(I^\star/(\omega I_{\mathrm{attn}})\) (regime R6, <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/whole/">Part 5</a>) from 1.72 to 0.86.</li>
+    <li>
+<b>Cross-layer KV sharing.</b> It divides the KV cache's size, but not the bytes read per pass, since each layer still reads the shared cache. Hence, it changes the largest batch that fits in memory, not any intensity.</li>
+    <li>
+<b>Beyond the roofline.</b> Finally, the formulas leave out kernel efficiency, uneven and correlated expert routing (which affects \(\Pi_{\mathrm{lin}}\)), adaptive step counts (which affects \(\omega\)), correlated token  selections (which affects \(\Pi_{\mathrm{attn}}\)).</li>
+  </ul>
 
   <div class="bdr-fig wide" id="fig-roofline">
     <div class="fig-k" id="figure-6">Figure 6 · interactive</div>
