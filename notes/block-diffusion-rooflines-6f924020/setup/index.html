@@ -373,12 +373,12 @@ By doing so, we will be able to establish the arithmetic intensities of both mod
 <td class="l">the same, sliding-window layers</td>
 </tr>
         <tr>
-<td>\(\alpha_S\)</td>
-<td class="l">the same, sparse layers (\(4n_q\sum h_\ell\) over them)</td>
+<td>\(\alpha_S = 4n_q\sum_{\ell\in\mathcal S}h_\ell\)</td>
+<td class="l">the same, sparse layers, per selected token</td>
 </tr>
         <tr>
-<td>\(\alpha_I\)</td>
-<td class="l">the same, for the indexer, the scan that selects a sparse layer's tokens (<a class="xref" href="/notes/block-diffusion-rooflines-6f924020/attention/">Part 4</a>)</td>
+<td>\(\alpha_I = 2\,|\mathcal S|\,H_Ih_I\)</td>
+<td class="l">the same, for the indexer, the scan that selects a sparse layer's tokens: \(H_I\) heads of dimension \(h_I\) per sparse layer (<a class="xref" href="/notes/block-diffusion-rooflines-6f924020/attention/">Part 4</a>)</td>
 </tr>
         <tr>
 <td>\(\nu_G = s_{kv}\sum_{\ell\in\mathcal G}\kappa^cn_{kv,\ell}h_\ell\)</td>
@@ -389,12 +389,12 @@ By doing so, we will be able to establish the arithmetic intensities of both mod
 <td class="l">the same, sliding-window layers</td>
 </tr>
         <tr>
-<td>\(\nu_S\)</td>
-<td class="l">the same, sparse layers</td>
+<td>\(\nu_S = s_{kv}\sum_{\ell\in\mathcal S}\kappa^cn_{kv,\ell}h_\ell\)</td>
+<td class="l">the same, sparse layers, per selected token</td>
 </tr>
         <tr>
-<td>\(\nu_I\)</td>
-<td class="l">bytes per cached token of the scan's own cache</td>
+<td>\(\nu_I = |\mathcal S|\,s_Ih_I\)</td>
+<td class="l">bytes per cached token of the scan's own cache: one index key of \(h_I\) elements at \(s_I\) bytes per element, per sparse layer</td>
 </tr>
         <tr>
 <td>\(U_{C,m}(N) = C\bigl[1-(1-\tfrac{m}{C})^{N}\bigr]\) for \(C \ge m\), and \(C\) for \(C \le m\)</td>
@@ -510,31 +510,6 @@ By doing so, we will be able to establish the arithmetic intensities of both mod
     <p>so that \(\class{mj-td}{I^{TD}_{\mathrm{lin}}} = b\,\class{mj-ar}{I^{AR}_{\mathrm{lin}}}/\Pi_{\mathrm{lin}}\), \(\class{mj-td}{I^{TD}_{\mathrm{attn}}} = b\,\class{mj-ar}{I^{AR}_{\mathrm{attn}}}/\Pi_{\mathrm{attn}}\) and \(\class{mj-td}{I_{TD}} = b\,\class{mj-ar}{I_{AR}}/\Pi\). For DiffusionGemma with dense attention, \(\Pi_{\mathrm{attn}} = 1\) and \(\Pi = \Pi_{\mathrm{lin}}\) at zero context: 7.9 at batch 1, 1.0 at batch 64.</p>
   </div>
 
-  <div class="table-wrap"><table class="limits">
-    <caption id="table-1">Table 1. Where the intensities go, DiffusionGemma on an H200 with dense attention (Parts 3 and 4 prove the limits).</caption>
-    <thead><tr>
-<th class="l"></th>
-<th class="l">Short context, \(C \to 0\)</th>
-<th class="l">Long context, \(C \to \infty\)</th>
-</tr></thead>
-    <tbody>
-      <tr>
-<td class="l"><b>AR</b></td>
-<td class="l">\(\class{mj-ar}{I^{AR}_{\mathrm{lin}}}(B)\): 1.0 at batch 1, 8.2 at batch 64</td>
-<td class="l">\(I_{\mathrm{attn}}\): 8</td>
-</tr>
-      <tr>
-<td class="l"><b>TD</b></td>
-<td class="l">\(b\,\class{mj-ar}{I^{AR}_{\mathrm{lin}}}(B)/\Pi_{\mathrm{lin}}(B)\): 32 at batch 1, 2.1k at batch 64</td>
-<td class="l">\(b\,I_{\mathrm{attn}}\): 2,048</td>
-</tr>
-      <tr>
-<td class="l"><b>Penalty</b></td>
-<td class="l">\(\Pi_{\mathrm{lin}}(B)\): 7.9 at batch 1, 1.0 at batch 64</td>
-<td class="l">\(\Pi_{\mathrm{attn}}\): 1</td>
-</tr>
-    </tbody>
-  </table></div>
 <section class="footnotes" aria-label="Notes"><h3 id="s-notes">Notes</h3>
 <ol>
 <li id="fn-ar-parallel">As emphasized in the introduction, we do not consider parallel decoding techniques for AR such as Multi-Token Prediction (MTP) or Speculative Sampling (SS). We will discuss those works in the Conclusion. <a href="#fnref-ar-parallel" class="fn-back" aria-label="Back to the text">↩</a>

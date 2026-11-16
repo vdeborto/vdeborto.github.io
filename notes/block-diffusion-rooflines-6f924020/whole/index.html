@@ -342,7 +342,7 @@
       <li>If \(n\,I_{\mathrm{attn}} \lt I^\star\), then \(B^\star_n(C)\) is non-decreasing in \(C\), and infinite beyond some finite context.</li>
       <li>If \(n\,I_{\mathrm{attn}} \gt I^\star\), then \(B^\star_n(C)\) is non-increasing in \(C\), and equal to 1 beyond some finite context.</li>
     </ol>
-    <p>AR is in the first case whenever \(I_{\mathrm{attn}} \lt I^\star\), which holds for every model and accelerator of <a class="xref" href="#table-8">Tables 8</a> and <a class="xref" href="#table-9">9</a>. TD is in the second case exactly when \(b \gt b_c = I^\star/I_{\mathrm{attn}}\), the critical canvas length.</p>
+    <p>AR is in the first case whenever \(I_{\mathrm{attn}} \lt I^\star\), which holds for every model and accelerator of <a class="xref" href="#table-7">Tables 7</a> and <a class="xref" href="#table-8">8</a>. TD is in the second case exactly when \(b \gt b_c = I^\star/I_{\mathrm{attn}}\), the critical canvas length.</p>
     <details class="proof">
       <summary>Proof</summary>
       <p>Write \(D_n(C) = n\,\class{mj-ar}{F^{AR}}(C) - I^\star \class{mj-ar}{Q^{AR}_{\mathrm{attn}}}(C)\). Multiplying out \(I_n \ge I^\star\) gives \(B\,D_n(C) \ge I^\star s_wW_n(B)\): each sequence contributes \(n\class{mj-ar}{F^{AR}}\) FLOPs, of which \(I^\star \class{mj-ar}{Q^{AR}_{\mathrm{attn}}}\) are needed to make its own cache reads compute-bound, and what is left, summed over the batch, has to cover the weights. The right side is positive, so no batch works when \(D_n \le 0\). For \(C \ge w\), \(D_n\) is affine in \(C\) with slope \((nI_{\mathrm{attn}} - I^\star)\,\nu_G\). A smaller \(D_n\) can only remove batches from the feasible set, so a negative slope makes \(B^\star_n\) non-decreasing and eventually infinite; a positive slope makes the set grow until batch 1 works, once \(D_n \ge I^\star s_wW_n(1)\). Nothing needs a closed form for \(W_n(B)\), so the argument covers MoE models. \(\blacksquare\)</p>
@@ -426,9 +426,9 @@
 </div>
 </div>
   </div>
-  <details class="numbers"><summary>Table 7: the regimes as a table, with their conditions</summary>
+  <details class="numbers"><summary>Table 6: the regimes as a table, with their conditions</summary>
 <div class="table-wrap breakout"><table class="regimes">
-    <caption id="table-7">Table 7. The eight regimes of Proposition 1. DiffusionGemma under its assumptions, on H200: \(I^\star = 206\), \(I_{\mathrm{attn}} = 8\), \(b = 256\), \(\omega = 15\). Short-context values at zero context, long-context values in the limit \(C \to \infty\).</caption>
+    <caption id="table-6">Table 6. The eight regimes of Proposition 1. DiffusionGemma under its assumptions, on H200: \(I^\star = 206\), \(I_{\mathrm{attn}} = 8\), \(b = 256\), \(\omega = 15\). Short-context values at zero context, long-context values in the limit \(C \to \infty\).</caption>
     <thead><tr>
 <th class="l"></th>
 <th class="l">Context</th>
@@ -545,9 +545,9 @@
     <div data-fig="thresholds"></div>
     <p class="fig-cap">DiffusionGemma in BF16 under <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/gain/#prop1">Proposition 1</a> at zero context. Orange bar: the batches at which TD is ahead, from 1 to the parity batch \(B_\times\), which solves \(\class{mj-ar}{I^{AR}_{\mathrm{lin}}}(B) = I^\star/\omega\). Diamond: \(\class{mj-td}{B^\star_{TD}}\), from which a TD pass is compute-bound and where the gain is largest. Blue: from \(B_\times\) to \(\class{mj-ar}{B^\star_{AR}}\), AR is ahead although it is still memory-bound; the dot is \(\class{mj-ar}{B^\star_{AR}}\), from which an AR step is compute-bound too. All three thresholds are proportional to the ridge point \(I^\star\) once the batch touches every expert. The batch axis is logarithmic.</p>
   </div>
-  <details class="numbers"><summary>Table 8: the numbers behind Figure 18</summary>
+  <details class="numbers"><summary>Table 7: the numbers behind Figure 18</summary>
   <div class="table-wrap"><table>
-    <caption id="table-8">Table 8. Regime thresholds by accelerator, DiffusionGemma in BF16 under Proposition 1. The parity batch solves \(\class{mj-ar}{I^{AR}_{\mathrm{lin}}}(B) = I^\star/\omega\) with the full \(\class{mj-ar}{W_{AR}}(B)\). A higher ridge point favours TD. The row "H200 SXM, measured ceilings" uses the rates measured in Part 8 in place of the datasheet's.</caption>
+    <caption id="table-7">Table 7. Regime thresholds by accelerator, DiffusionGemma in BF16 under Proposition 1. The parity batch solves \(\class{mj-ar}{I^{AR}_{\mathrm{lin}}}(B) = I^\star/\omega\) with the full \(\class{mj-ar}{W_{AR}}(B)\). A higher ridge point favours TD. The row "H200 SXM, measured ceilings" uses the rates measured in Part 8 in place of the datasheet's.</caption>
     <thead><tr>
 <th class="l">Accelerator</th>
 <th>\(I^\star\)</th>
@@ -574,11 +574,11 @@
     <p class="fig-title">The larger a model's linear penalty at batch 1, the lower \(\Gamma\) at batch 1 and the higher \(\Gamma\) at batch 64.</p>
     <p class="fig-lede">Each row is a model, ordered by its penalty at batch 1. Select a row to read its gains.</p>
     <div data-fig="models"></div>
-    <p class="fig-cap">Exact gains on an H200 in BF16, with a canvas of 256 and \(S = 14\), as in <a class="xref" href="#table-9">Table 9</a>. Filled circle: batch 1 at context 1k; open circle: batch 64 at context 1k; diamond: batch 1 at 1M context. Models are ordered by \(\Pi(1)\), the penalty of <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/linear/#prop3">Proposition 3</a> at batch 1, from the dense models (\(\Pi = 1\)) to gpt-oss-120b (25.4). At batch 1, <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/gain/#cor1">Corollary 1</a> gives \(\Gamma \approx \min\bigl(\mathrm{TPF}/\Pi(1),\ I^\star/(\omega \class{mj-ar}{I_{AR}})\bigr)\): the dense models reach the second term, about 13.7, and the MoE models the first, which falls as the penalty grows. At batch 64 the order is reversed, because the intensity of an AR step at a given batch, about \(B\,N_{\mathrm{act}}/\class{mj-ar}{W_{AR}}(B)\) in BF16, is lowest for the models with the most inactive weights. Faint markers: the point does not fit in the H200's 141 GB (the † of <a class="xref" href="#table-9">Table 9</a>). The gain axis is logarithmic.</p>
+    <p class="fig-cap">Exact gains on an H200 in BF16, with a canvas of 256 and \(S = 14\), as in <a class="xref" href="#table-8">Table 8</a>. Filled circle: batch 1 at context 1k; open circle: batch 64 at context 1k; diamond: batch 1 at 1M context. Models are ordered by \(\Pi(1)\), the penalty of <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/linear/#prop3">Proposition 3</a> at batch 1, from the dense models (\(\Pi = 1\)) to gpt-oss-120b (25.4). At batch 1, <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/gain/#cor1">Corollary 1</a> gives \(\Gamma \approx \min\bigl(\mathrm{TPF}/\Pi(1),\ I^\star/(\omega \class{mj-ar}{I_{AR}})\bigr)\): the dense models reach the second term, about 13.7, and the MoE models the first, which falls as the penalty grows. At batch 64 the order is reversed, because the intensity of an AR step at a given batch, about \(B\,N_{\mathrm{act}}/\class{mj-ar}{W_{AR}}(B)\) in BF16, is lowest for the models with the most inactive weights. Faint markers: the point does not fit in the H200's 141 GB (the † of <a class="xref" href="#table-8">Table 8</a>). The gain axis is logarithmic.</p>
   </div>
-  <details class="numbers"><summary>Table 9: the numbers behind Figure 19</summary>
+  <details class="numbers"><summary>Table 8: the numbers behind Figure 19</summary>
   <div class="table-wrap"><table>
-    <caption id="table-9">Table 9. Exact gains on H200, BF16, canvas 256, \(S = 14\), context 1k (1M and batch 1 for the last column). †: the weights and the KV cache of that point exceed the H200's 141 GB, so the gain is that of a hypothetical accelerator with the same rates and more memory. Total parameters include the embedding matrix; active ones exclude it, as \(N_{\mathrm{act}}\) does. \(\Pi(1)\) under Proposition 3.</caption>
+    <caption id="table-8">Table 8. Exact gains on H200, BF16, canvas 256, \(S = 14\), context 1k (1M and batch 1 for the last column). †: the weights and the KV cache of that point exceed the H200's 141 GB, so the gain is that of a hypothetical accelerator with the same rates and more memory. Total parameters include the embedding matrix; active ones exclude it, as \(N_{\mathrm{act}}\) does. \(\Pi(1)\) under Proposition 3.</caption>
     <thead><tr>
 <th class="l">Model</th>
 <th>total / active parameters</th>
@@ -622,7 +622,7 @@
     <div class="maplegend" id="map-sparse-legend"></div>
     <div class="chart" id="map-sparse"></div>
   </figure>
-  <p class="small">As the context grows, \(\class{mj-ar}{I_{AR}}\) tends to \(I_{\mathrm{attn}} = 8\) without reaching the ridge, and \(\class{mj-td}{I_{TD}}\) tends to \(b\,I_{\mathrm{attn}} = 2{,}048\), above it. On the gain map, the bottom-left is R1, the band above the TD-compute line is R2, and the colour flattens toward R6's 1.7 at long context. With sparse layers, the gain falls further at large batch, toward the sparse limit 0.86 given after <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/attention/#table-6">Table 6</a>. At batch 1, it stays between 2.3 and 2.5, where the weights still carry most of AR's bytes.</p>
+  <p class="small">As the context grows, \(\class{mj-ar}{I_{AR}}\) tends to \(I_{\mathrm{attn}} = 8\) without reaching the ridge, and \(\class{mj-td}{I_{TD}}\) tends to \(b\,I_{\mathrm{attn}} = 2{,}048\), above it. On the gain map, the bottom-left is R1, the band above the TD-compute line is R2, and the colour flattens toward R6's 1.7 at long context. With sparse layers, the gain falls further at large batch, toward the sparse limit 0.86 given after <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/attention/#table-5">Table 5</a>. At batch 1, it stays between 2.3 and 2.5, where the weights still carry most of AR's bytes.</p>
 </section>
 <nav class="book-nav" aria-label="Chapters"><a class="prev" href="/notes/block-diffusion-rooflines-6f924020/attention/"><span>Previous</span>4 · The attention part</a><a class="next" href="/notes/block-diffusion-rooflines-6f924020/calculator/"><span>Next</span>6 · Calculator</a></nav>
 <section class="book-comments" id="bdr-comments" data-repo="vdeborto/vdeborto.github.io" data-repo-id="MDEwOlJlcG9zaXRvcnkxMTY1OTk1ODA=" data-category="Announcements" data-category-id="DIC_kwDOBvMrHM4DLMnm" data-term="Block Diffusion Rooflines · Part 5 · The whole picture">
