@@ -485,7 +485,7 @@ def measured_gains():
 
 
 MEAS = None
-PRACTICE_SLUGS = {"effective", "stack", "kernels", "conclusion"}
+PRACTICE_SLUGS = {"", "effective", "stack", "kernels", "conclusion"}
 
 
 def practice_json():
