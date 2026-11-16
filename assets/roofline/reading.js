@@ -40,6 +40,7 @@
     return btn;
   }
   for (const box of page.querySelectorAll('.box.prop, .box.def')) {
+    if (box.closest('#setup')) { box.classList.add('open'); continue; }  // Setup's definitions are always shown in full
     const gist = box.querySelector('.gist');
     if (gist) gist.after(foldButton(box, box.classList.contains('def') ? 'the definition' : 'the statement'));
   }

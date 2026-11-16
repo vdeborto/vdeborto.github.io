@@ -28,12 +28,16 @@ sitemap: false
     <div class="bdr-title"><span class="tag">Proposition 1</span>TD/AR throughput gain</div>
     <p class="gist"><span>In short.</span> The gain is the ratio of the two decoders' attainable FLOP rates, divided by the \(\omega\) passes a canvas costs.</p>
     <dl class="assume keep">
-      <dt>A1 · Roofline</dt><dd>A pass with \(F\) FLOPs and \(Q\) bytes read from memory takes \(\max(F/\pi,\,Q/\beta)\).</dd>
+      <dt>A1 · Roofline</dt><dd>On an accelerator with peak compute \(\pi\) (FLOP/s) and memory bandwidth \(\beta\) (bytes/s), a pass with \(F\) FLOPs and \(Q\) bytes read from memory takes \(\max(F/\pi,\,Q/\beta)\).</dd>
       <dt>A2 · Costs</dt><dd>Per sequence, an AR step costs \(\class{mj-ar}{F^{AR}}\) FLOPs and \(\class{mj-ar}{Q^{AR}}\) bytes, and a TD pass \(\class{mj-td}{F^{TD}}\) and \(\class{mj-td}{Q^{TD}}\), as in <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/#def2">Definition 2</a>. Vocabulary, activations, KV writes and in-canvas keys are neglected.</dd>
       <dt>A3 · Canvas</dt><dd>A canvas commits \(b\) tokens per sequence after \(S\) denoising passes and one commit pass. A denoising pass costs \(r\) times a commit pass, in FLOPs and in bytes.</dd>
       <dt>A4 · Lockstep</dt><dd>\(B\) sequences share every pass, at a context \(C\) held fixed over a canvas.</dd>
-      <dt>A5 · Routing</dt><dd>Expert routing and token selection are independent across positions and uniform: each token picks its \(k\) experts uniformly among the \(E\), and each query its \(m\) tokens uniformly among the \(C\). (<a href="/notes/block-diffusion-rooflines-6f924020/effective/">Part 8</a> measures the routing: it is not independent, and <a href="/notes/block-diffusion-rooflines-6f924020/effective/#rem-neff">Remark 3</a> there gives <a class="xref" href="#prop1">Proposition 1</a> at the measured routing.)</dd>
+      <dt>A5 · Routing</dt><dd>Expert routing and token selection are independent across positions and uniform: each token picks its \(k\) experts uniformly among the \(E\), and each query its \(m\) tokens uniformly among the \(C\).<sup class="fn-ref" id="fnref-measured-routing"><a href="#fn-measured-routing" title="Part 8 measures the routing: it is not independent, and Remark 3 there gives Proposition 1 at the measured routing.">1</a></sup></dd>
     </dl>
+
+
+
+
     <p>Then TD's throughput over AR's is</p>
     <div class="eq keep">\[
     \boxed{\;\begin{gathered}\Gamma = \frac{1}{\omega}\cdot\frac{\min(\class{mj-td}{I_{TD}},\,I^\star)}{\min(\class{mj-ar}{I_{AR}},\,I^\star)},\\[6pt] \omega = S\,r+1,\qquad \class{mj-td}{I_{TD}} = \frac{b}{\Pi}\,\class{mj-ar}{I_{AR}}.\end{gathered}\;}
@@ -51,13 +55,21 @@ sitemap: false
 
   <h3 id="gain-leave-out">What the formulas leave out</h3>
   <ul>
-    <li><b>Vocabulary and self-conditioning.</b> With self-conditioning, each denoising pass feeds the token distribution predicted by the previous pass back in through the embedding matrix. Per token, TD therefore runs \(2S-1\) vocabulary-sized matrix multiplications against AR's one, and a smaller decoder does not shrink them. The formulas leave them out, but the maps and the calculator include them.</li>
-    <li><b>Timing kernel by kernel.</b> Assumption (A1) times a pass as one kernel in which all of its compute and memory traffic overlap. If we instead time it kernel by kernel, DiffusionGemma's best batch on an H200 moves from 5 to 9 (<a class="xref" href="/notes/block-diffusion-rooflines-6f924020/whole/#kernels">Remark 2</a>, <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/whole/">Part 5</a>). The calculator offers both rules.</li>
-    <li><b>Small effects.</b> The formulas leave out activations, KV writes, and the at most \(b\) keys inside the canvas. Activations stay in the processor's caches when consecutive operations are merged into one kernel.</li>
-    <li><b>Keys equal to values on the global layers.</b> DiffusionGemma's global layers project one tensor that serves as both key and value. In this blogpost, like vLLM and the kernel of <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/kernels/">Part 10</a>, we cache it twice (\(\kappa^c = 2\)). On the other hand, a cache that stored it once would halve the global layers' bytes, double \(I_{\mathrm{attn}}\) to 16 and halve the long-context limit \(I^\star/(\omega I_{\mathrm{attn}})\) (regime R6, <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/whole/">Part 5</a>) from 1.72 to 0.86.</li>
-    <li><b>Cross-layer KV sharing.</b> It divides the KV cache's size, but not the bytes read per pass, since each layer still reads the shared cache. Hence, it changes the largest batch that fits in memory, not any intensity.</li>
-    <li><b>Beyond the roofline.</b> Finally, the formulas leave out kernel efficiency, uneven and correlated expert routing (which affects \(\Pi_{\mathrm{lin}}\)), adaptive step counts (which affects \(\omega\)), correlated token  selections (which affects \(\Pi_{\mathrm{attn}}\)).</li>
+    <li><b>Vocabulary and self-conditioning.</b> With self-conditioning, each denoising pass after the first feeds the token distribution predicted by the previous pass back in through the embedding matrix. Per token, TD therefore runs \(2S-1\) vocabulary-sized matrix multiplications against AR's one, and a cheaper denoising network (\(r < 1\)) does not shrink them. The formulas leave them out, but the maps and the calculator include them.</li>
+    <li><b>Timing kernel by kernel.</b> Assumption (A1) times a pass as one kernel in which all of its compute and memory traffic overlap. If we instead time it kernel by kernel, DiffusionGemma's best batch on an H200, in the exact accounting at context 1k, moves from 5 to 9 (<a class="xref" href="/notes/block-diffusion-rooflines-6f924020/whole/#kernels">Remark 2</a>, <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/whole/">Part 5</a>). The calculator offers both rules.</li>
+    <li><b>Small effects.</b> The formulas leave out activations, KV writes, and the at most \(b\) keys inside the canvas<sup class="fn-ref" id="fnref-fused-activations"><a href="#fn-fused-activations" title="Activations stay in on-chip memory when consecutive operations are fused into one kernel.">2</a></sup>.</li>
+    <li><b>Keys equal to values on the global layers.</b> DiffusionGemma's global layers project one tensor that serves as both key and value. In this blogpost, we cache it twice (\(\kappa^c = 2\))<sup class="fn-ref" id="fnref-kv-twice"><a href="#fn-kv-twice" title="As vLLM does; the global-attention kernel of Part 10 also reads keys and values as two tensors.">3</a></sup>. On the other hand, a cache that stored it once would halve the global layers' bytes, double \(I_{\mathrm{attn}}\) to 16 and halve the long-context limit \(I^\star/(\omega I_{\mathrm{attn}})\) (regime R6, <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/whole/">Part 5</a>) from 1.72 to 0.86.</li>
+    <li><b>Cross-layer KV sharing.</b> Sharing one KV cache across layers divides the cache's size, but not the bytes read per pass, since each layer still reads the shared cache. Hence, it changes the largest batch that fits in memory, not any intensity.</li>
+    <li><b>Beyond the roofline.</b> Finally, the formulas leave out kernel efficiency, uneven and correlated expert routing (which affects \(\Pi_{\mathrm{lin}}\)), adaptive step counts (which affect \(\omega\)) and correlated token selections (which affect \(\Pi_{\mathrm{attn}}\)).</li>
   </ul>
+
+
+
+
+
+
+
+
 
   <div class="bdr-fig wide" id="fig-roofline">
     <div class="fig-k" id="figure-6">Figure 6 · interactive</div>
@@ -69,10 +81,10 @@ sitemap: false
   <h3 id="gain-sides">Which side wins</h3>
   <div class="box prop" id="cor1">
     <div class="bdr-title"><span class="tag">Corollary 1</span>Which side wins</div>
-    <p class="gist"><span>In short.</span> If AR is compute-bound TD loses; otherwise the gain is the smaller of \(\mathrm{TPF}/\Pi\), set by bytes, and \(I^\star/(\omega \class{mj-ar}{I_{AR}})\), set by the compute AR leaves idle.</p>
-    <p>If AR is compute-bound (\(\class{mj-ar}{I_{AR}} \ge I^\star\)), then \(\Gamma \le 1/\omega\), with equality whenever \(\Pi \le b\), which holds under (A2) and (A5) (<a class="xref" href="/notes/block-diffusion-rooflines-6f924020/linear/#prop3">Proposition 3</a>(4)) and gives \(\class{mj-td}{I_{TD}} \ge \class{mj-ar}{I_{AR}}\). Otherwise</p>
+    <p class="gist"><span>In short.</span> If AR is compute-bound, TD loses; otherwise the gain is the smaller of \(\mathrm{TPF}/\Pi\), set by bytes, and \(I^\star/(\omega \class{mj-ar}{I_{AR}})\), set by the compute AR leaves idle.</p>
+    <p>If AR is compute-bound (\(\class{mj-ar}{I_{AR}} \ge I^\star\)), then \(\Gamma \le 1/\omega\), with equality whenever \(\Pi \le b\), since then \(\class{mj-td}{I_{TD}} \ge \class{mj-ar}{I_{AR}}\); this holds under (A2) and (A5) by <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/linear/#prop3">Proposition 3</a>(4). Otherwise</p>
     <div class="eq">\[ \Gamma = \min\Bigl(\frac{\mathrm{TPF}}{\Pi},\ \frac{I^\star}{\omega\,\class{mj-ar}{I_{AR}}}\Bigr),\quad \mathrm{TPF} = \frac{b}{\omega}. \]</div>
-    <details class="proof"><summary>Proof</summary><p>If \(\class{mj-ar}{I_{AR}} \ge I^\star\) the denominator of <a class="xref" href="#prop1">Proposition 1</a> is \(I^\star\) and the numerator at most \(I^\star\). Otherwise \(\min(b\class{mj-ar}{I_{AR}}/\Pi,\,I^\star)/\class{mj-ar}{I_{AR}} = \min(b/\Pi,\,I^\star/\class{mj-ar}{I_{AR}})\); divide by \(\omega\). \(\blacksquare\)</p></details>
+    <details class="proof"><summary>Proof</summary><p>If \(\class{mj-ar}{I_{AR}} \ge I^\star\) the denominator of <a class="xref" href="#prop1">Proposition 1</a> is \(I^\star\) and the numerator at most \(I^\star\), with equality when \(\Pi \le b\), since then \(\class{mj-td}{I_{TD}} = b\class{mj-ar}{I_{AR}}/\Pi \ge \class{mj-ar}{I_{AR}} \ge I^\star\). Otherwise \(\min(b\class{mj-ar}{I_{AR}}/\Pi,\,I^\star)/\class{mj-ar}{I_{AR}} = \min(b/\Pi,\,I^\star/\class{mj-ar}{I_{AR}})\); divide by \(\omega\). \(\blacksquare\)</p></details>
   </div>
 
   <h3 id="gain-parts">Linear and attention parts</h3>
@@ -83,8 +95,9 @@ sitemap: false
     <div class="eq eq-wide">\[ I_X = \theta^X_{\mathrm{lin}}\,I^X_{\mathrm{lin}} + \theta^X_{\mathrm{attn}}\,I^X_{\mathrm{attn}},\qquad \Pi - 1 = \class{mj-ar}{\theta^{AR}_{\mathrm{lin}}}(\Pi_{\mathrm{lin}} - 1) + \class{mj-ar}{\theta^{AR}_{\mathrm{attn}}}(\Pi_{\mathrm{attn}} - 1). \]</div>
     <div class="eq eq-narrow">\[ \begin{gathered} I_X = \theta^X_{\mathrm{lin}}\,I^X_{\mathrm{lin}} + \theta^X_{\mathrm{attn}}\,I^X_{\mathrm{attn}},\\[4pt] \Pi - 1 = \class{mj-ar}{\theta^{AR}_{\mathrm{lin}}}(\Pi_{\mathrm{lin}} - 1)\\ \qquad + \class{mj-ar}{\theta^{AR}_{\mathrm{attn}}}(\Pi_{\mathrm{attn}} - 1). \end{gathered} \]</div>
     <p>Consequently each intensity lies between its two parts, nearer to the part that carries more of that pass's bytes. Moreover \(1/\Pi = \class{mj-td}{\theta^{TD}_{\mathrm{lin}}}/\Pi_{\mathrm{lin}} + \class{mj-td}{\theta^{TD}_{\mathrm{attn}}}/\Pi_{\mathrm{attn}}\), so \(\class{mj-td}{I_{TD}}/\class{mj-ar}{I_{AR}} = b/\Pi\) lies between \(b/\Pi_{\mathrm{lin}}\) and \(b/\Pi_{\mathrm{attn}}\).</p>
-    <details class="proof"><summary>Proof</summary><p>\(I_X = F^X/Q^X = \sum_c (Q^X_c/Q^X)(F^X_c/Q^X_c)\) over the two parts \(c\). For the penalty, \(\class{mj-td}{Q^{TD}_c} = \Pi_c\,\class{mj-ar}{Q^{AR}_c}\) by <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/#def4">Definition 4</a>, so \(\Pi - 1 = \sum_c (\class{mj-td}{Q^{TD}_c} - \class{mj-ar}{Q^{AR}_c})/\class{mj-ar}{Q^{AR}} = \sum_c \class{mj-ar}{\theta^{AR}_c}(\Pi_c - 1)\). A weighted average with positive weights lies between its terms; \(\class{mj-td}{I_{TD}} = (b/\Pi)\class{mj-ar}{I_{AR}}\) and \(\Pi\) lies between \(\Pi_{\mathrm{lin}}\) and \(\Pi_{\mathrm{attn}}\). \(\blacksquare\)</p></details>
+    <details class="proof"><summary>Proof</summary><p>\(I_X = F^X/Q^X = \sum_c (Q^X_c/Q^X)(F^X_c/Q^X_c)\) over the two parts \(c\). For the penalty, \(\class{mj-td}{Q^{TD}_c} = \Pi_c\,\class{mj-ar}{Q^{AR}_c}\) by <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/#def4">Definition 4</a>, so \(\Pi - 1 = \sum_c (\class{mj-td}{Q^{TD}_c} - \class{mj-ar}{Q^{AR}_c})/\class{mj-ar}{Q^{AR}} = \sum_c \class{mj-ar}{\theta^{AR}_c}(\Pi_c - 1)\). Similarly, \(1/\Pi = \sum_c \class{mj-ar}{Q^{AR}_c}/\class{mj-td}{Q^{TD}} = \sum_c \class{mj-td}{\theta^{TD}_c}/\Pi_c\). A weighted average with non-negative weights lies between its terms; \(\class{mj-td}{I_{TD}} = (b/\Pi)\class{mj-ar}{I_{AR}}\) and \(\Pi\) lies between \(\Pi_{\mathrm{lin}}\) and \(\Pi_{\mathrm{attn}}\). \(\blacksquare\)</p></details>
   </div>
+<section class="footnotes" aria-label="Notes"><h3 id="s-notes">Notes</h3><ol><li id="fn-measured-routing"><a href="/notes/block-diffusion-rooflines-6f924020/effective/">Part 8</a> measures the routing: it is not independent, and <a href="/notes/block-diffusion-rooflines-6f924020/effective/#rem-neff">Remark 3</a> there gives <a class="xref" href="#prop1">Proposition 1</a> at the measured routing. <a href="#fnref-measured-routing" class="fn-back" aria-label="Back to the text">↩</a></li><li id="fn-fused-activations">Activations stay in on-chip memory when consecutive operations are fused into one kernel. <a href="#fnref-fused-activations" class="fn-back" aria-label="Back to the text">↩</a></li><li id="fn-kv-twice">As vLLM does; the global-attention kernel of <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/kernels/">Part 10</a> also reads keys and values as two tensors. <a href="#fnref-kv-twice" class="fn-back" aria-label="Back to the text">↩</a></li></ol></section>
 </section>
 <nav class="book-nav" aria-label="Chapters"><a class="prev" href="/notes/block-diffusion-rooflines-6f924020/setup/"><span>Previous</span>1 · Setup</a><a class="next" href="/notes/block-diffusion-rooflines-6f924020/linear/"><span>Next</span>3 · The linear part</a></nav>
 <section class="book-comments" id="bdr-comments" data-repo="vdeborto/vdeborto.github.io" data-repo-id="MDEwOlJlcG9zaXRvcnkxMTY1OTk1ODA=" data-category="Announcements" data-category-id="DIC_kwDOBvMrHM4DLMnm" data-term="Block Diffusion Rooflines · Part 2 · The gain">

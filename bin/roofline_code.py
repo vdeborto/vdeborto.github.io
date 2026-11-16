@@ -84,7 +84,7 @@ CARDS = {
                  "How the sustained rates of Definition 5 are timed: the median over three repeats of the mean "
                  "time per call over about half a second of back-to-back calls, with the SM clock and the power "
                  "sampled every 50 ms by <code>nvidia-smi</code> meanwhile. The ceiling is the highest rate of any "
-                 "benchmark; the FP8 and BF16 ceilings come from shorter bursts (CUDA-graph replays of about 2 ms, "
+                 "benchmark, except for attention; the FP8 and BF16 ceilings come from shorter bursts (CUDA-graph replays of about 2 ms, "
                  "and 20 back-to-back GEMMs).", False),
     "routing": ("roofscope/routing.py",
                 [(r"^def _rs_routing_hist\(", r"^    tl\.atomic_add\("),

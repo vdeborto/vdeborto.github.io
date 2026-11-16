@@ -24,7 +24,7 @@ sitemap: false
 <section class="bdr-col" id="appendix">
   <p class="chapter-intro">Every number in <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/">Parts 1</a>–<a class="xref" href="/notes/block-diffusion-rooflines-6f924020/examples/">7</a> is a roofline bound computed from a cost model, not a measurement; the measurements come in <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/effective/">Parts 8</a>–<a class="xref" href="/notes/block-diffusion-rooflines-6f924020/conclusion/">11</a>. In this appendix, we describe the exact accounting behind the maps, the headline numbers and the calculator. We also point to the measurements that check it, and we list the sources of the model shapes and accelerator specifications.</p>
   <h3 id="s-exact-accounting">Exact accounting</h3>
-  <p>The maps, the headline numbers and the calculator do not use <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/gain/#prop1">Proposition 1</a>. Instead, they evaluate every pass of a generation. For AR, these passes are the prefill and \(G-1\) decode steps. For TD, they are the prefill, then, for each canvas, \(S\) bidirectional denoising passes and one causal commit. For each pass, we count the following:</p>
+  <p>The maps, the headline numbers and the calculator do not use <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/gain/#prop1">Proposition 1</a>. Instead, they evaluate every pass of a generation. For a generation of \(G\) tokens, AR's passes are the prefill and \(G-1\) decode steps. For TD, they are the prefill, then, for each canvas, \(S\) bidirectional denoising passes and one causal commit. For each pass, we count the following:</p>
   <ul>
     <li><b>FLOPs:</b>
       <ul>
@@ -42,7 +42,7 @@ sitemap: false
         <li>logits and probabilities, \(\lambda\) times per output position, with \(\lambda\) the calculator's logit reads and writes per position.</li>
       </ul></li>
     <li><b>Denoising-pass cost:</b> a denoising pass multiplies every per-layer term (FLOPs, weights, KV reads, activations) by \(r\), while its vocabulary and self-conditioning terms are unchanged. For \(r \gt 1\), the memory footprint adds \((r-1)L\) layers of weights.</li>
-    <li><b>Time:</b> the per-pass roofline, \(\max(F/\pi, Q/\beta)\). Under the calculator's kernel-by-kernel rule, it is instead the sum of that roofline over the kernel classes (dense layers, experts, global, window and sparse attention, indexer, vocabulary head). The class sums equal the totals exactly.</li>
+    <li><b>Time:</b> the per-pass roofline, \(\max(F/\pi, Q/\beta)\). Under the calculator's kernel-by-kernel rule, it is instead the sum of that roofline over the kernel classes (dense layers, experts, global, window and sparse attention, indexer, vocabulary head). The FLOPs and bytes of the classes add up exactly to those of the pass.</li>
   </ul>
   <p>The closed forms for masked key counts match brute-force counting. In addition, <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/gain/#prop1">Proposition 1</a> matches this accounting to within 1.32% without vocabulary (<a class="xref" href="/notes/block-diffusion-rooflines-6f924020/linear/#table-2">Table 2</a>).</p>
   <p>Model shapes come from each checkpoint's <code>config.json</code>. For DiffusionGemma, they also come from its safetensors headers, which give 25.25B text parameters, 3.08B active per token plus a 0.74B head.</p>

@@ -12,7 +12,7 @@ A penalty is the ratio of the bytes a TD pass reads per sequence to those an AR 
 <!-- gist:prop1 -->
 The gain is the ratio of the two decoders' attainable FLOP rates, divided by the \(\omega\) passes a canvas costs.
 <!-- gist:cor1 -->
-If AR is compute-bound TD loses; otherwise the gain is the smaller of \(\mathrm{TPF}/\Pi\), set by bytes, and \(I^\star/(\omega I_{AR})\), set by the compute AR leaves idle.
+If AR is compute-bound, TD loses; otherwise the gain is the smaller of \(\mathrm{TPF}/\Pi\), set by bytes, and \(I^\star/(\omega I_{AR})\), set by the compute AR leaves idle.
 <!-- gist:prop2 -->
 Each intensity is the byte-weighted average of its linear and attention parts, so it lies between them, nearer to the part that carries more of the bytes.
 <!-- gist:prop3 -->
@@ -30,7 +30,7 @@ With dense attention and full windows, a batch cannot saturate compute on cache 
 <!-- gist:kernels -->
 Timing a pass as a chain of kernels instead of one fully overlapped kernel is never faster and at most twice as slow; on an H200 it moves DiffusionGemma's best batch from 5 to 9.
 <!-- gist:def5 -->
-The empirical ceiling of a rate is the highest value measured on this GPU; the empirical roofline of a component is \(\max(F_c/\hat\pi_c,\ Q_c/\hat\beta)\) at those ceilings.
+The empirical ceiling of a rate is the highest value measured on this GPU (for attention, a sustained reference rate); the empirical roofline of a component is \(\max(F_c/\hat\pi_c,\ Q_c/\hat\beta)\) at those ceilings.
 <!-- gist:def6 -->
 \(U^{\mathrm{meas}}\) counts the experts a pass actually touches; \(U^{\mathrm{freq}}\) is what independent tokens with the measured popularity would touch; \(N^{\mathrm{eff}}\) is the number of uniformly routed tokens that would touch \(U^{\mathrm{meas}}\).
 <!-- gist:rem-neff -->

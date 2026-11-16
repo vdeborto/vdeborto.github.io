@@ -118,7 +118,7 @@ s_{kv}
 
 L
   what: layers (30)
-  in: Part 1
+  in: Definition 1
   match: (^|[^\\A-Za-z_])L(?![A-Za-z_])
   rank: 370
 
@@ -166,19 +166,19 @@ g
 
 E
   what: experts per MoE layer (128)
-  in: Part 1
+  in: Definition 1
   match: (^|[^\\A-Za-z_])E(?![A-Za-z_])
   rank: 350
 
 k
   what: experts each token selects (8)
-  in: Part 1
+  in: Definition 1
   match: (^|[^\\A-Za-z_])k(?![A-Za-z^_])
   rank: 360
 
 W^e
   what: parameters of one expert in one layer, \(3d\,f_E\) (5.95M)
-  in: Part 1
+  in: Definition 1
   match: W\^e
   rank: 340
 
@@ -191,13 +191,13 @@ f_E
 
 W_{\mathrm{ne}}
   what: non-expert parameters of all layers (1.66B for DiffusionGemma)
-  in: Part 1
+  in: Definition 1
   match: W_\{\\mathrm\{ne\}\}
   rank: 330
 
 N_{\mathrm{act}}
   what: parameters active per token, \(W_{\mathrm{ne}} + LkW^e\) (3.08B for DiffusionGemma, without the vocabulary)
-  in: Definition 1
+  in: Definition 2
   match: N_\{\\mathrm\{act\}\}
   rank: 170
 
@@ -213,17 +213,17 @@ m
   match: (^|[^\\A-Za-z_])m(?![A-Za-z])
   rank: 380
 
-H_I
-  what: heads of the indexer of a sparse layer (8)
-  in: Part 4
-  match: H_I
+n_{I,\ell}
+  what: heads of the indexer of sparse layer \(\ell\), \(n_I\) when the layer is clear (8)
+  in: Definition 1
+  match: n_\{?I
   rank: 517
   scope: T
 
-h_I,\ s_I
-  what: head dimension of the indexer and bytes per element of its keys (128, 1 in FP8)
-  in: Part 4
-  match: [hs]_I
+h_{I,\ell},\ s_I
+  what: head dimension of the indexer of sparse layer \(\ell\) (\(h_I\) when the layer is clear) and bytes per element of its keys (128, 1 in FP8)
+  in: Definition 1
+  match: [hs]_\{?I
   rank: 518
   scope: T
 
@@ -249,25 +249,25 @@ F,\ Q
 
 W_{AR}
   what: weights an AR step reads at batch \(B\), in parameters
-  in: Definition 1
+  in: Definition 2
   match: W_\{AR\}
   rank: 190
 
 W_{TD}
   what: weights a TD pass reads at batch \(B\), in parameters
-  in: Definition 1
+  in: Definition 2
   match: W_\{TD\}
   rank: 200
 
 U_{E,k}(N)
   what: expected number of distinct experts that \(N\) positions touch in a layer (\(E = 128\) experts, \(k = 8\) per token)
-  in: Definition 1
+  in: Definition 2
   match: U_\{E,k\}
   rank: 210
 
 U_{C,m}(N)
-  what: cached tokens that \(N\) queries read together in a sparse layer, each selecting \(m\)
-  in: Definition 1
+  what: cached tokens that \(N\) queries read together in a sparse layer, each selecting \(m\): the coverage function \(U_{n,k}\) of Definition 1 with \(n = C\) and \(k = m\), so \(U_{C,m}(1) = \min(C, m)\)
+  in: Definition 2
   match: U_\{C,m\}
   rank: 220
 
@@ -426,7 +426,7 @@ B^\star_n(C),\ D_n(C)
 == Measurements
 
 \hat\pi
-  what: empirical compute ceiling: the highest FLOP rate measured on this H200 (FP8 1,468, BF16 781, attention 638 TFLOP/s)
+  what: empirical compute ceiling: the highest FLOP rate measured on this H200 (for attention, FlashAttention 3's sustained rate) (FP8 1,468, BF16 781, attention 638 TFLOP/s)
   in: Definition 5
   match: \\hat\{?\\pi
   rank: 550

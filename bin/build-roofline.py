@@ -361,7 +361,7 @@ def main():
                          ("weights", '  <div class="box prop" id="prop4">'),
                          ("linmap", '  <details class="numbers"><summary>Table 1: '),
                          ("attnread", '  <div class="box prop" id="prop5">'),
-                         ("sparse", '  <div class="box prop" id="prop6">'),
+                         ("sparse", '  <h3 id="attn-dominate">'),
                          ("share", '  <details class="numbers"><summary>Table 4: '),
                          ("thresholds", '  <details class="numbers"><summary>Table 7: '),
                          ("models", '  <details class="numbers"><summary>Table 8: ')):
