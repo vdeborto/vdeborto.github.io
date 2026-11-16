@@ -176,7 +176,7 @@
 
   // ---------------------------------------------------------------- the gain, from the book's bound to the measurement
   const LADDER = {
-    a: { k: 'roof_ind_ds', label: '(a) datasheet rates,\nindependent routing', long: '(a) the book\'s bound: datasheet rates, independent routing (A5)', dash: '2 4', w: 1.8, col: 'muted' },
+    a: { k: 'roof_ind_ds', label: '(a) datasheet rates,\nindependent routing', long: '(a) datasheet rates, independent routing', dash: '2 4', w: 1.8, col: 'muted' },
     b: { k: 'roof_ind', label: '(b) empirical ceilings', long: '(b) empirical ceilings, independent routing', dash: '7 4', w: 1.8, col: 'muted' },
     c: { k: 'roof', label: '(c) empirical ceilings,\nmeasured routing', long: '(c) empirical ceilings and measured routing', dash: '', w: 2.2, col: 'ink' },
     d: { k: 'measured', label: '(d) measured', long: '(d) measured in vLLM', dash: '', w: 2.8, col: 'meas', dots: true },

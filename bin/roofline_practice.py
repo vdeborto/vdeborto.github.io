@@ -471,17 +471,17 @@ def fig_map_narrow(base=BOOK_URL):
 
 # The book map: one box per part, every box a link to its chapter.
 MAP_TOP = [  # (x, width, [(slug, part label, title, lines)]); two entries are stacked in one column
-    (10, 100, [("setup", "PART 1", "Setup", ["costs F, Q,", "penalties"])]),
-    (122, 100, [("gain", "PART 2", "The gain", ["Prop. 1"])]),
+    (10, 100, [("setup", "PART 1", "Setup", ["Costs,", "Penalties"])]),
+    (122, 100, [("gain", "PART 2", "The gain", ["Main result"])]),
     (234, 126, [("linear", "PART 3", "Linear part", []), ("attention", "PART 4", "Attention part", [])]),
-    (372, 122, [("whole", "PART 5", "Whole picture", ["regimes, maps"])]),
+    (372, 122, [("whole", "PART 5", "Whole picture", [""])]),
     (506, 144, [("calculator", "PART 6", "Calculator", []), ("examples", "PART 7", "Worked examples", [])]),
 ]
-MAP_BOT = [("effective", "PART 8", "Empirical rooflines", ["measured π, β", "and experts U"]),
-           ("stack", "PART 9", "Measurement stack", ["time per component"]),
-           ("kernels", "PART 10", "Kernels", ["two rewrites"]),
-           ("conclusion", "PART 11", "Conclusion", ["measured Γ", "against the bound"])]
-MAP_SIDE = [("summary", "Summary", "the results first"), ("appendix", "Appendix", "exact accounting, sources")]
+MAP_BOT = [("effective", "PART 8", "Empirical rooflines", ["Measured ceilings", ""]),
+           ("stack", "PART 9", "Measurement stack", ["Time per component"]),
+           ("kernels", "PART 10", "Kernels", ["TD kernel work"]),
+           ("conclusion", "PART 11", "Conclusion", ["Everything together", ""])]
+MAP_SIDE = [("summary", "Summary", "Main results"), ("appendix", "Appendix", "Sources and Accounting")]
 
 
 def linkbox(x, y, w, h, href, part, title, lines, col, tip):
@@ -568,7 +568,7 @@ def fig_ladder(d):
             xa = x + bw + 2
             s.append(f'<line x1="{xa}" y1="135" x2="{xa + gap - 4}" y2="135" stroke="currentColor" marker-end="url(#pa2)"/>')
             s.append(f'<text x="{x + bw + gap / 2}" y="20" text-anchor="middle" font-size="12" fill="{MUT}">{steps[i]}</text>')
-    return svg(W, H, "From the book's bound to the measured gain: two measured inputs, then the measurement", "".join(s))
+    return svg(W, H, "From theoretical to measured gain", "".join(s))
 
 
 def fig_stack():
@@ -1004,11 +1004,11 @@ def blocks():
                         "A canvas of \\(b = 256\\) positions, \\(S = 14\\) denoising passes and one commit pass, so \\(15\\) passes per canvas and \\(\\mathrm{TPF} = b/\\omega = 17.1\\) tokens per forward pass. "),
         "encdec": fig("fig-encdec", "Figure 2", "Encoder-decoder architecture of Diffusion Gemma.", "", fig_encdec(),
                       "An illustration of the inference in Diffusion Gemma. We briefly highlight the dependency of each step in the self-conditioning signal \\(s_t\\). We will discuss in "),
-        "map": fig("fig-map", "Figure 3 · interactive", "The book in two halves: bounds on paper, then measurements on one H200.", "", fig_map(),
-                   "Parts 1–7 derive the gain \\(\\Gamma\\) as a ratio of roofline bounds and map it over batch and context. Parts 8–11 take the inputs of those bounds from measurements, time every kernel of both decoders in vLLM, rewrite the two kernels that lag most, and compare the measured gain with the bound. Select a box to open its chapter."),
-        "ladder": fig("fig-ladder", "Figure 4 · interactive", "From the book's bound to the measured gain: two measured inputs, then the measurement.", "Choose a context; hover over or tap a batch to read the four values.",
+        "map": fig("fig-map", "Figure 3 · interactive", "", "", fig_map(),
+                   ""),
+        "ladder": fig("fig-ladder", "Figure 4 · interactive", "From theoretical to measured gains", "",
                       '<div data-mfig="ladder" data-series="a,b,c,d"></div>',
-                      "DiffusionGemma (TD) against Gemma 4 26B-A4B (AR) on one H200, FP8 weights, at the 25 measured points. (a) is the book's exact accounting, vocabulary included, with the kernel-by-kernel timing rule of Part 5, at FP8, with datasheet rates and independent routing, evaluated at the context of the measured windows. (b) uses the ceilings measured on this H200, (c) also the expert counts measured in the same runs, and (d) is the measured gain, in magenta. Part 8 explains (a) to (c), and Part 11 compares (c) with (d). The batch axis is logarithmic: the measured sizes 1, 2, 4, …, 64 are equally spaced."),
+                      "DiffusionGemma (TD) against Gemma 4 26B-A4B (AR) on one H200 with FP8 weights and BF16 KV cache. (a) is the blogpost derived theoretical gain. (b) is still theoretical but uses the hardware ceilings measured on this H200, (c) is again theoretical but also uses measured expert counts. Finally, (d) is the measured gain, in magenta."),
         "roofline": fig("fig-eff-roofline", "Figure 24", "The measured roofline sits below the datasheet's, more in compute than in bandwidth.", "", fig_eff_roofline(d),
                         "Attainable throughput \\(\\min(\\pi, I\\beta)\\) against arithmetic intensity, log–log, for FP8 linear layers. Grey, dashed: datasheet (1,979 TFLOP/s, 4.8 TB/s). Magenta, solid: the empirical ceilings of Table 11. Black, dotted: the attention ceiling, which applies to attention kernels whatever their intensity. The ridge point, where a kernel turns compute-bound, moves from 412 to 340 FLOP/byte."),
         "routing": fig("fig-eff-routing", "Figure 25 · interactive", "Both decoders touch fewer experts than independent routing predicts, for different reasons.", "Choose the decoder and the context; hover over or tap a batch to read the counts.",
