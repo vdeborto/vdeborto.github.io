@@ -35,6 +35,17 @@ Append a BibTeX entry to `_bibliography/papers.bib`. Useful extra fields:
 - `arxiv={2502.02483}` — adds an arXiv button
 - `code={https://github.com/...}`, `pdf=`, `website=` — extra buttons
 
+## Editing in the browser
+
+`bin/site-edit` (or the *Edit Website* app) serves the local Jekyll preview at http://localhost:4100
+with an edit mode on every page: click a block of text to edit the source that produced it, with a
+live preview in place; Save writes the file (and rebuilds the rooflines book when the file is one of
+its sources, undoing the save if the build fails); Undo reverts saves; Publish commits the content
+folders and pushes. Sources are found by matching the block's words against the content files
+(`SITE_GLOBS` and `BOOK_LOCAL` in the script); generated files are never edited. The page script and
+styles are in `bin/site-edit-ui/`. It listens on 127.0.0.1 only and refuses API calls from other
+origins; logs are in `~/Library/Application Support/site-edit/`.
+
 ## Building locally
 
 ```bash
