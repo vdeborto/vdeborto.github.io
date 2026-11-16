@@ -132,7 +132,7 @@ CARDS = {
             "columns next to their 128 up columns, so the activation is applied in registers; in the "
             "second, each row is scaled by its routing weight and added into its token's output.", True),
     "exchange": ("roofscope/kattn/make_pair.py",
-                 [(r"^    def exchange_S\(", r"^        base = \(slot \* self\.num_mma_threads"),
+                 [(r"^        wg = tidx // self\.num_threads_per_warp_group", r"^        base = \(slot \* self\.num_mma_threads"),
                   (r"^            elif const_expr\(self\.xmode in \(8, 9, 10, 11\)\):", r"^                cute\.copy\(atom, srcv, dstv, mbar_ptr"),
                   (r"^            # wait for the partner's fragment and add it", r"^                acc_S\[i\] = acc_S\[i\] \+ ")],
                  "The score exchange of the pair kernel, in the generator that writes it into FlashAttention 4's "

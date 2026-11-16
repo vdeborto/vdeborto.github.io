@@ -64,9 +64,9 @@ TITLE = "Block Diffusion Rooflines"
 # (page slug, part number, title, source element id, one-line description); "" is the first page.
 CHAPTERS = [
     ("", "0", "Introduction", "intro", "what is already measured, the question, the measurement setting, how the book is organised and how to read it."),
-    ("summary", "", "Summary", "tldr", "the headline numbers, four takeaways, what moves the gain, and the three regimes that occur."),
+    ("summary", "", "Summary", "tldr", "the headline numbers, four takeaways, the three regimes that occur, and what moves the gain."),
     ("setup", "1", "Setup", "setup", "notation, costs, intensities, penalties."),
-    ("gain", "2", "The gain", "gain", "Proposition 1, and the split of each intensity into a linear part and an attention part."),
+    ("gain", "2", "The gain", "gain", "Proposition 1, what the formulas leave out, and the split of each intensity into a linear part and an attention part."),
     ("linear", "3", "The linear part", "linear", "the expert and linear penalties, when the linear layers dominate, and the gain in that regime."),
     ("attention", "4", "The attention part", "attention", "dense, windowed and sparse attention; the selection penalty as the twin of the expert penalty; when attention dominates, and the gain there."),
     ("whole", "5", "The whole picture", "whole", "when TD wins, the batch needed to saturate compute, the eight regimes, other accelerators and models, the exact maps."),
@@ -372,7 +372,7 @@ def main():
     body = add_cards(body)
     body = add_gists(body)
     body = add_symbols(body)
-    body = sub_once(body, '  <div class="tiles hero-tiles">', '  <p class="math-key">In the equations, <span class="q-ar">AR quantities are in blue</span> and <span class="q-td">TD quantities in orange</span>, as in the figures. Click on the  formula to see what the symbols mean.</p>\n  <div class="tiles hero-tiles">', "math key anchor")
+    body = sub_once(body, '  <div class="tiles hero-tiles">', '  <p class="math-key">In the equations, <span class="q-ar">AR quantities are in blue</span> and <span class="q-td">TD quantities in orange</span>, as in the figures.</p>\n  <div class="tiles hero-tiles">', "math key anchor")
     body = color_math(body)
     body = rename_class_attr(rename_tokens(body))
 

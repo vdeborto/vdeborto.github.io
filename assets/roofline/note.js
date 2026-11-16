@@ -292,7 +292,8 @@
     for (const l of m.layers) layerOther += routerParams(m) + miscParams(m, l);
     const weights = lin * (1 + extra) * o.bw + (other + extra * layerOther) * o.bwOther;
     const kv = w.B * kvBytesPerSeq(m, w.P + w.G, o);
-    const logits = w.B * (mode === 'td' ? w.b : 1) * m.V * o.bl;
+    const lam = mode === 'td' ? w.lambdaTD : w.lambdaAR;  // chunked logits (lambda = 0) never reach HBM, as in memNeed
+    const logits = (lam ?? 1) > 0 ? w.B * (mode === 'td' ? w.b : 1) * m.V * o.bl : 0;
     return { weights, kv, logits, total: weights + kv + logits };
   }
 
@@ -814,7 +815,7 @@
   // Proposition 1 at (B, C), vocabulary excluded.
   function prop1(c, w, B, C) {
     const IAR = c.phi(C) / (c.WAR(B) / B + c.qkv(C));
-    const ITD = (w.b * c.phi(C)) / (c.WTD(B) / B + c.qkv(C));
+    const ITD = (w.b * c.phi(C)) / (c.WTD(B) / B + c.qkvTD(C));  // TD's cache bytes, with the selection penalty
     return { IAR, ITD, gain: Math.min(ITD, c.Istar) / (omega(w) * Math.min(IAR, c.Istar)) };
   }
 
@@ -1225,7 +1226,7 @@
   // (Part 8): geometric mean over contexts 1k-16k at each batch (64k is left out: TD's text degrades there).
   const MEASURED_ROUTING = {"td": [[1, 12.24], [2, 14.62], [4, 18.06], [8, 22.6], [16, 26.99], [32, 32.54], [64, 37.37]], "ar": [[1, 1.0], [2, 1.76], [4, 2.98], [8, 4.73], [16, 7.13], [32, 9.44], [64, 12.27]]};
   function routeApply(m) {
-    const ok = MEASURED_ROUTING && m.E === 128 && m.k === 8;
+    const ok = MEASURED_ROUTING && m.E === 128 && m.k === 8 && /^dgemma/.test($('c-model').value);  // DiffusionGemma's own counts only
     $('c-route').disabled = !MEASURED_ROUTING || !ok;
     return $('c-route').checked && ok ? { ...m, routing: MEASURED_ROUTING } : m;
   }
@@ -1290,7 +1291,7 @@
     const { c } = bare({ ...st, w }, m);
     const p = prop1(c, w, w.B, Cm);
     const g = r.gainDecode;
-    const head = g >= 1 ? `TD is <b>${g.toFixed(2)}×</b> faster than AR` : `AR is <b>${(1 / g).toFixed(2)}×</b> faster than TD`;
+    const head = (g >= 1 ? `TD is <b>${g.toFixed(2)}×</b> faster than AR` : `AR is <b>${(1 / g).toFixed(2)}×</b> faster than TD`) + ' (exact roofline bound)';
     $('c-verdict').className = `verdict ${g >= 1 ? 'win' : 'lose'}`;
     $('c-verdict').innerHTML = `<div class="big">${head}</div>
       <div class="chips"><span class="chip strong">${id}</span><span class="chip">${ctx}</span><span class="chip">${bound}</span></div>
@@ -1380,13 +1381,13 @@
     ], { aria: 'Decode throughput of AR and TD against batch size', current: w.B, yFmt: thrFmt, yLabel: 'decode throughput, tokens per second',
       tip: (i) => `<b>batch ${pts[i].B}</b><br><span class="swatch" style="background:var(--bdr-td)"></span>TD ${comma(pts[i].td)} tok/s${pts[i].oomT ? ' <span class="oom">over memory</span>' : ''}<br><span class="swatch" style="background:var(--bdr-ar)"></span>AR ${comma(pts[i].ar)} tok/s${pts[i].oomA ? ' <span class="oom">over memory</span>' : ''}` });
     const Cm = Math.round(w.P + w.G / 2);
-    const us = Bs.map((B) => { const e = perToken(m, { ...w, B }, o, hw, Cm); return { B, ar: e.ar.util, td: e.td.util }; });
+    const us = Bs.map((B) => { const e = perToken(m, { ...w, B }, o, hw, Cm); return { B, ar: e.ar.util, td: e.td.util, k: e.td.flop / e.ar.flop }; });
     lineChart($('ch-util'), [
       { color: '--bdr-ar', label: '', points: us.map((u, i) => ({ x: u.B, y: Math.max(1e-4, u.ar), oom: pts[i].oomA })) },
-      { color: '--bdr-ar', label: '', dash: '5 4', points: us.map((u, i) => ({ x: u.B, y: Math.max(1e-4, omega(w) * u.ar), oom: pts[i].oomA })) },
+      { color: '--bdr-ar', label: '', dash: '5 4', points: us.map((u, i) => ({ x: u.B, y: Math.max(1e-4, u.k * u.ar), oom: pts[i].oomA })) },  // Γ > 1 exactly when TD's share exceeds k × AR's
       { color: '--bdr-td', label: '', points: us.map((u, i) => ({ x: u.B, y: Math.max(1e-4, u.td), oom: pts[i].oomT })) },
-    ], { aria: 'Share of the accelerator peak used by AR and TD against batch size', current: w.B, refY: 1, yLabel: 'share of the peak FLOP rate (dashed: ω times AR\'s share)', yFmt: (v) => `${v >= 1 ? v * 100 : +(v * 100).toPrecision(2)}%`,
-      tip: (i) => `<b>batch ${us[i].B}</b><br><span class="swatch" style="background:var(--bdr-td)"></span>TD ${(100 * us[i].td).toFixed(1)}% of peak<br><span class="swatch" style="background:var(--bdr-ar)"></span>AR ${(100 * us[i].ar).toFixed(2)}% of peak<br>ω × AR = ${(100 * omega(w) * us[i].ar).toFixed(1)}%` });
+    ], { aria: 'Share of the accelerator peak used by AR and TD against batch size', current: w.B, refY: 1, yLabel: 'share of the peak FLOP rate (dashed: AR\'s share times the FLOP ratio)', yFmt: (v) => `${v >= 1 ? v * 100 : +(v * 100).toPrecision(2)}%`,
+      tip: (i) => `<b>batch ${us[i].B}</b><br><span class="swatch" style="background:var(--bdr-td)"></span>TD ${(100 * us[i].td).toFixed(1)}% of peak<br><span class="swatch" style="background:var(--bdr-ar)"></span>AR ${(100 * us[i].ar).toFixed(2)}% of peak<br>AR × FLOP ratio ${us[i].k.toFixed(1)} = ${(100 * us[i].k * us[i].ar).toFixed(1)}%` });
     lineChart($('ch-gain'), [
       { color: '--ink', label: '', points: pts.map((p) => ({ x: p.B, y: p.gain, oom: p.oomA || p.oomT })) },
     ], { aria: 'TD over AR gain against batch size', current: w.B, refY: 1, yFmt: (v) => `${v}×`, yLabel: 'gain Γ, TD throughput over AR\'s',

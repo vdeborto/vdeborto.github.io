@@ -23,7 +23,7 @@ sitemap: false
 <p class="book-part">Part 6 of <a href="/notes/block-diffusion-rooflines-6f924020/">Block Diffusion Rooflines</a><span class="book-links"><span class="bl-row">Previous: <a href="/notes/block-diffusion-rooflines-6f924020/whole/" rel="prev">5 · The whole picture</a></span><span class="bl-row">Next: <a href="/notes/block-diffusion-rooflines-6f924020/examples/" rel="next">7 · Worked examples</a></span></span></p>
 <section class="wide" id="calc">
   <div class="bdr-col">
-  <p class="chapter-intro">The propositions give closed forms, but only under simplifying assumptions. The calculator below drops these assumptions: it evaluates every pass of a generation with the exact accounting of the appendix, for any accelerator, model, attention layout and decoding setup. For the chosen setting, it reports both throughputs, the AR batch that matches TD, the memory each decoder needs, and the maps of <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/whole/">Part 5</a>. In addition, the page address records the setting, so it can be shared.</p>
+  <p class="chapter-intro">The propositions give closed forms, but only under simplifying assumptions. The calculator below drops the simplifications of (A2): it evaluates every pass of a generation with the exact accounting of the appendix, still under the roofline (A1) and, unless measured routing is chosen, (A5), for any accelerator, model, attention layout and decoding setup. For the chosen setting, it reports both throughputs, the AR batch that matches TD, the memory each decoder needs, and the maps of <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/whole/">Part 5</a>. In addition, the page address records the setting, so it can be shared.</p>
 </div>
   <div class="calc">
     <div class="calc-grid">
@@ -39,10 +39,10 @@ sitemap: false
           <button type="button" class="reset" id="c-reset">Reset to preset</button>
         </details>
         <label for="c-model"><span>Model</span><select id="c-model"></select></label>
-        <label class="check" for="c-route"><input id="c-route" type="checkbox"><span>Measured expert counts (DiffusionGemma, <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/effective/">Part 8</a>) instead of independent routing (A5)</span></label>
+        <label class="check" for="c-route"><input id="c-route" type="checkbox"><span>Measured expert counts (DiffusionGemma only, <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/effective/">Part 8</a>) instead of independent routing (A5)</span></label>
         <details class="specs" id="c-mspecs"><summary>Model specs</summary>
           <div class="spec-grid"><label for="m-L"><span>Layers \(L\)</span><input id="m-L" type="number" min="1" step="1"></label><label for="m-d"><span>Hidden size \(d\)</span><input id="m-d" type="number" min="1" step="1"></label><label for="m-V"><span>Vocabulary \(V\)</span><input id="m-V" type="number" min="0" step="1"></label><label for="m-nq"><span>Query heads \(n_q\)</span><input id="m-nq" type="number" min="1" step="1"></label><label for="m-period"><span>Global every</span><input id="m-period" type="number" min="1" step="1"></label><label for="m-win"><span>Window \(w\)</span><input id="m-win" type="number" min="1" step="1"></label><label for="m-gkv"><span>Global KV heads</span><input id="m-gkv" type="number" min="1" step="1"></label><label for="m-gh"><span>Global head dim</span><input id="m-gh" type="number" min="1" step="1"></label><label for="m-skv"><span>Window KV heads</span><input id="m-skv" type="number" min="1" step="1"></label><label for="m-sh"><span>Window head dim</span><input id="m-sh" type="number" min="1" step="1"></label><label for="m-E"><span>Experts \(E\)</span><input id="m-E" type="number" min="0" step="1"></label><label for="m-k"><span>Experts per token \(k\)</span><input id="m-k" type="number" min="0" step="1"></label><label for="m-fE"><span>Expert width \(f_E\)</span><input id="m-fE" type="number" min="0" step="1"></label><label for="m-fD"><span>Dense MLP width</span><input id="m-fD" type="number" min="0" step="1"></label></div>
-          <p class="hint">Layer \(i\) is global when \(i\) is a multiple of "Global every" (1: all global). "Window" is in tokens.</p>
+          <p class="hint">Layer \(\ell\) (counted from 1) is global when \(\ell\) is a multiple of "Global every" (1: all global). "Window" is in tokens and counts the query's own token: it is \(w + 1\) (1,024 for DiffusionGemma).</p>
           <label class="check" for="m-kvs"><input id="m-kvs" type="checkbox">Global layers project one tensor for K and V</label>
           <label class="check" for="m-sc"><input id="m-sc" type="checkbox">Self-conditioning (TD)</label>
           <label for="m-fSC" class="sc-width"><span>Self-conditioning MLP width</span><input id="m-fSC" type="number" min="1" step="1"></label>
@@ -81,7 +81,7 @@ sitemap: false
           <label for="c-rho"><span>KV reads per pass</span><input id="c-rho" type="number" min="1" step="any" value="1"></label>
           <p class="hint">How many times a pass reads each cached byte from memory: 1 when the attention kernel reads the cache once.</p>
           <label class="check" for="c-actl2"><input id="c-actl2" type="checkbox" checked>Activations stay on-chip</label>
-          <label class="check" for="c-kvonce"><input id="c-kvonce" type="checkbox">Cache that tensor once (\(\kappa^c = 1\))</label>
+          <label class="check" for="c-kvonce"><input id="c-kvonce" type="checkbox">Global layers with K = V: cache that tensor once (\(\kappa^c = 1\))</label>
           <label class="check" for="c-win"><input id="c-win" type="checkbox" checked>Windowed layers keep their window</label>
         </details>
       </div>
@@ -91,7 +91,7 @@ sitemap: false
         <div class="tiles" id="c-tiles"></div>
         <div class="charts">
           <figure>
-            <figcaption>Gain \(\Gamma\) of TD over AR against the batch, at the chosen settings. Both axes are logarithmic.</figcaption>
+            <figcaption>Exact roofline bound \(\Gamma\) of TD over AR against the batch, at the chosen settings. Both axes are logarithmic.</figcaption>
             <div class="legend"><span><span class="swatch" style="background:var(--ink)"></span>Γ = TD / AR</span><span class="muted">dashed: parity</span></div>
             <div class="chart" id="ch-gain"></div>
           </figure>
@@ -102,7 +102,7 @@ sitemap: false
           </figure>
           <figure>
             <figcaption>Share of the accelerator's peak FLOP rate that AR and TD use, against the batch. Both axes are logarithmic.</figcaption>
-            <div class="legend"><span><span class="swatch" style="background:var(--bdr-ar)"></span>AR</span><span><span class="swatch" style="background:var(--bdr-td)"></span>TD</span><span class="muted">dashed: ω × AR; TD above it means Γ &gt; 1</span></div>
+            <div class="legend"><span><span class="swatch" style="background:var(--bdr-ar)"></span>AR</span><span><span class="swatch" style="background:var(--bdr-td)"></span>TD</span><span class="muted">dashed: AR × TD's FLOPs per token over AR's (ω without the vocabulary); TD above it means Γ &gt; 1</span></div>
             <div class="chart" id="ch-util"></div>
           </figure>
         </div>

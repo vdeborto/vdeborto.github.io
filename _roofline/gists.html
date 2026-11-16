@@ -20,7 +20,7 @@ A canvas touches almost every expert, so at batch 1 TD streams the total paramet
 <!-- gist:prop4 -->
 With dense attention and full windows, the weights dominate an AR step's bytes up to a context that shrinks as the batch grows, affine in \(1/B\) once the batch touches every expert, because the batch shares the weights but each sequence brings its own cache.
 <!-- gist:prop5 -->
-With sparse attention each query selects its own cached tokens and a canvas reads their union: the expert penalty \(\Pi_E\) again, with the canvas length in the role of the batch.
+With sparse attention each query selects its own cached tokens and a canvas reads their union: the expert penalty \(\Pi_E\) at batch 1 again, with the cached tokens in the role of the experts.
 <!-- gist:prop6 -->
 With full windows, attention overtakes the weights in an AR step's bytes at the context of Proposition 4, and in a position's FLOPs at \(C_F(1-\sigma)\), which does not depend on the batch; as the context grows both intensities move to their attention values, \(I_{\mathrm{attn}}\) for AR and \(b\,I_{\mathrm{attn}}\) for TD with dense attention.
 <!-- gist:prop7 -->

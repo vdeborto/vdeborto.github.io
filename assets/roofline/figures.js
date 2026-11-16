@@ -361,7 +361,7 @@
       s += logGrid(ys, m.l, W - m.r, ylo, yhi, (v) => `${v}×`, c);
       for (let e = 0; e <= 10; e += W < 480 ? 2 : 1) s += `<text x="${xs(2 ** e)}" y="${H - m.b + 15}" text-anchor="middle">${2 ** e}</text>`;
       s += `<text x="${(m.l + W - m.r) / 2}" y="${H - 6}" text-anchor="middle" class="ink">batch B (log scale)</text>`;
-      s += `<text x="4" y="13" class="ink">roofline gain Γ, TD over AR</text>`;
+      s += `<text x="4" y="13" class="ink">roofline bound Γ, TD over AR</text>`;
       s += `<line x1="${m.l}" x2="${W - m.r}" y1="${ys(1)}" y2="${ys(1)}" stroke="${c.muted}" stroke-width="1.5"/><text x="${m.l + 6}" y="${ys(1) + 15}">parity, Γ = 1: below it AR is faster</text>`;
       if (st.revealed) {
         if (cur.bstar) {
@@ -393,7 +393,7 @@
         const turn = sum
           ? `every kernel of a TD pass is compute-bound only from batch ${cur.bstar}, and the maximum falls before it`
           : `a TD pass is compute-bound from ${hsub('B*', 'TD')} = ${cur.bstar}`;
-        out.innerHTML = `<span class="big">Best roofline gain: <b>${g2(cur.best.g)}× at B = ${cur.best.B}</b>; ${turn}${cur.parity ? `; AR catches up near ${hsub('B', '×')} ≈ ${Math.round(cur.parity)}` : '; AR does not catch up by batch 1024'}.</span><br>`
+        out.innerHTML = `<span class="big">Best roofline bound: <b>${g2(cur.best.g)}× at B = ${cur.best.B}</b>; ${turn}${cur.parity ? `; AR catches up near ${hsub('B', '×')} ≈ ${Math.round(cur.parity)}` : '; AR does not catch up by batch 1024'}.</span><br>`
           + `${lastFit ? (lastFit.B < 1024 ? `Dashed: batches above ${lastFit.B} do not fit in ${HWBYID[shared.hw].gb} GB. ` : '') : `The model does not fit in ${HWBYID[shared.hw].gb} GB at any batch. `}`
           + `At the marker, B = ${B}: Γ = ${off}; an <span class="ar">AR step uses ${pct(P.uAR)}</span> of the peak compute and a <span class="td">TD pass ${pct(P.uTD)}</span>; linear penalty ${hsub('Π', 'lin')} = ${fmt(P.Pi)}. <a href="${document.getElementById('calc') ? '#calc' : calcHref(shared.hw, B, st.rule)}" data-calc>Open this setting in the calculator</a>.`;
       }
@@ -498,7 +498,7 @@
       s += logGrid(ys, m.l, W - m.r, ylo, yhi, (v) => `${v}×`, c);
       for (const v of [25, 50, 100, 200, 400, 800]) s += `<text x="${xs(v)}" y="${H - m.b + 15}" text-anchor="middle">${v}</text>`;
       s += `<text x="${(m.l + W - m.r) / 2}" y="${H - 6}" text-anchor="middle" class="ink">ridge point I* = π/β, FLOP per byte</text>`;
-      s += `<text x="4" y="13" class="ink">${short ? (W < 480 ? 'best gain Γ over the batch, context 1k' : 'best roofline gain Γ over the batch, context 1k') : 'roofline gain Γ at batch 1, context 1M'}</text>`;
+      s += `<text x="4" y="13" class="ink">${short ? (W < 480 ? 'best gain Γ over the batch, context 1k' : 'best roofline bound Γ over the batch, context 1k') : 'roofline bound Γ at batch 1, context 1M'}</text>`;
       s += `<line x1="${m.l}" x2="${W - m.r}" y1="${ys(1)}" y2="${ys(1)}" stroke="${c.muted}" stroke-width="1.5"/><text x="${W - m.r - 4}" y="${ys(1) + 15}" text-anchor="end">parity, Γ = 1</text>`;
       if (!short) {
         const f = (Is) => Is / (OM * data.Ikv), xa = Math.max(25, ylo * OM * data.Ikv);
@@ -548,7 +548,7 @@
       const dot = data.dots.find((d) => d.id === shared.hw && RIDGES[d.id] === P.Is), h = dot && HWBYID[dot.id];
       const who = dot ? `<b>${h.label}</b>, <i>I</i>* = ${fmt(P.Is)} (${fmt(h.tflops)} TFLOP/s over ${fmt(h.tbps)} TB/s)` : `<b>A chip with <i>I</i>* = ${fmt(P.Is)}</b>`;
       out.innerHTML = short
-        ? `${who}: best roofline gain <b>Γ = ${g2(P.best.g)}× at B = ${P.best.B}</b>; a TD pass is compute-bound from batch ${P.tdc}, and at the best batch an AR step uses ${pct(P.best.uAR)} of the peak compute.${dot && !dot.fitShort ? ` The model does not fit in ${h.gb} GB.` : ''}`
+        ? `${who}: best roofline bound <b>Γ = ${g2(P.best.g)}× at B = ${P.best.B}</b>; a TD pass is compute-bound from batch ${P.tdc}, and at the best batch an AR step uses ${pct(P.best.uAR)} of the peak compute.${dot && !dot.fitShort ? ` The model does not fit in ${h.gb} GB.` : ''}`
         : `${who}: at 1M context and batch 1, <b>Γ = ${g2(P.long)}×</b>; as the context grows it tends to <i>I</i>*/(ω ${hsub('I', 'attn')}) = ${fmt(P.Is)}/(${OM} × ${fmt(data.Ikv)}) = ${g2(P.limit)}.${P.limit < 1 ? ' The ridge is so low that AR wins at long context.' : ''}${dot && !dot.fitLong ? ` The model and a 1M-token cache do not fit in ${h.gb} GB.` : ''}`;
     }
     shared.subs.push((id) => { st.i = ISCAN.indexOf(RIDGES[id]); draw(); });

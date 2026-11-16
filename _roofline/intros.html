@@ -4,8 +4,8 @@
 
   <h3>Our main throughput result</h3>
 
-We start by giving our main result which is a compact formula for the throughput gain of TD over AR. 
-Of course, this formula is *idealized* as it works under some critical assumptions but we will see that it can faithfully acts as a guiding North start while navigating TD and AR inference. 
+We start by giving our main result, which is a compact formula for the throughput gain of TD over AR.
+Of course, this formula is *idealized*, as it holds under some critical assumptions, but we will see that it can faithfully act as a guiding north star while navigating TD and AR inference.
 
 You can click on any formula to see a definition of the symbols it uses.
 <!-- intro:setup -->
@@ -15,11 +15,11 @@ Given the costs of Part 1, the roofline model bounds the time of each pass, and 
 <!-- intro:linear -->
 At short context, a pass reads mostly weights. The batch shares these weights, hence the batch \(B\) sets both intensities. In this chapter, we compute the linear penalty \(\Pi_{\mathrm{lin}}\), i.e., the ratio of the weight bytes a canvas reads to those an AR step reads. For DiffusionGemma, it is 7.9 at batch 1 and falls to 1 as the batch grows. We then state up to which context the linear layers dominate, and derive the gain in that regime. In particular, the best batch is the one at which a TD pass just becomes compute-bound.
 <!-- intro:attention -->
-At long context, a pass reads mostly the KV cache. Every sequence brings its own cache, hence a larger batch no longer raises the intensity of either decoder. On the other hand, a canvas still does: its \(b\) queries share one read of the cache. In this chapter, we give the costs of dense, sliding-window and sparse attention layers. We show that the selection penalty of a sparse layer is the expert penalty \(\Pi_E\), with the canvas in the role of the batch. Finally, we derive the gain when attention dominates.
+At long context, a pass reads mostly the KV cache. Every sequence brings its own cache, hence a larger batch no longer raises the intensity of either decoder. On the other hand, a canvas still does: its \(b\) queries share one read of the cache. In this chapter, we give the costs of dense, sliding-window and sparse attention layers. We show that the selection penalty of a sparse layer is the expert penalty \(\Pi_E\) at batch 1, with the cached tokens in the role of the experts. Finally, we derive the gain when attention dominates.
 <!-- intro:whole -->
 Parts 3 and 4 treat the two extremes: a pass that reads only weights, and one that reads only KV cache. In this chapter, we cover every context in between. First, we state when TD wins (Proposition 7) and the batch it needs to saturate compute (Proposition 8). Second, we sort the cases into eight regimes. Finally, we compare accelerators and models, and show the exact gain over batch and context.
 <!-- intro:calculator -->
-The propositions give closed forms, but only under simplifying assumptions. The calculator below drops these assumptions: it evaluates every pass of a generation with the exact accounting of the appendix, for any accelerator, model, attention layout and decoding setup. For the chosen setting, it reports both throughputs, the AR batch that matches TD, the memory each decoder needs, and the maps of Part 5. In addition, the page address records the setting, so it can be shared.
+The propositions give closed forms, but only under simplifying assumptions. The calculator below drops the simplifications of (A2): it evaluates every pass of a generation with the exact accounting of the appendix, still under the roofline (A1) and, unless measured routing is chosen, (A5), for any accelerator, model, attention layout and decoding setup. For the chosen setting, it reports both throughputs, the AR batch that matches TD, the memory each decoder needs, and the maps of Part 5. In addition, the page address records the setting, so it can be shared.
 <!-- intro:appendix -->
 Every number in Parts 1–7 is a roofline bound computed from a cost model, not a measurement; the measurements come in Parts 8–11. In this appendix, we describe the exact accounting behind the maps, the headline numbers and the calculator. We also point to the measurements that check it, and we list the sources of the model shapes and accelerator specifications.
 <!-- intro:introduction -->

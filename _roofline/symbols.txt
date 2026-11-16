@@ -66,6 +66,14 @@ r
   match: \\mathrm\{TPF\}
   rank: 30
 
+P,\ G
+  what: prompt tokens and generated tokens per sequence (1,024 and 8,192)
+  in: Part 6
+
+\lambda
+  what: logit-sized reads and writes of HBM per output position (5 for TD, 2 for AR); 0 means chunked logits
+  in: Part 6
+
 == Accelerator and precision
 
 \pi
@@ -205,6 +213,14 @@ m
   match: (^|[^\\A-Za-z_])m(?![A-Za-z])
   rank: 380
 
+H_I
+  what: heads of the indexer of a sparse layer (8)
+  in: Part 4
+
+h_I,\ s_I
+  what: head dimension of the indexer and bytes per element of its keys (128, 1 in FP8)
+  in: Part 4
+
 == Costs and intensities
 
 F,\ Q
@@ -243,8 +259,8 @@ U_{E,k}(N)
   match: U_\{E,k\}
   rank: 210
 
-U_{C,m}(n)
-  what: cached tokens that \(n\) queries read together in a sparse layer, each selecting \(m\)
+U_{C,m}(N)
+  what: cached tokens that \(N\) queries read together in a sparse layer, each selecting \(m\)
   in: Definition 1
   match: U_\{C,m\}
   rank: 220
@@ -274,7 +290,7 @@ I^X_{\mathrm{attn}}
   rank: 80
 
 I_{\mathrm{lin}}
-  what: linear part of an AR step's intensity, \(I^{AR}_{\mathrm{lin}}\): the batch \(B\) in BF16
+  what: linear part of an AR step's intensity, \(I^{AR}_{\mathrm{lin}}\) (1.0 at batch 1, 8.2 at batch 64; the batch \(B\) for a dense model in BF16)
   in: Definition 3
   match: I_\{\\mathrm\{lin\}\}
   rank: 290
@@ -393,6 +409,14 @@ plain A1–A5
   what: the assumptions of Proposition 1
   in: Part 2
 
+C_{\mathrm{lin}}(B, x)
+  what: context below which the weights are at least a share \(x\) of an AR step's bytes
+  in: Proposition 4
+
+B^\star_n(C),\ D_n(C)
+  what: smallest compute-bound batch for \(n\) queries per sequence at context \(C\), and the FLOPs per sequence left for the weights
+  in: Proposition 8
+
 == Measurements
 
 \hat\pi
@@ -443,7 +467,7 @@ n_X
   rank: 520
 
 \Gamma_{\mathrm{roof}}
-  what: roofline gain at the measured ceilings and routing
+  what: roofline bound at the measured ceilings and routing
   in: Proposition 9
   match: \\Gamma_\{\\mathrm\{roof\}\}
   rank: 530
@@ -499,7 +523,15 @@ M_q,\ M_k
 
 h
   what: head dimension of a global layer (512)
-  page: no
+  in: Part 10
   match: (^|[^\\A-Za-z_])h(?![A-Za-z_])
   rank: 690
   scope: P
+
+\eta^\star_c
+  what: target efficiency of a component: that of the best kernel timed alone at the same shape, 0.8 where none was timed
+  in: Definition 7
+
+p_{i,e}
+  what: routing weight of expert \(e\) for token \(i\)
+  in: Part 10

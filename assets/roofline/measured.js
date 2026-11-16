@@ -397,7 +397,7 @@
       rowLabel: () => 'one thread block, all 512 columns', fits: 'Fits one stage: loads and work take turns',
       key: ['Q, K, V: tiles of 64 queries, keys and', 'values, each at all 512 columns', 'P: the 64 × 64 attention scores'] },
     new: { name: 'the pair kernel (attn512)', sms: 2, segs: [['Q', 64, 'ink2'], ['K1', 32, 'k'], ['K2', 32, 'k'], ['V1', 32, 'v'], ['V2', 32, 'v'], ['Z', 32, 'muted']],
-      rowLabel: (k) => `thread block ${k + 1}, columns ${256 * k}–${256 * k + 255}`, fits: 'Fits two stages: loads overlap the work',
+      rowLabel: (k) => `thread block ${k + 1}, columns ${256 * k}–${256 * k + 255}`, fits: 'Frees room: a second stage, as drawn',
       key: ['Q: 128 query rows at 256 columns', 'K1, V1 and K2, V2: two buffers (stages)', 'of keys and values', 'Z: two buffers for the exchanged scores'] },
   };
   const P = (head, ...paras) => `<div class="ro-h">${head}</div>${paras.map((t) => `<p class="ro-p">${t}</p>`).join('')}`;
@@ -605,7 +605,7 @@
       }
       return st.ver === 'old'
         ? P('FlashAttention 4 at head dimension 512', 'An SM works on a tile of 64 queries against a tile of 64 keys and values. At head dimension 512, these tiles fill 200 KB of the 227 KB of shared memory, so there is no room for a second buffer: the SM cannot load the next keys while it uses the current ones. Loading and computing take turns, and the tensor cores are busy 36% of the time. It runs at 296–357 TFLOP/s, against 700–729 at head dimension 256.')
-        : P('The pair kernel (attn512): one head split across two SMs', 'Each of two SMs takes 256 of the 512 columns, so each tile takes half the room. The freed space holds either a second buffer, so that the next keys load during the work (two stages of 64 keys, as drawn), or larger tiles of 80 keys in one stage, the fastest configuration with the 80-token KV pages that TD uses.', 'The price is the exchange: the scores need all 512 columns, so after each tile of keys the two SMs swap their partial scores. Global attention then runs at 0.71–0.74 of the attention ceiling, 1.36–1.37 times faster than FlashAttention 4 in dedicated runs.');
+        : P('The pair kernel (attn512): one head split across two SMs', 'Each of two SMs takes 256 of the 512 columns, so each tile takes half the room. The freed space holds either a second buffer, so that the next keys load during the work (two stages of 64 keys, as drawn), or larger tiles of 80 keys in one stage, the fastest configuration with the 80-token KV pages that TD uses.', 'The price is the exchange: the scores need all 512 columns, so after each tile of keys the two SMs swap their partial scores. In the engine, global attention then runs at 0.68–0.71 of the attention ceiling, 1.36–1.37 times faster than FlashAttention 4 (Table 16).');
     }
     draw(); watch(pic, draw);
   }
