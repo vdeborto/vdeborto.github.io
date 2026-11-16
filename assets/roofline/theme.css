@@ -444,3 +444,12 @@ html { scroll-behavior: smooth; }
 .bdr a.xref:hover { color: var(--accent); text-decoration-color: var(--accent); }
 .bdr [id^="figure-"], .bdr [id^="table-"] { scroll-margin-top: 90px; }
 .bdr .fig-k:target, .bdr caption:target { background: color-mix(in srgb, var(--accent) 14%, transparent); }
+/* previews of cross-references (reading.js) */
+.xref-card {
+  position: absolute; z-index: 1060; width: min(380px, calc(100vw - 16px)); padding: 10px 14px 4px;
+  background: var(--bdr-surface); border: 1px solid var(--rule); border-top: 2px solid var(--accent); border-radius: 3px;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, .12); color: var(--ink); font: 13.5px/1.5 "Source Serif 4", Charter, Georgia, serif;
+}
+.xref-card .xk { font: 500 11px "IBM Plex Mono", ui-monospace, monospace; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); }
+.xref-card .xt { font-weight: 600; margin: 2px 0 4px; }
+.xref-card p { margin: 0 0 8px; }
