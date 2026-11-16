@@ -34,21 +34,20 @@
 </div>
 <!-- card:AR compute-bound -->
 <div class="card-more" hidden>
-  <p>Both passes run at the peak, so time is FLOPs, and a canvas spends \(\omega\) times AR's FLOPs per token: \(\Gamma \le 1/\omega\), equal to it under Proposition 1. AR reaches the ridge at</p>
+  <p>Both passes run at the peak, so time is FLOPs, and a canvas spends \(\omega\) times AR's FLOPs per token: \(\Gamma \le 1/\omega\), equal to it under Proposition 1. We claim that this setting is unrealistic, but just how unrealistic is it? AR becomes compute-bound at</p>
   <div class="eq">\[ \begin{gathered} B^\star_{AR} = \frac{I^\star s_wW_{\mathrm{tot}}}{2N_{\mathrm{act}}}\\[4pt] = \frac{206 \times 2 \times 24.5\text{B}}{2 \times 3.08\text{B}} \approx 1{,}640. \end{gathered} \]</div>
-  <p>This closed form takes zero context. By Proposition 8, beyond about 135 tokens of context no batch makes an AR step compute-bound. In addition, holding 1,640 sequences of 9k tokens, the 1k prompt and 8k generated tokens of the running example, would take about 650 GB of KV cache, more than four H200s hold.</p>
-  <p class="card-link"><a href="#cor1">Corollary 1</a> · <a href="#prop8">Proposition 8</a></p>
+  <p>This is with zero context \(C\)! The batch that AR needs grows with the context, and there is usually even a point beyond which no batch size renders AR compute-bound. For instance, by Proposition 8, beyond about 135 tokens of context no batch makes an AR step compute-bound.</p>
 </div>
 <!-- card:Both memory-bound -->
 <div class="card-more" hidden>
-  <p>Time is bytes. Per sequence, an AR step reads \(Q^{AR}\) for one token; a canvas reads \(\omega\) times \(Q^{TD} = \Pi\,Q^{AR}\) for \(b\) tokens. Hence</p>
+  <p>Per sequence, an AR step reads \(Q^{AR}\) bytes for one token; a canvas reads \(\omega\) times \(Q^{TD} = \Pi\,Q^{AR}\) for \(b\) tokens. Both passes are memory-bound, so the gain is the ratio of these bytes per token:</p>
   <div class="eq">\[ \Gamma = \frac{Q^{AR}}{\omega\,\Pi\,Q^{AR}/b} = \frac{\mathrm{TPF}}{\Pi}. \]</div>
-  <p>TD's extra FLOPs are hidden under the memory time. At batch 1, \(\mathrm{TPF} = 256/15 = 17.07\) and \(\Pi \approx \Pi_{\mathrm{lin}}(1) = 7.94\), so \(\Gamma \approx 2.15\); the exact accounting at a fixed context of 1k gives 2.53, and 2.55 over the whole generation.</p>
-  <p class="card-link"><a href="#cor1">Corollary 1</a> · <a href="#fig-reuse">Figure 5</a></p>
 </div>
 <!-- card:AR memory-, TD compute-bound -->
 <div class="card-more" hidden>
-  <p>TD runs at the peak \(\pi\) and AR at \(I_{AR}\,\beta\), so TD's FLOPs run \(I^\star/I_{AR}\) times faster and it does \(\omega\) times as many. The gain is the compute that AR leaves idle, divided by TD's extra work. At short context \(I_{AR}\) grows with the batch and \(\Gamma\) reaches 1 near batch 109. At long context \(I_{AR} \to I_{\mathrm{attn}}\), and at any batch</p>
+  <p>TD runs at the peak FLOP rate \(\pi\) and AR at \(I_{AR}\,\beta\), so TD computes \(I^\star/I_{AR}\) times faster than AR but does \(\omega\) times as many FLOPs per token; the ratio of the two is the formula above. At short context, \(I_{AR}\) grows with the batch. At long context, \(I_{AR} \to I_{\mathrm{attn}}\), and at any batch we have</p>
   <div class="eq">\[ \Gamma \to \frac{I^\star}{\omega\,I_{\mathrm{attn}}} = \frac{206}{15 \times 8} = 1.72. \]</div>
-  <p class="card-link"><a href="#prop7">Proposition 7</a> · <a href="#fig-accel">Figure 17</a></p>
+
+  The above suggests that at long context, TD is *(almost) always* better than AR when it comes to throughput.
+
 </div>
