@@ -34,7 +34,7 @@ with "Part N of" and previous / next links, a contents rail listing every chapte
 between chapters rewritten to the right page. Old single-page links (#prop1, ?B=64) are
 forwarded by the first page to the chapter that now holds the anchor.
 
-Every chapter ends with a comment thread (the citation block, cite_block, is off: CITATION)
+The first page ends with its BibTeX citation (cite_block) and every chapter with a comment thread
 (comments_block): giscus, one GitHub Discussion per chapter in the repository named by GISCUS. It
 needs Discussions enabled there and the giscus app installed on it (https://github.com/apps/giscus).
 
@@ -76,7 +76,7 @@ CHAPTERS = [
     ("appendix", "A", "Appendix", "appendix", "the exact accounting, a check against measurements, sources."),
 ]
 # Citation, and the comment threads (ids from https://giscus.app for the repository and category).
-CITATION = False  # the citation block at the end of the first page; removed on 2026-11-16, True brings it back
+CITATION = True  # the BibTeX citation at the end of the first page
 AUTHOR = ("De Bortoli", "Valentin")
 YEAR = "2026"
 SITE = "https://vdeborto.github.io"
@@ -573,11 +573,9 @@ def bibtex(url):
 
 
 def cite_block():
-    """How to cite the book, at the end of its first page."""
+    """How to cite the book, at the end of its first page: the BibTeX entry, with a Copy button.
+    (A plain-text citation above it was removed on 2026-11-16 at his request.)"""
     return (f'<section class="book-cite" id="cite">\n  <h3>Citation</h3>\n'
-
-            f'  <div class="cite-entry"><pre class="cite-text">{AUTHOR[0]}, {AUTHOR[1][0]}. ({YEAR}). {TITLE}. {SITE + BASE}</pre></div>\n'
-            f'  <p>or as a BibTeX entry:</p>\n'
             f'  <div class="cite-entry"><button type="button" class="cite-copy">Copy</button><pre class="cite-bib">{html.escape(bibtex(SITE + BASE))}</pre></div>\n'
             f'</section>\n')
 
