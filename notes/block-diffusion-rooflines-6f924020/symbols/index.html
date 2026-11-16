@@ -421,7 +421,7 @@
       <tr>
 <td>\(L\)</td>
 <td class="l">layers (30)</td>
-<td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/">Part 1</a></td>
+<td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/#def1">Definition 1</a></td>
 </tr>
       <tr>
 <td>\(d\)</td>
@@ -461,17 +461,17 @@
       <tr>
 <td>\(E\)</td>
 <td class="l">experts per MoE layer (128)</td>
-<td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/">Part 1</a></td>
+<td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/#def1">Definition 1</a></td>
 </tr>
       <tr>
 <td>\(k\)</td>
 <td class="l">experts each token selects (8)</td>
-<td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/">Part 1</a></td>
+<td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/#def1">Definition 1</a></td>
 </tr>
       <tr>
 <td>\(W^e\)</td>
 <td class="l">parameters of one expert in one layer, \(3d\,f_E\) (5.95M)</td>
-<td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/">Part 1</a></td>
+<td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/#def1">Definition 1</a></td>
 </tr>
       <tr>
 <td>\(f_E\)</td>
@@ -481,12 +481,12 @@
       <tr>
 <td>\(W_{\mathrm{ne}}\)</td>
 <td class="l">non-expert parameters of all layers (1.66B for DiffusionGemma)</td>
-<td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/">Part 1</a></td>
+<td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/#def1">Definition 1</a></td>
 </tr>
       <tr>
 <td>\(N_{\mathrm{act}}\)</td>
 <td class="l">parameters active per token, \(W_{\mathrm{ne}} + LkW^e\) (3.08B for DiffusionGemma, without the vocabulary)</td>
-<td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/#def1">Definition 1</a></td>
+<td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/#def2">Definition 2</a></td>
 </tr>
       <tr>
 <td>\(W_{\mathrm{tot}}\)</td>
@@ -499,14 +499,14 @@
 <td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/">Part 1</a></td>
 </tr>
       <tr>
-<td>\(H_I\)</td>
-<td class="l">heads of the indexer of a sparse layer (8)</td>
-<td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/attention/">Part 4</a></td>
+<td>\(n_{I,\ell}\)</td>
+<td class="l">heads of the indexer of sparse layer \(\ell\), \(n_I\) when the layer is clear (8)</td>
+<td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/#def1">Definition 1</a></td>
 </tr>
       <tr>
-<td>\(h_I,\ s_I\)</td>
-<td class="l">head dimension of the indexer and bytes per element of its keys (128, 1 in FP8)</td>
-<td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/attention/">Part 4</a></td>
+<td>\(h_{I,\ell},\ s_I\)</td>
+<td class="l">head dimension of the indexer of sparse layer \(\ell\) (\(h_I\) when the layer is clear) and bytes per element of its keys (128, 1 in FP8)</td>
+<td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/#def1">Definition 1</a></td>
 </tr>
     </tbody>
   </table></div>
@@ -536,22 +536,22 @@
       <tr>
 <td>\(\class{mj-ar}{W_{AR}}\)</td>
 <td class="l">weights an AR step reads at batch \(B\), in parameters</td>
-<td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/#def1">Definition 1</a></td>
+<td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/#def2">Definition 2</a></td>
 </tr>
       <tr>
 <td>\(\class{mj-td}{W_{TD}}\)</td>
 <td class="l">weights a TD pass reads at batch \(B\), in parameters</td>
-<td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/#def1">Definition 1</a></td>
+<td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/#def2">Definition 2</a></td>
 </tr>
       <tr>
 <td>\(U_{E,k}(N)\)</td>
 <td class="l">expected number of distinct experts that \(N\) positions touch in a layer (\(E = 128\) experts, \(k = 8\) per token)</td>
-<td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/#def1">Definition 1</a></td>
+<td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/#def2">Definition 2</a></td>
 </tr>
       <tr>
 <td>\(U_{C,m}(N)\)</td>
-<td class="l">cached tokens that \(N\) queries read together in a sparse layer, each selecting \(m\)</td>
-<td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/#def1">Definition 1</a></td>
+<td class="l">cached tokens that \(N\) queries read together in a sparse layer, each selecting \(m\): the coverage function \(U_{n,k}\) of <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/#def1">Definition 1</a> with \(n = C\) and \(k = m\), so \(U_{C,m}(1) = \min(C, m)\)</td>
+<td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/#def2">Definition 2</a></td>
 </tr>
       <tr>
 <td>\(\class{mj-ar}{I_{AR}}\)</td>
@@ -716,7 +716,7 @@
     <tbody>
       <tr>
 <td>\(\hat\pi\)</td>
-<td class="l">empirical compute ceiling: the highest FLOP rate measured on this H200 (FP8 1,468, BF16 781, attention 638 TFLOP/s)</td>
+<td class="l">empirical compute ceiling: the highest FLOP rate measured on this H200 (for attention, FlashAttention 3's sustained rate) (FP8 1,468, BF16 781, attention 638 TFLOP/s)</td>
 <td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/effective/#def5">Definition 5</a></td>
 </tr>
       <tr>
