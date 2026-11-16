@@ -95,6 +95,8 @@ def _chunk(c: str, wrap: bool) -> str:
         n = len(m.group(2))
         return f"{indent}<h{n}>{inline(m.group(3))}</h{n}>"
     # A list: from the first marker line on, every line is a marker line or an indented continuation.
+    # A "</li>" left at the end of an item, from text that was HTML before, is dropped.
+    lines = [re.sub(r"\s*</li>\s*$", "", ln) if ITEM.match(ln) else ln for ln in lines]
     first = next((i for i, ln in enumerate(lines) if ITEM.match(ln)), None)
     if first is not None and not BLOCK_TAG.search("\n".join(lines[first:])) and \
             all(ITEM.match(ln) or ln.startswith((" ", "\t")) for ln in lines[first + 1:] if ln.strip()):
