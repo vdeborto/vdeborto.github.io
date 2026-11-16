@@ -10,6 +10,9 @@ Blocks, separated by blank lines:
     ### Heading, #### Heading            a heading
     a chunk of plain text                a paragraph (in a file whose text is not already in <p>)
     a <p> cut in two by a blank line     two paragraphs
+Footnotes: [^label] in the text and, anywhere in the book, a line "[^label]: the note" (continued on
+the following lines up to a blank line). footnotes() numbers them per page, in order of first use,
+and lists the notes at the end of the page.
 HTML is left as it is, and nothing inside <script>, <style>, <pre>, <code>, <svg>, comments or math
 (\\( \\), \\[ \\], $$ $$) is touched.
 """
@@ -23,6 +26,10 @@ BLOCK_TAG = re.compile(r"</?(p|div|ul|ol|li|table|thead|tbody|tr|td|th|section|f
                        r"h[1-6]|blockquote|dl|dt|dd|main|article|header|footer|nav|aside|hr|br|form)\b", re.I)
 ITEM = re.compile(r"^(\s*)([-*+]|\d+[.)])[ \t]+(.*)$")
 HEAD = re.compile(r"^(\s*)(#{3,6})[ \t]+(.+?)\s*#*\s*$")
+FNDEF = re.compile(r"^[ \t]*\[\^([\w-]+)\]:[ \t]*(.*(?:\n(?![ \t]*\n)(?![ \t]*\[\^[\w-]+\]:).*)*)", re.M)
+FNREF = re.compile(r"\[\^([\w-]+)\](?!:)")
+DEFDIV = re.compile(r'<div class="fn-def" data-fn="([\w-]+)" hidden>(.*?)</div>', re.S)
+REFSUP = re.compile(r'<sup class="fn-ref" data-fn="([\w-]+)">\[[\w-]+\]</sup>')
 PH = re.compile(r"[\x00\x01\x02](\d+)[\x00\x01\x02]")
 
 
@@ -33,6 +40,7 @@ def inline(s: str) -> str:
     codes = []
     s = re.sub(r"`([^`\n]+)`", lambda m: codes.append("<code>" + m.group(1).replace("&", "&amp;").replace("<", "&lt;") + "</code>")
                or f"\x02c{len(codes) - 1}\x02", s)
+    s = FNREF.sub(lambda m: f'<sup class="fn-ref" data-fn="{m.group(1)}">[{m.group(1)}]</sup>', s)
     s = re.sub(r"\[([^\]\n]+)\]\(([^)\s]+)\)", r'<a href="\2">\1</a>', s)
     s = re.sub(r"(?<![\w*\\])\*\*(?=\S)(.+?)(?<=\S)\*\*(?![\w*])", r"<strong>\1</strong>", s)
     s = re.sub(r"(?<![\w*\\])\*(?=[^\s*])(.+?)(?<=[^\s*])\*(?![\w*])", r"<em>\1</em>", s)
@@ -103,10 +111,16 @@ def render(text: str, wrap: bool = True) -> str:
     t = RAW.sub(lambda m: raw.append(m.group(0)) or f"\x00{len(raw) - 1}\x00", text)
     maths = []
     t = MATH.sub(lambda m: maths.append(m.group(0)) or f"\x01{len(maths) - 1}\x01", t)
+
+    def fndef(m):  # a footnote definition: kept out of the text, on a line of its own
+        body = inline(" ".join(ln.strip() for ln in m.group(2).split("\n")))
+        raw.append(f'<div class="fn-def" data-fn="{m.group(1)}" hidden>{body}</div>')
+        return f"\n\x00{len(raw) - 1}\x00\n"
+    t = FNDEF.sub(fndef, t)
     parts = re.split(r"(\n[ \t]*\n(?:[ \t]*\n)*)", t)
     t = "".join(p if k % 2 else _chunk(p, wrap) for k, p in enumerate(parts))
-    t = re.sub(r"\x01(\d+)\x01", lambda m: maths[int(m.group(1))], t)
-    return re.sub(r"\x00(\d+)\x00", lambda m: raw[int(m.group(1))], t)
+    t = re.sub(r"\x00(\d+)\x00", lambda m: raw[int(m.group(1))], t)
+    return re.sub(r"\x01(\d+)\x01", lambda m: maths[int(m.group(1))], t)
 
 
 def render_inline(text: str) -> str:
@@ -115,5 +129,50 @@ def render_inline(text: str) -> str:
     maths = []
     t = MATH.sub(lambda m: maths.append(m.group(0)) or f"\x01{len(maths) - 1}\x01", t)
     t = inline(t)
-    t = re.sub(r"\x01(\d+)\x01", lambda m: maths[int(m.group(1))], t)
-    return re.sub(r"\x00(\d+)\x00", lambda m: raw[int(m.group(1))], t)
+    t = re.sub(r"\x00(\d+)\x00", lambda m: raw[int(m.group(1))], t)
+    return re.sub(r"\x01(\d+)\x01", lambda m: maths[int(m.group(1))], t)
+
+
+def collect(html: str) -> dict:
+    """The footnote definitions in rendered HTML: label -> note."""
+    return {m.group(1): m.group(2) for m in DEFDIV.finditer(html)}
+
+
+def defs_in_source(text: str) -> dict:
+    """The footnote definitions of a source file, rendered (for the live preview)."""
+    return collect(render(text))
+
+
+def footnotes(html: str, defs=None, missing=None) -> str:
+    """Number the footnote references of a page, 1, 2, ... in order of first use; drop the hidden
+    definitions and list the notes at the end. `defs` adds definitions from elsewhere (the whole
+    book); labels with no definition are appended to `missing`."""
+    d = dict(defs or {})
+    d.update(collect(html))
+    html = DEFDIV.sub("", html)
+    order = {}
+
+    def ref(m):
+        lab = m.group(1)
+        first = lab not in order
+        if first:
+            order[lab] = len(order) + 1
+        tip = re.sub(r"<[^>]+>", "", d.get(lab, "")).replace('"', "&quot;")
+        anchor = f' id="fnref-{lab}"' if first else ""
+        return f'<sup class="fn-ref"{anchor}><a href="#fn-{lab}" title="{tip}">{order[lab]}</a></sup>'
+    html = REFSUP.sub(ref, html)
+    if not order:
+        return html
+    if missing is not None:
+        missing += [lab for lab in order if lab not in d]
+    items = "".join(f'<li id="fn-{lab}">{d.get(lab, "<em>missing note</em>")} <a href="#fnref-{lab}" class="fn-back" '
+                    f'aria-label="Back to the text">↩</a></li>' for lab in order)
+    notes = f'<section class="footnotes" aria-label="Notes"><h3>Notes</h3><ol>{items}</ol></section>\n'
+    body = html.rstrip()
+    if body.endswith("</section>"):  # inside the chapter's own section, so that it keeps the text column
+        return body[:-len("</section>")] + notes + "</section>"
+    return body + "\n" + notes
+
+
+def labels(text: str) -> set:
+    return set(re.findall(r"\[\^([\w-]+)\]", text))

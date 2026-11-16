@@ -574,7 +574,7 @@ def bibtex(url):
 def cite_block():
     """How to cite the book, at the end of its first page."""
     return (f'<section class="book-cite" id="cite">\n  <h3>Citation</h3>\n'
-            f'  <p>For attribution in academic contexts, please cite this work as:</p>\n'
+
             f'  <div class="cite-entry"><pre class="cite-text">{AUTHOR[0]}, {AUTHOR[1][0]}. ({YEAR}). {TITLE}. {SITE + BASE}</pre></div>\n'
             f'  <p>or as a BibTeX entry:</p>\n'
             f'  <div class="cite-entry"><button type="button" class="cite-copy">Copy</button><pre class="cite-bib">{html.escape(bibtex(SITE + BASE))}</pre></div>\n'
@@ -654,6 +654,10 @@ def split_book(body):
         if slug not in [c[0] for c in CHAPTERS]:
             problems.append(f"intro for unknown chapter {slug!r}")
 
+    book_defs = mdlite.collect(body)
+    for t in intros.values():
+        book_defs.update(mdlite.collect(mdlite.render(t)))
+    used, missing = set(), []
     book = {"title": TITLE, "home": BASE, "chapters": [{"slug": c[0], "num": c[1], "title": c[2], "url": url_of(c[0])} for c in CHAPTERS]}
     pages = {}
     for k, ch in enumerate(CHAPTERS):
@@ -707,8 +711,15 @@ sitemap: false
 <div class="bdr book-chapter" id="top">
 <noscript><p>This page needs JavaScript for its equations, figures and calculator.</p></noscript>
 """
+        # Footnotes: numbered per page; a note may be defined anywhere in the book.
+        used.update(re.findall(r'<sup class="fn-ref" data-fn="([\w-]+)">', text))
+        text = mdlite.footnotes(text, book_defs, missing)
         cite = "" if slug else cite_block()
         pages[slug] = front + head + text.strip() + "\n" + cite + foot + comments_block(ch) + "</div>\n{% endraw %}\n"
+    for lab in sorted(set(missing)):
+        problems.append(f"footnote [^{lab}] is used but not defined")
+    for lab in sorted(set(book_defs) - used):
+        problems.append(f"footnote [^{lab}] is defined but not used")
     pages["introduction"] = f"""---
 layout: null
 permalink: {url_of("introduction")}
