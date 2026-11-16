@@ -298,6 +298,70 @@
   addEventListener('hashchange', revealHash);
   setTimeout(revealHash, 0);
 
+  // ---------------------------------------------------------------- previews of cross-references
+  // Hovering a link to a figure, table, statement or part shows what it is: the figure's claim, the
+  // table's caption, the statement's one-line summary or the chapter's opening paragraph. Other
+  // chapters are fetched once and cached. Touch screens follow the link instead.
+  const docs = new Map();
+  const getDoc = (url) => {
+    if (!docs.has(url)) docs.set(url, fetch(url).then((r) => r.text()).then((t) => new DOMParser().parseFromString(t, 'text/html')).catch(() => null));
+    return docs.get(url);
+  };
+  const strip = (node, sel) => { node.querySelectorAll(sel).forEach((x) => x.remove()); return node; };
+  function previewOf(doc, hash) {
+    if (!doc) return null;
+    if (!hash) {
+      const part = doc.querySelector('.book-part'), h = doc.querySelector('.post-title, h1'), p = doc.querySelector('.bdr .chapter-intro') || doc.querySelector('.bdr section > p');
+      const num = part ? (part.textContent.match(/^(Part \S+)/) || [])[1] : '';
+      return h ? `<div class="xk">${num || 'Chapter'}</div><p class="xt">${h.textContent.replace(/\s+/g, ' ').trim()}</p>${p ? `<p>${p.innerHTML}</p>` : ''}` : null;
+    }
+    const t = doc.getElementById(hash);
+    if (!t) return null;
+    if (hash.startsWith('figure-')) {
+      const host = t.parentElement, title = host && host.querySelector('.fig-title');
+      return `<div class="xk">${t.textContent.trim()}</div>${title ? `<p class="xt">${title.innerHTML}</p>` : ''}`;
+    }
+    if (hash.startsWith('table-')) {
+      const c = t.innerHTML.split(/(?<=\.)\s/).slice(0, 2).join(' ');
+      return `<p>${c}</p>`;
+    }
+    const tag = t.querySelector('.tag'), title = t.querySelector('.bdr-title, .title, summary'), gist = t.querySelector('.gist');
+    if (!tag) return null;
+    const head = title ? strip(title.cloneNode(true), '.tag').textContent.trim() : '';
+    const g = gist ? strip(gist.cloneNode(true), 'span:first-child').innerHTML : '';
+    return `<div class="xk">${tag.textContent.trim()}</div><p class="xt">${head}</p>${g ? `<p>${g}</p>` : ''}`;
+  }
+  const card = el('<div class="xref-card" role="tooltip" hidden></div>');
+  document.body.appendChild(card);
+  let hoverTimer = null, overCard = false, current = null;
+  const hideCard = () => { card.hidden = true; current = null; };
+  page.addEventListener('pointerover', (ev) => {
+    const a = ev.target.closest && ev.target.closest('a.xref');
+    if (!a || ev.pointerType === 'touch' || a === current) return;
+    clearTimeout(hoverTimer);
+    hoverTimer = setTimeout(async () => {
+      const u = new URL(a.href, location.href), hash = decodeURIComponent(u.hash.slice(1));
+      const doc = await getDoc(u.pathname);
+      const html = previewOf(doc, hash);
+      if (!html || !a.matches(':hover')) return;
+      current = a; card.innerHTML = html; card.hidden = false;
+      const r = a.getBoundingClientRect(), w = card.offsetWidth, vw = document.documentElement.clientWidth;
+      card.style.left = `${Math.max(8, Math.min(vw - w - 8, r.left)) + scrollX}px`;
+      const below = r.bottom + 10 + card.offsetHeight < innerHeight;
+      card.style.top = `${(below ? r.bottom + 8 : r.top - card.offsetHeight - 8) + scrollY}px`;
+      if (window.MathJax && MathJax.typesetPromise) MathJax.typesetPromise([card]).catch(() => {});
+    }, 260);
+  });
+  page.addEventListener('pointerout', (ev) => {
+    const a = ev.target.closest && ev.target.closest('a.xref');
+    if (!a) return;
+    clearTimeout(hoverTimer);
+    setTimeout(() => { if (!overCard && current === a && !a.matches(':hover')) hideCard(); }, 120);
+  });
+  card.addEventListener('pointerenter', () => { overCard = true; });
+  card.addEventListener('pointerleave', () => { overCard = false; hideCard(); });
+  addEventListener('scroll', () => { if (!card.hidden && !overCard) hideCard(); }, { passive: true });
+
   // ---------------------------------------------------------------- equations that do not fit
   // A display equation written in two forms (.eq-wide, then .eq-narrow) shows the wide one only
   // where it fits its column; the CSS switch on the viewport width cannot see the column.
