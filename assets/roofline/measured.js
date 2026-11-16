@@ -4,7 +4,7 @@
 // Nothing is computed here beyond ratios of those values.
 //
 // Mounts on [data-mfig]: ladder (data-series="a,b,c" or "c,d"), eff, comp (data-src="eta2" or
-// "eta3"), recover, vs2.
+// "eta3"), recover, vs2, chip (Part 10: the H200 and the two kernels).
 (function () {
   'use strict';
   const node = document.getElementById('bdr-practice');
@@ -364,7 +364,131 @@
     draw(); watch(pic, draw);
   }
 
-  const MF = { prop1: mProp1, routing: mRouting, ladder: mLadder, eff: mEff, comp: mComp, recover: mRecover, vs2: mVs2 };
+  // ---------------------------------------------------------------- the chip, and what the two kernels of Part 10 change
+  // Every number is stated in Part 10 (or, for the chip, elsewhere in the text): bytes written per MoE
+  // layer at TD batch 32 (Figure "The new expert path ..."), shared memory per thread block (Figure
+  // "Splitting the head dimension ..."), and the timings of the attention kernels.
+  const CHIP = {
+    experts: {
+      old: { name: "vLLM's Triton path", rows: [['quantise x', '2 kernels', null], ['sort rows by expert', '', null], ['GEMM 1 (gate, up)', '', 184], ['act_and_mul', '', 92], ['quantise h', '2 kernels', 46], ['GEMM 2, a row per pair', 'one per (token, expert)', 369], ['moe_sum', 'reads the 369 MB back', 46]] },
+      new: { name: 'moe_ws', rows: [['quantise x, per token', '', 23], ['sort rows by expert', '', null], ['GEMM 1 + gelu(gate)·up', 'activation in registers', 100], ['quantise h, per row', '', 50], ['zero y', '', null], ['GEMM 2 + p·row into y', 'atomic additions in L2', 'L2']] },
+    },
+    attn: {
+      old: { name: 'FlashAttention 4', sms: 1, segs: [['Q', 64, 'ink2'], ['K', 64, 'k'], ['V', 64, 'v'], ['P', 8, 'muted']], stages: 'one stage', key: 'Q, K, V: tiles of 64 rows at all 512 columns; P: the 64 × 64 scores' },
+      new: { name: 'attn512 (pair)', sms: 2, segs: [['Q', 64, 'ink2'], ['K1', 32, 'k'], ['K2', 32, 'k'], ['V1', 32, 'v'], ['V2', 32, 'v'], ['Z', 32, 'muted']], stages: 'two stages', key: 'Q: 128 rows at 256 columns; K1, K2, V1, V2: two stages of keys and values; Z: the two exchange buffers' },
+    },
+  };
+  const CHIP_TIPS = {
+    sm: ['132 SMs', [['each SM', 'tensor cores, 256 KB of registers, about 227 KB of shared memory'], ['a kernel', 'a grid of thread blocks (CTAs), each running on one SM']]],
+    l2: ['L2 cache', [['shared by', 'all 132 SMs'], ['moe_ws', "a token's 8 expert contributions meet here, by atomic additions"]]],
+    hbm: ['HBM', [['capacity', '141 GB'], ['bandwidth', '4.8 TB/s (datasheet)'], ['cost', 'every tensor written here is read back by the next kernel']]],
+    x: ['the exchange', [['what', 'each CTA sends its partial scores, Mq × Mk in FP16, into its partner\'s shared memory'], ['per tile of keys', '1.5 µs of tensor work, 0.67 µs of transfer, about 0.5 µs of synchronisation']]],
+  };
+  function mChip(root) {
+    const st = { tab: 'experts', ver: 'old', hover: null };
+    const { ctl, pic, out } = frame(root);
+    ctl.append(seg('kernel', [['experts', 'experts (MoE)'], ['attn', 'global attention, head dim 512']], st.tab, (v) => { st.tab = v; st.hover = null; draw(); }),
+      seg('version', [['old', "vLLM's kernels"], ['new', 'the rewrite']], st.ver, (v) => { st.ver = v; st.hover = null; draw(); }));
+    const T = (x, y, t, o = {}) => `<text x="${x}" y="${y}"${o.a ? ` text-anchor="${o.a}"` : ''} style="fill:${o.c || 'currentColor'};font-size:${o.s || 12}px${o.w ? ';font-weight:600' : ''}">${t}</text>`;
+    function draw() {
+      const c = colors(), crit = css('--bdr-critical') || '#b3261e', green = css('--bdr-s3') || c.ink2, amber = css('--bdr-s4') || c.ink2;
+      const fillOf = { ink2: c.ink2, k: green, v: amber, muted: c.muted };
+      const narrow = (pic.clientWidth || 640) < 560;
+      const W = narrow ? 340 : 680, chipW = narrow ? 324 : 330;
+      const px = narrow ? 8 : 356, py = narrow ? 356 : 26;  // the right (or lower) panel
+      const H = narrow ? 350 + (st.tab === 'experts' ? 26 + 30 * CHIP[st.tab][st.ver].rows.length : 230) : 350;
+      const v = CHIP[st.tab][st.ver];
+      let g = `<svg viewBox="0 0 ${W} ${H}" role="group" aria-label="The H200: 132 SMs, an L2 cache shared by all of them and HBM; ${st.tab === 'experts' ? 'where the expert kernels write their intermediate tensors' : 'what one thread block holds in shared memory'}">`;
+      // the chip
+      g += `<rect x="4" y="4" width="${chipW}" height="244" rx="10" fill="${c.surface}" stroke="${c.ink}" stroke-width="1.3"/>` + T(16, 22, 'H200 (Hopper)', { c: c.ink, w: 1 });
+      const cols = 12, cw = (chipW - 28) / cols, ch = 12.5, gx = 3, gy = 3.2, x0 = 16, y0 = 34;
+      const hiSM = st.tab === 'attn' ? (v.sms === 2 ? [40, 41] : [40]) : [];
+      g += `<g data-k="sm" style="cursor:help">`;
+      for (let i = 0; i < 132; i++) {
+        const cx = x0 + (i % cols) * cw, cy = y0 + Math.floor(i / cols) * (ch + gy), hit = hiSM.includes(i);
+        g += `<rect x="${cx}" y="${cy}" width="${cw - gx}" height="${ch}" rx="2" fill="${hit ? c.hi : c.muted}" fill-opacity="${hit ? 0.9 : (st.hover === 'sm' ? 0.5 : 0.3)}"/>`;
+      }
+      if (hiSM.length === 2) g += `<rect x="${x0 + 4 * cw - 2}" y="${y0 + 3 * (ch + gy) - 2}" width="${2 * cw + 1}" height="${ch + 4}" rx="3" fill="none" stroke="${c.ink}" stroke-dasharray="3 2"/>`;
+      g += `</g>` + T(x0, y0 + 11 * (ch + gy) + 10, '132 SMs (streaming multiprocessors)', { s: 11.5 });
+      const ly = y0 + 11 * (ch + gy) + 18;
+      g += `<g data-k="l2" style="cursor:help"><rect x="${x0}" y="${ly}" width="${chipW - 28}" height="24" rx="4" fill="${c.muted}" fill-opacity="${st.hover === 'l2' ? 0.4 : 0.2}" stroke="${c.muted}"/>` + T(x0 + (chipW - 28) / 2, ly + 16, st.tab === 'experts' && st.ver === 'new' ? 'L2: the per-pair rows are summed here' : 'L2 cache, shared by all SMs', { a: 'middle', c: c.ink2 }) + `</g>`;
+      // HBM, below the chip (wide) or at its foot (narrow)
+      const hy = 300;
+      g += `<g data-k="hbm" style="cursor:help"><rect x="4" y="${hy}" width="${chipW}" height="30" rx="6" fill="${c.surface}" stroke="${c.ink2}" stroke-opacity="${st.hover === 'hbm' ? 1 : 0.7}"/>` + T(4 + chipW / 2, hy + 19, 'HBM: 141 GB at 4.8 TB/s', { a: 'middle', c: c.ink2 }) + `</g>`;
+      if (st.tab === 'experts') {
+        // traffic: one arrow from the L2 down to HBM per kernel that writes there, as thick as its bytes
+        const writes = v.rows.map((r, i) => [r, i]).filter(([r]) => typeof r[2] === 'number');
+        writes.forEach(([r, i], k) => {
+          const ax = x0 + 24 + (k + 0.5) * ((chipW - 76) / Math.max(1, writes.length)), on = st.hover === `r${i}`;
+          g += `<line x1="${ax}" y1="${ly + 24}" x2="${ax}" y2="${hy - 3}" stroke="${on ? crit : c.ink2}" stroke-width="${Math.max(1.4, Math.sqrt(r[2]) / 2.2)}" stroke-opacity="${on || st.hover == null ? 0.85 : 0.35}"/>`;
+        });
+        // the kernels, in order, with what each writes to HBM
+        const rh = 30, bx = px, bw = W - px - 8;
+        const maxMB = 369, barX = bx + bw - 96;
+        g += T(bx, py - 8, `${v.name}: ${v.rows.reduce((n, r) => n + (r[1] === '2 kernels' ? 2 : 1), 0)} kernels`, { c: c.ink, w: 1, s: 12 }) + T(barX, py - 8, 'written to HBM', { s: 11 });
+        v.rows.forEach((r, i) => {
+          const y = py + i * rh, on = st.hover === `r${i}`;
+          g += `<g data-k="r${i}" style="cursor:help"><rect x="${bx}" y="${y}" width="${bw}" height="${rh - 4}" rx="4" fill="${on ? c.hi : 'none'}" fill-opacity="0.12" stroke="${c.muted}" stroke-opacity="0.6"/>`;
+          g += T(bx + 8, y + (r[1] ? 10.5 : 17), r[0], { c: c.ink, s: 11.5 });
+          if (r[1]) g += T(bx + 8, y + 23.5, r[1], { s: 10 });
+          if (typeof r[2] === 'number') g += `<rect x="${barX}" y="${y + 8}" width="${Math.max(2, 60 * r[2] / maxMB)}" height="10" rx="2" fill="${on ? crit : c.ink2}" fill-opacity="0.8"/>` + T(barX + 64, y + 17, `${r[2]} MB`, { c: c.ink2, s: 11 });
+          else if (r[2] === 'L2') g += T(barX, y + 17, 'in L2', { c: c.ink2, s: 11 });
+          g += `</g>`;
+        });
+      } else {
+        // what one SM's shared memory holds (two SMs for the pair, joined by the exchange)
+        const bx = px, bw = W - px - 8, sc = (bw - 56) / 227, lim = bx + 227 * sc, gapY = 78, y0b = py + 30;
+        g += T(bx, py - 8, `${v.name}: shared memory per SM`, { c: c.ink, w: 1 });
+        g += T(lim, py + 10, '227 KB per SM', { a: 'end', c: crit, s: 10.5 });
+        for (let k = 0; k < v.sms; k++) {
+          const y = y0b + k * gapY;
+          let x = bx;
+          g += T(bx, y - 4, v.sms === 2 ? `CTA ${k}, head-dim columns ${256 * k}–${256 * k + 255}` : 'one CTA, all 512 head-dim columns', { s: 11 });
+          for (const [nm, kb, col] of v.segs) {
+            const w = kb * sc;
+            g += `<rect x="${x}" y="${y}" width="${w - 1.5}" height="24" rx="3" fill="${fillOf[col]}" fill-opacity="0.8"/>`;
+            g += T(x + w / 2, y + 16, nm, { a: 'middle', c: c.bg, s: 10.5 });
+            x += w;
+          }
+          g += `<line x1="${lim}" y1="${y - 2}" x2="${lim}" y2="${y + 26}" stroke="${crit}" stroke-dasharray="4 3"/>`;
+          g += T(lim + 5, y + 16, `${v.segs.reduce((n, sg) => n + sg[1], 0)} KB`, { c: c.ink, s: 11 });
+        }
+        if (v.sms === 2) {  // the exchange, in the gap between the two SMs' bars
+          const ya = y0b + 28, yb = y0b + gapY - 18, on = st.hover === 'x', sw = on ? 2.6 : 1.6;
+          g += `<g data-k="x" style="cursor:help"><rect x="${bx}" y="${ya - 2}" width="${bw - 56}" height="${yb - ya + 4}" fill="transparent"/>`
+            + `<line x1="${bx + 14}" y1="${ya}" x2="${bx + 14}" y2="${yb}" stroke="${c.ink}" stroke-width="${sw}"/><path d="M${bx + 10},${yb - 6} L${bx + 14},${yb} L${bx + 18},${yb - 6}" fill="none" stroke="${c.ink}" stroke-width="${sw}"/>`
+            + `<line x1="${bx + 30}" y1="${yb}" x2="${bx + 30}" y2="${ya}" stroke="${c.ink}" stroke-width="${sw}"/><path d="M${bx + 26},${ya + 6} L${bx + 30},${ya} L${bx + 34},${ya + 6}" fill="none" stroke="${c.ink}" stroke-width="${sw}"/>`
+            + T(bx + 42, (ya + yb) / 2 + 4, 'partial scores, once per tile of keys', { s: 11, c: c.ink2 }) + `</g>`;
+        }
+        const yk = y0b + (v.sms - 1) * gapY + 46;
+        g += T(bx, yk, `${v.stages} of keys and values fit`, { c: c.ink, s: 12 });
+        v.key.split('; ').forEach((part, k) => { g += T(bx, yk + 18 + 14 * k, part, { s: 10.5 }); });
+      }
+      g += `</svg>`;
+      pic.innerHTML = g;
+      pic.querySelectorAll('[data-k]').forEach((n) => {
+        const k = n.getAttribute('data-k');
+        n.addEventListener('mouseenter', () => { st.hover = k; draw(); });
+        n.addEventListener('click', () => { st.hover = k; draw(); });
+      });
+      pic.querySelector('svg').addEventListener('mouseleave', () => { if (st.hover) { st.hover = null; draw(); } });
+      out.innerHTML = readout();
+    }
+    function readout() {
+      const h = st.hover, v = CHIP[st.tab][st.ver];
+      if (h && CHIP_TIPS[h]) return ro(CHIP_TIPS[h][0], CHIP_TIPS[h][1]);
+      if (h && h[0] === 'r') { const r = v.rows[+h.slice(1)]; return ro(r[0], [['written to HBM', typeof r[2] === 'number' ? `${r[2]} MB per MoE layer, TD batch 32` : r[2] === 'L2' ? 'nothing: summed in the L2 cache' : 'not listed'], ...(r[1] ? [['note', r[1]]] : [])]); }
+      if (st.tab === 'experts') return st.ver === 'old'
+        ? ro("vLLM's Triton path, one MoE layer at TD batch 32", [['kernels', '9'], ['between the two GEMMs', 'the activation and the per-pair rows go through HBM; moe_sum reads the 369 MB back']])
+        : ro('moe_ws, one MoE layer at TD batch 32', [['kernels', '6'], ['what changes', 'the activation stays in registers; the per-pair rows are added into y in L2 and never reach HBM'], ['effect', 'the expert path is 19–28% faster, the TD step 4–8%']]);
+      return st.ver === 'old'
+        ? ro('FlashAttention 4 at head dimension 512', [['shared memory', '200 KB of 227: one stage, so loading and computing alternate'], ['tensor cores', 'busy 36% of the time'], ['throughput', '296–357 TFLOP/s']])
+        : ro('attn512: the head dimension split across two SMs', [['shared memory', '224 KB of 227 per CTA: two stages'], ['cost', 'one exchange of partial scores per tile of keys'], ['result', '0.71–0.74 of the attention ceiling; 1.36–1.37 times FlashAttention 4 in dedicated runs']]);
+    }
+    draw(); watch(pic, draw);
+  }
+
+  const MF = { prop1: mProp1, routing: mRouting, ladder: mLadder, eff: mEff, comp: mComp, recover: mRecover, vs2: mVs2, chip: mChip };
   document.querySelectorAll('[data-mfig]').forEach((root) => {
     try { MF[root.dataset.mfig](root); } catch (e) { root.textContent = 'This figure failed to load.'; console.error(e); }
   });

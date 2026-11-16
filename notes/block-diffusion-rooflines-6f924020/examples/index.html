@@ -22,9 +22,9 @@ sitemap: false
 <noscript><p>This page needs JavaScript for its equations, figures and calculator.</p></noscript>
 <p class="book-part">Part 7 of <a href="/notes/block-diffusion-rooflines-6f924020/">Block Diffusion Rooflines</a><span class="book-links"><span class="bl-row">Previous: <a href="/notes/block-diffusion-rooflines-6f924020/calculator/" rel="prev">6 · Calculator</a></span><span class="bl-row">Next: <a href="/notes/block-diffusion-rooflines-6f924020/effective/" rel="next">8 · Empirical rooflines</a></span></span></p>
 <section class="bdr-col" id="examples">
-  <p class="chapter-intro">Three variations on the running example, each changing one thing: the canvas, the model, the accelerator. In each case the propositions predict most of what the exact map shows, and the answers compare the two.</p>
+  <p class="chapter-intro">The propositions are meant to be used: from a few quantities, they should tell us what the exact map looks like before we compute it. In this chapter, we work through three variations on the running example, each changing one thing: the canvas, the model and the accelerator. In each case, the propositions predict most of what the exact map shows, and the answers compare the two.</p>
   <h3 id="exercise">A smaller canvas</h3>
-  <p>Keep DiffusionGemma, the H200, \(S = 14\) and \(r = 1\) (so \(\omega = 15\)), but shrink the canvas from 256 to <b>\(b = 32\)</b>. The exact map below changes completely. Predict each feature from the propositions before opening its answer; every answer says where to look on the map.</p>
+  <p>We keep DiffusionGemma, the H200, \(S = 14\) and \(r = 1\), so that \(\omega = 15\), but we shrink the canvas from 256 to <b>\(b = 32\)</b>. The exact map below changes completely. We encourage the reader to predict each feature from the propositions before opening its answer. Every answer also says where to look on the map.</p>
   <div class="bdr-card">
     <div class="fig-k" id="figure-21">Figure 21</div>
     <p class="fig-title">With a 32-token canvas, TD is faster than AR only between batch 9 and batch 110 at context 1k.</p>
@@ -61,7 +61,7 @@ sitemap: false
   </details>
 
   <h3 id="ex-dense">A dense model</h3>
-  <p>Now take a dense model, Llama 3.1 8B, on the same H200 with the same canvas (\(b = 256\), \(S = 14\), \(r = 1\)), and pair it with a TD twin that has no self-conditioning. A dense model has no expert penalty, \(\Pi_{\mathrm{lin}} = 1\), and in BF16 (\(s_w = 2\)) its linear intensity is the batch: \(\class{mj-ar}{I^{AR}_{\mathrm{lin}}}(B) = 2BN_{\mathrm{act}}/(s_wN_{\mathrm{act}}) = B\).</p>
+  <p>We now change the model and take a dense one, Llama 3.1 8B. We keep the same H200 and the same canvas (\(b = 256\), \(S = 14\), \(r = 1\)), and we pair the model with a TD twin that has no self-conditioning. A dense model has no expert penalty, i.e., \(\Pi_{\mathrm{lin}} = 1\). In addition, in BF16 (\(s_w = 2\)), its linear intensity is the batch: \(\class{mj-ar}{I^{AR}_{\mathrm{lin}}}(B) = 2BN_{\mathrm{act}}/(s_wN_{\mathrm{act}}) = B\).</p>
   <div class="bdr-card">
     <div class="fig-k" id="figure-22">Figure 22</div>
     <p class="fig-title">For a dense model, the gain at context 1k is about 13 at batch 1 and falls like 1/B, to parity at batch 15.</p>
@@ -87,7 +87,7 @@ sitemap: false
   </ol>
 
   <h3 id="ex-h20">A low-ridge accelerator</h3>
-  <p>Back to DiffusionGemma with \(b = 256\) and \(S = 14\), but on an H20: 148 TFLOP/s of BF16, 4.0 TB/s and 96 GB. Its ridge point is \(I^\star = 148/4.0 = 37\), against 206 on the H200.</p>
+  <p>Finally, we change the accelerator. We go back to DiffusionGemma with \(b = 256\) and \(S = 14\), but we run it on an H20, which has 148 TFLOP/s of BF16, 4.0 TB/s and 96 GB. Its ridge point is \(I^\star = 148/4.0 = 37\), against 206 on the H200.</p>
   <div class="bdr-card">
     <div class="fig-k" id="figure-23">Figure 23</div>
     <p class="fig-title">On an H20, whose ridge point is 37, TD is faster than AR only up to batch 4 at short context.</p>

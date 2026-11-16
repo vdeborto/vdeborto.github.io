@@ -22,8 +22,8 @@ sitemap: false
 <noscript><p>This page needs JavaScript for its equations, figures and calculator.</p></noscript>
 <p class="book-part">Part 5 of <a href="/notes/block-diffusion-rooflines-6f924020/">Block Diffusion Rooflines</a><span class="book-links"><span class="bl-row">Previous: <a href="/notes/block-diffusion-rooflines-6f924020/attention/" rel="prev">4 · The attention part</a></span><span class="bl-row">Next: <a href="/notes/block-diffusion-rooflines-6f924020/calculator/" rel="next">6 · Calculator</a></span></span></p>
 <section class="bdr-col" id="whole">
-  <p class="chapter-intro"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/linear/">Parts 3</a> and <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/attention/">4</a> treat the two extremes, a pass that reads only weights and one that reads only KV cache. This chapter covers every context in between: it states when TD wins (<a class="xref" href="#prop7">Proposition 7</a>) and the batch it needs to saturate compute (<a class="xref" href="#prop8">Proposition 8</a>), sorts the cases into eight regimes, compares accelerators and models, and shows the exact gain over batch and context.</p>
-  <p><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/gain/#prop2">Proposition 2</a> makes each intensity a byte-weighted average of its linear part (<a class="xref" href="/notes/block-diffusion-rooflines-6f924020/linear/">Part 3</a>) and its attention part (<a class="xref" href="/notes/block-diffusion-rooflines-6f924020/attention/">Part 4</a>). Putting them back into <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/gain/#prop1">Proposition 1</a> gives the general answer.</p>
+  <p class="chapter-intro"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/linear/">Parts 3</a> and <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/attention/">4</a> treat the two extremes: a pass that reads only weights, and one that reads only KV cache. In this chapter, we cover every context in between. First, we state when TD wins (<a class="xref" href="#prop7">Proposition 7</a>) and the batch it needs to saturate compute (<a class="xref" href="#prop8">Proposition 8</a>). Second, we sort the cases into eight regimes. Finally, we compare accelerators and models, and show the exact gain over batch and context.</p>
+  <p>We now put the two extremes together. By <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/gain/#prop2">Proposition 2</a>, each intensity is a byte-weighted average of its linear part (<a class="xref" href="/notes/block-diffusion-rooflines-6f924020/linear/">Part 3</a>) and its attention part (<a class="xref" href="/notes/block-diffusion-rooflines-6f924020/attention/">Part 4</a>). Putting them back into <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/gain/#prop1">Proposition 1</a> gives the general answer.</p>
   <div class="box prop" id="prop7">
     <div class="bdr-title"><span class="tag">Proposition 7</span>When TD wins</div>
     <p class="gist"><span>In short.</span> TD wins exactly when a pass serves more tokens per read than it pays in penalty (\(\mathrm{TPF} \ge \Pi\)) and AR uses at most a fraction \(1/\omega\) of the compute (\(\class{mj-ar}{I_{AR}} \le I^\star/\omega\)).</p>
@@ -34,7 +34,11 @@ sitemap: false
     </ol>
     <details class="proof"><summary>Proof</summary><p>(1) A minimum of two numbers is at least 1 exactly when both are. (2) The first term of the minimum is non-decreasing in \(B\) and the second is non-increasing. The minimum of two such functions is maximal where they cross, which is where \(\class{mj-td}{I_{TD}} = b\,\class{mj-ar}{I_{AR}}/\Pi = I^\star\), or at \(B = 1\) if the first is already the larger there. Over integer batches the minimum is non-decreasing up to \(\lfloor \class{mj-td}{B^\star_{TD}}(C)\rfloor\) and non-increasing from \(\lceil \class{mj-td}{B^\star_{TD}}(C)\rceil\) on. \(\blacksquare\)</p></details>
   </div>
-  <p><a class="xref" href="#prop7">Proposition 7</a> specialises as follows. At short context \(\Pi = \Pi_{\mathrm{lin}}\) and \(\class{mj-ar}{I_{AR}} = \class{mj-ar}{I^{AR}_{\mathrm{lin}}}(B)\), so the first condition of <a class="xref" href="#prop7">Proposition 7</a>(1) is a lower bound on the batch (the linear penalty must fall below TPF) and the second an upper bound (\(B_\times\)). At long context \(\Pi = \Pi_{\mathrm{attn}}\) and \(\class{mj-ar}{I_{AR}} = \class{mj-ar}{I^{AR}_{\mathrm{attn}}}\), and neither condition depends on the batch. For DiffusionGemma on an H200, both conditions hold at every batch up to 109 at short context, and at every batch at long context.</p>
+  <p><a class="xref" href="#prop7">Proposition 7</a> specialises to the two extremes as follows:</p>
+
+<ul><li><strong>Short context:</strong> \(\Pi = \Pi_{\mathrm{lin}}\) and \(\class{mj-ar}{I_{AR}} = \class{mj-ar}{I^{AR}_{\mathrm{lin}}}(B)\). Hence, the first condition of <a class="xref" href="#prop7">Proposition 7</a>(1) is a lower bound on the batch (the linear penalty must fall below TPF), and the second is an upper bound (\(B_\times\)).</li><li><strong>Long context:</strong> \(\Pi = \Pi_{\mathrm{attn}}\) and \(\class{mj-ar}{I_{AR}} = \class{mj-ar}{I^{AR}_{\mathrm{attn}}}\), and neither condition depends on the batch.</li></ul>
+
+  <p>For DiffusionGemma on an H200, both conditions hold at every batch up to 109 at short context, and at every batch at long context.</p>
 
   <div class="box prop" id="prop8">
     <div class="bdr-title"><span class="tag">Proposition 8</span>The batch needed to saturate compute</div>
@@ -51,7 +55,9 @@ sitemap: false
     </details>
   </div>
   <p class="callout">The canvas does for the KV cache what batch does for the weights.</p>
-  <p>A larger batch does not help with cache bytes, because every sequence brings its own cache. AR uses each cache byte for one query, so at long context its intensity tends to \(I_{\mathrm{attn}}\), far below the ridge, whatever the batch. A canvas uses each cache byte for \(b\) queries, and once \(b\,I_{\mathrm{attn}} \gt I^\star\) a longer context makes compute easier to saturate, not harder. When \(W_n\) does not depend on \(B\), solving the inequality gives \(B^\star_n(C) = \lceil I^\star s_wW_n/D_n(C)\rceil\) for \(D_n \gt 0\), which at zero context is the \(\class{mj-ar}{B^\star_{AR}}\) and \(\class{mj-td}{B^\star_{TD}}\) of <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/linear/">Part 3</a>.</p>
+  <p>Indeed, a larger batch does not help with cache bytes, because every sequence brings its own cache. AR uses each cache byte for one query. Hence, at long context, its intensity tends to \(I_{\mathrm{attn}}\), far below the ridge, whatever the batch. On the other hand, a canvas uses each cache byte for \(b\) queries. Once \(b\,I_{\mathrm{attn}} \gt I^\star\), a longer context makes compute easier to saturate, not harder.</p>
+
+  <p>When \(W_n\) does not depend on \(B\), solving the inequality gives \(B^\star_n(C) = \lceil I^\star s_wW_n/D_n(C)\rceil\) for \(D_n \gt 0\). At zero context, this is the \(\class{mj-ar}{B^\star_{AR}}\) and \(\class{mj-td}{B^\star_{TD}}\) of <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/linear/">Part 3</a>.</p>
   <div class="bdr-card">
     <div class="fig-k" id="figure-15">Figure 15</div>
     <p class="fig-title">As the context grows, the batch at which a pass turns compute-bound falls for a canvas of 256 and rises for AR (<a class="xref" href="#prop8">Proposition 8</a>).</p>
@@ -90,7 +96,7 @@ sitemap: false
   <ul>
     <li><b>AR compute-bound (R3, R4, R7, R8).</b> TD loses, with \(\Gamma \le 1/\omega\): in R4 and R8 both decoders run at peak and only the work ratio is left, and in R3 and R7 a TD pass is memory-bound and slower still.</li>
     <li><b>Both memory-bound (R1, R5).</b> TD's extra FLOPs hide under the memory time, and each read serves TPF tokens, at the penalty of whichever part dominates.</li>
-    <li><b>AR memory-bound, TD compute-bound (R2, R6).</b> TD uses compute that AR leaves idle, \(\Gamma = I^\star/(\omega \class{mj-ar}{I_{AR}})\), independent of \(b\); it falls with the batch at short context (inversely proportional to \(B\) once AR touches every expert) and is flat in the batch at long context.</li>
+    <li><b>AR memory-bound, TD compute-bound (R2, R6).</b> TD uses compute that AR leaves idle, and \(\Gamma = I^\star/(\omega \class{mj-ar}{I_{AR}})\), independent of \(b\). The gain falls with the batch at short context (inversely proportional to \(B\) once AR touches every expert) and is flat in the batch at long context.</li>
   </ul>
 
   <div class="box prop" id="kernels">
@@ -121,7 +127,10 @@ sitemap: false
     <tbody id="t-hw"></tbody>
   </table></div>
   </details>
-  <p>Each model below is paired with a hypothetical TD twin on the same backbone (\(r = 1\), no self-conditioning). Dense models pay no linear penalty, so at batch 1 the gain is \(\min(\mathrm{TPF},\ I^\star/\omega)\): 13.7 on an H200, where a dense TD pass is already compute-bound. Their AR intensity also grows fastest with the batch. MoE models pay a linear penalty close to their ratio of total to active parameters. The long-context limit depends only on \(I_{\mathrm{attn}}\), or on \(I_{\mathrm{idx}}\) for the sparse variant.</p>
+  <p>To compare models, we pair each model below with a hypothetical TD twin on the same backbone (\(r = 1\), no self-conditioning). The comparison reads as follows:</p>
+
+<ul><li><strong>Dense models:</strong> they pay no linear penalty, so at batch 1 the gain is \(\min(\mathrm{TPF},\ I^\star/\omega)\), i.e., 13.7 on an H200, where a dense TD pass is already compute-bound. Their AR intensity also grows fastest with the batch.</li><li><strong>MoE models:</strong> they pay a linear penalty close to their ratio of total to active parameters.</li><li><strong>Long context:</strong> the limit depends only on \(I_{\mathrm{attn}}\), or on \(I_{\mathrm{idx}}\) for the sparse variant.</li></ul>
+
   <div class="bdr-fig wide" id="fig-models">
     <div class="fig-k" id="figure-19">Figure 19 · interactive</div>
     <p class="fig-title">The larger a model's linear penalty at batch 1, the lower \(\Gamma\) at batch 1 and the higher \(\Gamma\) at batch 64.</p>
@@ -138,7 +147,7 @@ sitemap: false
   </details>
 
   <h3 id="maps">The exact maps</h3>
-  <p>The maps drop the propositions' simplifications and use the exact accounting (appendix), vocabulary included, over batch × context. Every line is a contour of the computed grid. Faded cells do not fit in the accelerator's memory, which must hold the weights, the KV cache and one pass's logits, \(b\) times larger for a TD canvas than for an AR step. On the gain maps, faded colour marks where TD does not fit, and hatching where AR does not fit either. Hover or tap a cell for its values.</p>
+  <p>Finally, we drop the propositions' simplifications. The maps use the exact accounting (appendix), vocabulary included, over batch × context. Every line is a contour of the computed grid. Faded cells do not fit in the accelerator's memory, which must hold the weights, the KV cache and one pass's logits, \(b\) times larger for a TD canvas than for an AR step. On the gain maps, faded colour marks where TD does not fit, and hatching where AR does not fit either. Hover or tap a cell for its values.</p>
   <div class="fig-k" id="figure-20">Figure 20 · interactive</div>
   <p class="fig-title tabs-title"><span data-tab-title="m-gain">At context 1k AR catches up with TD at batch 110, and at a larger batch as the context grows, beyond 1,024 from 64k tokens on.</span><span data-tab-title="m-ar" hidden>An AR step never reaches the ridge, and at long context its intensity tends to 8 whatever the batch.</span><span data-tab-title="m-td" hidden>A TD canvas crosses the ridge at a batch that falls as the context grows, from 5 at 1k to 1 at 256k, and its intensity tends to 2,048.</span><span data-tab-title="m-sparse" hidden>With sparse global layers, AR catches up with TD near batch 90–110 at every context up to 1M tokens.</span></p>
   <div class="tabs" role="tablist" aria-label="Exact maps">
@@ -167,7 +176,7 @@ sitemap: false
     <div class="maplegend" id="map-sparse-legend"></div>
     <div class="chart" id="map-sparse"></div>
   </figure>
-  <p class="small">As the context grows, \(\class{mj-ar}{I_{AR}}\) tends to \(I_{\mathrm{attn}} = 8\) without reaching the ridge, and \(\class{mj-td}{I_{TD}}\) tends to \(b\,I_{\mathrm{attn}} = 2{,}048\), above it. On the gain map, the bottom-left is R1, the band above the TD-compute line is R2, and the colour flattens toward R6's 1.7 at long context. With sparse layers it falls further at large batch, toward the sparse limit 0.86 given after <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/attention/#table-6">Table 6</a>, and stays between 2.3 and 2.6 at batch 1, where the weights still carry most of AR's bytes.</p>
+  <p class="small">As the context grows, \(\class{mj-ar}{I_{AR}}\) tends to \(I_{\mathrm{attn}} = 8\) without reaching the ridge, and \(\class{mj-td}{I_{TD}}\) tends to \(b\,I_{\mathrm{attn}} = 2{,}048\), above it. On the gain map, the bottom-left is R1, the band above the TD-compute line is R2, and the colour flattens toward R6's 1.7 at long context. With sparse layers, the gain falls further at large batch, toward the sparse limit 0.86 given after <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/attention/#table-6">Table 6</a>. At batch 1, it stays between 2.3 and 2.6, where the weights still carry most of AR's bytes.</p>
 </section>
 <nav class="book-nav" aria-label="Chapters"><a class="prev" href="/notes/block-diffusion-rooflines-6f924020/attention/"><span>Previous</span>4 · The attention part</a><a class="next" href="/notes/block-diffusion-rooflines-6f924020/calculator/"><span>Next</span>6 · Calculator</a></nav>
 <section class="book-comments" id="bdr-comments" data-repo="vdeborto/vdeborto.github.io" data-repo-id="MDEwOlJlcG9zaXRvcnkxMTY1OTk1ODA=" data-category="Announcements" data-category-id="DIC_kwDOBvMrHM4DLMnm" data-term="Block Diffusion Rooflines · Part 5 · The whole picture">

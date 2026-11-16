@@ -22,10 +22,10 @@ sitemap: false
 <noscript><p>This page needs JavaScript for its equations, figures and calculator.</p></noscript>
 <p class="book-part">Part 3 of <a href="/notes/block-diffusion-rooflines-6f924020/">Block Diffusion Rooflines</a><span class="book-links"><span class="bl-row">Previous: <a href="/notes/block-diffusion-rooflines-6f924020/gain/" rel="prev">2 · The gain</a></span><span class="bl-row">Next: <a href="/notes/block-diffusion-rooflines-6f924020/attention/" rel="next">4 · The attention part</a></span></span></p>
 <section class="bdr-col" id="linear">
-  <p class="chapter-intro">At short context a pass reads mostly weights, which the batch shares, so the batch \(B\) sets both intensities. This chapter computes the linear penalty \(\Pi_{\mathrm{lin}}\), the ratio of the weight bytes a canvas reads to those an AR step reads (7.9 for DiffusionGemma at batch 1, falling to 1 as the batch grows), states up to which context the linear layers dominate, and derives the gain in that regime. In particular, the best batch is the one at which a TD pass just becomes compute-bound.</p>
-  <p>At short context the attention terms are negligible and a pass costs what it reads of the weights: \(\class{mj-ar}{W_{AR}}(B)\) for an AR step, \(\class{mj-td}{W_{TD}}(B)\) for a TD pass, which uses every byte for \(b\) times more positions.</p>
+  <p class="chapter-intro">At short context, a pass reads mostly weights. The batch shares these weights, hence the batch \(B\) sets both intensities. In this chapter, we compute the linear penalty \(\Pi_{\mathrm{lin}}\), i.e., the ratio of the weight bytes a canvas reads to those an AR step reads. For DiffusionGemma, it is 7.9 at batch 1 and falls to 1 as the batch grows. We then state up to which context the linear layers dominate, and derive the gain in that regime. In particular, the best batch is the one at which a TD pass just becomes compute-bound.</p>
+  <p>We start with short contexts, where the attention terms are negligible. Hence, a pass costs what it reads of the weights: \(\class{mj-ar}{W_{AR}}(B)\) for an AR step and \(\class{mj-td}{W_{TD}}(B)\) for a TD pass. The TD pass uses every byte for \(b\) times more positions.</p>
 
-  <p>The table below gives the numbers behind the batch-1 gain of the Summary as a back-of-the-envelope calculation, from the exact accounting at context 1k. Each column reads from the bytes per generated token to the share of the accelerator's peak that this rate of tokens uses; that share is \(I/I^\star\).</p>
+  <p>Before stating the general results, we give the numbers behind the batch-1 gain of the Summary as a back-of-the-envelope calculation in the table below. They come from the exact accounting at context 1k. Each column goes from the bytes per generated token down to the share of the accelerator's peak that this rate of tokens uses. That share is \(I/I^\star\).</p>
 <div class="table-wrap nofold envelope-t"><table class="env">
     <thead><tr><th class="l"></th><th class="l">AR step</th><th class="l">TD canvas, \(\omega = 15\) passes</th></tr></thead>
     <tbody>
@@ -36,13 +36,13 @@ sitemap: false
       <tr class="tot"><td class="l">gain</td><td class="l"></td><td class="l">1,541 ÷ 609 = <b>2.53</b></td></tr>
     </tbody>
   </table></div>
-  <p class="small">With vocabulary included, hence 7.6 GB of weights for 3.08B active parameters: the 0.74B embedding matrix is read for every token. A TD pass reads 53 GB on average:</p>
+  <p class="small">The vocabulary is included, hence 7.6 GB of weights for 3.08B active parameters: the 0.74B embedding matrix is read for every token. On average, a TD pass reads 53 GB:</p>
   <ul class="small">
     <li>in every pass, 49 GB of weights and 0.2 GB of cache;</li>
     <li>in each denoising pass, 1.5 GB for the tied embedding read as the vocabulary head and 1.3 GB of logits;</li>
     <li>in the 13 passes that feed back the previous pass's probabilities, the embedding once more as the soft input, 1.5 GB.</li>
   </ul>
-  <p class="small">These rates are at context 1k; over the whole generation of 8,192 tokens AR's cache grows, AR averages 603 tokens per second, and the gain is the 2.55 of the Summary. Both decoders are far below the ridge, so the gain is the ratio of bytes per token, \(\mathrm{TPF}/\Pi\): AR reads 7.9/3.1 = 2.5 times as many bytes per token as TD.</p>
+  <p class="small">These rates are at context 1k. Over the whole generation of 8,192 tokens, AR's cache grows, AR averages 603 tokens per second, and the gain is the 2.55 of the Summary. Both decoders are far below the ridge. Hence, the gain is the ratio of bytes per token, \(\mathrm{TPF}/\Pi\), i.e., AR reads 7.9/3.1 = 2.5 times as many bytes per token as TD.</p>
 
   <div class="box prop" id="prop3">
     <div class="bdr-title"><span class="tag">Proposition 3</span>The expert penalty and the linear penalty</div>
@@ -64,7 +64,9 @@ sitemap: false
     <div data-fig="experts"></div>
     <p class="fig-cap">One MoE layer of DiffusionGemma (\(E = 128\) experts, \(k = 8\) per token) and one random draw under independent routing (A5): every token selects its experts independently and uniformly. The readout gives the expected counts of <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/#def1">Definition 1</a>, \(U_{E,k}(N) = E\,[1 - (1 - k/E)^N]\), for the \(N = B\) tokens of an AR step and the \(N = Bb\) positions of a TD pass, and their ratio \(\Pi_E\) (<a class="xref" href="#prop3">Proposition 3</a>). At batch 1 a canvas of 256 positions touches all 128 experts and an AR token 8, so \(\Pi_E = E/k = 16\); at batch 48 an AR step touches 122 of them and \(\Pi_E = 1.05\). Measured canvases touch fewer experts than this draw (<a class="xref" href="/notes/block-diffusion-rooflines-6f924020/effective/">Part 8</a>).</p>
   </div>
-  <p>For DiffusionGemma, \(E/k = 16\) and \(\Pi_{\mathrm{lin}}(1) = 24.5/3.08 = 7.9\): a canvas streams all 24.5B parameters where a token streams the 3.08B it activates, and the dense 1.66B, shared by both, dilute the ratio from 16 to 7.9. By batch 48 (three times \(E/k\)) an AR step touches 122 of the 128 experts too, and the penalty is down to 1.04. The same count of experts under independent uniform routing underlies the analysis of speculative decoding for MoE models in <a href="https://arxiv.org/abs/2505.19645">MoESD</a> (2025), which finds it close to the counts measured for its verification batches. A canvas does not follow it (<a class="xref" href="/notes/block-diffusion-rooflines-6f924020/effective/">Part 8</a>): its positions share experts, as <a href="https://arxiv.org/abs/2602.08404">Wei et al. (2026)</a> and <a href="https://arxiv.org/abs/2605.30876">Feng et al. (2026)</a> also observe for MoE diffusion models.</p>
+  <p>For DiffusionGemma, \(E/k = 16\) and \(\Pi_{\mathrm{lin}}(1) = 24.5/3.08 = 7.9\). Indeed, a canvas streams all 24.5B parameters, while a token streams the 3.08B it activates. The dense 1.66B parameters are shared by both and dilute the ratio from 16 to 7.9. By batch 48 (three times \(E/k\)), an AR step also touches 122 of the 128 experts, and the penalty is down to 1.04.</p>
+
+  <p>The same count of experts, under independent uniform routing, underlies the analysis of speculative decoding for MoE models in <a href="https://arxiv.org/abs/2505.19645">MoESD</a> (2025), which finds it close to the counts measured for its verification batches. On the other hand, a canvas does not follow it (<a class="xref" href="/notes/block-diffusion-rooflines-6f924020/effective/">Part 8</a>): its positions share experts, as <a href="https://arxiv.org/abs/2602.08404">Wei et al. (2026)</a> and <a href="https://arxiv.org/abs/2605.30876">Feng et al. (2026)</a> also observe for MoE diffusion models.</p>
 
   <div class="bdr-fig" id="fig-weights">
     <div class="fig-k" id="figure-8">Figure 8 · interactive</div>
@@ -87,7 +89,7 @@ sitemap: false
     </ol>
     <details class="proof"><summary>Proof</summary><p>\(\class{mj-ar}{\theta^{AR}_{\mathrm{lin}}} \ge x \iff s_w\class{mj-ar}{W_{AR}}/B \ge \tfrac{x}{1-x}\,(\nu_GC + \nu_Ww)\); solve for \(C\). (1) \(\class{mj-ar}{W_{AR}}(B)/B\) is non-increasing because \(U_{E,k}\) is concave with \(U_{E,k}(0) = 0\), and constant over \(B\) once \(U_{E,k}(B) = E\). (2) and (3) substitute the TD and sparse byte counts of <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/#def2">Definition 2</a>. \(\blacksquare\)</p></details>
   </div>
-  <p>DiffusionGemma's cache is small (2 KV heads in 5 global layers, \(\nu_G = 20\) kB per token, plus a fixed 210 MB per sequence for the windows), so its linear layers dominate for a long way. A dense model with grouped-query attention (GQA) such as Llama 3.1 8B, with 128 KiB per token and 14 GB of weights without the vocabulary, reaches equal weight and cache bytes at \(BC \approx 107\)k.</p>
+  <p>DiffusionGemma's cache is small: 2 KV heads in 5 global layers, i.e., \(\nu_G = 20\) kB per token, plus a fixed 210 MB per sequence for the windows. Therefore, its linear layers dominate for a long way. On the other hand, a dense model with grouped-query attention (GQA) such as Llama 3.1 8B has 128 KiB per token and 14 GB of weights without the vocabulary. It reaches equal weight and cache bytes at \(BC \approx 107\)k.</p>
   <div class="bdr-fig wide" id="fig-linmap">
     <div class="fig-k" id="figure-9">Figure 9 · interactive</div>
     <p class="fig-title">The weights dominate an AR step's bytes up to a context that falls as the batch grows.</p>
@@ -104,7 +106,7 @@ sitemap: false
   </details>
 
   <h3 id="lin-gain">The gain when the linear layers dominate</h3>
-  <p>With \(\class{mj-ar}{I_{AR}} \approx \class{mj-ar}{I^{AR}_{\mathrm{lin}}}\) and \(\Pi \approx \Pi_{\mathrm{lin}}\), <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/gain/#cor1">Corollary 1</a> reads \(\Gamma = \min\bigl(\mathrm{TPF}/\Pi_{\mathrm{lin}},\ I^\star/(\omega \class{mj-ar}{I^{AR}_{\mathrm{lin}}})\bigr)\) as long as AR is memory-bound. The two terms cross where a TD pass reaches the ridge, and the three batch thresholds follow from \(b\,\class{mj-ar}{I^{AR}_{\mathrm{lin}}}/\Pi_{\mathrm{lin}} = I^\star\), \(\class{mj-ar}{I^{AR}_{\mathrm{lin}}} = I^\star\) and \(I^\star/(\omega \class{mj-ar}{I^{AR}_{\mathrm{lin}}}) = 1\):</p>
+  <p>We can now derive the gain in this regime. With \(\class{mj-ar}{I_{AR}} \approx \class{mj-ar}{I^{AR}_{\mathrm{lin}}}\) and \(\Pi \approx \Pi_{\mathrm{lin}}\), <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/gain/#cor1">Corollary 1</a> reads \(\Gamma = \min\bigl(\mathrm{TPF}/\Pi_{\mathrm{lin}},\ I^\star/(\omega \class{mj-ar}{I^{AR}_{\mathrm{lin}}})\bigr)\) as long as AR is memory-bound. The two terms cross where a TD pass reaches the ridge. The three batch thresholds follow from \(b\,\class{mj-ar}{I^{AR}_{\mathrm{lin}}}/\Pi_{\mathrm{lin}} = I^\star\), \(\class{mj-ar}{I^{AR}_{\mathrm{lin}}} = I^\star\) and \(I^\star/(\omega \class{mj-ar}{I^{AR}_{\mathrm{lin}}}) = 1\):</p>
   <div class="eq eq-wide">\[
   \class{mj-td}{B^\star_{TD}} = \frac{I^\star s_w\class{mj-td}{W_{TD}}}{2b\,N_{\mathrm{act}}},\qquad
   \class{mj-ar}{B^\star_{AR}} = \frac{I^\star s_wW_{\mathrm{tot}}}{2N_{\mathrm{act}}},\qquad
@@ -119,10 +121,10 @@ sitemap: false
   \]</div>
   <ul>
     <li><b>Both memory-bound, \(B \lt \class{mj-td}{B^\star_{TD}}\): \(\Gamma = \mathrm{TPF}/\Pi_{\mathrm{lin}}(B)\).</b> The gain rises with the batch as \(\Pi_{\mathrm{lin}}\) falls.</li>
-    <li><b>TD compute-bound, \(\class{mj-td}{B^\star_{TD}} \le B \lt \class{mj-ar}{B^\star_{AR}}\): \(\Gamma = I^\star/(\omega \class{mj-ar}{I^{AR}_{\mathrm{lin}}}(B))\).</b> Since \(\class{mj-ar}{I^{AR}_{\mathrm{lin}}}\) grows with the batch the gain falls, as \(1/B\) exactly once an AR step touches every expert, reaching parity at \(B_\times\). AR need not be compute-bound to win: \(\class{mj-ar}{I^{AR}_{\mathrm{lin}}} \gt I^\star/\omega\) is enough.</li>
+    <li><b>TD compute-bound, \(\class{mj-td}{B^\star_{TD}} \le B \lt \class{mj-ar}{B^\star_{AR}}\): \(\Gamma = I^\star/(\omega \class{mj-ar}{I^{AR}_{\mathrm{lin}}}(B))\).</b> Since \(\class{mj-ar}{I^{AR}_{\mathrm{lin}}}\) grows with the batch, the gain falls, exactly as \(1/B\) once an AR step touches every expert, and reaches parity at \(B_\times\). Note that AR need not be compute-bound to win: \(\class{mj-ar}{I^{AR}_{\mathrm{lin}}} \gt I^\star/\omega\) is enough.</li>
     <li><b>The best batch is \(\class{mj-td}{B^\star_{TD}}\)</b>, where the two expressions meet: \(\mathrm{TPF}/\Pi_{\mathrm{lin}}(\class{mj-td}{B^\star_{TD}})\), i.e. 6.5 at batch 6.4 under the propositions and 5.3 at batch 5 in the exact accounting at context 1k, both on an H200 (<a class="xref" href="#figure-10">Figure 10</a>). Since \(\class{mj-td}{B^\star_{TD}} \approx \class{mj-ar}{B^\star_{AR}}/b\), a longer canvas lowers the best batch and raises the gain there.</li>
   </ul>
-  <p>The closed forms for \(\class{mj-ar}{B^\star_{AR}}\) and \(B_\times\) assume that AR's batch already touches every expert; for DiffusionGemma on an H200 the three thresholds are 6.4, 1,640 and 109.</p>
+  <p>The closed forms for \(\class{mj-ar}{B^\star_{AR}}\) and \(B_\times\) assume that AR's batch already touches every expert. For DiffusionGemma on an H200, the three thresholds are 6.4, 1,640 and 109.</p>
   <div class="bdr-fig wide" id="fig-bestbatch">
     <div class="fig-k" id="figure-10">Figure 10 · interactive</div>
     <p class="fig-title">Under (A1), the best batch is the one at which a TD pass reaches the ridge.</p>
