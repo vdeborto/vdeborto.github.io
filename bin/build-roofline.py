@@ -280,6 +280,7 @@ def main():
                          ("thresholds", '  <div class="table-wrap"><table>\n    <caption>Table 8. '),
                          ("models", '  <div class="table-wrap"><table>\n    <caption>Table 9. ')):
         body = sub_once(body, anchor, figs[name] + anchor, f"{name} anchor")
+    body = card_legacy_figures(body)
     body = add_practice(body)
     body = add_cards(body)
     body = add_gists(body)
@@ -352,6 +353,42 @@ def main():
 
 def url_of(slug):
     return BASE + (slug + "/" if slug else "")
+
+
+# The note's own static figures (the maps and the batch chart) get the same card as the figures
+# of figures.js: a kicker with the number, a title that states the figure's claim, and the
+# original caption as a subtitle.
+LEGACY_CLAIMS = {
+    14: "A long canvas needs a smaller batch to saturate compute as the context grows; AR needs a larger one, and no batch at all beyond 135 tokens.",
+    18: "AR catches up only above batch 100 at short context; the gain peaks where a TD pass turns compute-bound and flattens to 1.7 at long context.",
+    19: "With a 32-token canvas AR is faster at small batch; TD overtakes it near batch 9 and peaks at about 1.8.",
+    20: "A dense model gives TD its largest gain at batch 1, about 13 times AR's; AR catches up near batch 15 at short context, and TD wins at every batch at long context.",
+    21: "On an H20, whose ridge point is low, the gain is about 2 at batch 1 and falls below 1 at long context.",
+}
+
+
+def card_legacy_figures(body):
+    def one(m):
+        n, rest = int(m.group(3)), m.group(4)
+        if n not in LEGACY_CLAIMS:
+            problems.append(f"no claim for legacy Figure {n}")
+            return m.group(0)
+        return (f'{m.group(1)}<div class="bdr-card">\n    <div class="fig-k">Figure {n}</div>\n    <p class="fig-title">{LEGACY_CLAIMS[n]}</p>\n'
+                f'  {m.group(2)}\n    <p class="fig-sub">{rest}</p>')
+    body, k = re.subn(r'( *)(<figure class="mapfig">)\n\s*<figcaption>Figure (\d+)\. (.*?)</figcaption>', one, body)
+    # close the card after each converted figure
+    out, pos = [], 0
+    for mm in re.finditer(r'<div class="bdr-card">.*?</figure>', body, re.S):
+        out.append(body[pos:mm.end()] + "\n  </div>"); pos = mm.end()
+    body = "".join(out) + body[pos:]
+    tabs = '<div class="fig-k">Figure 18 · four maps, one shown at a time</div>'
+    if tabs in body:
+        body = body.replace(tabs, f'{tabs}\n  <p class="fig-title tabs-title">{LEGACY_CLAIMS[18]}</p>', 1)
+    else:
+        problems.append("Figure 18 kicker not found")
+    if k != 4:
+        problems.append(f"legacy figures carded: {k}, expected 4")
+    return body
 
 
 def practice_tags(slug):

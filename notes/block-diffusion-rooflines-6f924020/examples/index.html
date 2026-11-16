@@ -23,11 +23,15 @@ sitemap: false
   <p class="chapter-intro">Three variations on the running example, each changing one thing: the canvas, the model, the accelerator. In each case the propositions predict most of what the exact map shows, and the answers compare the two. Try each question before opening its answer.</p>
   <h3 id="exercise">7.1 A smaller canvas</h3>
   <p>Keep DiffusionGemma, the H200, \(S = 14\) and \(r = 1\) (so \(\omega = 15\)), but shrink the canvas from 256 to <b>\(b = 32\)</b>. The exact map below changes completely. Predict each feature from the propositions before opening its answer; every answer says where to look on the map.</p>
+  <div class="bdr-card">
+    <div class="fig-k">Figure 19</div>
+    <p class="fig-title">With a 32-token canvas AR is faster at small batch; TD overtakes it near batch 9 and peaks at about 1.8.</p>
   <figure class="mapfig">
-    <figcaption>Figure 19. Exact TD/AR gain with a 32-token canvas · DiffusionGemma, H200, BF16, S = 14</figcaption>
+    <p class="fig-sub">Exact TD/AR gain with a 32-token canvas · DiffusionGemma, H200, BF16, S = 14</p>
     <div class="maplegend" id="map-ex-legend"></div>
     <div class="chart" id="map-ex"></div>
   </figure>
+  </div>
   <ol class="exercise">
     <li><p><b>Batch 1, short context.</b> Compute TPF and \(\Pi(1)\). Who wins?</p>
       <details class="answer"><summary>Answer</summary>
@@ -56,11 +60,15 @@ sitemap: false
 
   <h3 id="ex-dense">7.2 A dense model</h3>
   <p>Now take a dense model, Llama 3.1 8B, on the same H200 with the same canvas (\(b = 256\), \(S = 14\), \(r = 1\)), and pair it with a TD twin that has no self-conditioning. A dense model has no MoE penalty, \(\Pi = 1\), and in BF16 its linear intensity is simply the batch: \(I_{\mathrm{lin}}(B) = 2BN/(2N) = B\).</p>
+  <div class="bdr-card">
+    <div class="fig-k">Figure 20</div>
+    <p class="fig-title">A dense model gives TD its largest gain at batch 1, about 13 times AR's; AR catches up near batch 15 at short context, and TD wins at every batch at long context.</p>
   <figure class="mapfig">
-    <figcaption>Figure 20. Exact TD/AR gain · Llama 3.1 8B and its TD twin, H200, BF16, b = 256, S = 14</figcaption>
+    <p class="fig-sub">Exact TD/AR gain · Llama 3.1 8B and its TD twin, H200, BF16, b = 256, S = 14</p>
     <div class="maplegend" id="map-ex2-legend"></div>
     <div class="chart" id="map-ex2"></div>
   </figure>
+  </div>
   <ol class="exercise">
     <li><p><b>Batch 1, short context.</b> Which regime, and what gain?</p>
       <details class="answer"><summary>Answer</summary>
@@ -78,11 +86,15 @@ sitemap: false
 
   <h3 id="ex-h20">7.3 A low-ridge accelerator</h3>
   <p>Back to DiffusionGemma with \(b = 256\) and \(S = 14\), but on an H20: 148 TFLOP/s of BF16, 4.0 TB/s and 96 GB. Its ridge point is \(I^\star = 148/4.0 = 37\), against 206 on the H200.</p>
+  <div class="bdr-card">
+    <div class="fig-k">Figure 21</div>
+    <p class="fig-title">On an H20, whose ridge point is low, the gain is about 2 at batch 1 and falls below 1 at long context.</p>
   <figure class="mapfig">
-    <figcaption>Figure 21. Exact TD/AR gain · DiffusionGemma, H20, BF16, b = 256, S = 14</figcaption>
+    <p class="fig-sub">Exact TD/AR gain · DiffusionGemma, H20, BF16, b = 256, S = 14</p>
     <div class="maplegend" id="map-ex3-legend"></div>
     <div class="chart" id="map-ex3"></div>
   </figure>
+  </div>
   <ol class="exercise">
     <li><p><b>Batch 1, short context.</b> Where is TD on the roofline, and what gain?</p>
       <details class="answer"><summary>Answer</summary>

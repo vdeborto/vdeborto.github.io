@@ -51,11 +51,15 @@ sitemap: false
   </div>
   <p class="callout">The canvas does for the KV cache what batch does for the weights.</p>
   <p>A larger batch does not help with cache bytes, because every sequence brings its own cache. AR uses each cache byte for one query, so at long context its intensity drifts toward \(I_{\mathrm{attn}}\), far below the ridge, whatever the batch. A canvas uses each cache byte for \(b\) queries, and once \(b\,I_{\mathrm{attn}} \gt I^\star\) a longer context makes compute easier to saturate, not harder. When \(W_n\) does not depend on \(B\), solving the inequality gives \(B^\star_n(C) = \lceil I^\star s_wW_n/D_n(C)\rceil\) for \(D_n \gt 0\), which at zero context is the \(\class{mj-ar}{B^\star_{AR}}\) and \(\class{mj-td}{B^\star_{TD}}\) of Part 3.</p>
+  <div class="bdr-card">
+    <div class="fig-k">Figure 14</div>
+    <p class="fig-title">A long canvas needs a smaller batch to saturate compute as the context grows; AR needs a larger one, and no batch at all beyond 135 tokens.</p>
   <figure class="mapfig">
-    <figcaption>Figure 14. Smallest compute-bound batch against context · DiffusionGemma, H200, BF16, vocabulary excluded</figcaption>
+    <p class="fig-sub">Smallest compute-bound batch against context · DiffusionGemma, H200, BF16, vocabulary excluded</p>
     <div class="legend" id="bstar-legend"></div>
     <div class="chart" id="bstar"></div>
   </figure>
+  </div>
   <p class="small">Here \(I_{\mathrm{attn}} = 8\) and \(T_c = 206/8 \approx 26\). <b>AR</b> needs a batch of 1,640 at zero context, and past 135 tokens no batch is enough. <b>TD with \(b = 256\)</b> needs 6.4 at zero context, and batch 1 is enough from about 224k tokens. <b>TD with \(b = 32\)</b> first needs a slightly larger batch while the windows fill (\(b\,I_{\mathrm{win}} = 64 \lt I^\star\)), then a smaller one once global attention dominates (\(b\,I_{\mathrm{attn}} = 256 \gt I^\star\)). <b>TD with \(b = 16\)</b> is below \(T_c\) and behaves like AR. The grey region is where the weights and the batch's cache exceed the H200's 141 GB: at 1k tokens about 390 sequences fit, far below the 1,640 that AR would need, so for DiffusionGemma on an H200 AR decoding is memory-bound at every batch that fits.</p>
 
   <h3 id="regimes">Eight regimes</h3>
@@ -127,6 +131,7 @@ sitemap: false
   <h3 id="maps">The exact maps</h3>
   <p>The maps drop the propositions' simplifications and use the exact accounting (appendix), vocabulary included, over batch × context. Every line is a contour of the computed grid. Grey cells do not fit in the accelerator's memory: weights, KV cache and one pass's logits, which are \(b\) times larger for a TD canvas than for an AR step. On the gain maps, grey marks where TD does not fit and hatching where AR does not fit either. Hover or tap a cell for its values.</p>
   <div class="fig-k">Figure 18 · four maps, one shown at a time</div>
+  <p class="fig-title tabs-title">AR catches up only above batch 100 at short context; the gain peaks where a TD pass turns compute-bound and flattens to 1.7 at long context.</p>
   <div class="tabs" role="tablist" aria-label="Exact maps">
     <button role="tab" aria-selected="true" data-tab="m-gain">TD/AR gain</button>
     <button role="tab" aria-selected="false" data-tab="m-ar">AR intensity</button>
