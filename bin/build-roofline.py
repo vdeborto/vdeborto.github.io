@@ -404,9 +404,16 @@ def link_references(pages):
                 n = int(m.group(3)); where[(kind, n)] = slug
                 return f'{m.group(1)} id="{kind.lower()}-{n}"{m.group(2)}'
             pages[slug] = rx.sub(put, pages[slug])
-    ref = re.compile(r'\b(Figures?|Tables?)((?:\s|&nbsp;)\d+(?:(?:\s*(?:–|,|and|or)\s*)\d+)*)')
+    # numbered statements: the box that carries the tag, wherever it is
+    for slug in pages:
+        for m in re.finditer(r'id="([\w-]+)"[^>]*>\s*<(?:summary|div class="bdr-title"|div class="title")>\s*<span class="tag">(Proposition|Definition|Corollary|Remark) (\d+)</span>', pages[slug]):
+            where[(m.group(2), int(m.group(3)))] = (slug, m.group(1))
+    for ch in CHAPTERS:
+        if ch[1].isdigit():
+            where[("Part", int(ch[1]))] = (ch[0], None)
+    ref = re.compile(r'\b(Figures?|Tables?|Propositions?|Definitions?|Corollary|Remarks?|Parts?)((?:\s|&nbsp;)\d+(?:(?:\s*(?:–|,|and|or)\s*)\d+)*)')
     num = re.compile(r'\d+')
-    skip_open = re.compile(r'<(a|script|svg|style|caption|button|summary|title)\b', re.I)
+    skip_open = re.compile(r'<(a|script|svg|style|caption|button|summary|title|h1|h2|nav)\b', re.I)
     for slug, html in pages.items():
         parts = re.split(r'(<[^>]+>)', html)
         stack, out = [], []
@@ -421,27 +428,34 @@ def link_references(pages):
                         stack.append(name)
                     elif not m.group(1) and name == 'div' and 'class="fig-k"' in part:
                         stack.append('div')
-                    elif m.group(1) and name == 'div' and stack and stack[-1] == 'div':
+                    elif not m.group(1) and name == 'span' and 'class="tag"' in part:
+                        stack.append('span')
+                    elif m.group(1) and name in ('div', 'span') and stack and stack[-1] == name:
                         stack.pop()
                 out.append(part)
                 continue
-            if stack or ('Figure' not in part and 'Table' not in part):
+            if stack or not ref.search(part):
                 out.append(part); continue
+            def href_of(kind, n):
+                tgt = where.get((kind, n))
+                if tgt is None:
+                    return None
+                if isinstance(tgt, tuple):  # (page, element id) or a chapter (page, None)
+                    page, anchor = tgt
+                    if anchor is None:
+                        return None if page == slug else url_of(page)
+                    return f"#{anchor}" if page == slug else f"{url_of(page)}#{anchor}"
+                return f"#{kind.lower()}-{n}" if tgt == slug else f"{url_of(tgt)}#{kind.lower()}-{n}"
             def link(m):
-                kind = 'Figure' if m.group(1).startswith('Fig') else 'Table'
-                def one(mm):
-                    n = int(mm.group(0)); tgt = where.get((kind, n))
-                    if tgt is None:
-                        return mm.group(0)
-                    href = f"#{kind.lower()}-{n}" if tgt == slug else f"{url_of(tgt)}#{kind.lower()}-{n}"
-                    return f'<a class="xref" href="{href}">{mm.group(0)}</a>'
+                word = m.group(1)
+                kind = next(k for k in ("Figure", "Table", "Proposition", "Definition", "Corollary", "Remark", "Part") if word.startswith(k))
                 nums = num.findall(m.group(2))
                 if len(nums) == 1:  # "Figure 26": the whole reference is the link
-                    tgt = where.get((kind, int(nums[0])))
-                    if tgt is None:
-                        return m.group(0)
-                    href = f"#{kind.lower()}-{nums[0]}" if tgt == slug else f"{url_of(tgt)}#{kind.lower()}-{nums[0]}"
-                    return f'<a class="xref" href="{href}">{m.group(0)}</a>'
+                    h = href_of(kind, int(nums[0]))
+                    return f'<a class="xref" href="{h}">{m.group(0)}</a>' if h else m.group(0)
+                def one(mm):
+                    h = href_of(kind, int(mm.group(0)))
+                    return f'<a class="xref" href="{h}">{mm.group(0)}</a>' if h else mm.group(0)
                 return m.group(1) + num.sub(one, m.group(2))
             out.append(ref.sub(link, part))
         pages[slug] = "".join(out)

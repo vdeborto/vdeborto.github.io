@@ -27,7 +27,7 @@ sitemap: false
     <p class="fig-title">TD does more work per token, but reads each byte for more tokens.</p>
     <p class="fig-lede">Each slot is one forward pass, and every pass reads the weights once. Press play, change the canvas length \(b\) and the number of denoising passes \(S\), then switch the model from dense to MoE.</p>
     <div data-fig="reuse"></div>
-    <p class="fig-cap">One sequence, batch 1, short context, and both decoders assumed memory-bound, so that a pass takes the time to read its weights; this fails for a dense model once the canvas is longer than about \(I^\star\) positions, where Corollary 1 caps the gain. A canvas costs \(\omega = S + 1\) passes (here \(r = 1\)) and commits \(b\) tokens; in the same \(\omega\) passes AR commits \(\omega\) tokens. For a dense model both passes read the same weights, and per committed token TD reads \(\omega/b = 1/\mathrm{TPF}\) times the bytes of AR: \(\Gamma = \mathrm{TPF}\). For an MoE model a canvas touches more experts than one token does, a TD pass reads \(\Pi_{\mathrm{lin}}\) times the weights of an AR step (the two bars, Proposition 3), and \(\Gamma = \mathrm{TPF}/\Pi_{\mathrm{lin}}\).</p>
+    <p class="fig-cap">One sequence, batch 1, short context, and both decoders assumed memory-bound, so that a pass takes the time to read its weights; this fails for a dense model once the canvas is longer than about \(I^\star\) positions, where <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/gain/#cor1">Corollary 1</a> caps the gain. A canvas costs \(\omega = S + 1\) passes (here \(r = 1\)) and commits \(b\) tokens; in the same \(\omega\) passes AR commits \(\omega\) tokens. For a dense model both passes read the same weights, and per committed token TD reads \(\omega/b = 1/\mathrm{TPF}\) times the bytes of AR: \(\Gamma = \mathrm{TPF}\). For an MoE model a canvas touches more experts than one token does, a TD pass reads \(\Pi_{\mathrm{lin}}\) times the weights of an AR step (the two bars, <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/linear/#prop3">Proposition 3</a>), and \(\Gamma = \mathrm{TPF}/\Pi_{\mathrm{lin}}\).</p>
   </div>
   <div class="table-wrap"><table class="notation">
     <thead><tr><th class="l">Symbol</th><th class="l">Meaning</th><th>DiffusionGemma 26B-A4B</th></tr></thead>
@@ -39,7 +39,7 @@ sitemap: false
       <tr><td>\(E,\ k,\ W^e\)</td><td class="l">experts per layer, experts per token, parameters per expert</td><td class="num">128, 8, 5.95M</td></tr>
       <tr><td>\(W_{\mathrm{ne}}\)</td><td class="l">non-expert parameters of all layers</td><td class="num">1.66B</td></tr>
       <tr><td>\(N_{\mathrm{act}},\ W_{\mathrm{tot}}\)</td><td class="l">active parameters per token, \(W_{\mathrm{ne}} + LkW^e\); all parameters, \(W_{\mathrm{ne}} + LEW^e\) (both without the vocabulary)</td><td class="num">3.08B, 24.5B</td></tr>
-      <tr><td>\(m\)</td><td class="l">tokens a query attends to in a sparse-attention layer (Part 4)</td><td class="num">sparse variant: 2048</td></tr>
+      <tr><td>\(m\)</td><td class="l">tokens a query attends to in a sparse-attention layer (<a class="xref" href="/notes/block-diffusion-rooflines-6f924020/attention/">Part 4</a>)</td><td class="num">sparse variant: 2048</td></tr>
       <tr class="grp"><td class="l" colspan="3">Decoding</td></tr>
       <tr><td>\(B,\ C\)</td><td class="l">batch, tokens already in each sequence's KV cache</td><td class="num">–</td></tr>
       <tr><td>\(b,\ S,\ r\)</td><td class="l">canvas length, denoising passes per canvas, cost of a denoising pass as a fraction of a forward pass</td><td class="num">256, 14, 1</td></tr>
@@ -68,7 +68,7 @@ sitemap: false
         <tr><td>\(\alpha_G = 4n_q\sum_{\ell\in\mathcal G}h_\ell\)</td><td class="l">attention FLOPs per query and per cached token, global layers</td></tr>
         <tr><td>\(\alpha_W = 4n_q\sum_{\ell\in\mathcal W}h_\ell\)</td><td class="l">the same, sliding-window layers</td></tr>
         <tr><td>\(\alpha_S\)</td><td class="l">the same, sparse layers (\(4n_q\sum h_\ell\) over them)</td></tr>
-        <tr><td>\(\alpha_I\)</td><td class="l">the same, for the indexer, the scan that selects a sparse layer's tokens (Part 4)</td></tr>
+        <tr><td>\(\alpha_I\)</td><td class="l">the same, for the indexer, the scan that selects a sparse layer's tokens (<a class="xref" href="/notes/block-diffusion-rooflines-6f924020/attention/">Part 4</a>)</td></tr>
         <tr><td>\(\nu_G = s_{kv}\sum_{\ell\in\mathcal G}\kappa^cn_{kv,\ell}h_\ell\)</td><td class="l">KV bytes per cached token, global layers</td></tr>
         <tr><td>\(\nu_W = s_{kv}\sum_{\ell\in\mathcal W}\kappa^cn_{kv,\ell}h_\ell\)</td><td class="l">the same, sliding-window layers</td></tr>
         <tr><td>\(\nu_S\)</td><td class="l">the same, sparse layers</td></tr>

@@ -31,7 +31,7 @@ sitemap: false
     <div class="eq">\[
     \Gamma \;=\; \frac{1}{\omega}\cdot\frac{\min\bigl(\class{mj-td}{I_{TD}},\,I^\star\bigr)}{\min\bigl(\class{mj-ar}{I_{AR}},\,I^\star\bigr)},\qquad \omega = S\,r + 1
     \]</div>
-    <p class="small">Proposition 1, the result of Part 2, with the symbols defined in the table below.</p>
+    <p class="small"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/gain/#prop1">Proposition 1</a>, the result of <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/gain/">Part 2</a>, with the symbols defined in the table below.</p>
   </div>
   <p class="math-key">In the equations, <span class="q-ar">AR quantities are in blue</span> and <span class="q-td">TD quantities in orange</span>, as in the figures. Select any formula to see what its symbols mean.</p>
   <div class="tiles hero-tiles">
@@ -44,10 +44,10 @@ sitemap: false
 
   <div class="bdr-fig" id="fig-accounting">
     <div class="fig-k">How the numbers are counted</div>
-    <p class="fig-title">Every gain in Parts 1–7 is a ratio of roofline bounds, counted in one of three ways.</p>
-    <p class="fig-lede">A roofline time is a lower bound on the time of a pass, so each throughput is an upper bound, and \(\Gamma\) is the ratio of two such bounds, not a measurement. Part 11 compares these bounds with throughput measured in vLLM. The three accountings below differ in what they include, and each number on the page says which one it uses. For DiffusionGemma on an H200:</p>
+    <p class="fig-title">Every gain in Parts <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/">1</a>–<a class="xref" href="/notes/block-diffusion-rooflines-6f924020/examples/">7</a> is a ratio of roofline bounds, counted in one of three ways.</p>
+    <p class="fig-lede">A roofline time is a lower bound on the time of a pass, so each throughput is an upper bound, and \(\Gamma\) is the ratio of two such bounds, not a measurement. <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/conclusion/">Part 11</a> compares these bounds with throughput measured in vLLM. The three accountings below differ in what they include, and each number on the page says which one it uses. For DiffusionGemma on an H200:</p>
     <div data-fig="accounting"></div>
-    <p class="fig-cap">In the interactive figures and the cards, the intensities \(\class{mj-ar}{I_{AR}}\) and \(\class{mj-td}{I_{TD}}\) are always those of Definition 3, without the vocabulary; next to an exact gain, the regime of a pass is given instead as the share of the peak compute that it uses. The cards quote the closed-form values of the propositions, at zero context where Part 3 does, unless a readout says exact. A fourth variant, the kernel-by-kernel timing rule of Part 5, can be switched on in <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/linear/#figure-9">Figure 9</a> and in the calculator.</p>
+    <p class="fig-cap">In the interactive figures and the cards, the intensities \(\class{mj-ar}{I_{AR}}\) and \(\class{mj-td}{I_{TD}}\) are always those of <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/#def3">Definition 3</a>, without the vocabulary; next to an exact gain, the regime of a pass is given instead as the share of the peak compute that it uses. The cards quote the closed-form values of the propositions, at zero context where <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/linear/">Part 3</a> does, unless a readout says exact. A fourth variant, the kernel-by-kernel timing rule of <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/whole/">Part 5</a>, can be switched on in <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/linear/#figure-9">Figure 9</a> and in the calculator.</p>
   </div>
   <div class="takeaways">
     <div class="takeaways-title">Four things to remember</div>
@@ -76,10 +76,10 @@ sitemap: false
       <tr><td>\(I^X_{\mathrm{lin}},\ I^X_{\mathrm{attn}}\)</td><td class="l">intensity of the linear part and of the attention part of a pass of decoder \(X\); \(I_{\mathrm{lin}}\) is AR's linear part</td><td class="l">FLOPs per byte</td></tr>
       <tr><td>\(I_{\mathrm{attn}}\)</td><td class="l">attention FLOPs per cache byte for one query on a global layer (8 for DiffusionGemma), the limit of \(\class{mj-ar}{I^{AR}_{\mathrm{attn}}}\) at long context</td><td class="l">FLOPs per byte</td></tr>
       <tr><td>\(\Pi_{\mathrm{lin}},\ \Pi_{\mathrm{attn}},\ \Pi\)</td><td class="l">penalties: how many more bytes a TD pass reads per sequence than an AR step, on the linear layers, on attention, overall</td><td class="l">none</td></tr>
-      <tr><td>\(\hat\pi,\ \hat\beta\)</td><td class="l">empirical ceilings: the highest FLOP rate and bandwidth measured on the H200 of Parts 8–11</td><td class="l">FLOP/s, bytes/s</td></tr>
+      <tr><td>\(\hat\pi,\ \hat\beta\)</td><td class="l">empirical ceilings: the highest FLOP rate and bandwidth measured on the H200 of Parts <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/effective/">8</a>–<a class="xref" href="/notes/block-diffusion-rooflines-6f924020/conclusion/">11</a></td><td class="l">FLOP/s, bytes/s</td></tr>
       <tr><td>\(\tau_X,\ t_X\)</td><td class="l">roofline time of a step of decoder \(X\) at the empirical ceilings and measured routing, and its measured time</td><td class="l">seconds</td></tr>
       <tr><td>\(\eta_X = \tau_X/t_X\)</td><td class="l">efficiency of decoder \(X\): the share of its roofline that it achieves</td><td class="l">none</td></tr>
-      <tr><td>\(\Gamma_{\mathrm{meas}},\ \Gamma_{\mathrm{roof}}\)</td><td class="l">measured gain, and the roofline gain at the measured inputs (Proposition 9)</td><td class="l">none</td></tr>
+      <tr><td>\(\Gamma_{\mathrm{meas}},\ \Gamma_{\mathrm{roof}}\)</td><td class="l">measured gain, and the roofline gain at the measured inputs (<a class="xref" href="/notes/block-diffusion-rooflines-6f924020/conclusion/#prop9">Proposition 9</a>)</td><td class="l">none</td></tr>
       <tr><td>\(U^{\mathrm{meas}},\ N^{\mathrm{eff}}\)</td><td class="l">distinct experts per layer that a pass touches, measured, and the number of independent tokens that would touch as many</td><td class="l">experts, tokens</td></tr>
     </tbody>
   </table></div>
@@ -89,7 +89,7 @@ sitemap: false
     <div class="bdr-card"><div class="card-k">Canvas cost, \(\omega\)</div><p>A canvas costs \(\omega = Sr+1\) forward passes. This divides the gain in every regime.</p>
 <div class="card-more" hidden>
   <div class="eq">\[ \begin{gathered} \omega = S\,r + 1,\\[4pt] \Gamma = \frac{1}{\omega}\cdot\frac{\min(\class{mj-td}{I_{TD}},\,I^\star)}{\min(\class{mj-ar}{I_{AR}},\,I^\star)}. \end{gathered} \]</div>
-  <p>\(S\) denoising passes, each costing \(r\) forward passes (\(r \lt 1\) for a smaller denoiser), and one commit pass that writes the canvas to the KV cache. The intensity of a pass does not depend on \(S\), so under Proposition 1 the gain is exactly proportional to \(1/\omega\): halving \(S\) from 14 to 7 takes \(\omega\) from 15 to 8 and multiplies \(\Gamma\) by \(15/8\) in every regime, whatever it costs in quality.</p>
+  <p>\(S\) denoising passes, each costing \(r\) forward passes (\(r \lt 1\) for a smaller denoiser), and one commit pass that writes the canvas to the KV cache. The intensity of a pass does not depend on \(S\), so under <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/gain/#prop1">Proposition 1</a> the gain is exactly proportional to \(1/\omega\): halving \(S\) from 14 to 7 takes \(\omega\) from 15 to 8 and multiplies \(\Gamma\) by \(15/8\) in every regime, whatever it costs in quality.</p>
   <div data-micro="omega"></div>
   <p class="card-link"><a href="/notes/block-diffusion-rooflines-6f924020/gain/#prop1">Proposition 1</a> · <a href="/notes/block-diffusion-rooflines-6f924020/setup/#fig-reuse">Figure 4</a></p>
 </div>
@@ -129,7 +129,7 @@ sitemap: false
     <div class="bdr-card"><div class="card-k">Context, \(C\)</div><p>As the context grows, attention bytes overtake the weights, and the intensities move from their linear values to their attention values: \(\class{mj-ar}{I_{AR}} \to I_{\mathrm{attn}}\) and \(\class{mj-td}{I_{TD}} \to b\,I_{\mathrm{attn}}/\Pi_{\mathrm{attn}}\).</p>
 <div class="card-more" hidden>
   <div class="eq">\[ \begin{gathered} I_X = \theta^X_{\mathrm{lin}}\,I^X_{\mathrm{lin}} + \theta^X_{\mathrm{attn}}\,I^X_{\mathrm{attn}},\\[4pt] \theta^X_{\mathrm{attn}} = \frac{Q^X_{\mathrm{attn}}}{Q^X}. \end{gathered} \]</div>
-  <p>Each intensity is the byte-weighted average of its two parts (Proposition 2). As \(C\) grows, the cache's share \(\theta_{\mathrm{attn}}\) goes to 1 and the intensities go to their attention values: \(\class{mj-ar}{I_{AR}} \to I_{\mathrm{attn}} = 8\) on DiffusionGemma's global layers, far below every ridge, and \(\class{mj-td}{I_{TD}} \to b\,I_{\mathrm{attn}} = 2{,}048\), above every ridge in this book.</p>
+  <p>Each intensity is the byte-weighted average of its two parts (<a class="xref" href="/notes/block-diffusion-rooflines-6f924020/gain/#prop2">Proposition 2</a>). As \(C\) grows, the cache's share \(\theta_{\mathrm{attn}}\) goes to 1 and the intensities go to their attention values: \(\class{mj-ar}{I_{AR}} \to I_{\mathrm{attn}} = 8\) on DiffusionGemma's global layers, far below every ridge, and \(\class{mj-td}{I_{TD}} \to b\,I_{\mathrm{attn}} = 2{,}048\), above every ridge in this book.</p>
   <div data-micro="context"></div>
   <p class="card-link"><a href="/notes/block-diffusion-rooflines-6f924020/gain/#prop2">Proposition 2</a> · <a href="/notes/block-diffusion-rooflines-6f924020/attention/#fig-context">Figure 13</a></p>
 </div>
@@ -140,9 +140,9 @@ sitemap: false
   <div class="cards three">
     <div class="bdr-card regime lose"><div class="card-k">AR compute-bound</div><div class="card-v">\(\Gamma = 1/\omega\)</div><p>TD is then compute-bound as well. Both run at peak, and TD does \(\omega\) times the work. Rare for MoE decoding: DiffusionGemma on an H200 would need a batch of about 1,600 at zero context, and no batch suffices beyond about 135 tokens of context.</p>
 <div class="card-more" hidden>
-  <p>Both passes run at the peak, so time is FLOPs, and a canvas spends \(\omega\) times AR's FLOPs per token: \(\Gamma \le 1/\omega\), equal to it under Proposition 1. AR reaches the ridge at</p>
+  <p>Both passes run at the peak, so time is FLOPs, and a canvas spends \(\omega\) times AR's FLOPs per token: \(\Gamma \le 1/\omega\), equal to it under <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/gain/#prop1">Proposition 1</a>. AR reaches the ridge at</p>
   <div class="eq">\[ \begin{gathered} \class{mj-ar}{B^\star_{AR}} = \frac{I^\star s_wW_{\mathrm{tot}}}{2N_{\mathrm{act}}}\\[4pt] = \frac{206 \times 2 \times 24.5\text{B}}{2 \times 3.08\text{B}} \approx 1{,}640. \end{gathered} \]</div>
-  <p>This closed form takes zero context. By Proposition 8, beyond about 135 tokens of context no batch makes an AR step compute-bound. In addition, holding 1,640 sequences of 9k tokens, the 1k prompt and 8k generated tokens of the running example, would take about 650 GB of KV cache, more than four H200s hold.</p>
+  <p>This closed form takes zero context. By <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/whole/#prop8">Proposition 8</a>, beyond about 135 tokens of context no batch makes an AR step compute-bound. In addition, holding 1,640 sequences of 9k tokens, the 1k prompt and 8k generated tokens of the running example, would take about 650 GB of KV cache, more than four H200s hold.</p>
   <p class="card-link"><a href="/notes/block-diffusion-rooflines-6f924020/gain/#cor1">Corollary 1</a> · <a href="/notes/block-diffusion-rooflines-6f924020/whole/#prop8">Proposition 8</a></p>
 </div>
 </div>
@@ -167,7 +167,7 @@ sitemap: false
   <h3>What the formulas leave out</h3>
   <ul>
     <li><b>Vocabulary and self-conditioning.</b> With self-conditioning, each denoising pass feeds the token distribution predicted by the previous pass back in through the embedding matrix. Per token, TD runs \(2S-1\) vocabulary-sized matmuls against AR's one, and a smaller decoder does not shrink them. The maps and the calculator include them.</li>
-    <li><b>Kernels run one after another.</b> Assumption (A1) gives a pass the time of a single kernel in which all of its compute and all of its memory traffic overlap. Adding up the roofline times of its kernels instead is never faster and at most twice slower, and it moves DiffusionGemma's best batch from 5 to 9 (Part 5). The calculator offers both.</li>
+    <li><b>Kernels run one after another.</b> Assumption (A1) gives a pass the time of a single kernel in which all of its compute and all of its memory traffic overlap. Adding up the roofline times of its kernels instead is never faster and at most twice slower, and it moves DiffusionGemma's best batch from 5 to 9 (<a class="xref" href="/notes/block-diffusion-rooflines-6f924020/whole/">Part 5</a>). The calculator offers both.</li>
     <li><b>Small effects.</b> Activations (they stay in the processor's caches when consecutive operations are merged into one kernel), KV writes, and the at most \(b\) keys inside the canvas.</li>
     <li><b>Cross-layer KV sharing.</b> It divides the KV cache's size, not the bytes read per pass, since each layer still reads the shared cache. It changes the largest batch that fits in memory, not any intensity.</li>
     <li><b>Beyond the roofline.</b> Kernel efficiency, uneven and correlated expert routing (<a href="/notes/block-diffusion-rooflines-6f924020/effective/">Parts 8–11</a> measure both on an H200: at batch 8 and above TD runs at 0.46–0.61 of its empirical roofline and AR at 0.43–0.69, and a canvas touches far fewer experts than independent routing predicts), adaptive step counts, correlated block selections, the wait for the first canvas, and quality per step.</li>
