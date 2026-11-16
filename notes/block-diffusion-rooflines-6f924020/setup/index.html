@@ -311,6 +311,8 @@
 <section class="bdr-col" id="setup">
   <p class="chapter-intro">To compare two decoders on a roofline, we need, for each of them, the FLOPs of a forward pass and the bytes it reads from memory. In this chapter, we define both for an AR step and for a TD pass over a canvas of \(b\) tokens. From them come the two quantities used in every later chapter. First, the arithmetic intensity of a pass decides whether it is compute- or memory-bound. Second, the penalty is the ratio of the bytes per sequence that a TD pass reads to those an AR step reads. It is above 1 because the \(b\) positions of a TD pass touch more experts and, in sparse layers, more cached tokens.</p>
   <p>We consider a batch of \(B\) sequences, each with \(C\) tokens in its KV cache. An AR step is one forward pass and advances each sequence by one token. On the other hand, TD advances each sequence by a canvas of \(b\) tokens, in \(S\) denoising passes and one commit pass. This is block diffusion (<a href="https://arxiv.org/abs/2503.09573" rel="external nofollow noopener" target="_blank">Arriola et al., 2025</a>) with a KV cache over committed canvases. Throughout the blogpost, our running example is DiffusionGemma 26B-A4B (<a href="https://arxiv.org/abs/2608.00146" rel="external nofollow noopener" target="_blank">DiffusionGemma technical report</a>, 2026).</p>
+  <p>A denoising pass costs a fraction \(r\) of a forward pass. Hence, a canvas costs \(\omega = Sr + 1\) forward passes, and TD commits \(\mathrm{TPF} = b/\omega\) tokens per forward pass. For DiffusionGemma, \(b = 256\), \(S = 14\) and \(r = 1\), so that \(\omega = 15\) and \(\mathrm{TPF} = 17.07\). The other symbols of the model, of the decoding and of the accelerator are listed, with their values, on the <a href="/notes/block-diffusion-rooflines-6f924020/symbols/">Symbols</a> page.</p>
+
   <div class="bdr-fig" id="fig-reuse">
     <div class="fig-k" id="figure-5">Figure 5 · interactive</div>
     <p class="fig-title">Per committed token, TD reads \(\Pi_{\mathrm{lin}}/\mathrm{TPF}\) times the weight bytes of AR.</p>
@@ -318,80 +320,6 @@
     <div data-fig="reuse"></div>
     <p class="fig-cap">One sequence, batch 1, short context, and both decoders assumed memory-bound, so that a pass takes the time to read its weights; this fails for a dense model once the canvas is longer than about \(I^\star\) positions, where <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/gain/#cor1">Corollary 1</a> caps the gain. A canvas costs \(\omega = S + 1\) passes (here \(r = 1\)) and commits \(b\) tokens; in the same \(\omega\) passes AR commits \(\omega\) tokens. For a dense model both passes read the same weights, and per committed token TD reads \(\omega/b = 1/\mathrm{TPF}\) times the bytes of AR: \(\Gamma = \mathrm{TPF}\). For an MoE model a canvas touches more experts than one token does, a TD pass reads \(\Pi_{\mathrm{lin}}\) times the weights of an AR step (the two bars, <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/linear/#prop3">Proposition 3</a>), and \(\Gamma = \mathrm{TPF}/\Pi_{\mathrm{lin}}\).</p>
   </div>
-  <h3 id="setup-notation">Notation</h3>
-  <div class="table-wrap"><table class="notation">
-    <thead><tr>
-<th class="l">Symbol</th>
-<th class="l">Meaning</th>
-<th>DiffusionGemma 26B-A4B</th>
-</tr></thead>
-    <tbody>
-      <tr class="grp"><td class="l" colspan="3">Model</td></tr>
-      <tr>
-<td>\(L,\ d,\ V\)</td>
-<td class="l">layers, hidden size, vocabulary</td>
-<td class="num">30, 2816, 262,144</td>
-</tr>
-      <tr>
-<td>\(\mathcal G,\ \mathcal W,\ w\)</td>
-<td class="l">global-attention layers; sliding-window layers, which see at most \(w\) earlier tokens</td>
-<td class="num">5; 25, \(w\) = 1023</td>
-</tr>
-      <tr>
-<td>\(n_q,\ n_{kv,\ell},\ h_\ell\)</td>
-<td class="l">query heads, KV heads, head dimension of layer \(\ell\); \(g = n_q/n_{kv,\ell}\) for the global layers</td>
-<td class="num">16; 2 / 8; 512 / 256 (global / window layers)</td>
-</tr>
-      <tr>
-<td>\(E,\ k,\ W^e\)</td>
-<td class="l">experts per layer, experts per token, parameters per expert (\(W^e = 3d\,f_E\) for experts of width \(f_E\))</td>
-<td class="num">128, 8, 5.95M</td>
-</tr>
-      <tr>
-<td>\(W_{\mathrm{ne}}\)</td>
-<td class="l">non-expert parameters of all layers</td>
-<td class="num">1.66B</td>
-</tr>
-      <tr>
-<td>\(N_{\mathrm{act}},\ W_{\mathrm{tot}}\)</td>
-<td class="l">active parameters per token, \(W_{\mathrm{ne}} + LkW^e\); all parameters, \(W_{\mathrm{ne}} + LEW^e\) (both without the vocabulary)</td>
-<td class="num">3.08B, 24.5B</td>
-</tr>
-      <tr>
-<td>\(m\)</td>
-<td class="l">tokens a query attends to in a sparse-attention layer (<a class="xref" href="/notes/block-diffusion-rooflines-6f924020/attention/">Part 4</a>)</td>
-<td class="num">sparse variant: 2048</td>
-</tr>
-      <tr class="grp"><td class="l" colspan="3">Decoding</td></tr>
-      <tr>
-<td>\(B,\ C\)</td>
-<td class="l">batch, tokens already in each sequence's KV cache</td>
-<td class="num">–</td>
-</tr>
-      <tr>
-<td>\(b,\ S,\ r\)</td>
-<td class="l">canvas length, denoising passes per canvas, cost of a denoising pass as a fraction of a forward pass</td>
-<td class="num">256, 14, 1</td>
-</tr>
-      <tr>
-<td>\(\omega,\ \mathrm{TPF}\)</td>
-<td class="l">cost of a canvas in forward passes, \(Sr+1\); tokens per forward pass, \(b/\omega\)</td>
-<td class="num">15, 17.07</td>
-</tr>
-      <tr class="grp"><td class="l" colspan="3">Hardware and precision</td></tr>
-      <tr>
-<td>\(\pi,\ \beta\)</td>
-<td class="l">peak matrix-multiplication FLOP/s, memory bandwidth</td>
-<td class="num">H200: 989 TFLOP/s, 4.8 TB/s</td>
-</tr>
-      <tr>
-<td>\(s_w,\ s_{kv},\ \kappa^c\)</td>
-<td class="l">bytes per weight (2 in BF16, 16-bit floats; 1 in FP8, 8-bit floats), bytes per KV element, tensors cached per KV head (K and V)</td>
-<td class="num">2, 2, 2</td>
-</tr>
-    </tbody>
-  </table></div>
-
   <h3 id="setup-costs">Costs of a pass</h3>
   <div class="box def widebox" id="def1">
     <div class="bdr-title">
