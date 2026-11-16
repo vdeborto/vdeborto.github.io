@@ -337,6 +337,7 @@ def main():
         seen = [int(n) for ch in CHAPTERS for n in re.findall(rx, pages.get(ch[0], ""))]
         if seen != list(range(1, len(seen) + 1)):
             problems.append(f"{kind} numbers not in reading order: {seen}")
+    pages = link_references(pages)
     if problems:
         for p in problems:
             print("PROBLEM:", p)
@@ -389,6 +390,62 @@ def card_legacy_figures(body):
     if k != 4:
         problems.append(f"legacy figures carded: {k}, expected 4")
     return body
+
+
+def link_references(pages):
+    """Anchor every figure and table label (#figure-N, #table-N) and link each "Figure N" or
+    "Table N" in the prose to it, on its own page or across pages. Text inside links, scripts,
+    SVG, captions of the target itself and figure labels is left alone."""
+    where = {}
+    lab = {"Figure": re.compile(r'(<div class="fig-k")(>Figure (\d+))'), "Table": re.compile(r'(<caption)(>Table (\d+)\.)')}
+    for slug in pages:
+        for kind, rx in lab.items():
+            def put(m, kind=kind, slug=slug):
+                n = int(m.group(3)); where[(kind, n)] = slug
+                return f'{m.group(1)} id="{kind.lower()}-{n}"{m.group(2)}'
+            pages[slug] = rx.sub(put, pages[slug])
+    ref = re.compile(r'\b(Figures?|Tables?)((?:\s|&nbsp;)\d+(?:(?:\s*(?:–|,|and|or)\s*)\d+)*)')
+    num = re.compile(r'\d+')
+    skip_open = re.compile(r'<(a|script|svg|style|caption|button|summary|title)\b', re.I)
+    for slug, html in pages.items():
+        parts = re.split(r'(<[^>]+>)', html)
+        stack, out = [], []
+        for part in parts:
+            if part.startswith('<'):
+                m = re.match(r'<(/?)([a-zA-Z][\w-]*)', part)
+                if m:
+                    name = m.group(2).lower()
+                    if m.group(1) and stack and stack[-1] == name:
+                        stack.pop()
+                    elif not m.group(1) and skip_open.match(part) and not part.endswith('/>'):
+                        stack.append(name)
+                    elif not m.group(1) and name == 'div' and 'class="fig-k"' in part:
+                        stack.append('div')
+                    elif m.group(1) and name == 'div' and stack and stack[-1] == 'div':
+                        stack.pop()
+                out.append(part)
+                continue
+            if stack or ('Figure' not in part and 'Table' not in part):
+                out.append(part); continue
+            def link(m):
+                kind = 'Figure' if m.group(1).startswith('Fig') else 'Table'
+                def one(mm):
+                    n = int(mm.group(0)); tgt = where.get((kind, n))
+                    if tgt is None:
+                        return mm.group(0)
+                    href = f"#{kind.lower()}-{n}" if tgt == slug else f"{url_of(tgt)}#{kind.lower()}-{n}"
+                    return f'<a class="xref" href="{href}">{mm.group(0)}</a>'
+                nums = num.findall(m.group(2))
+                if len(nums) == 1:  # "Figure 26": the whole reference is the link
+                    tgt = where.get((kind, int(nums[0])))
+                    if tgt is None:
+                        return m.group(0)
+                    href = f"#{kind.lower()}-{nums[0]}" if tgt == slug else f"{url_of(tgt)}#{kind.lower()}-{nums[0]}"
+                    return f'<a class="xref" href="{href}">{m.group(0)}</a>'
+                return m.group(1) + num.sub(one, m.group(2))
+            out.append(ref.sub(link, part))
+        pages[slug] = "".join(out)
+    return pages
 
 
 def practice_tags(slug):

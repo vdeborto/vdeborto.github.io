@@ -23,7 +23,7 @@ sitemap: false
   <p class="chapter-intro">Comparing two decoders on a roofline requires, for each, the FLOPs of a forward pass and the bytes it reads from memory. This chapter defines both for an AR step and for a TD pass over a canvas of \(b\) tokens. From them come the two quantities used in every later chapter: the arithmetic intensity of a pass, which decides whether it is compute- or memory-bound, and the penalty, the extra bytes per sequence that a TD pass reads because its \(b\) positions touch more experts and, in sparse layers, more cached tokens.</p>
   <p>A batch holds \(B\) sequences, each with \(C\) tokens in its KV cache. An AR step is one forward pass and advances each sequence by one token. TD advances each sequence by a canvas of \(b\) tokens, in \(S\) denoising passes and one commit pass. This is block diffusion (<a href="https://arxiv.org/abs/2503.09573">Arriola et al., 2025</a>) with a KV cache over committed canvases. The running example is DiffusionGemma 26B-A4B (<a href="https://arxiv.org/abs/2608.00146">DiffusionGemma technical report</a>, 2026).</p>
   <div class="bdr-fig" id="fig-reuse">
-    <div class="fig-k">Figure 4 · interactive</div>
+    <div class="fig-k" id="figure-4">Figure 4 · interactive</div>
     <p class="fig-title">TD does more work per token, but reads each byte for more tokens.</p>
     <p class="fig-lede">Each slot is one forward pass, and every pass reads the weights once. Press play, change the canvas length \(b\) and the number of denoising passes \(S\), then switch the model from dense to MoE.</p>
     <div data-fig="reuse"></div>
@@ -134,7 +134,7 @@ sitemap: false
   </div>
 
   <div class="table-wrap"><table class="limits">
-    <caption>Table 1. Where the intensities go, DiffusionGemma on an H200 with dense attention (Parts 3 and 4 prove the limits).</caption>
+    <caption id="table-1">Table 1. Where the intensities go, DiffusionGemma on an H200 with dense attention (Parts 3 and 4 prove the limits).</caption>
     <thead><tr><th class="l"></th><th class="l">Short context, \(C \to 0\)</th><th class="l">Long context, \(C \to \infty\)</th></tr></thead>
     <tbody>
       <tr><td class="l"><b>AR</b></td><td class="l">\(\class{mj-ar}{I^{AR}_{\mathrm{lin}}}(B)\): 1.0 at batch 1, 8.2 at batch 64</td><td class="l">\(I_{\mathrm{attn}}\): 8</td></tr>

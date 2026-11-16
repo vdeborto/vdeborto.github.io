@@ -87,6 +87,11 @@ sitemap: false
         <div class="tiles" id="c-tiles"></div>
         <div class="charts">
           <figure>
+            <figcaption>Gain Γ vs batch</figcaption>
+            <div class="legend"><span><span class="swatch" style="background:var(--accent)"></span>Γ = TD / AR</span><span class="muted">dashed: parity</span></div>
+            <div class="chart" id="ch-gain"></div>
+          </figure>
+          <figure>
             <figcaption>Decode throughput vs batch</figcaption>
             <div class="legend"><span><span class="swatch" style="background:var(--bdr-ar)"></span>AR</span><span><span class="swatch" style="background:var(--bdr-td)"></span>TD</span><span class="muted">hollow: exceeds memory</span></div>
             <div class="chart" id="ch-thr"></div>
@@ -95,11 +100,6 @@ sitemap: false
             <figcaption>Share of peak vs batch</figcaption>
             <div class="legend"><span><span class="swatch" style="background:var(--bdr-ar)"></span>AR</span><span><span class="swatch" style="background:var(--bdr-td)"></span>TD</span><span class="muted">dashed: ω × AR; TD above it means Γ &gt; 1</span></div>
             <div class="chart" id="ch-util"></div>
-          </figure>
-          <figure>
-            <figcaption>Gain Γ vs batch</figcaption>
-            <div class="legend"><span><span class="swatch" style="background:var(--accent)"></span>Γ = TD / AR</span><span class="muted">dashed: parity</span></div>
-            <div class="chart" id="ch-gain"></div>
           </figure>
         </div>
         <div class="tabs" role="tablist" aria-label="Maps for these settings">

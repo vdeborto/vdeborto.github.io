@@ -278,6 +278,26 @@
     } else load();
   }
 
+  // ---------------------------------------------------------------- a linked figure or table is shown
+  // A link to #table-N or #figure-N opens the disclosures and folded tables around its target.
+  function revealHash() {
+    const id = decodeURIComponent(location.hash.slice(1));
+    const t = id && document.getElementById(id);
+    if (!t) return;
+    let opened = false;
+    for (let e = t.parentElement; e && e !== document.body; e = e.parentElement) {
+      if (e.tagName === 'DETAILS' && !e.open) { e.open = true; opened = true; }
+      if (e.classList.contains('foldable') && !e.classList.contains('open')) {
+        const btn = e.querySelector(':scope > .box-more');
+        if (btn) btn.click(); else e.classList.add('open');
+        opened = true;
+      }
+    }
+    if (opened) requestAnimationFrame(() => { const box = t.closest('details.numbers, .table-wrap') || t; scrollTo(0, box.getBoundingClientRect().top + scrollY - 96); });
+  }
+  addEventListener('hashchange', revealHash);
+  setTimeout(revealHash, 0);
+
   // ---------------------------------------------------------------- equations that do not fit
   // A display equation written in two forms (.eq-wide, then .eq-narrow) shows the wide one only
   // where it fits its column; the CSS switch on the viewport width cannot see the column.
