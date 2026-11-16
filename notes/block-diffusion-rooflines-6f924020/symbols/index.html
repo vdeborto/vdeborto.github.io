@@ -1,0 +1,1032 @@
+<!DOCTYPE html>
+<html lang="en">
+  <!-- Head -->
+  <head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <!-- Metadata, OpenGraph and Schema.org -->
+
+
+
+
+<!-- Standard metadata -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<title>
+  
+  
+    
+      Symbols | Valentin De Bortoli
+    
+  
+</title>
+<meta name="author" content="Valentin De Bortoli">
+<meta name="description" content="Symbols of Block Diffusion Rooflines: every symbol, its meaning and where it is defined.">
+
+  <meta name="keywords" content="diffusion models, generative modelling, optimal transport, Schrodinger bridge, sampling, Markov chain Monte Carlo, machine learning">
+
+
+
+
+
+
+
+
+
+
+<!-- Security: Content Security Policy -->
+<!-- Permissive CSP suitable for academic websites. Allows external images, videos, and common embed services. -->
+<!-- To customize for your needs, see: https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https:; style-src 'self' 'unsafe-inline' https:; img-src 'self' data: https:; font-src 'self' data: https:; media-src 'self' https:; frame-src 'self' https:; connect-src 'self' https:;">
+<style>
+  :root {
+    --max-content-width: 930px;
+  }
+</style>
+
+<!-- Tailwind-first core styles -->
+<link rel="stylesheet" href="/assets/css/tailwind.css?v=50c64c15cbb9fd1ce6056fdb8bcb4b62">
+
+
+
+
+
+
+
+<!-- Icons -->
+
+  
+<!-- Font Awesome -->
+<link defer rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.2.0/css/all.min.css" integrity="sha256-MVopmdyC2tYTiJ8wlktf0uh0v4NgT+vNdyVFepi7Q0c=" crossorigin="anonymous">
+
+<!-- Academicons -->
+<link defer rel="stylesheet" href="https://cdn.jsdelivr.net/npm/academicons@1.9.5/css/academicons.min.css" integrity="sha256-SzrCOBJbGVFMahewkgjwnApaV2+av1DwMAA+/QGLyZw=" crossorigin="anonymous">
+
+<!-- Scholar Icons -->
+<link defer rel="stylesheet" href="https://cdn.jsdelivr.net/npm/scholar-icons@1.0.3/css/scholar-icons.css" integrity="sha256-VY3hHVj/hNX3fYG6wtbA6TcKJQl7+FthzGSyIB64klY=" crossorigin="anonymous">
+
+
+
+<link defer rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Roboto+Slab:100,300,400,500,700|Material+Icons&amp;display=swap">
+
+<!-- Code Syntax Highlighting -->
+<link defer rel="stylesheet" href="/assets/css/jekyll-pygments-themes-github.css?v=591dab5a4e56573bf4ef7fd332894c99" media="" id="highlight_theme_light">
+
+<!-- Styles -->
+
+
+
+
+
+  <link rel="shortcut icon" href="data:image/svg+xml,&lt;svg%20xmlns=%22http://www.w3.org/2000/svg%22%20viewBox=%220%200%20100%20100%22&gt;&lt;text%20y=%22.9em%22%20font-size=%2290%22&gt;%F0%9F%8C%80&lt;/text&gt;&lt;/svg&gt;">
+
+
+
+
+<link rel="stylesheet" href="/assets/css/main.css?v=3116ba77db9ee1581d05bb3e86fbf7f1">
+
+<link rel="canonical" href="https://vdeborto.github.io/notes/block-diffusion-rooflines-6f924020/symbols/">
+
+  <meta name="robots" content="noindex, nofollow">
+
+
+
+  <!-- Dark Mode -->
+  <script src="/assets/js/theme.js?v=5286c3e4c334d0ecb8fc0c40ff4fa7ec"></script>
+  <link defer rel="stylesheet" href="/assets/css/jekyll-pygments-themes-native.css?v=5847e5ed4a4568527aa6cfab446049ca" media="none" id="highlight_theme_dark">
+  <script>
+    initTheme();
+  </script>
+
+
+
+
+
+
+
+  <!-- Image Features -->
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+  <!-- Right-to-left support -->
+  
+
+
+
+
+
+
+
+
+<!-- Custom typography and theme overrides -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,300;8..60,400;8..60,600&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<link rel="stylesheet" href="/assets/css/custom.css">
+
+  </head>
+
+  <!-- Body -->
+  <body class="fixed-top-nav sticky-bottom-footer">
+    <!-- Header -->
+    <header>
+  <!-- Nav Bar -->
+  <nav id="navbar" class="navbar navbar-light navbar-expand-sm fixed-top" role="navigation">
+    <div class="container">
+      
+        <a class="navbar-brand title font-weight-lighter" href="/">
+          
+            
+              <span class="font-weight-bold">Valentin</span>
+            
+            
+            De Bortoli
+          
+        </a>
+      
+      <!-- Navbar Toggle -->
+      <button class="navbar-toggler collapsed navbar-toggler-main" type="button" data-nav-toggle="navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar top-bar"></span>
+        <span class="icon-bar middle-bar"></span>
+        <span class="icon-bar bottom-bar"></span>
+      </button>
+
+      <div class="collapse navbar-collapse navbar-collapse-main" id="navbarNav">
+        <ul class="navbar-nav navbar-menu-list flex-nowrap">
+          
+
+          <!-- About -->
+          <li class="nav-item ">
+            <a class="nav-link" href="/">about
+              
+            </a>
+          </li>
+
+          <!-- Other pages -->
+          
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+              
+                
+                <li class="nav-item ">
+                  <a class="nav-link" href="/publications/">publications
+                    
+                  </a>
+                </li>
+              
+            
+          
+            
+              
+                
+                <li class="nav-item ">
+                  <a class="nav-link" href="/teaching/">teaching
+                    
+                  </a>
+                </li>
+              
+            
+          
+          
+            <!-- Search -->
+            <li class="nav-item">
+              <button id="search-toggle" type="button" title="Search" aria-label="Open search">
+                <span class="nav-link">ctrl k <i class="fa-solid fa-magnifying-glass"></i></span>
+              </button>
+            </li>
+          
+          
+            <!-- Toogle theme mode -->
+            <li class="toggle-container">
+              <button id="light-toggle" type="button" title="Change theme" aria-label="Change color theme">
+                <i class="fa-half-sun-moon" id="light-toggle-system"></i>
+                <i class="fa-solid fa-moon" id="light-toggle-dark"></i>
+                <i class="fa-solid fa-sun" id="light-toggle-light"></i>
+              </button>
+            </li>
+          
+        </ul>
+      </div>
+    </div>
+  </nav>
+  
+    <!-- Scrolling Progress Bar -->
+    <progress id="progress" value="0">
+      <div class="progress-container">
+        <span class="progress-bar"></span>
+      </div>
+    </progress>
+  
+</header>
+
+
+    <!-- Content -->
+    <div class="container mt-5" role="main">
+      
+        
+  <!-- Page/Post style -->
+  <style type="text/css">
+    .post-header .post-description { display: none; }
+  </style>
+
+
+<div class="post">
+  <header class="post-header">
+    <h1 class="post-title">Symbols</h1>
+    <p class="post-description">Symbols of Block Diffusion Rooflines: every symbol, its meaning and where it is defined.</p>
+  </header>
+
+  <article>
+    <!-- Generated by bin/build-roofline.py. Do not edit by hand. -->
+<link rel="stylesheet" href="/assets/roofline/note.css">
+<link rel="stylesheet" href="/assets/roofline/theme.css">
+<script type="application/json" id="bdr-book">{"title":"Block Diffusion Rooflines","home":"/notes/block-diffusion-rooflines-6f924020/","chapters":[{"slug":"","num":"0","title":"Introduction","url":"/notes/block-diffusion-rooflines-6f924020/"},{"slug":"summary","num":"","title":"Summary","url":"/notes/block-diffusion-rooflines-6f924020/summary/"},{"slug":"setup","num":"1","title":"Setup","url":"/notes/block-diffusion-rooflines-6f924020/setup/"},{"slug":"gain","num":"2","title":"The gain","url":"/notes/block-diffusion-rooflines-6f924020/gain/"},{"slug":"linear","num":"3","title":"The linear part","url":"/notes/block-diffusion-rooflines-6f924020/linear/"},{"slug":"attention","num":"4","title":"The attention part","url":"/notes/block-diffusion-rooflines-6f924020/attention/"},{"slug":"whole","num":"5","title":"The whole picture","url":"/notes/block-diffusion-rooflines-6f924020/whole/"},{"slug":"calculator","num":"6","title":"Calculator","url":"/notes/block-diffusion-rooflines-6f924020/calculator/"},{"slug":"examples","num":"7","title":"Worked examples","url":"/notes/block-diffusion-rooflines-6f924020/examples/"},{"slug":"effective","num":"8","title":"Empirical rooflines","url":"/notes/block-diffusion-rooflines-6f924020/effective/"},{"slug":"stack","num":"9","title":"The measurement stack","url":"/notes/block-diffusion-rooflines-6f924020/stack/"},{"slug":"kernels","num":"10","title":"Kernels","url":"/notes/block-diffusion-rooflines-6f924020/kernels/"},{"slug":"conclusion","num":"11","title":"Conclusion","url":"/notes/block-diffusion-rooflines-6f924020/conclusion/"},{"slug":"appendix","num":"A","title":"Appendix","url":"/notes/block-diffusion-rooflines-6f924020/appendix/"},{"slug":"symbols","num":"B","title":"Symbols","url":"/notes/block-diffusion-rooflines-6f924020/symbols/"}],"current":"symbols"}</script>
+
+<script defer src="/assets/roofline/mathjax.js"></script>
+<script defer src="/assets/roofline/note.js"></script>
+<script defer src="/assets/roofline/figures.js"></script>
+<script defer src="/assets/roofline/symbols.js"></script>
+<script defer src="/assets/roofline/reading.js"></script>
+
+<div class="bdr book-chapter" id="top">
+<noscript><p>This page needs JavaScript for its equations, figures and calculator.</p></noscript>
+<p class="book-part">The symbols of <a href="/notes/block-diffusion-rooflines-6f924020/">Block Diffusion Rooflines</a><span class="book-links"><span class="bl-row">Previous: <a href="/notes/block-diffusion-rooflines-6f924020/appendix/" rel="prev">A · Appendix</a></span></span></p>
+<section class="bdr-col" id="symbols">
+  <p class="chapter-intro">This page lists every symbol of the blogpost, with its meaning and the place where it is defined. The values in parentheses are those of DiffusionGemma 26B-A4B and of an H200. In the other chapters, a click on a formula lists the symbols that it uses.</p>
+  <h3 id="s-decoding">Decoding</h3>
+  <div class="table-wrap"><table class="symbols-table sym-sheet">
+    <thead><tr>
+<th class="l">Symbol</th>
+<th class="l">Meaning</th>
+<th class="l">Defined in</th>
+</tr></thead>
+    <tbody>
+      <tr>
+<td>\(\Gamma\)</td>
+<td class="l">throughput gain: tokens per second of TD over those of AR</td>
+<td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/gain/#prop1">Proposition 1</a></td>
+</tr>
+      <tr>
+<td>\(B\)</td>
+<td class="l">batch: sequences decoded together</td>
+<td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/">Part 1</a></td>
+</tr>
+      <tr>
+<td>\(C\)</td>
+<td class="l">context: tokens already in the KV cache of each sequence</td>
+<td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/">Part 1</a></td>
+</tr>
+      <tr>
+<td>\(b\)</td>
+<td class="l">canvas length, in tokens</td>
+<td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/">Part 1</a></td>
+</tr>
+      <tr>
+<td>\(S\)</td>
+<td class="l">denoising passes per canvas</td>
+<td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/">Part 1</a></td>
+</tr>
+      <tr>
+<td>\(r\)</td>
+<td class="l">cost of a denoising pass, as a fraction of a forward pass</td>
+<td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/">Part 1</a></td>
+</tr>
+      <tr>
+<td>\(\omega = Sr + 1\)</td>
+<td class="l">forward passes that one canvas costs</td>
+<td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/">Part 1</a></td>
+</tr>
+      <tr>
+<td>\(\mathrm{TPF} = b/\omega\)</td>
+<td class="l">tokens committed per forward pass</td>
+<td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/">Part 1</a></td>
+</tr>
+    </tbody>
+  </table></div>
+  <h3 id="s-accelerator-and-precision">Accelerator and precision</h3>
+  <div class="table-wrap"><table class="symbols-table sym-sheet">
+    <thead><tr>
+<th class="l">Symbol</th>
+<th class="l">Meaning</th>
+<th class="l">Defined in</th>
+</tr></thead>
+    <tbody>
+      <tr>
+<td>\(\pi\)</td>
+<td class="l">peak FLOPs per second of the accelerator</td>
+<td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/">Part 1</a></td>
+</tr>
+      <tr>
+<td>\(\beta\)</td>
+<td class="l">memory bandwidth of the accelerator, in bytes per second</td>
+<td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/">Part 1</a></td>
+</tr>
+      <tr>
+<td>\(I^\star = \pi/\beta\)</td>
+<td class="l">ridge point of the accelerator: a pass is compute-bound when its intensity reaches it (206 on an H200)</td>
+<td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/#def3">Definition 3</a></td>
+</tr>
+      <tr>
+<td>\(s_w\)</td>
+<td class="l">bytes per weight (2 in BF16)</td>
+<td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/">Part 1</a></td>
+</tr>
+      <tr>
+<td>\(s_{kv}\)</td>
+<td class="l">bytes per element of the KV cache (2)</td>
+<td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/">Part 1</a></td>
+</tr>
+      <tr>
+<td>\(\kappa^c\)</td>
+<td class="l">cached tensors per KV head on the global layers (2: keys and values stored separately)</td>
+<td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/">Part 1</a></td>
+</tr>
+    </tbody>
+  </table></div>
+  <h3 id="s-model">Model</h3>
+  <div class="table-wrap"><table class="symbols-table sym-sheet">
+    <thead><tr>
+<th class="l">Symbol</th>
+<th class="l">Meaning</th>
+<th class="l">Defined in</th>
+</tr></thead>
+    <tbody>
+      <tr>
+<td>\(L\)</td>
+<td class="l">layers (30)</td>
+<td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/">Part 1</a></td>
+</tr>
+      <tr>
+<td>\(d\)</td>
+<td class="l">hidden size (2816)</td>
+<td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/">Part 1</a></td>
+</tr>
+      <tr>
+<td>\(V\)</td>
+<td class="l">vocabulary size (262,144)</td>
+<td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/">Part 1</a></td>
+</tr>
+      <tr>
+<td>\(\mathcal G,\ \mathcal W\)</td>
+<td class="l">sets of the global-attention layers and of the sliding-window layers (5 and 25 layers)</td>
+<td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/">Part 1</a></td>
+</tr>
+      <tr>
+<td>\(w\)</td>
+<td class="l">window of a sliding-window layer, in tokens (1,023)</td>
+<td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/">Part 1</a></td>
+</tr>
+      <tr>
+<td>\(n_q,\ n_{kv}\)</td>
+<td class="l">query heads and KV heads of a layer (16 and 2 on the global layers)</td>
+<td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/">Part 1</a></td>
+</tr>
+      <tr>
+<td>\(h_\ell\)</td>
+<td class="l">head dimension of layer \(\ell\) (512 on the global layers, 256 on the window layers)</td>
+<td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/">Part 1</a></td>
+</tr>
+      <tr>
+<td>\(g\)</td>
+<td class="l">query heads per KV head on the global layers, \(n_q/n_{kv}\) (8)</td>
+<td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/">Part 1</a></td>
+</tr>
+      <tr>
+<td>\(E\)</td>
+<td class="l">experts per MoE layer (128)</td>
+<td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/">Part 1</a></td>
+</tr>
+      <tr>
+<td>\(k\)</td>
+<td class="l">experts each token selects (8)</td>
+<td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/">Part 1</a></td>
+</tr>
+      <tr>
+<td>\(W^e\)</td>
+<td class="l">parameters of one expert in one layer (5.95M)</td>
+<td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/">Part 1</a></td>
+</tr>
+      <tr>
+<td>\(f_E\)</td>
+<td class="l">width of one expert (704)</td>
+<td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/">Part 1</a></td>
+</tr>
+      <tr>
+<td>\(W_{\mathrm{ne}}\)</td>
+<td class="l">non-expert parameters of all layers (1.66B for DiffusionGemma)</td>
+<td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/">Part 1</a></td>
+</tr>
+      <tr>
+<td>\(N_{\mathrm{act}}\)</td>
+<td class="l">parameters active per token (3.08B for DiffusionGemma, without the vocabulary)</td>
+<td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/">Part 1</a></td>
+</tr>
+      <tr>
+<td>\(W_{\mathrm{tot}}\)</td>
+<td class="l">all parameters (24.5B, without the vocabulary)</td>
+<td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/">Part 1</a></td>
+</tr>
+      <tr>
+<td>\(m\)</td>
+<td class="l">cached tokens each query selects in a sparse layer</td>
+<td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/">Part 1</a></td>
+</tr>
+    </tbody>
+  </table></div>
+  <h3 id="s-costs-and-intensities">Costs and intensities</h3>
+  <div class="table-wrap"><table class="symbols-table sym-sheet">
+    <thead><tr>
+<th class="l">Symbol</th>
+<th class="l">Meaning</th>
+<th class="l">Defined in</th>
+</tr></thead>
+    <tbody>
+      <tr>
+<td>\(F,\ Q\)</td>
+<td class="l">FLOPs and bytes of one pass, per sequence</td>
+<td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/#def2">Definition 2</a></td>
+</tr>
+      <tr>
+<td>\(\nu\)</td>
+<td class="l">KV-cache bytes per cached token (G: global, W: windowed, S: sparse layers, I: indexer)</td>
+<td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/#def1">Definition 1</a></td>
+</tr>
+      <tr>
+<td>\(\alpha\)</td>
+<td class="l">attention FLOPs per query and per cached token (same subscripts as \(\nu\))</td>
+<td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/#def1">Definition 1</a></td>
+</tr>
+      <tr>
+<td>\(\class{mj-ar}{W_{AR}}\)</td>
+<td class="l">weights an AR step reads at batch \(B\), in parameters</td>
+<td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/#def1">Definition 1</a></td>
+</tr>
+      <tr>
+<td>\(\class{mj-td}{W_{TD}}\)</td>
+<td class="l">weights a TD pass reads at batch \(B\), in parameters</td>
+<td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/#def1">Definition 1</a></td>
+</tr>
+      <tr>
+<td>\(U_{E,k}(N)\)</td>
+<td class="l">expected number of distinct experts that \(N\) positions touch in a layer (\(E = 128\) experts, \(k = 8\) per token)</td>
+<td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/#def1">Definition 1</a></td>
+</tr>
+      <tr>
+<td>\(U_{C,m}(n)\)</td>
+<td class="l">cached tokens that \(n\) queries read together in a sparse layer, each selecting \(m\)</td>
+<td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/#def1">Definition 1</a></td>
+</tr>
+      <tr>
+<td>\(\class{mj-ar}{I_{AR}}\)</td>
+<td class="l">arithmetic intensity of one AR step: its FLOPs per byte read from HBM</td>
+<td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/#def3">Definition 3</a></td>
+</tr>
+      <tr>
+<td>\(\class{mj-td}{I_{TD}}\)</td>
+<td class="l">arithmetic intensity of one TD pass over a canvas of \(b\) positions: its FLOPs per byte read from HBM</td>
+<td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/#def3">Definition 3</a></td>
+</tr>
+      <tr>
+<td>\(I^X_{\mathrm{lin}}\)</td>
+<td class="l">linear part of an intensity: linear-layer FLOPs over weight bytes</td>
+<td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/#def3">Definition 3</a></td>
+</tr>
+      <tr>
+<td>\(I^X_{\mathrm{attn}}\)</td>
+<td class="l">attention part of an intensity: attention FLOPs over KV-cache bytes</td>
+<td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/#def3">Definition 3</a></td>
+</tr>
+      <tr>
+<td>\(I_{\mathrm{lin}}\)</td>
+<td class="l">linear part of an AR step's intensity, \(\class{mj-ar}{I^{AR}_{\mathrm{lin}}}\): the batch \(B\) in BF16</td>
+<td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/#def3">Definition 3</a></td>
+</tr>
+      <tr>
+<td>\(I_{\mathrm{attn}}\)</td>
+<td class="l">attention FLOPs per cache byte for one query on a global layer (8 for DiffusionGemma)</td>
+<td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/#def3">Definition 3</a></td>
+</tr>
+      <tr>
+<td>\(I_{\mathrm{win}}\)</td>
+<td class="l">attention FLOPs per cache byte for one query on a window layer (2 for DiffusionGemma)</td>
+<td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/#def3">Definition 3</a></td>
+</tr>
+      <tr>
+<td>\(I_{\mathrm{idx}}\)</td>
+<td class="l">FLOPs per cache byte of a sparse layer's index scan for one query</td>
+<td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/#def3">Definition 3</a></td>
+</tr>
+      <tr>
+<td>\(\theta\)</td>
+<td class="l">share of the bytes of a pass carried by one of its parts</td>
+<td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/gain/#prop2">Proposition 2</a></td>
+</tr>
+      <tr>
+<td>\(\theta_E\)</td>
+<td class="l">expert share of the weights that an AR step reads</td>
+<td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/linear/#prop3">Proposition 3</a></td>
+</tr>
+      <tr>
+<td>\(\sigma\)</td>
+<td class="l">window layers' FLOPs per query over the linear FLOPs, \(\alpha_W w/(2N_{\mathrm{act}})\) (6.8%)</td>
+<td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/attention/#prop6">Proposition 6</a></td>
+</tr>
+      <tr>
+<td>\(C_F\)</td>
+<td class="l">context at which global attention alone matches the linear FLOPs (37.6k)</td>
+<td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/attention/#prop6">Proposition 6</a></td>
+</tr>
+    </tbody>
+  </table></div>
+  <h3 id="s-penalties">Penalties</h3>
+  <div class="table-wrap"><table class="symbols-table sym-sheet">
+    <thead><tr>
+<th class="l">Symbol</th>
+<th class="l">Meaning</th>
+<th class="l">Defined in</th>
+</tr></thead>
+    <tbody>
+      <tr>
+<td>\(\Pi\)</td>
+<td class="l">overall penalty: bytes per sequence of a TD pass over those of an AR step</td>
+<td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/#def4">Definition 4</a></td>
+</tr>
+      <tr>
+<td>\(\Pi_{\mathrm{lin}}\)</td>
+<td class="l">linear penalty: weight bytes a TD pass reads over those an AR step reads (7.9 at batch 1, 1 at large batch)</td>
+<td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/#def4">Definition 4</a></td>
+</tr>
+      <tr>
+<td>\(\Pi_{\mathrm{attn}}\)</td>
+<td class="l">attention penalty: cache bytes a TD pass reads over those an AR step reads (1 for dense and windowed attention)</td>
+<td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/#def4">Definition 4</a></td>
+</tr>
+      <tr>
+<td>\(\Pi_E\)</td>
+<td class="l">distinct experts a TD pass touches over those an AR step touches</td>
+<td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/#def4">Definition 4</a></td>
+</tr>
+      <tr>
+<td>\(\Pi_{\mathrm{sel}}\)</td>
+<td class="l">selection penalty: cached tokens a canvas selects in a sparse layer over those one query selects</td>
+<td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/#def4">Definition 4</a></td>
+</tr>
+      <tr>
+<td>\(\zeta\)</td>
+<td class="l">independent fraction of a canvas's selections: 1 when independent, \(1/b\) when every query selects the same tokens</td>
+<td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/attention/">Part 4</a></td>
+</tr>
+    </tbody>
+  </table></div>
+  <h3 id="s-thresholds-and-regimes">Thresholds and regimes</h3>
+  <div class="table-wrap"><table class="symbols-table sym-sheet">
+    <thead><tr>
+<th class="l">Symbol</th>
+<th class="l">Meaning</th>
+<th class="l">Defined in</th>
+</tr></thead>
+    <tbody>
+      <tr>
+<td>\(\class{mj-td}{B^\star_{TD}}\)</td>
+<td class="l">smallest batch at which a TD pass is compute-bound</td>
+<td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/linear/">Part 3</a></td>
+</tr>
+      <tr>
+<td>\(\class{mj-ar}{B^\star_{AR}}\)</td>
+<td class="l">smallest batch at which an AR step is compute-bound</td>
+<td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/linear/">Part 3</a></td>
+</tr>
+      <tr>
+<td>\(B_\times\)</td>
+<td class="l">parity batch: beyond it AR is faster</td>
+<td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/linear/">Part 3</a></td>
+</tr>
+      <tr>
+<td>\(b_c\)</td>
+<td class="l">critical canvas length \(I^\star/I_{\mathrm{attn}}\): above it a longer context helps TD reach the ridge</td>
+<td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/whole/#prop8">Proposition 8</a></td>
+</tr>
+      <tr>
+<td>R1–R8</td>
+<td class="l">the eight regimes (<a class="xref" href="/notes/block-diffusion-rooflines-6f924020/whole/#figure-16">Figure 16</a>)</td>
+<td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/whole/">Part 5</a></td>
+</tr>
+      <tr>
+<td>A1–A5</td>
+<td class="l">the assumptions of <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/gain/#prop1">Proposition 1</a>
+</td>
+<td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/gain/">Part 2</a></td>
+</tr>
+    </tbody>
+  </table></div>
+  <h3 id="s-measurements">Measurements</h3>
+  <div class="table-wrap"><table class="symbols-table sym-sheet">
+    <thead><tr>
+<th class="l">Symbol</th>
+<th class="l">Meaning</th>
+<th class="l">Defined in</th>
+</tr></thead>
+    <tbody>
+      <tr>
+<td>\(\hat\pi\)</td>
+<td class="l">empirical compute ceiling: the highest FLOP rate measured on this H200 (FP8 1,468, BF16 781, attention 638 TFLOP/s)</td>
+<td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/effective/#def5">Definition 5</a></td>
+</tr>
+      <tr>
+<td>\(\hat\beta\)</td>
+<td class="l">empirical bandwidth: 4.32 TB/s measured on this H200</td>
+<td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/effective/#def5">Definition 5</a></td>
+</tr>
+      <tr>
+<td>\(\tau_X,\ \tau_c\)</td>
+<td class="l">empirical roofline time: \(\max(F/\hat\pi,\ Q/\hat\beta)\), of a component \(c\) or of a whole step \(X\)</td>
+<td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/effective/#def5">Definition 5</a></td>
+</tr>
+      <tr>
+<td>\(t_X,\ t_c\)</td>
+<td class="l">measured time of a step (\(\class{mj-ar}{t_{AR}}\), \(\class{mj-td}{t_{TD}}\)) or of a component (\(t_c\))</td>
+<td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/stack/#def7">Definition 7</a></td>
+</tr>
+      <tr>
+<td>\(\eta_X,\ \eta_c\)</td>
+<td class="l">efficiency: roofline time over measured time (1 means at the roofline)</td>
+<td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/stack/#def7">Definition 7</a></td>
+</tr>
+      <tr>
+<td>\(n_X\)</td>
+<td class="l">tokens a step commits: \(B\) for AR, \(Bb/\omega\) for TD</td>
+<td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/conclusion/#prop9">Proposition 9</a></td>
+</tr>
+      <tr>
+<td>\(\Gamma_{\mathrm{meas}}\)</td>
+<td class="l">measured gain: TD tokens per second over AR tokens per second</td>
+<td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/conclusion/#prop9">Proposition 9</a></td>
+</tr>
+      <tr>
+<td>\(\Gamma_{\mathrm{roof}}\)</td>
+<td class="l">roofline gain at the measured ceilings and routing</td>
+<td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/conclusion/#prop9">Proposition 9</a></td>
+</tr>
+      <tr>
+<td>\(U^{\mathrm{meas}}\)</td>
+<td class="l">distinct experts per layer that a pass touches, measured</td>
+<td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/effective/#def6">Definition 6</a></td>
+</tr>
+      <tr>
+<td>\(U^{\mathrm{freq}}\)</td>
+<td class="l">distinct experts predicted from the measured expert frequencies, tokens independent</td>
+<td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/effective/#def6">Definition 6</a></td>
+</tr>
+      <tr>
+<td>\(N^{\mathrm{eff}}\)</td>
+<td class="l">effective independent tokens: the \(N\) at which \(U_{E,k}(N)\) equals the measured count</td>
+<td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/effective/#def6">Definition 6</a></td>
+</tr>
+      <tr>
+<td>\(\rho_e\)</td>
+<td class="l">frequency with which a token selects expert \(e\)</td>
+<td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/effective/#def6">Definition 6</a></td>
+</tr>
+      <tr>
+<td>\(\mu\)</td>
+<td class="l">rows per touched expert, \(Nk/U\)</td>
+<td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/kernels/">Part 10</a></td>
+</tr>
+      <tr>
+<td>\(M_q,\ M_k\)</td>
+<td class="l">query rows and keys of one attention tile</td>
+<td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/kernels/">Part 10</a></td>
+</tr>
+      <tr>
+<td>\(\mathbf{Z}\)</td>
+<td class="l">attention scores \(\mathbf{Q}\mathbf{K}^\top\) of one tile</td>
+<td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/kernels/">Part 10</a></td>
+</tr>
+    </tbody>
+  </table></div>
+</section>
+<nav class="book-nav" aria-label="Chapters"><a class="prev" href="/notes/block-diffusion-rooflines-6f924020/appendix/"><span>Previous</span>A · Appendix</a></nav>
+<section class="book-comments" id="bdr-comments" data-repo="vdeborto/vdeborto.github.io" data-repo-id="MDEwOlJlcG9zaXRvcnkxMTY1OTk1ODA=" data-category="Announcements" data-category-id="DIC_kwDOBvMrHM4DLMnm" data-term="Block Diffusion Rooflines · Symbols">
+  <h3 id="s-comments">Comments</h3>
+  <div class="comments-frame"></div>
+  <noscript><p class="small">The comment thread needs JavaScript.</p></noscript>
+</section>
+</div>
+
+
+  </article>
+
+  
+
+  
+    
+
+
+  
+</div>
+
+      
+    </div>
+
+    <!-- Footer -->
+    
+
+
+  <footer class="sticky-bottom mt-5" role="contentinfo">
+    
+
+    <div class="container">
+      
+  © Copyright 2026
+  Valentin
+  
+  De Bortoli. Built with <a href="https://jekyllrb.com/" target="_blank" rel="external nofollow noopener">Jekyll</a> and the <a href="https://github.com/alshedivat/al-folio" rel="external nofollow noopener" target="_blank">al-folio</a> theme. Hosted on <a href="https://pages.github.com/" target="_blank" rel="external nofollow noopener">GitHub Pages</a>.
+
+  
+  
+    Last updated: November 16, 2026.
+  
+
+    </div>
+  </footer>
+
+
+
+    <!-- JavaScripts -->
+    <script>
+  window.alFolio = {
+    compatBootstrap: false
+  };
+</script>
+
+<!-- Core navigation/runtime scripts -->
+<script src="/assets/js/nav-toggle.js?v=141bd79a73ebc0f0b6ea58e440ae79fc"></script>
+
+
+
+  <!-- Masonry & imagesLoaded -->
+  <script defer src="https://cdn.jsdelivr.net/npm/masonry-layout@4.2.2/dist/masonry.pkgd.min.js" integrity="sha256-Nn1q/fx0H7SNLZMQ5Hw5JLaTRZp0yILA/FRexe19VdI=" crossorigin="anonymous"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/imagesloaded@5.0.0/imagesloaded.pkgd.min.js" integrity="sha256-htrLFfZJ6v5udOG+3kNLINIKh2gvoKqwEhHYfTTMICc=" crossorigin="anonymous"></script>
+  <script defer src="/assets/js/masonry.js?v=e49affc7bd2646f6acdad1dbe02c2359" type="text/javascript"></script>
+
+
+
+  <!-- Charts and Diagrams -->
+  
+
+
+
+
+
+
+
+  <!-- Math and Tikzjax -->
+  
+<script defer type="text/javascript" id="MathJax-script" src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-mml-chtml.js" integrity="sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI=" crossorigin="anonymous"></script>
+<script src="/assets/al_math/js/mathjax-setup.js"></script>
+
+
+
+
+
+<!-- Tooltips & popovers runtime -->
+<script src="/assets/js/tooltips-setup.js?v=fe487e99db6c43751e6e7bdb2d6a0611"></script>
+
+
+
+
+
+
+<!-- Load Common JS -->
+<script src="/assets/js/no_defer.js?v=53b1b1a645525975c963ce8bf8bfefcf"></script>
+<script defer src="/assets/js/common.js?v=87baac90f765f2f3362dcf6aaf312a8a"></script>
+<script defer src="/assets/js/copy_code.js?v=c8a01c11a92744d44b093fc3bda915df" type="text/javascript"></script>
+
+<!-- Jupyter Open External Links New Tab -->
+<script defer src="/assets/js/jupyter_new_tab.js?v=896d254890d9b47f0281f63bfccf0dee"></script>
+
+<!-- Badges -->
+
+  <script async src="https://d1bxh8uas1mnw7.cloudfront.net/assets/embed.js"></script>
+
+
+  <script async src="https://badge.dimensions.ai/badge.js"></script>
+
+
+
+
+  <!-- Analytics -->
+  
+
+
+
+
+
+  <!-- Image Features -->
+  
+<!-- Medium Zoom JS -->
+<script defer src="https://cdn.jsdelivr.net/npm/medium-zoom@1.1.0/dist/medium-zoom.min.js" integrity="sha256-ZgMyDAIYDYGxbcpJcfUnYwNevG/xi9OHKaR/8GK+jWc=" crossorigin="anonymous"></script>
+<script defer src="/assets/al_img_tools/js/zoom.js"></script>
+
+
+
+
+
+  <!-- Scrolling Progress Bar -->
+  <script defer src="/assets/js/progress-bar.js?v=499464c5c63ced6cf7ad62509f1e2610" type="text/javascript"></script>
+
+
+
+
+
+  <!-- Back to Top -->
+  
+  
+  
+    <script src="https://cdn.jsdelivr.net/npm/vanilla-back-to-top@7.2.1/dist/vanilla-back-to-top.min.js" integrity="sha256-uMJJ3EoTyfRBoTbR+lrfu1uRQ87RZG8AR3cVNuQVeFg=" crossorigin="anonymous"></script>
+  
+  <script>
+    addBackToTop();
+  </script>
+
+
+
+  <!-- Search -->
+  
+    
+<script type="module" src="/assets/al_search/js/search/ninja-keys.min.js"></script>
+<ninja-keys hidebreadcrumbs noautoloadmdicons placeholder="Type to start searching"></ninja-keys>
+<script src="/assets/al_search/js/search-setup.js"></script>
+<script>
+// get the ninja-keys element
+const ninja = document.querySelector('ninja-keys');
+
+// add the home and posts menu items
+ninja.data = [{
+    id: "nav-about",
+    title: "about",
+    section: "Navigation",
+    handler: () => {
+      window.location.href = "/";
+    },
+  },{id: "nav-publications",
+          title: "publications",
+          description: "Everything, newest first. Use the filter to search titles, authors and venues.",
+          section: "Navigation",
+          handler: () => {
+            window.location.href = "/publications/";
+          },
+        },{id: "nav-teaching",
+          title: "teaching",
+          description: "Course materials from teaching in Paris, 2015–2018.",
+          section: "Navigation",
+          handler: () => {
+            window.location.href = "/teaching/";
+          },
+        },{id: "news-distributional-diffusion-models-with-scoring-rules-accepted-at-icml-2025",
+          title: 'Distributional Diffusion Models with Scoring Rules accepted at ICML 2025.',
+          description: "",
+          section: "News",},{id: "news-three-papers-accepted-at-neurips-2025-on-inference-time-annealing-memorization-in-diffusion-models-and-proximal-mcmc-for-non-log-concave-sampling",
+          title: 'Three papers accepted at NeurIPS 2025, on inference-time annealing, memorization in diffusion models,...',
+          description: "",
+          section: "News",},{id: "news-the-diffusiongemma-technical-report-is-out",
+          title: 'The DiffusionGemma technical report is out.',
+          description: "",
+          section: "News",},{id: "news-simplex-diffusion-models-is-out-diffusion-on-the-probability-simplex-that-retains-uncertainty-during-discrete-denoising",
+          title: 'Simplex Diffusion Models is out — diffusion on the probability simplex that retains...',
+          description: "",
+          section: "News",},{
+        id: 'social-cv',
+        title: 'CV',
+        section: 'Socials',
+        handler: () => {
+          window.open("/assets/pdf/cv.pdf", "_blank");
+        },
+      },{
+        id: 'social-email',
+        title: 'email',
+        section: 'Socials',
+        handler: () => {
+          window.open("mailto:%76%61%6C%65%6E%74%69%6E.%64%65%62%6F%72%74%6F%6C%69@%67%6D%61%69%6C.%63%6F%6D", "_blank");
+        },
+      },{
+        id: 'social-github',
+        title: 'GitHub',
+        section: 'Socials',
+        handler: () => {
+          window.open("https://github.com/vdeborto", "_blank");
+        },
+      },{
+        id: 'social-scholar',
+        title: 'Google Scholar',
+        section: 'Socials',
+        handler: () => {
+          window.open("https://scholar.google.com/citations?user=dn_F9I4AAAAJ", "_blank");
+        },
+      },{
+        id: 'social-rss',
+        title: 'RSS Feed',
+        section: 'Socials',
+        handler: () => {
+          window.open("/feed.xml", "_blank");
+        },
+      },{
+      id: 'light-theme',
+      title: 'Change theme to light',
+      description: 'Change the theme of the site to Light',
+      section: 'Theme',
+      handler: () => {
+        setThemeSetting("light");
+      },
+    },
+    {
+      id: 'dark-theme',
+      title: 'Change theme to dark',
+      description: 'Change the theme of the site to Dark',
+      section: 'Theme',
+      handler: () => {
+        setThemeSetting("dark");
+      },
+    },
+    {
+      id: 'system-theme',
+      title: 'Use system default theme',
+      description: 'Change the theme of the site to System Default',
+      section: 'Theme',
+      handler: () => {
+        setThemeSetting("system");
+      },
+    },];
+
+</script>
+<script src="/assets/al_search/js/shortcut-key.js"></script>
+
+
+  
+
+
+
+
+
+
+
+
+  </body>
+</html>
