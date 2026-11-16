@@ -155,9 +155,30 @@ def render(text: str, wrap: bool = True) -> str:
         return f"\n\x00{len(raw) - 1}\x00\n"
     t = FNDEF.sub(fndef, t)
     parts = re.split(r"(\n[ \t]*\n(?:[ \t]*\n)*)", t)
-    t = "".join(p if k % 2 else _chunk(p, wrap) for k, p in enumerate(parts))
+    out = []
+    for k, p in enumerate(parts):
+        if k % 2:
+            out.append(p)
+            continue
+        c = _chunk(p, wrap)
+        # Items separated by blank lines are one list, as in Markdown: a list chunk right after
+        # another (only blank lines between) continues it.
+        m = re.match(r"(\s*)<(ul|ol)>", c)
+        if m and k >= 2 and _pure_list(p) and _pure_list(parts[k - 2]) and out[-2].rstrip().endswith(f"</{m.group(2)}>"):
+            out.pop()  # the blank lines
+            out[-1] = out[-1].rstrip()[:-len(f"</{m.group(2)}>")]
+            c = c[m.end():]
+        out.append(c)
+    t = "".join(out)
     t = re.sub(r"\x00(\d+)\x00", lambda m: raw[int(m.group(1))], t)
     return re.sub(r"\x01(\d+)\x01", lambda m: maths[int(m.group(1))], t)
+
+
+def _pure_list(chunk: str) -> bool:
+    """Whether a chunk is only list lines (markers and indented continuations)."""
+    lines = [ln for ln in chunk.split("\n") if ln.strip()]
+    return bool(lines) and bool(ITEM.match(lines[0])) and all(ITEM.match(ln) or ln.startswith((" ", "\t")) for ln in lines[1:]) \
+        and not BLOCK_TAG.search(re.sub(r"\s*</li>\s*$", "", chunk, flags=re.M))
 
 
 def render_inline(text: str) -> str:
