@@ -12,10 +12,10 @@ You can click on any formula to see a definition of the symbols it uses.
 
   <h3 id="what-we-need">What do we need to track?</h3>
 
-In order for us to state our main result (Proposition 1), we need to define the key quantities which govern the inference throughput of AR and TD. 
-To determine if moving bytes (weights and KV cache) or performing actually work (matrix multiply) is the limiting factor, i.e., if the model is memory or compute bound. 
-In order to do so we need to compute the FLOPs of a forward pass of an AR model and the ones of a TD model. 
-Similarly, we need to compute how many bytes are moved during forward pass of AR and TD models. 
+In order for us to state our main result (Proposition 1), we need to define the key quantities which govern the inference throughput of AR and TD.
+These quantities determine whether moving bytes (weights and KV cache) or performing actual work (matrix multiplies) is the limiting factor, i.e., whether the model is memory-bound or compute-bound.
+In order to do so, we need to compute the FLOPs of a forward pass of an AR model and those of a TD model.
+Similarly, we need to compute how many bytes are moved during a forward pass of the AR and TD models.
 By doing so, we will be able to establish the arithmetic intensities of both models, i.e., "how many FLOPs are used for each byte that is moved by the model?".
 <!-- intro:gain -->
 Given the costs of Part 1, the roofline model bounds the time of each pass, and hence the throughput of each decoder. In this chapter, Proposition 1 gives the ratio of the two throughputs: the ratio of the FLOP rates that the two decoders attain, divided by the \(\omega = Sr + 1\) passes that a canvas costs. We then read off which decoder wins in Corollary 1. Finally, Proposition 2 splits each intensity into a linear part and an attention part, which Parts 3 and 4 treat separately.
