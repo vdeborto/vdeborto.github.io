@@ -377,3 +377,17 @@ html { scroll-behavior: smooth; }
 .bdr .book-comments .comments-frame { min-height: 120px; margin-top: 10px; }
 .bdr .book-comments .giscus, .bdr .book-comments .giscus-frame { width: 100%; }
 @media print { .bdr .book-comments, .bdr .cite-copy { display: none; } }
+/* measured.js: one control per row, the label to the left of its buttons */
+.bdr .fig-controls.mctl { display: grid; grid-template-columns: max-content 1fr; gap: 8px 14px; align-items: center; }
+.bdr .fig-controls.mctl label, .bdr .fig-controls.mctl label.wide { display: contents; }
+.bdr .fig-controls.mctl label > span:first-child { font: 12px var(--bdr-font-ui); color: var(--bdr-ink-2); }
+.bdr .fig-controls.mctl .seg button { padding: 3px 9px; font-size: 12.5px; }
+.bdr .mchart svg { width: 100%; height: auto; display: block; }
+/* tables that back a figure, collapsed under it */
+.bdr details.numbers { margin: -4px 0 18px; }
+.bdr details.numbers > summary { cursor: pointer; list-style: none; display: inline-flex; align-items: center; gap: 6px; font: 12px var(--bdr-font-ui); color: var(--bdr-muted); padding: 3px 0; }
+.bdr details.numbers > summary::-webkit-details-marker { display: none; }
+.bdr details.numbers > summary::before { content: "+"; display: inline-grid; place-items: center; width: 15px; height: 15px; border: 1px solid var(--rule); border-radius: 3px; font-size: 11px; }
+.bdr details.numbers[open] > summary::before { content: "−"; }
+.bdr details.numbers > summary:hover { color: var(--accent); }
+.bdr details.numbers[open] > summary { margin-bottom: 6px; }
