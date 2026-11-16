@@ -665,7 +665,7 @@ def t_neff(d):
                 r.append(f"{neff:.1f}" if neff else "–")
         rows.append(r)
     return table("Table 12. Effective number of independent tokens per pass, \\(N^{\\mathrm{eff}}\\), the number of uniformly routed independent tokens that would touch the measured \\(U\\) (Definition 6). A TD pass holds \\(256B\\) positions, an AR step \\(B\\).",
-                 ["", "TD, 1k", "TD, 64k", "AR, 1k", "AR, 64k"], rows)
+                 ["", "TD, 1k", "TD, 64k", "AR, 1k", "AR, 64k"], rows, fold="Figure 24")
 
 
 def t_prop1(d):

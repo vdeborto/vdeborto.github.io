@@ -129,11 +129,22 @@
       r.addEventListener('pointerenter', () => show(+r.dataset.i));
       r.addEventListener('pointerdown', () => show(+r.dataset.i));
     });
-    svg.addEventListener('pointerleave', () => { cross.setAttribute('visibility', 'hidden'); if (opt.out && opt.rest) opt.out.innerHTML = opt.rest(); });
+    svg.addEventListener('pointerleave', () => { if (document.activeElement !== svg) { cross.setAttribute('visibility', 'hidden'); if (opt.out && opt.rest) opt.out.innerHTML = opt.rest(); } });
+    // keyboard: focus the chart, then the arrow keys step through the batches
+    let ki = -1;
+    svg.setAttribute('tabindex', '0');
+    svg.addEventListener('keydown', (ev) => {
+      const d = { ArrowRight: 1, ArrowLeft: -1, Home: -n, End: n }[ev.key];
+      if (!d) return;
+      ev.preventDefault();
+      ki = Math.max(0, Math.min(n - 1, (ki < 0 ? 0 : ki) + (ki < 0 && d > 0 ? 0 : d)));
+      show(ki);
+    });
+    svg.addEventListener('blur', () => { cross.setAttribute('visibility', 'hidden'); if (opt.out && opt.rest) opt.out.innerHTML = opt.rest(); });
     if (opt.out && opt.rest) opt.out.innerHTML = opt.rest();
   }
   const frame = (root) => {
-    const ctl = el('<div class="fig-controls mctl"></div>'), pic = el('<div class="mchart"></div>'), out = el('<div class="readout"></div>');
+    const ctl = el('<div class="fig-controls mctl"></div>'), pic = el('<div class="mchart"></div>'), out = el('<div class="readout" aria-live="polite"></div>');
     root.append(ctl, pic, out);
     return { ctl, pic, out };
   };
