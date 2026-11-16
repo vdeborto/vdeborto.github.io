@@ -379,11 +379,11 @@
   // ---------------------------------------------------------------- wide diagrams on narrow screens
   // A diagram wider than the column scrolls sideways; say so, and fade the edge that hides more.
   function markScrollers() {
-    page.querySelectorAll('.pfig-scroll, .mapfig .chart, .table-wrap, pre.envelope').forEach((box) => {
+    page.querySelectorAll('.pfig-scroll, .mapfig .chart, .table-wrap, pre.envelope, .code-body').forEach((box) => {
       const over = box.scrollWidth > box.clientWidth + 4;
       box.classList.toggle('can-scroll', over);
       let hint = box.previousElementSibling;
-      if (!hint || !hint.classList.contains('scroll-hint')) { hint = el('<div class="scroll-hint">scroll sideways to see the whole figure →</div>'); box.before(hint); }
+      if (!hint || !hint.classList.contains('scroll-hint')) { hint = el(`<div class="scroll-hint">scroll sideways to see ${box.classList.contains('code-body') ? 'whole lines' : 'the whole figure'} →</div>`); box.before(hint); }
       hint.hidden = !over;
       const edge = () => {
         const end = box.scrollLeft + box.clientWidth >= box.scrollWidth - 4;
@@ -396,6 +396,7 @@
   }
   markScrollers();
   addEventListener('resize', () => requestAnimationFrame(markScrollers));
+  page.addEventListener('toggle', (e) => { if (e.target.matches && e.target.matches('details.code-card') && e.target.open) requestAnimationFrame(markScrollers); }, true);
 
   // ---------------------------------------------------------------- equations that do not fit
   // A display equation written in two forms (.eq-wide, then .eq-narrow) shows the wide one only

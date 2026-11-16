@@ -229,6 +229,26 @@ def add_practice(body):
     return body
 
 
+def add_code(body):
+    """Code cards (Parts 8-11): each <!-- code:NAME --> in the note is replaced by
+    bin/roofline_code.py's card NAME, an excerpt of roofscope at a pinned commit."""
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    import roofline_code
+    blocks = roofline_code.blocks()
+    used = set()
+    def put(m):
+        name = m.group(1)
+        if name not in blocks:
+            problems.append(f"code card {name!r} unknown")
+            return m.group(0)
+        used.add(name)
+        return blocks[name]
+    body = re.sub(r"[ \t]*<!-- code:([\w-]+) -->\n?", put, body)
+    for name in sorted(set(blocks) - used):
+        problems.append(f"code card {name!r} not placed")
+    return body
+
+
 def add_gists(body):
     blocks = re.split(r"<!-- gist:([\w-]+) -->\n", GISTS.read_text())
     for i in range(1, len(blocks), 2):
@@ -282,6 +302,7 @@ def main():
         body = sub_once(body, anchor, figs[name] + anchor, f"{name} anchor")
     body = card_legacy_figures(body)
     body = add_practice(body)
+    body = add_code(body)
     body = add_cards(body)
     body = add_gists(body)
     body = sub_once(body, '  <div class="tiles hero-tiles">', '  <p class="math-key">In the equations, <span class="q-ar">AR quantities are in blue</span> and <span class="q-td">TD quantities in orange</span>, as in the figures. Select any formula to see what its symbols mean.</p>\n  <div class="tiles hero-tiles">', "math key anchor")
@@ -428,7 +449,7 @@ def link_references(pages):
             where[("Part", int(ch[1]))] = (ch[0], None)
     ref = re.compile(r'\b(Figures?|Tables?|Propositions?|Definitions?|Corollary|Remarks?|Parts?)((?:\s|&nbsp;)\d+(?:(?:\s*(?:–|,|and|or)\s*)\d+)*)')
     num = re.compile(r'\d+')
-    skip_open = re.compile(r'<(a|script|svg|style|caption|button|summary|title|h1|h2|nav)\b', re.I)
+    skip_open = re.compile(r'<(a|script|svg|style|caption|button|summary|title|h1|h2|nav|pre)\b', re.I)
     for slug, html in pages.items():
         parts = re.split(r'(<[^>]+>)', html)
         stack, out = [], []
