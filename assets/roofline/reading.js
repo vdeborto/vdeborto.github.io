@@ -79,6 +79,24 @@
     const li = el(`<li${cur ? ' class="current"' : ''}><a href="${cur ? '#top' : c.url}"${cur ? ' class="active" aria-current="page"' : ''}>${labelOf(c)}</a></li>`);
     ol.appendChild(li);
   }
+  // The current chapter lists its sections, and the one being read is highlighted.
+  const heads = [...page.querySelectorAll('section h3[id]')].filter((h) => h.textContent.trim());
+  let subLinks = [];
+  if (here && heads.length > 1) {
+    const sub = el('<ol class="rail-sub"></ol>');
+    for (const h of heads) {
+      const t = h.cloneNode(true); t.querySelectorAll('mjx-assistive-mml, .anchor').forEach((x) => x.remove());
+      const a = el(`<li><a href="#${h.id}"></a></li>`);
+      a.firstChild.textContent = t.textContent.replace(/\s+/g, ' ').trim();
+      sub.appendChild(a); subLinks.push([h, a.firstChild]);
+    }
+    ol.querySelector('li.current').appendChild(sub);
+  }
+  function spy() {
+    let cur = null;
+    for (const [h, a] of subLinks) if (h.getBoundingClientRect().top < 140) cur = a;
+    for (const [, a] of subLinks) a.classList.toggle('on', a === cur);
+  }
   // A chapter page without the rail's switch on narrow screens still gets one under its title.
   const partLine = page.querySelector('.book-part');
   if (partLine) partLine.after(depthSwitch('depth-hero'));
@@ -98,6 +116,7 @@
     const h = document.documentElement.scrollHeight - innerHeight, done = h > 0 ? Math.min(100, (100 * scrollY) / h) : 0;
     bar.style.width = `${done}%`;
     fabPct.textContent = `${Math.round(done)}%`;
+    spy();
   }
   addEventListener('scroll', update, { passive: true });
   addEventListener('resize', update);

@@ -83,6 +83,13 @@
         }
       }
     }
+    for (const ar of opt.areas || []) {
+      // a shaded band between lo and hi, broken where either is missing
+      let seg = [];
+      const flushA = () => { if (seg.length > 1) s += `<polygon points="${[...seg.map(([i, l]) => `${X(i)},${Y(l)}`), ...seg.slice().reverse().map(([i, , h]) => `${X(i)},${Y(h)}`)].join(' ')}" fill="${ar.color}" fill-opacity="0.15"/>`; seg = []; };
+      ar.lo.forEach((l, i) => { const h = ar.hi[i]; if (l == null || h == null) flushA(); else seg.push([i, l, h]); });
+      flushA();
+    }
     if (opt.ref) s += `<line x1="${m.l}" x2="${W - m.r}" y1="${Y(opt.ref.y)}" y2="${Y(opt.ref.y)}" stroke="${c.ink2}" stroke-width="1.3" stroke-dasharray="${opt.ref.dash || ''}"/><text x="${m.l + 6}" y="${Y(opt.ref.y) - 6}" class="halo">${opt.ref.label}</text>`;
     const ends = [];
     for (const sr of series) {
@@ -273,7 +280,58 @@
     draw(); watch(pic, draw);
   }
 
-  const MF = { ladder: mLadder, eff: mEff, comp: mComp, recover: mRecover, vs2: mVs2 };
+  // ---------------------------------------------------------------- Proposition 1 against the measurement
+  function mProp1(root) {
+    const st = { C: Cs[0] };
+    const { ctl, pic, out } = frame(root);
+    ctl.append(contextSeg(st, () => draw()));
+    function draw() {
+      const c = colors(), p = (B) => D.prop1[key(B, st.C)] || {}, g = (B) => D.gains[key(B, st.C)] || {};
+      lineChart(pic, [
+        { label: 'Prop. 1, A2', color: c.muted, width: 1.8, dash: '6 4', ys: Bs.map((B) => p(B).gain_ind ?? null) },
+        { label: 'Prop. 1, measured routing', color: c.ink, width: 2.2, dots: true, bold: true, ys: Bs.map((B) => p(B).gain_meas ?? null) },
+        { label: 'measured', color: c.td, width: 2.8, dots: true, bold: true, ys: Bs.map((B) => (D.gains[key(B, st.C)] ? g(B).measured : null)) },
+      ], {
+        W: widthOf(pic), H: 300, y0: 0, y1: 8, ticks: [0, 1, 2, 3, 4, 5, 6, 7, 8], yFmt: (v) => `${v}×`, yTitle: 'gain Γ, TD over AR',
+        ref: { y: 1, label: 'parity: below it AR is faster' }, out, aria: `Proposition 1 and the measured gain against batch at context ${kc(st.C)}`,
+        hover: (i) => {
+          const q = D.prop1[key(Bs[i], st.C)], r = D.gains[key(Bs[i], st.C)];
+          if (!q || !r) return `B = ${Bs[i]}, C = ${kc(st.C)}: not measured.`;
+          return `<b>B = ${Bs[i]}, C = ${kc(st.C)}</b>: under A2, Π<sub>lin</sub> = ${f2(q.Pi_ind)} and Proposition 1 gives ${f2(q.gain_ind)}; with the measured expert counts, Π<sub>lin</sub> = ${f2(q.Pi_meas)} and it gives ${f2(q.gain_meas)}; measured <b>${f2(r.measured)}</b>.`;
+        },
+        rest: () => `Context ${kc(st.C)}. Hover over or tap a batch to read the penalties and gains.`,
+      });
+    }
+    draw(); watch(pic, draw);
+  }
+
+  // ---------------------------------------------------------------- the experts a pass touches
+  function mRouting(root) {
+    const st = { C: Cs[0], m: 'td' };
+    const { ctl, pic, out } = frame(root);
+    ctl.append(seg('decoder', [['td', 'TD: 256 positions per sequence'], ['ar', 'AR: one token per sequence']], st.m, (v) => { st.m = v; draw(); }), contextSeg(st, () => draw()));
+    function draw() {
+      const c = colors(), R = D.routing[st.m], v = (B, k) => (R[key(B, st.C)] || {})[k] ?? null, col = st.m === 'td' ? c.td : c.ar;
+      lineChart(pic, [
+        { label: 'uniform, independent', color: c.muted, width: 1.8, dash: '2 4', ys: Bs.map((B) => v(B, 'uni')) },
+        { label: 'measured popularity', color: c.muted, width: 1.8, dash: '7 4', ys: Bs.map((B) => v(B, 'pop')) },
+        { label: 'measured', color: col, width: 2.8, dots: true, bold: true, ys: Bs.map((B) => v(B, 'meas')) },
+      ], {
+        W: widthOf(pic), H: 300, y0: 0, y1: 128, ticks: [0, 32, 64, 96, 128], yFmt: (x) => String(x), yTitle: 'distinct experts per layer and pass, U (of 128)',
+        areas: [{ lo: Bs.map((B) => v(B, 'meas_lo')), hi: Bs.map((B) => v(B, 'meas_hi')), color: col }], out,
+        aria: `Distinct experts per layer against batch, ${st.m.toUpperCase()}, context ${kc(st.C)}`,
+        hover: (i) => {
+          const r = R[key(Bs[i], st.C)];
+          if (!r) return `B = ${Bs[i]}, C = ${kc(st.C)}: not measured.`;
+          return `<b>${st.m.toUpperCase()}, B = ${Bs[i]}, C = ${kc(st.C)}</b>, ${Math.round(r.N)} tokens per pass: measured U = <b>${r.meas.toFixed(1)}</b> (repeats ${r.meas_lo.toFixed(0)}–${r.meas_hi.toFixed(0)}), as many as ${r.neff != null ? r.neff.toFixed(1) : '–'} independent uniform tokens; independent tokens with the measured popularity would touch ${r.pop.toFixed(1)}, uniform ones ${r.uni.toFixed(1)}.`;
+        },
+        rest: () => 'The band spans the three repeats. Hover over or tap a batch to read the counts.',
+      });
+    }
+    draw(); watch(pic, draw);
+  }
+
+  const MF = { prop1: mProp1, routing: mRouting, ladder: mLadder, eff: mEff, comp: mComp, recover: mRecover, vs2: mVs2 };
   document.querySelectorAll('[data-mfig]').forEach((root) => {
     try { MF[root.dataset.mfig](root); } catch (e) { root.textContent = 'This figure failed to load.'; console.error(e); }
   });

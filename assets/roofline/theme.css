@@ -431,3 +431,9 @@ html { scroll-behavior: smooth; }
 .bdr table.defs.ints td, .bdr table.defs.ints th { white-space: normal; }
 /* a display equation that still does not fit scrolls sideways instead of being clipped */
 .bdr .eq { max-width: 100%; overflow-x: auto; overflow-y: hidden; scrollbar-width: thin; }
+/* the current chapter's sections in the contents rail */
+.bdr-rail .rail-sub { list-style: none; margin: 4px 0 8px; padding: 0 0 0 10px; border-left: 1px solid var(--rule); }
+.bdr-rail .rail-sub li { margin: 2px 0; }
+.bdr-rail .rail-sub a { color: var(--bdr-muted); font-size: 11.5px; line-height: 1.35; display: block; }
+.bdr-rail .rail-sub a:hover { color: var(--accent); }
+.bdr-rail .rail-sub a.on { color: var(--accent); }

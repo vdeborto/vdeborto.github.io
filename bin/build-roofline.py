@@ -421,7 +421,9 @@ def practice_json():
     out = {"Bs": d["Bs"], "Cs": d["Cs"],
            "gains": {k: {kk: v.get(kk) for kk in keep["gains"]} for k, v in d["gains"].items()},
            "eta2": d["eta2"], "eta3": d["eta3"], "share": d["share"], "recoverable": d["recoverable"],
-           "vs2": {"td": {k: {"ratio": v["ratio"]} for k, v in d["vs2"]["td"].items()}}}
+           "vs2": {"td": {k: {"ratio": v["ratio"]} for k, v in d["vs2"]["td"].items()}},
+           "prop1": {k: {kk: v[kk] for kk in ("gain_ind", "gain_meas", "Pi_ind", "Pi_meas")} for k, v in d["prop1"]["fp8_empirical"]["pts"].items()},
+           "routing": {m: {k: {kk: v[kk] for kk in ("N", "uni", "pop", "meas", "meas_lo", "meas_hi", "neff")} for k, v in d["routing"][m].items()} for m in d["routing"]}}
     return json.dumps(clean(out), separators=(",", ":"))
 
 
