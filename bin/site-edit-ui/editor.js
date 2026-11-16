@@ -93,12 +93,27 @@
         <span class="se-file"></span>
         <select class="se-alt" title="Other places where this text was found" hidden></select>
         <span class="se-sp"></span>
+        <button type="button" data-p="above" class="se-add" title="Write a new paragraph above this block">+ Above</button>
+        <button type="button" data-p="below" class="se-add" title="Write a new paragraph below this block">+ Below</button>
         <button type="button" data-p="whole" title="Edit the whole file">Whole file</button>
         <button type="button" data-p="open" title="Open the file at this line in Emacs">Emacs</button>
         <button type="button" data-p="cancel" title="Close without saving (Esc)">Cancel</button>
         <button type="button" data-p="save" class="se-save" title="Save (⌘S)">Save</button>
       </div>
       <div class="se-note"></div>
+      <div class="se-fmt" role="toolbar" aria-label="Formatting">
+        <button type="button" data-f="bold" title="Bold (⌘B)"><b>B</b></button>
+        <button type="button" data-f="italic" title="Italic (⌘I)"><i>I</i></button>
+        <button type="button" data-f="underline" title="Underline (⌘U)"><u>U</u></button>
+        <button type="button" data-f="strike" title="Strike through"><s>S</s></button>
+        <button type="button" data-f="code" title="Code">Code</button>
+        <button type="button" data-f="link" title="Link (⌘K)">Link</button>
+        <button type="button" data-f="math" title="Inline formula (TeX)">Math</button>
+        <span class="se-fsep"></span>
+        <button type="button" data-f="ul" data-block title="Bulleted list: one item per line">• List</button>
+        <button type="button" data-f="ol" data-block title="Numbered list: one item per line">1. List</button>
+        <button type="button" data-f="h" data-block title="Heading">Heading</button>
+      </div>
       <textarea class="se-src" spellcheck="true" autocapitalize="off" autocomplete="off"></textarea>
       <pre class="se-err" hidden></pre>
     </div>`);
@@ -129,7 +144,7 @@
   function showMatch(i) {
     restoreBlock();
     const m = cur.matches[i];
-    cur.match = m; cur.whole = false;
+    cur.match = m; cur.whole = false; cur.insert = null;
     ta.value = m.source; ta.dataset.old = m.source;
     panel.querySelector('.se-file').textContent = `${m.file} · line ${m.start}${m.end > m.start ? '–' + m.end : ''}`;
     altSel.hidden = cur.matches.length < 2;
@@ -137,20 +152,36 @@
     const notes = [];
     if (m.score < 0.75) notes.push('The match is approximate: check that this is the text you clicked, or pick another match.');
     if (m.kind === 'code') notes.push('This text sits in a program file: edit only the words inside the quotes.');
-    if (m.book) notes.push('Book text: saving rebuilds the book (a few seconds); a save that breaks the build is undone. Math is TeX between \\( \\) or \\[ \\]. This is HTML, not Markdown: a list is <ul><li>…</li><li>…</li></ul> after a blank line, bold is <b>…</b>, a link is <a href="…">…</a>.');
-    if (m.kind === 'md') notes.push('Markdown: **bold**, *italic*, [text](link). A blank line starts a new paragraph.');
+    if (m.book) notes.push('Book text: saving rebuilds the book (a few seconds); a save that breaks the build is undone.');
+    if (m.mdmode === 'block') notes.push('Markdown works here (HTML too): select text and use the buttons, or start lines with "- " for a list. A blank line starts a new paragraph. Math is TeX between \\( \\) or \\[ \\].');
+    if (m.mdmode === 'inline') notes.push('One sentence: **bold**, *italic* and [links](…) work; lists and paragraphs do not. Math is TeX between \\( \\).');
+    if (m.kind === 'md') notes.push('Markdown: select text and use the buttons, or start lines with "- " for a list. A blank line starts a new paragraph. Math is TeX between $ $.');
     if (m.kind === 'bib') notes.push('BibTeX: keep the braces and the comma at the end of each field.');
     noteEl.textContent = notes.join(' ');
     errEl.hidden = true;
+    tools();
     fit();
+  }
+  // The formatting buttons where the file takes Markdown; "add a block" where a block can be added.
+  function tools() {
+    const m = cur.match, mdOK = m.kind === 'md' || !!m.mdmode;
+    panel.querySelector('.se-fmt').hidden = !mdOK;
+    panel.querySelectorAll('.se-fmt [data-block], .se-fsep').forEach((b) => { b.hidden = m.mdmode === 'inline'; });
+    const canAdd = !cur.whole && cur.block.isConnected && (m.kind === 'md' || m.kind === 'html') && m.mdmode !== 'inline';
+    panel.querySelectorAll('.se-add').forEach((b) => { b.hidden = !canAdd; });
   }
   altSel.addEventListener('change', () => showMatch(+altSel.value));
 
   function fit() { ta.style.height = 'auto'; ta.style.height = Math.min(ta.scrollHeight + 4, innerHeight * 0.4) + 'px'; }
 
   // ------------------------------------------------------------------ live preview in place
-  let md = null;
-  function renderSource(src, kind) {
+  let md = null, previewSeq = 0;
+  async function renderSource(src, m) {
+    const kind = m.kind;
+    if (m.mdmode) {
+      try { const r = await post('render', { file: m.file, text: src }); if (r.ok) return r.html; } catch (e) { /* fall back to raw */ }
+      return src;
+    }
     if (kind === 'md') {
       if (!md && window.markdownit) md = window.markdownit({ html: true, linkify: false, typographer: false });
       const body = src.replace(/^\s*\{:[^}]*\}\s*$/gm, '');
@@ -162,6 +193,7 @@
   }
   function restoreBlock() {
     if (!cur) return;
+    if (cur.newNode) { cur.newNode.remove(); cur.newNode = null; }
     if (cur.previewNode && cur.previewNode.isConnected) cur.previewNode.replaceWith(cur.block);
     cur.previewNode = null;
     if (cur.block.isConnected) cur.block.innerHTML = cur.original.innerHTML;
@@ -170,9 +202,16 @@
   function preview() {
     if (!cur || cur.whole) return;
     clearTimeout(previewTimer);
-    previewTimer = setTimeout(() => {
-      const h = renderSource(ta.value, cur.match.kind);
-      if (h == null) return;
+    previewTimer = setTimeout(async () => {
+      const seq = ++previewSeq;
+      const h = await renderSource(ta.value, cur.match);
+      if (h == null || !cur || seq !== previewSeq || cur.whole) return;
+      if (cur.insert) {  // a new block: drawn in its placeholder next to the clicked block
+        const n = cur.newNode;
+        if (cur.insert.item) { const f = document.createElement('div'); f.innerHTML = h; const li = f.querySelector('li'); n.innerHTML = li ? li.innerHTML : h; } else n.innerHTML = h;
+        if (window.MathJax && MathJax.typesetPromise) MathJax.typesetPromise([n]).catch(() => {});
+        return;
+      }
       const frag = document.createElement('div');
       frag.innerHTML = h;
       // Same element in the source as on the page (a paragraph for a paragraph): keep the page's own
@@ -196,6 +235,91 @@
     }, 120);
   }
   ta.addEventListener('input', () => { fit(); preview(); });
+
+  // ------------------------------------------------------------------ formatting buttons
+  function changed() { ta.focus(); ta.dispatchEvent(new Event('input')); }
+  function wrapSel(a, b, placeholder) {
+    let s = ta.selectionStart, e = ta.selectionEnd; const v = ta.value;
+    while (s < e && /\s/.test(v[s])) s++;
+    while (e > s && /\s/.test(v[e - 1])) e--;
+    const sel = v.slice(s, e);
+    if (v.slice(s - a.length, s) === a && v.slice(e, e + b.length) === b) ta.setRangeText(sel, s - a.length, e + b.length, 'select');
+    else if (sel.length >= a.length + b.length && sel.startsWith(a) && sel.endsWith(b)) ta.setRangeText(sel.slice(a.length, sel.length - b.length), s, e, 'select');
+    else { const inner = sel || placeholder; ta.setRangeText(a + inner + b, s, e, 'end'); ta.setSelectionRange(s + a.length, s + a.length + inner.length); }
+    changed();
+  }
+  const MARK = /^\s*([-*+]|\d+[.)])\s+/;
+  function prefixLines(kind) {
+    const v = ta.value, s = ta.selectionStart, e = ta.selectionEnd;
+    const ls = v.lastIndexOf('\n', s - 1) + 1;
+    let le = v.indexOf('\n', e > s && v[e - 1] === '\n' ? e - 1 : e); if (le < 0) le = v.length;
+    const lines = v.slice(ls, le).split('\n');
+    const re = kind === 'h' ? /^#{1,6}\s+/ : MARK;
+    const full = lines.filter((l) => l.trim());
+    const off = full.length && full.every((l) => re.test(l) && (kind === 'h' || /\d/.test(l.trim()[0]) === (kind === 'ol')));
+    let n = 0;
+    const out = lines.map((l) => {
+      if (!l.trim()) return l;
+      if (off) return l.replace(re, '');
+      const t = l.trim().replace(MARK, '').replace(/^#{1,6}\s+/, '').replace(/^<p>([\s\S]*)<\/p>$/, '$1');
+      n++; return kind === 'ul' ? '- ' + t : kind === 'ol' ? n + '. ' + t : '### ' + t;
+    });
+    let txt = full.length ? out.join('\n') : (kind === 'ul' ? '- ' : kind === 'ol' ? '1. ' : '### ');
+    // A list or a heading is a block of its own: a blank line before and after it, next to other text.
+    const before = v.slice(0, ls).replace(/\n$/, ''), prevLine = before.slice(before.lastIndexOf('\n') + 1);
+    const nextLine = v.slice(le + 1).split('\n')[0];
+    if (!off && ls > 0 && prevLine.trim() && !(kind !== 'h' && MARK.test(prevLine))) txt = '\n' + txt;
+    if (!off && le < v.length && nextLine.trim() && !(kind !== 'h' && MARK.test(nextLine))) txt += '\n';
+    ta.setRangeText(txt, ls, le, full.length ? 'select' : 'end');
+    changed();
+  }
+  function format(f) {
+    if (!cur || panel.querySelector('.se-fmt').hidden) return;
+    const book = !!cur.match.mdmode;
+    if (f === 'bold') wrapSel('**', '**', 'bold text');
+    if (f === 'italic') wrapSel('*', '*', 'italic text');
+    if (f === 'underline') wrapSel('<u>', '</u>', 'underlined text');
+    if (f === 'strike') wrapSel('~~', '~~', 'struck text');
+    if (f === 'code') wrapSel('`', '`', 'code');
+    if (f === 'math') wrapSel(book ? '\\(' : '$', book ? '\\)' : '$', 'x');
+    if (f === 'link') {
+      const url = prompt('Link address (https://…, or /path on this site)', 'https://');
+      if (url && url !== 'https://') wrapSel('[', '](' + url.trim() + ')', 'link text'); else ta.focus();
+    }
+    if (f === 'ul' || f === 'ol' || f === 'h') prefixLines(f);
+  }
+  panel.querySelector('.se-fmt').addEventListener('mousedown', (ev) => ev.preventDefault()); // keep the selection
+  panel.querySelector('.se-fmt').addEventListener('click', (ev) => { const b = ev.target.closest('button'); if (b) format(b.dataset.f); });
+  ta.addEventListener('keydown', (ev) => {
+    if (!(ev.metaKey || ev.ctrlKey) || ev.altKey || ev.shiftKey) return;
+    const f = { b: 'bold', i: 'italic', u: 'underline', k: 'link' }[ev.key.toLowerCase()];
+    if (f && !panel.querySelector('.se-fmt').hidden) { ev.preventDefault(); format(f); }
+  });
+
+  // ------------------------------------------------------------------ a new block above or below
+  function startInsert(where) {
+    restoreBlock();
+    const m = cur.match, b = cur.block;
+    const item = b.tagName === 'LI';
+    cur.insert = { where, item };
+    const node = document.createElement(item ? 'li' : 'div');
+    node.className = 'se-preview se-new';
+    if (where === 'above') b.before(node); else b.after(node);
+    cur.newNode = node;
+    let pre = '';
+    const first = m.source.split('\n')[where === 'above' ? 0 : m.source.split('\n').length - 1];
+    if (item && m.kind === 'md') { const k = first.match(/^(\s*)([-*+]|\d+[.)])\s/); pre = k ? k[1] + (/\d/.test(k[2]) ? '1.' : k[2]) + ' ' : '- '; }
+    if (item && m.kind === 'html') pre = '<li></li>';
+    ta.value = pre; ta.dataset.old = m.source;
+    panel.querySelector('.se-file').textContent = `new ${item ? 'list item' : 'block'} ${where} ${m.file} · line ${where === 'above' ? m.start : m.end}`;
+    noteEl.textContent = (item ? 'A new list item next to the one you clicked. ' : 'A new paragraph (or list, heading…) next to the block you clicked; a blank line inside starts another paragraph. ') +
+      (m.kind === 'md' || m.mdmode ? 'Markdown works, with the buttons below. ' : 'This file is HTML. ') + (m.book ? 'Saving rebuilds the book.' : '');
+    panel.querySelectorAll('.se-add').forEach((x) => { x.hidden = true; });
+    altSel.hidden = true;
+    fit(); ta.focus();
+    if (pre === '<li></li>') ta.setSelectionRange(4, 4);
+    preview();
+  }
 
   // Paste or drop an image: it is saved under assets/img/uploads/ and a link is inserted.
   async function addFiles(files) {
@@ -239,9 +363,10 @@
     errEl.hidden = true;
     const t0 = Date.now() / 1000;
     const req = cur.whole ? { file: cur.match.file, whole: true, old: ta.dataset.old, new: ta.value }
+      : cur.insert ? { file: cur.match.file, start: cur.match.start, end: cur.match.end, old: cur.match.source, where: cur.insert.where === 'above' ? 'before' : 'after', item: cur.insert.item, text: ta.value }
       : { file: cur.match.file, start: cur.match.start, end: cur.match.end, old: ta.dataset.old, new: ta.value };
     let r;
-    try { r = await post('save', req); } catch (e) { r = { ok: false, error: 'The editor is not running (bin/site-edit).' }; }
+    try { r = await post(cur.insert ? 'insert' : 'save', req); } catch (e) { r = { ok: false, error: 'The editor is not running (bin/site-edit).' }; }
     btn.disabled = false; btn.textContent = 'Save';
     if (!r.ok) { errEl.textContent = r.error; errEl.hidden = false; return; }
     if (r.unchanged) { closePanel(true); say('No change.'); return; }
@@ -253,13 +378,15 @@
     const a = ev.target.closest('button') && ev.target.closest('button').dataset.p;
     if (a === 'save') doSave();
     if (a === 'cancel') closePanel(true);
+    if ((a === 'above' || a === 'below') && cur && !cur.whole) startInsert(a);
     if (a === 'open') post('open', { file: cur.match.file, line: cur.match.start });
     if (a === 'whole' && cur && !cur.whole) {
       const r = await get('file?file=' + encodeURIComponent(cur.match.file));
       if (!r.ok) return say(r.error, 'err');
       restoreBlock();
       const line = cur.match.start;
-      cur.whole = true; ta.value = r.content; ta.dataset.old = r.content;
+      cur.whole = true; cur.insert = null; ta.value = r.content; ta.dataset.old = r.content;
+      cur.match = Object.assign({}, cur.match, { mdmode: r.mdmode, kind: r.kind }); tools();
       panel.querySelector('.se-file').textContent = r.file + ' · whole file';
       noteEl.textContent = 'The whole file. The page is redrawn after saving.';
       ta.style.height = innerHeight * 0.4 + 'px';
@@ -273,7 +400,7 @@
     const r = await get('file?page=' + encodeURIComponent(location.pathname));
     if (!r.ok) return say(r.error, 'warn', 6000);
     if (panel.isConnected) closePanel(true);
-    cur = { block: document.createElement('div'), original: document.createElement('div'), matches: [{ file: r.file, start: 1, end: 1, source: r.content, kind: r.kind, book: r.book, score: 1 }], whole: false };
+    cur = { block: document.createElement('div'), original: document.createElement('div'), matches: [{ file: r.file, start: 1, end: 1, source: r.content, kind: r.kind, book: r.book, mdmode: r.mdmode, score: 1 }], whole: false };
     showMatch(0);
     document.body.appendChild(panel); document.documentElement.classList.add('se-panel-open');
     panel.querySelector('[data-p="whole"]').click();
@@ -329,6 +456,8 @@
         <li><b>Edit</b> (or the E key) turns edit mode on. Click any paragraph, heading, list item, caption or cell: the panel below shows the source text that produced it, and the block is redrawn as you type.</li>
         <li><b>Save</b> (⌘S) writes the file; the page reloads at the same place once the site is rebuilt. <b>Esc</b> closes without saving. <b>Undo</b> reverts the last save, as many times as needed.</li>
         <li>Paste or drop an image (or a PDF) into the source: it is saved under <code>assets/img/uploads/</code> and linked.</li>
+        <li>Formatting: select text and press <b>B</b>, <i>I</i>, <u>U</u>, Link… (or ⌘B, ⌘I, ⌘U, ⌘K). Markdown works on every page, the book included: <code>**bold**</code>, <code>*italic*</code>, <code>[text](link)</code>, lines starting with <code>- </code> for a list.</li>
+        <li><b>+ Above</b> / <b>+ Below</b> in the panel write a new paragraph next to the block you clicked (a new item, if you clicked a list item).</li>
         <li><b>Page source</b> edits the whole file of the page (to add a section, say); <b>Emacs</b> opens the file at that line.</li>
         <li><b>+ News</b> adds a dated news item to the homepage. Publications are entries of <code>_bibliography/papers.bib</code>: click a title to edit its entry.</li>
         <li>Nothing is online until <b>Publish</b>, which commits and pushes; the site is live about 3 minutes later.</li>

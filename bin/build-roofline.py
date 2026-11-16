@@ -49,6 +49,9 @@ import re
 import sys
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import mdlite  # Markdown on top of the HTML of the text files (bin/mdlite.py)  # noqa: E402
+
 SRC = Path.home() / "code/diffusion-roofline/site/block-diffusion-rooflines.html"
 ROOT = Path(__file__).resolve().parent.parent
 SLUG = "block-diffusion-rooflines-6f924020"
@@ -162,14 +165,14 @@ def scope_css(css):
 def figures():
     text = FIGS.read_text()
     blocks = re.split(r"<!-- fig:([\w-]+) -->\n", text)
-    return {blocks[i]: blocks[i + 1].rstrip() + "\n" for i in range(1, len(blocks), 2)}
+    return {blocks[i]: mdlite.render(blocks[i + 1].rstrip()) + "\n" for i in range(1, len(blocks), 2)}
 
 
 def add_cards(body):
     """Insert each card's "more" panel just before the card's closing tag."""
     blocks = re.split(r"<!-- card:(.+?) -->\n", CARDS.read_text())
     for i in range(1, len(blocks), 2):
-        prefix, more = blocks[i], blocks[i + 1].rstrip()
+        prefix, more = blocks[i], mdlite.render(blocks[i + 1].rstrip())
         pat = re.compile(r'(<div class="card[^"]*"><div class="card-k">' + re.escape(prefix) + r'.*?</p>)(</div>)', re.S)
         body, n = pat.subn(lambda m: m.group(1) + "\n" + more + "\n" + m.group(2), body, count=1)
         if n != 1:
@@ -253,7 +256,7 @@ def add_code(body):
 def add_gists(body):
     blocks = re.split(r"<!-- gist:([\w-]+) -->\n", GISTS.read_text())
     for i in range(1, len(blocks), 2):
-        bid, gist = blocks[i], blocks[i + 1].strip()
+        bid, gist = blocks[i], mdlite.render_inline(blocks[i + 1].strip())
         pat = re.compile(r'(<div class="box [^"]*" id="' + re.escape(bid) + r'">\s*<div class="title">.*?</div>)', re.S)
         body, n = pat.subn(lambda m: m.group(1) + f'\n    <p class="gist"><span>In short.</span> {gist}</p>', body, count=1)
         if n != 1:
@@ -274,6 +277,7 @@ def main():
     body = src[src.index('<main class="main">') + len('<main class="main">'): src.index("</main>")]
     body = re.sub(r'\s*<div class="eyebrow">.*?</div>', "", body, count=1)
     body = re.sub(r"\s*<h1>.*?</h1>", "", body, count=1)
+    body = mdlite.render(body)
     body = sub_once(body, "The page is self-contained: the cost model is the <code>BDModel</code> script embedded in it (view the page source), and the site lives in the private GitHub repository <code>vdeborto/diffusion-roofline</code>, whose history is the changelog.",
                     "The cost model is the <code>BDModel</code> script in <code>/assets/roofline/note.js</code>, which every chapter loads.", "private repo sentence")
     # Interactive figures, in reading order. Figure numbers follow the page.
@@ -635,16 +639,13 @@ def split_book(body):
         chunks[src] = re.sub(r'href="#([\w-]+)"', relink, chunks[src])
 
     def intro_html(t):
-        """One paragraph stays <p class="chapter-intro">. Blank lines separate paragraphs, and a
-        chunk that opens with a block tag (<ul>, <ol>, <p>, ...) is kept as written; the whole
-        intro is then a <div class="chapter-intro">, since a <p> cannot hold a list."""
-        parts = [c.strip() for c in re.split(r"\n\s*\n", t) if c.strip()]
-        block = re.compile(r"<(ul|ol|p|div|table|figure|blockquote|details|pre|h[1-6])\b", re.I)
-        if len(parts) == 1 and not block.search(parts[0]):
-            return f'<p class="chapter-intro">{parts[0]}</p>'
-        if any(block.search(c) and not block.match(c) for c in parts):
-            problems.append("chapter intro: put a list or other block after a blank line, not inside a sentence")
-        return '<div class="chapter-intro">' + "".join(c if block.match(c) else f"<p>{c}</p>" for c in parts) + "</div>"
+        """The intro in Markdown or HTML (bin/mdlite.py): one paragraph is <p class="chapter-intro">,
+        several blocks (paragraphs, a list) are a <div class="chapter-intro">."""
+        h = mdlite.render(t).strip()
+        one = re.fullmatch(r"<p>(.*)</p>", h, re.S)
+        if one and "<p" not in one.group(1) and "</p>" not in one.group(1):
+            return f'<p class="chapter-intro">{one.group(1)}</p>'
+        return f'<div class="chapter-intro">{h}</div>'
 
     blocks = re.split(r"<!-- intro:([\w-]+) -->\n", INTROS.read_text())
     intros = {blocks[i]: blocks[i + 1].strip() for i in range(1, len(blocks), 2)}

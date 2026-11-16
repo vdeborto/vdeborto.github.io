@@ -46,6 +46,12 @@ folders and pushes. Sources are found by matching the block's words against the 
 styles are in `bin/site-edit-ui/`. It listens on 127.0.0.1 only and refuses API calls from other
 origins; logs are in `~/Library/Application Support/site-edit/`.
 
+The panel has formatting buttons (bold, italic, underline, link, lists, heading) and "+ Above / + Below"
+to insert a new block. The book's text files accept Markdown on top of their HTML (`bin/mdlite.py`:
+emphasis, links, code, lists, `###` headings, blank-line paragraphs); the build and the editor's
+preview both run it, and it leaves the existing HTML unchanged. The standalone private copy of the book
+(`~/code/diffusion-roofline`) shows such Markdown as typed.
+
 ## Building locally
 
 ```bash

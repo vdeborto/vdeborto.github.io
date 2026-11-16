@@ -24,6 +24,12 @@ html.se-panel-open body { padding-bottom: 50vh !important; }
 .se-alt { font-size: 12px; max-width: 46ch; }
 .se-panel .se-save { background: #2f7d63; border-color: #2f7d63; color: #fff; font-weight: 600; }
 .se-note { font-size: 12px; color: #6b6a64; min-height: 0; }
+.se-fmt { display: flex; gap: 4px; align-items: center; flex-wrap: wrap; }
+.se-fmt[hidden], .se-fmt [hidden], .se-head [hidden] { display: none !important; }
+.se-ui .se-fmt button { padding: 3px 9px; font-size: 12.5px; min-width: 30px; }
+.se-fmt .se-fsep { width: 1px; height: 18px; background: #d6d3cb; margin: 0 4px; }
+.se-ui .se-add { color: #1f5f8b; border-color: #9fb9cc; }
+.se-new { min-height: 1.6em; background: rgba(47, 125, 99, .05); }
 .se-src { width: 100%; min-height: 80px; resize: vertical; font: 14px/1.5 ui-monospace, Menlo, monospace !important; padding: 8px 10px;
   border: 1px solid #cfccc4; border-radius: 7px; background: #fff; color: #1d1d1f; tab-size: 2; }
 .se-src:focus { outline: 2px solid #1f5f8b; outline-offset: 0; }

@@ -35,6 +35,9 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(REPO / "bin"))
+import mdlite  # the Markdown the book build accepts; the preview uses the same code  # noqa: E402
+
 UI = REPO / "bin" / "site-edit-ui"
 BOOK_REPO = Path.home() / "code" / "diffusion-roofline"
 BOOK_SRC = BOOK_REPO / "site" / "block-diffusion-rooflines.html"
@@ -191,6 +194,7 @@ def locate(page: str, text: str):
             if f["end"] <= lines[1:].index("---") + 2:  # inside the front matter: a YAML line
                 f["kind"] = "yml"
         f["book"] = is_book(f["path"])
+        f["mdmode"] = md_mode(f["path"])
         f["file"] = show(f["path"])
         del f["path"]
     return found
@@ -281,6 +285,62 @@ def undo():
                 return {"ok": False, "error": "Undone, but the book did not build:\n\n" + out[-3000:]}
         log("undid", show(path))
         return {"ok": True, "file": show(path), "left": len(undo_stack)}
+
+
+def md_mode(path: Path):
+    """How the book build reads a file's text: "block" (Markdown blocks and inline), "inline" (a
+    gist, which the page puts inside a paragraph), or None (not run through bin/mdlite.py)."""
+    if path == REPO / "_roofline" / "gists.html":
+        return "inline"
+    if path == BOOK_SRC or path in [REPO / f"_roofline/{n}.html" for n in ("intros", "cards", "figures")]:
+        return "block"
+    return None
+
+
+def render_preview(req):
+    path, text = resolve_shown(req["file"]), req.get("text", "")
+    mode = md_mode(path)
+    h = mdlite.render(text) if mode == "block" else mdlite.render_inline(text) if mode == "inline" else text
+    return {"ok": True, "html": h}
+
+
+def insert(req):
+    """Insert a new block before or after the located lines: a paragraph (blank lines around it) or,
+    with "item", a list item right next to the clicked one."""
+    path = resolve_shown(req["file"])
+    if not allowed(path):
+        return {"ok": False, "error": f"The editor does not write {req['file']}."}
+    text = req.get("text", "").strip("\n")
+    if not text.strip():
+        return {"ok": False, "error": "The new block is empty."}
+    after = req.get("where", "after") == "after"
+    with lock:
+        content = path.read_text()
+        lines = content.split("\n")
+        a, b = int(req["start"]) - 1, int(req["end"])
+        if "\n".join(lines[a:b]) != req["old"]:
+            if content.count(req["old"]) != 1:
+                return {"ok": False, "error": "The text changed on disk since it was opened. Click the block again."}
+            a = content[:content.index(req["old"])].count("\n")
+            b = a + req["old"].count("\n") + 1
+        new = text.split("\n")
+        if req.get("item"):
+            at = b if after else a
+            new_lines = lines[:at] + new + lines[at:]
+        else:
+            if kind_of(path) == "md":  # whole paragraphs: move to the blank line
+                while after and b < len(lines) and lines[b].strip():
+                    b += 1
+                while not after and a > 0 and lines[a - 1].strip():
+                    a -= 1
+            at = b if after else a
+            if kind_of(path) == "html":
+                ind = re.match(r"[ \t]*", lines[a]).group(0)
+                new = [ind + ln if ln.strip() else ln for ln in new]
+            pre = [""] if at > 0 and lines[at - 1].strip() else []
+            post = [""] if at < len(lines) and lines[at].strip() else []
+            new_lines = lines[:at] + pre + new + post + lines[at:]
+        return write_checked(path, "\n".join(new_lines), content)
 
 
 def new_news(req):
@@ -488,7 +548,7 @@ class Handler(BaseHTTPRequestHandler):
             path = source_of_page(page) if page else resolve_shown(q["file"][0])
             if not path or not allowed(path):
                 return self.json({"ok": False, "error": "No source file is known for this page."})
-            return self.json({"ok": True, "file": show(path), "content": path.read_text(), "kind": kind_of(path), "book": is_book(path)})
+            return self.json({"ok": True, "file": show(path), "content": path.read_text(), "kind": kind_of(path), "book": is_book(path), "mdmode": md_mode(path)})
         return self.proxy()
 
     def do_POST(self):
@@ -501,7 +561,8 @@ class Handler(BaseHTTPRequestHandler):
                 return self.json(upload(q.get("name", ["image.png"])[0], self.body()))
             req = json.loads(self.body() or b"{}")
             route = {"/__edit/locate": lambda: {"ok": True, "matches": locate(req.get("page", "/"), req.get("text", ""))},
-                     "/__edit/save": lambda: save(req), "/__edit/undo": undo, "/__edit/news": lambda: new_news(req),
+                     "/__edit/save": lambda: save(req), "/__edit/insert": lambda: insert(req),
+                     "/__edit/render": lambda: render_preview(req), "/__edit/undo": undo, "/__edit/news": lambda: new_news(req),
                      "/__edit/publish": lambda: publish(req), "/__edit/open": lambda: open_in_editor(req),
                      "/__edit/quit": quit_soon}.get(u.path)
             if not route:
