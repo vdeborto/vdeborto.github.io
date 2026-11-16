@@ -497,3 +497,14 @@ html { scroll-behavior: smooth; }
   .bdr mjx-container:not([display="true"]) { display: inline-block; max-width: 100%; overflow-x: auto; overflow-y: hidden; vertical-align: middle; scrollbar-width: none; }
   .bdr details.answer, .bdr details.proof { overflow-x: hidden; }
 }
+/* figures with a phone layout: the wide one above 600 px, the narrow one below */
+.bdr .v-narrow { display: none; }
+@media (max-width: 600px) { .bdr .v-wide { display: none; } .bdr .v-narrow { display: block; } }
+.bdr .map-narrow { font: 13px/1.45 var(--bdr-font-ui); }
+.bdr .map-narrow .mn-h { font-weight: 600; letter-spacing: .06em; text-transform: uppercase; font-size: 11px; color: var(--bdr-muted); margin: 6px 0 4px; }
+.bdr .map-narrow ol { list-style: none; margin: 0 0 8px; padding: 0; display: grid; gap: 5px; }
+.bdr .map-narrow li a { display: block; padding: 6px 10px; border: 1px solid var(--bdr-muted); border-radius: 6px; color: var(--bdr-ink-2); text-decoration: none; background: var(--bdr-surface); }
+.bdr .map-narrow ol.mn-h200 li a { border-color: var(--bdr-td); }
+.bdr .map-narrow li a b { color: var(--ink); font-weight: 600; }
+.bdr .map-narrow .mn-p { color: var(--bdr-muted); font-size: 11px; letter-spacing: .06em; text-transform: uppercase; margin-right: 4px; }
+.bdr .map-narrow .mn-also { color: var(--bdr-ink-2); }
