@@ -454,3 +454,34 @@ html { scroll-behavior: smooth; }
 .xref-card .xt { font-weight: 600; margin: 2px 0 4px; }
 .xref-card p { margin: 0 0 8px; }
 .bdr .mchart svg:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 2px; }
+/* chart readouts: a heading and label / value pairs */
+.bdr .readout .ro-h { font-weight: 500; color: var(--ink); margin-bottom: 2px; }
+.bdr .readout .ro-g { display: grid; grid-template-columns: max-content 1fr; gap: 1px 14px; }
+.bdr .readout .ro-l { color: var(--bdr-muted); }
+.bdr .readout .ro-v { color: var(--ink); font-variant-numeric: tabular-nums; }
+.bdr .readout .ro-l.td, .bdr .readout .ro-v.td { color: var(--bdr-td); }
+.bdr .readout .ro-l.ar, .bdr .readout .ro-v.ar { color: var(--bdr-ar); }
+.bdr .readout .ro-l.hi, .bdr .readout .ro-v.hi { color: var(--accent); font-weight: 500; }
+@media (max-width: 520px) { .bdr .readout .ro-g { grid-template-columns: 1fr; } .bdr .readout .ro-v { margin-bottom: 3px; } }
+/* wide diagrams that scroll on narrow screens */
+.bdr .scroll-hint { font: 11.5px var(--bdr-font-ui); color: var(--bdr-muted); margin: 0 0 4px; }
+.bdr .pfig-scroll.can-scroll:not(.at-end) { -webkit-mask-image: linear-gradient(to right, #000 80%, transparent); mask-image: linear-gradient(to right, #000 80%, transparent); }
+@media (max-width: 600px) {
+  .bdr .mapfig .chart { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .bdr .mapfig .chart > svg { min-width: 540px; }
+  .bdr .mapfig .chart.can-scroll:not(.at-end) { -webkit-mask-image: linear-gradient(to right, #000 80%, transparent); mask-image: linear-gradient(to right, #000 80%, transparent); }
+}
+/* one caption style for every figure: serif, like the captions of figures.js */
+.bdr .bdr-card .fig-sub { font: .98rem/1.5 var(--bdr-font-body); color: var(--bdr-ink-2); margin: 0 0 10px; }
+.bdr .mapfig .note, .bdr .bdr-card .note { font: .9rem/1.55 var(--bdr-font-body); color: var(--bdr-ink-2); }
+.bdr details.numbers > summary { font-size: 12.5px; color: var(--bdr-ink-2); }
+/* Part 3: the batch-1 envelope as a table */
+.bdr table.env td, .bdr table.env th { vertical-align: top; }
+.bdr table.env .muted { font-size: .85em; color: var(--bdr-muted); }
+.bdr table.env tr.tot td { border-top: 1px solid var(--rule); }
+/* calculator: the verdict's headline sticks to the top on phones */
+.bdr .calc-sticky { display: none; }
+@media (max-width: 760px) {
+  .bdr .calc-sticky { display: block; position: sticky; top: 56px; z-index: 4; margin: -16px -16px 12px; padding: 8px 16px;
+    background: var(--bdr-surface); border-bottom: 1px solid var(--accent); font: 600 14px var(--bdr-font-body); color: var(--ink); }
+}

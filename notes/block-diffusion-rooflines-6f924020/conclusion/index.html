@@ -306,7 +306,7 @@
 <section class="bdr-col" id="conclusion">
   <p class="chapter-intro">This chapter sets the measured gain against the bound at measured inputs, shows that their ratio is the ratio of the two decoders' efficiencies, and states what the roofline model gets right, what it needs, and what remains open.</p>
   <h3 id="conc-bound">The bound against the measurement</h3>
-  <p><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/effective/">Part 8</a> gave the bound at measured ceilings and routing, map (c) of <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/effective/#figure-26">Figure 26</a>; Parts <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/stack/">9</a> and <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/kernels/">10</a> measured both decoders with every kernel attributed and the two worst kernels rewritten. The measured gain can now be set against the bound.</p>
+  <p><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/effective/">Part 8</a> gave the bound at measured ceilings and routing, map (c) of <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/effective/#figure-26">Figure 26</a>; <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/stack/">Parts 9</a> and <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/kernels/">10</a> measured both decoders with every kernel attributed and the two worst kernels rewritten. The measured gain can now be set against the bound.</p>
   <div class="bdr-fig pfig" id="fig-conc-maps">
     <div class="fig-k" id="figure-41">Figure 41 · interactive</div>
     <p class="fig-title">The measured gain against the bound at measured routing and empirical ceilings.</p>
@@ -318,9 +318,9 @@
     <div class="bdr-title">
 <span class="tag">Proposition 9</span>The measured gain is the bound times a ratio of efficiencies</div>
     <p class="gist"><span>In short.</span> The measured gain over the bound equals TD's step efficiency over AR's, so the bound is conservative exactly when TD runs closer to its roofline.</p>
-    <p>For each decoder \(X\), let \(n_X\) be its tokens per step, \(t_X\) its measured step time and \(\tau_X\) the empirical roofline of the step at the measured inputs (Definitions <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/effective/#def5">5</a>–<a class="xref" href="/notes/block-diffusion-rooflines-6f924020/stack/#def7">7</a>), with \(\eta_X = \tau_X/t_X\). Let \(\Gamma_{\mathrm{meas}} = (\class{mj-td}{n_{TD}}/\class{mj-td}{t_{TD}})/(\class{mj-ar}{n_{AR}}/\class{mj-ar}{t_{AR}})\) and \(\Gamma_{\mathrm{roof}} = (\class{mj-td}{n_{TD}}/\class{mj-td}{\tau_{TD}})/(\class{mj-ar}{n_{AR}}/\class{mj-ar}{\tau_{AR}})\). Then</p>
+    <p>For each decoder \(X\), let \(n_X\) be its tokens per step, \(t_X\) its measured step time and \(\tau_X\) the empirical roofline of the step at the measured inputs (<a class="xref" href="/notes/block-diffusion-rooflines-6f924020/effective/#def5">Definitions 5</a>–<a class="xref" href="/notes/block-diffusion-rooflines-6f924020/stack/#def7">7</a>), with \(\eta_X = \tau_X/t_X\). Let \(\Gamma_{\mathrm{meas}} = (\class{mj-td}{n_{TD}}/\class{mj-td}{t_{TD}})/(\class{mj-ar}{n_{AR}}/\class{mj-ar}{t_{AR}})\) and \(\Gamma_{\mathrm{roof}} = (\class{mj-td}{n_{TD}}/\class{mj-td}{\tau_{TD}})/(\class{mj-ar}{n_{AR}}/\class{mj-ar}{\tau_{AR}})\). Then</p>
     <div class="eq">\[ \frac{\Gamma_{\mathrm{meas}}}{\Gamma_{\mathrm{roof}}} = \frac{\class{mj-td}{\eta_{TD}}}{\class{mj-ar}{\eta_{AR}}}. \]</div>
-    <p>In particular, the bound underestimates the measured gain exactly when TD runs closer to its roofline than AR, and in general it bounds the measured gain in neither direction. "Bound" in Parts <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/effective/">8</a>–11 therefore means the roofline gain \(\Gamma_{\mathrm{roof}}\), a ratio of two lower bounds on time, not a bound on \(\Gamma_{\mathrm{meas}}\).</p>
+    <p>In particular, the bound underestimates the measured gain exactly when TD runs closer to its roofline than AR, and in general it bounds the measured gain in neither direction. "Bound" in <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/effective/">Parts 8</a>–11 therefore means the roofline gain \(\Gamma_{\mathrm{roof}}\), a ratio of two lower bounds on time, not a bound on \(\Gamma_{\mathrm{meas}}\).</p>
     <details class="proof"><summary>Proof</summary><p>The tokens per step cancel: \(\Gamma_{\mathrm{meas}}/\Gamma_{\mathrm{roof}} = (\class{mj-td}{\tau_{TD}}/\class{mj-td}{t_{TD}})\,/\,(\class{mj-ar}{\tau_{AR}}/\class{mj-ar}{t_{AR}})\). \(\blacksquare\)</p></details>
   </div>
   <div class="bdr-fig pfig" id="fig-conc-dev">
@@ -351,7 +351,7 @@
     <li>
 <b>One workload.</b> Long essays about PG-19 passages, in each model's chat template, at temperature 1, with a fixed \(S = 14\) and every canvas position committed together; quality is checked on GSM8K and IFEval only. With this fixed schedule TD's answers degrade at long context: 67–90% of its measured canvases are text-like (at least 40 distinct tokens of 256) at context 1k, 38–50% at 64k and none at batch 1 and 64k, against 98–100% of AR's measured windows. Routing, and hence the gain, may differ on other text; the 64k results, above all at batch 1, are the least representative.</li>
     <li>
-<b>Precision.</b> The measurements use FP8 weights; the headline numbers of Parts <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/">1</a>–<a class="xref" href="/notes/block-diffusion-rooflines-6f924020/examples/">7</a> are BF16.</li>
+<b>Precision.</b> The measurements use FP8 weights; the headline numbers of <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/">Parts 1</a>–<a class="xref" href="/notes/block-diffusion-rooflines-6f924020/examples/">7</a> are BF16.</li>
     <li>
 <b>Throughput only.</b> Batches run in lockstep at one context; prefill, the time to the first canvas and per-request latency are not measured.</li>
     <li>
@@ -391,7 +391,7 @@
     <li>
 <b>Measurement with the adaptive sampler</b>, which keeps long answers coherent but varies the passes per canvas, so that \(\omega\) becomes a measured quantity rather than a fixed 15.</li>
     <li>
-<b>A model of \(N^{\mathrm{eff}}\)</b> in terms of the batch, the context and the step of the denoising schedule, which would let Parts <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/linear/">3</a>–<a class="xref" href="/notes/block-diffusion-rooflines-6f924020/whole/">5</a> use measured routing in closed form.</li>
+<b>A model of \(N^{\mathrm{eff}}\)</b> in terms of the batch, the context and the step of the denoising schedule, which would let <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/linear/">Parts 3</a>–<a class="xref" href="/notes/block-diffusion-rooflines-6f924020/whole/">5</a> use measured routing in closed form.</li>
   </ul>
 </section>
 <nav class="book-nav" aria-label="Chapters"><a class="prev" href="/notes/block-diffusion-rooflines-6f924020/kernels/"><span>Previous</span>10 · Kernels</a><a class="next" href="/notes/block-diffusion-rooflines-6f924020/appendix/"><span>Next</span>A · Appendix</a></nav>
