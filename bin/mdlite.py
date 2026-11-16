@@ -1,7 +1,7 @@
 """mdlite: the Markdown that the book's text files accept, on top of their HTML.
 
 Used by bin/build-roofline.py (on the private text source and the _roofline/*.html files) and by
-bin/site-edit (the live preview), so that the preview and the built page agree.
+the site-edit editor (~/code/site-edit, its live preview), so that the preview and the built page agree.
 
 Inline, anywhere outside tags and math:
     **bold**   *italic*   ~~struck~~   `code`   [text](url)      (<u>underline</u> is plain HTML)

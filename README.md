@@ -37,20 +37,12 @@ Append a BibTeX entry to `_bibliography/papers.bib`. Useful extra fields:
 
 ## Editing in the browser
 
-`bin/site-edit` (or the *Edit Website* app) serves the local Jekyll preview at http://localhost:4100
-with an edit mode on every page: click a block of text to edit the source that produced it, with a
-live preview in place; Save writes the file (and rebuilds the rooflines book when the file is one of
-its sources, undoing the save if the build fails); Undo reverts saves; Publish commits the content
-folders and pushes. Sources are found by matching the block's words against the content files
-(`SITE_GLOBS` and `BOOK_LOCAL` in the script); generated files are never edited. The page script and
-styles are in `bin/site-edit-ui/`. It listens on 127.0.0.1 only and refuses API calls from other
-origins; logs are in `~/Library/Application Support/site-edit/`.
-
-The panel has formatting buttons (bold, italic, underline, link, lists, heading) and "+ Above / + Below"
-to insert a new block. The book's text files accept Markdown on top of their HTML (`bin/mdlite.py`:
-emphasis, links, code, lists, `###` headings, blank-line paragraphs); the build and the editor's
-preview both run it, and it leaves the existing HTML unchanged. The standalone private copy of the book
-(`~/code/diffusion-roofline`) shows such Markdown as typed.
+The in-browser editor (the *Edit Website* app, `edit-site` in fish) lives in the private repository
+`vdeborto/site-edit`, cloned at `~/code/site-edit`. It edits this repository's content files and the
+rooflines book's sources. The book's text files accept Markdown on top of their HTML through
+`bin/mdlite.py` (emphasis, links, code, lists, `###` headings, blank-line paragraphs), which
+`bin/build-roofline.py` runs and the editor's preview imports; it leaves the existing HTML unchanged.
+The standalone private copy of the book (`~/code/diffusion-roofline`) shows such Markdown as typed.
 
 ## Building locally
 
