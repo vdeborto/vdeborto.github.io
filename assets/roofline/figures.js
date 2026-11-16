@@ -152,8 +152,10 @@
       { name: 'Exact, fixed context', what: 'every FLOP and byte of the appendix, vocabulary included, context fixed at 1k', used: 'Figures 9, 16 and 18, the quiz verdicts, the maps', g: (B) => steady(DG, hw, B, 1024).gain },
       { name: 'Exact, whole generation', what: 'the same accounting summed over a 1k prompt and 8k generated tokens: the context grows from 1k to 9k', used: 'the headline tiles above, the calculator', g: (B) => M.generate(DG, { ...W0, B }, O0, hw).gainDecode, slow: true },
     ];
-    const table = el(`<div class="table-wrap nofold"><table class="acct"><thead><tr><th class="l">Accounting</th><th>Γ, batch 1</th><th>Γ, batch 5</th><th>Γ, batch 64</th><th>TD ahead up to batch</th></tr></thead><tbody>${rows.map((r) => `<tr><td class="l"><b>${r.name}</b><br><span class="muted">${r.what}. Used by ${r.used}.</span></td><td class="num">…</td><td class="num">…</td><td class="num">…</td><td class="num">…</td></tr>`).join('')}</tbody></table></div>`);
-    root.appendChild(table);
+    // short rows of numbers, then what each accounting is, as a list
+    const table = el(`<div class="table-wrap nofold"><table class="acct"><thead><tr><th class="l">Accounting</th><th>Γ, batch 1</th><th>Γ, batch 5</th><th>Γ, batch 64</th><th>TD ahead up to batch</th></tr></thead><tbody>${rows.map((r) => `<tr><td class="l"><b>${r.name}</b></td><td class="num">…</td><td class="num">…</td><td class="num">…</td><td class="num">…</td></tr>`).join('')}</tbody></table></div>`);
+    const list = el(`<ul class="acct-list">${rows.map((r) => `<li><b>${r.name}:</b> ${r.what}. Used by ${r.used}.</li>`).join('')}</ul>`);
+    root.append(table, list);
     const tick = () => new Promise((res) => setTimeout(res, 0));
     rows.forEach(async (r, k) => {
       const cells = table.querySelectorAll('tbody tr')[k].querySelectorAll('td.num');

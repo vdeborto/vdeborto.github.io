@@ -406,7 +406,7 @@ def fig_map(base=BOOK_URL):
         if prev is not None:
             s.append(f'<line x1="{prev + 1}" y1="{y1 + h1 / 2}" x2="{x - pad - 1}" y2="{y1 + h1 / 2}" stroke="currentColor" marker-end="url(#pa1)"/>')
         prev = x + w + pad
-    s.append(f'<text x="300" y="{y2 - 12}" font-size="11" font-weight="600" letter-spacing=".06em" fill="{MUT}">ON AN H200 · PARTS 8–11</text>')
+    s.append(f'<text x="{W - 6}" y="{y2 - 12}" text-anchor="end" font-size="11" font-weight="600" letter-spacing=".06em" fill="{MUT}">ON AN H200 · PARTS 8–11</text>')
     bw, gap, bx = 154, 12, 4
     X = lambda i: bx + i * (bw + gap)
     for i, (slug, part, title, lines) in enumerate(MAP_BOT):
