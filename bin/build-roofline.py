@@ -681,7 +681,7 @@ def split_book(body):
             desc = ""
         else:
             head = f'<p class="book-part">Part 0 · Introduction<span class="book-links">{links}</span></p>\n'
-            desc = "when block text diffusion beats autoregressive decoding · a short book on its inference cost"
+            desc = "when block text diffusion beats autoregressive decoding · a blogpost on its inference cost"
         foot = '<nav class="book-nav" aria-label="Chapters">' + "".join(
             f'<a class="{r}" href="{url_of(c[0])}"><span>{w}</span>{label_of(c)}</a>' for c, r, w in ((prev, "prev", "Previous"), (nxt, "next", "Next")) if c) + "</nav>\n"
         # A chapter opens with its introduction, so the layout's subtitle would repeat it.

@@ -26,7 +26,7 @@ sitemap: false
   <h3 id="exercise">A smaller canvas</h3>
   <p>Keep DiffusionGemma, the H200, \(S = 14\) and \(r = 1\) (so \(\omega = 15\)), but shrink the canvas from 256 to <b>\(b = 32\)</b>. The exact map below changes completely. Predict each feature from the propositions before opening its answer; every answer says where to look on the map.</p>
   <div class="bdr-card">
-    <div class="fig-k" id="figure-20">Figure 20</div>
+    <div class="fig-k" id="figure-21">Figure 21</div>
     <p class="fig-title">With a 32-token canvas, TD is faster than AR only between batch 9 and batch 110 at context 1k.</p>
   <figure class="mapfig">
     <p class="fig-sub">Exact roofline bound \(\Gamma\) over batch and context with a canvas of \(b = 32\), DiffusionGemma on an H200 in BF16 with \(S = 14\). Both axes are logarithmic.</p>
@@ -49,7 +49,7 @@ sitemap: false
         <p>In R2 the canvas drops out: \(B_\times = \class{mj-ar}{B^\star_{AR}}/\omega = 1640/15 \approx 109\), as with \(b = 256\). AR is still memory-bound there; it only needs \(\class{mj-ar}{I_{AR}} \gt I^\star/\omega \approx 14\). On the map: the upper dashed line and the blue top-left.</p></details></li>
     <li><p><b>Long context.</b> Which regime, and what gain? What changes at \(b = 16\)?</p>
       <details class="answer"><summary>Answer</summary>
-        <p>\(b\,I_{\mathrm{attn}} = 256 \gt 206\), so the limit \(C \to \infty\) is R6 with \(\Gamma = I^\star/(\omega I_{\mathrm{attn}}) = 1.72\), independent of \(b\). This limit is not reached in memory: at 1M context a TD pass with \(b = 32\) is compute-bound only from batch 8.2 by <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/whole/#prop8">Proposition 8</a> (batch 9 in the exact accounting, <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/whole/#figure-14">Figure 14</a>), and at most 4 sequences fit. At batch 1 the weights still count in an AR step's bytes, \(\Pi = 2.3\) and \(\Gamma = \mathrm{TPF}/\Pi = 0.92\), so AR wins; at batch 4, \(\Gamma = 1.58\) (1.56 in the exact accounting). At \(b = 16\), \(b\,I_{\mathrm{attn}} = 128 \lt 206\): TD stays memory-bound (R5) and \(\Gamma \to \mathrm{TPF} = 16/15 = 1.07\). On the map: the right edge is about 1.7 only in the dimmed cells, which do not fit in memory; the cells that fit go from 0.9 at batch 1 to 1.6 at batch 4.</p></details></li>
+        <p>\(b\,I_{\mathrm{attn}} = 256 \gt 206\), so the limit \(C \to \infty\) is R6 with \(\Gamma = I^\star/(\omega I_{\mathrm{attn}}) = 1.72\), independent of \(b\). This limit is not reached in memory: at 1M context a TD pass with \(b = 32\) is compute-bound only from batch 8.2 by <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/whole/#prop8">Proposition 8</a> (batch 9 in the exact accounting, <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/whole/#figure-15">Figure 15</a>), and at most 4 sequences fit. At batch 1 the weights still count in an AR step's bytes, \(\Pi = 2.3\) and \(\Gamma = \mathrm{TPF}/\Pi = 0.92\), so AR wins; at batch 4, \(\Gamma = 1.58\) (1.56 in the exact accounting). At \(b = 16\), \(b\,I_{\mathrm{attn}} = 128 \lt 206\): TD stays memory-bound (R5) and \(\Gamma \to \mathrm{TPF} = 16/15 = 1.07\). On the map: the right edge is about 1.7 only in the dimmed cells, which do not fit in memory; the cells that fit go from 0.9 at batch 1 to 1.6 at batch 4.</p></details></li>
   </ol>
   <details class="answer">
     <summary>All predictions against the exact accounting</summary>
@@ -63,7 +63,7 @@ sitemap: false
   <h3 id="ex-dense">A dense model</h3>
   <p>Now take a dense model, Llama 3.1 8B, on the same H200 with the same canvas (\(b = 256\), \(S = 14\), \(r = 1\)), and pair it with a TD twin that has no self-conditioning. A dense model has no expert penalty, \(\Pi_{\mathrm{lin}} = 1\), and in BF16 (\(s_w = 2\)) its linear intensity is the batch: \(\class{mj-ar}{I^{AR}_{\mathrm{lin}}}(B) = 2BN_{\mathrm{act}}/(s_wN_{\mathrm{act}}) = B\).</p>
   <div class="bdr-card">
-    <div class="fig-k" id="figure-21">Figure 21</div>
+    <div class="fig-k" id="figure-22">Figure 22</div>
     <p class="fig-title">For a dense model, the gain at context 1k is about 13 at batch 1 and falls like 1/B, to parity at batch 15.</p>
   <figure class="mapfig">
     <p class="fig-sub">Exact roofline bound \(\Gamma\) over batch and context for Llama 3.1 8B and its TD twin on an H200 in BF16, with \(b = 256\) and \(S = 14\). Both axes are logarithmic.</p>
@@ -89,7 +89,7 @@ sitemap: false
   <h3 id="ex-h20">A low-ridge accelerator</h3>
   <p>Back to DiffusionGemma with \(b = 256\) and \(S = 14\), but on an H20: 148 TFLOP/s of BF16, 4.0 TB/s and 96 GB. Its ridge point is \(I^\star = 148/4.0 = 37\), against 206 on the H200.</p>
   <div class="bdr-card">
-    <div class="fig-k" id="figure-22">Figure 22</div>
+    <div class="fig-k" id="figure-23">Figure 23</div>
     <p class="fig-title">On an H20, whose ridge point is 37, TD is faster than AR only up to batch 4 at short context.</p>
   <figure class="mapfig">
     <p class="fig-sub">Exact roofline bound \(\Gamma\) over batch and context for DiffusionGemma on an H20 in BF16, with \(b = 256\) and \(S = 14\). Both axes are logarithmic.</p>

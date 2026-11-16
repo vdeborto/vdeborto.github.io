@@ -25,13 +25,13 @@ sitemap: false
 <section class="bdr-col" id="conclusion">
   <p class="chapter-intro">This chapter sets the measured gain against the bound at measured inputs, shows that their ratio is the ratio of the two decoders' efficiencies, and states what the roofline model gets right, what it needs, and what remains open.</p>
   <h3 id="conc-bound">The bound against the measurement</h3>
-  <p><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/effective/">Part 8</a> gave the bound at measured ceilings and routing, bound (c) of <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/effective/#figure-26">Figure 26</a>; <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/stack/">Parts 9</a> and <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/kernels/">10</a> measured both decoders with every kernel attributed and the two worst kernels rewritten. The measured gain can now be set against the bound.</p>
+  <p><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/effective/">Part 8</a> gave the bound at measured ceilings and routing, bound (c) of <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/effective/#figure-27">Figure 27</a>; <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/stack/">Parts 9</a> and <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/kernels/">10</a> measured both decoders with every kernel attributed and the two worst kernels rewritten. The measured gain can now be set against the bound.</p>
   <div class="bdr-fig pfig" id="fig-conc-maps">
-    <div class="fig-k" id="figure-41">Figure 41 · interactive</div>
+    <div class="fig-k" id="figure-42">Figure 42 · interactive</div>
     <p class="fig-title">The measured gain exceeds the bound up to batch 8 and falls below it from batch 16 on.</p>
     <p class="fig-lede">Choose a context; hover over or tap a batch to read both.</p>
     <div data-mfig="ladder" data-series="c,d"></div>
-    <p class="fig-cap">The bound (c) of <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/effective/#figure-26">Figure 26</a>, in black, and the measured gain (d), in magenta: TD's tokens per second over AR's at equal \(B\) and \(C\), medians of three repeats. <a class="xref" href="#prop9">Proposition 9</a> says why the two differ. The batch axis is logarithmic: the measured sizes 1, 2, 4, …, 64 are equally spaced.</p>
+    <p class="fig-cap">The bound (c) of <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/effective/#figure-27">Figure 27</a>, in black, and the measured gain (d), in magenta: TD's tokens per second over AR's at equal \(B\) and \(C\), medians of three repeats. <a class="xref" href="#prop9">Proposition 9</a> says why the two differ. The batch axis is logarithmic: the measured sizes 1, 2, 4, …, 64 are equally spaced.</p>
   </div>
   <div class="box prop" id="prop9">
     <div class="bdr-title"><span class="tag">Proposition 9</span>The measured gain is the bound times a ratio of efficiencies</div>
@@ -42,7 +42,7 @@ sitemap: false
     <details class="proof"><summary>Proof</summary><p>The tokens per step cancel: \(\Gamma_{\mathrm{meas}}/\Gamma_{\mathrm{roof}} = (\class{mj-td}{\tau_{TD}}/\class{mj-td}{t_{TD}})\,/\,(\class{mj-ar}{\tau_{AR}}/\class{mj-ar}{t_{AR}})\). \(\blacksquare\)</p></details>
   </div>
   <div class="bdr-fig pfig" id="fig-conc-dev">
-    <div class="fig-k" id="figure-42">Figure 42 · interactive</div>
+    <div class="fig-k" id="figure-43">Figure 43 · interactive</div>
     <p class="fig-title">The bound is conservative while TD runs closer to its roofline than AR, up to batch 8, and optimistic from batch 16 on.</p>
     <p class="fig-lede">Choose a context; hover over or tap a batch to read the two efficiencies and their ratio.</p>
     <div data-mfig="eff"></div>

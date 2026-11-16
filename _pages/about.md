@@ -22,7 +22,7 @@ latest_posts:
   limit: 3
 ---
 
-I work on **diffusion models** — how to build them, how to sample from them efficiently, and why they work — and more broadly on sampling, optimal transport and Markov chain theory.
+I work mostly on **diffusion models** — how to build them, how to sample from them efficiently, and why they work — and more broadly on sampling, optimal transport and Markov chain theory.
 
 #### Short CV
 
