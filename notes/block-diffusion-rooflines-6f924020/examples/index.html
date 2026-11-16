@@ -380,7 +380,7 @@
     <li>
 <p><b>Does AR ever become compute-bound at 1k context?</b></p>
       <details class="answer"><summary>Answer</summary>
-        <p>Without a cache it would at \(I_{\mathrm{lin}}(B) = I^\star\), batch 206. But Llama's cache holds 128 KiB per token (32 layers, 8 KV heads, head dimension 128, K and V, 2 bytes), and with \(I_{\mathrm{attn}} = 4\) Proposition 8 says no batch makes an AR step compute-bound once the context exceeds about 530 tokens. So AR stays memory-bound, and the gain keeps falling instead: 0.17 at batch 256.</p></details>
+        <p>Without a cache it would at \(I_{\mathrm{lin}}(B) = I^\star\), batch 206. But Llama's cache holds 128 KiB per token (32 layers, 8 KV heads, head dimension 128, K and V, 2 bytes), and with \(I_{\mathrm{attn}} = 4\) <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/whole/#prop8">Proposition 8</a> says no batch makes an AR step compute-bound once the context exceeds about 530 tokens. So AR stays memory-bound, and the gain keeps falling instead: 0.17 at batch 256.</p></details>
 </li>
     <li>
 <p><b>Long context.</b> What gain, and which contexts actually fit?</p>
@@ -404,7 +404,7 @@
     <li>
 <p><b>Batch 1, short context.</b> Where is TD on the roofline, and what gain?</p>
       <details class="answer"><summary>Answer</summary>
-        <p>\(\class{mj-td}{B^\star_{TD}} = I^\star s_w\class{mj-td}{W_{TD}}/(2bN_{\mathrm{act}}) = 37 \times 49.0\,\text{GB}/(2 \times 256 \times 3.08\text{B}) = 1.15\): a TD pass sits just below the ridge at batch 1. Corollary 1 gives \(\Gamma = \min(\mathrm{TPF}/\Pi,\ I^\star/(\omega I_{\mathrm{lin}})) = \min(2.15,\ 2.47) = 2.15\). The exact gain is 2.03, with TD already compute-bound because the vocabulary adds to its FLOPs.</p></details>
+        <p>\(\class{mj-td}{B^\star_{TD}} = I^\star s_w\class{mj-td}{W_{TD}}/(2bN_{\mathrm{act}}) = 37 \times 49.0\,\text{GB}/(2 \times 256 \times 3.08\text{B}) = 1.15\): a TD pass sits just below the ridge at batch 1. <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/gain/#cor1">Corollary 1</a> gives \(\Gamma = \min(\mathrm{TPF}/\Pi,\ I^\star/(\omega I_{\mathrm{lin}})) = \min(2.15,\ 2.47) = 2.15\). The exact gain is 2.03, with TD already compute-bound because the vocabulary adds to its FLOPs.</p></details>
 </li>
     <li>
 <p><b>Where does AR catch up?</b></p>
