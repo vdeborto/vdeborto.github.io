@@ -654,7 +654,7 @@
     const { hw, o, w } = st;
     const mdl = st.m || model;
     const Is = hw.peak / hw.bw;
-    const W = 640, H = 420, mg = { l: 54, r: 14, t: 10, b: 44 };
+    const W = 640, H = 434, mg = { l: 54, r: 14, t: 24, b: 44 };
     const cx0 = 9, cx1 = 20, by1 = 10, nx = 44, ny = 40;
     const X = (C) => mg.l + ((Math.log2(C) - cx0) / (cx1 - cx0)) * (W - mg.l - mg.r);
     const Y = (B) => H - mg.b - (Math.log2(B) / by1) * (H - mg.t - mg.b);
@@ -691,7 +691,7 @@
     for (const e of [10, 12, 14, 16, 18, 20]) s += `<text x="${X(2 ** e)}" y="${H - mg.b + 16}" text-anchor="middle">${e >= 20 ? `${2 ** (e - 20)}M` : `${2 ** (e - 10)}k`}</text>`;
     s += `<text class="lbl" x="${(mg.l + W - mg.r) / 2}" y="${H - 6}" text-anchor="middle">context C (tokens)</text>`;
     for (const e of [0, 2, 4, 6, 8, 10]) s += `<text x="${mg.l - 6}" y="${Y(2 ** e) + 4}" text-anchor="end">${2 ** e}</text>`;
-    s += `<text class="lbl" transform="translate(14 ${(mg.t + H - mg.b) / 2}) rotate(-90)" text-anchor="middle">batch B</text>`;
+    s += `<text class="lbl" x="4" y="13">batch B</text>`;
 
     // exact iso-intensity contours, and the ridge contour in bold
     const xc = (j) => cxs[j], yc = (i) => cys[i];
@@ -932,7 +932,7 @@
     if (!el.isConnected) return;
     const { hw, o, w } = st;
     const mdl = st.m || model;
-    const W = 640, H = 420, mg = { l: 54, r: 14, t: 10, b: 44 };
+    const W = 640, H = 434, mg = { l: 54, r: 14, t: 24, b: 44 };
     const cx0 = 9, cx1 = 20, by1 = 10, nx = 44, ny = 40;
     const X = (C) => mg.l + ((Math.log2(C) - cx0) / (cx1 - cx0)) * (W - mg.l - mg.r);
     const Y = (B) => H - mg.b - (Math.log2(B) / by1) * (H - mg.t - mg.b);
@@ -961,7 +961,7 @@
     for (const e of [10, 12, 14, 16, 18, 20]) s += `<text x="${X(2 ** e)}" y="${H - mg.b + 16}" text-anchor="middle">${e >= 20 ? `${2 ** (e - 20)}M` : `${2 ** (e - 10)}k`}</text>`;
     s += `<text class="lbl" x="${(mg.l + W - mg.r) / 2}" y="${H - 6}" text-anchor="middle">context C (tokens)</text>`;
     for (const e of [0, 2, 4, 6, 8, 10]) s += `<text x="${mg.l - 6}" y="${Y(2 ** e) + 4}" text-anchor="end">${2 ** e}</text>`;
-    s += `<text class="lbl" transform="translate(14 ${(mg.t + H - mg.b) / 2}) rotate(-90)" text-anchor="middle">batch B</text>`;
+    s += `<text class="lbl" x="4" y="13">batch B</text>`;
 
     const xc = (j) => cxs[j], yc = (i) => cys[i];
     const lines = (segs, cls, dash) => segs.map(([a, b]) => `<line class="${cls}" x1="${a[0].toFixed(1)}" y1="${a[1].toFixed(1)}" x2="${b[0].toFixed(1)}" y2="${b[1].toFixed(1)}"${dash ? ` stroke-dasharray="${dash}"` : ''}/>`).join('');
@@ -1040,7 +1040,7 @@
       if (D(1e9) <= 0) { let lo = 0, hi = 1e9; for (let i = 0; i < 120; i++) { const mid = (lo + hi) / 2; if (D(mid) > 0) lo = mid; else hi = mid; } zero = lo; }
       return { ...sr, bstar, zero };
     });
-    const W0 = 640, H = 380, mg = { l: 56, r: 92, t: 14, b: 44 };
+    const W0 = 640, H = 394, mg = { l: 56, r: 92, t: 28, b: 44 };
     const x0 = Math.log10(16), x1 = Math.log10(2 ** 20), y1 = 14;
     const X = (C) => mg.l + ((Math.log10(C) - x0) / (x1 - x0)) * (W0 - mg.l - mg.r);
     const Y = (B) => H - mg.b - (Math.log2(Math.max(1, B)) / y1) * (H - mg.t - mg.b);
@@ -1050,7 +1050,7 @@
     for (const e of [0, 2, 4, 6, 8, 10, 12, 14]) s += `<line x1="${mg.l}" x2="${W0 - mg.r}" y1="${Y(2 ** e)}" y2="${Y(2 ** e)}" stroke="${grid}"/><text x="${mg.l - 6}" y="${Y(2 ** e) + 4}" text-anchor="end">${2 ** e >= 1024 ? `${2 ** (e - 10)}k` : 2 ** e}</text>`;
     for (const [C, t] of [[16, '16'], [128, '128'], [1024, '1k'], [8192, '8k'], [65536, '64k'], [524288, '512k']]) s += `<text x="${X(C)}" y="${H - mg.b + 16}" text-anchor="middle">${t}</text>`;
     s += `<text class="lbl" x="${(mg.l + W0 - mg.r) / 2}" y="${H - 6}" text-anchor="middle">context C (tokens)</text>`;
-    s += `<text class="lbl" transform="translate(14 ${(mg.t + H - mg.b) / 2}) rotate(-90)" text-anchor="middle">smallest compute-bound batch (sequences)</text>`;
+    s += `<text class="lbl" x="4" y="13">smallest compute-bound batch (sequences)</text>`;
     const data = series.map((sr) => ({ ...sr, ys: Cs.map((C) => sr.bstar(C)) }));
     // Largest batch whose weights and KV cache fit; the region above it is shaded.
     const need = memNeed(model, st.o, st.w), wBytes = need(0, 0);

@@ -172,7 +172,7 @@
   // right is the ratio of their attainable FLOP rates, min(I_TD, I*) / min(I_AR, I*).
   function rooflineSvg({ hw, IAR, ITD, W = 640, H = 300, mini = false }) {
     const c = colors(), Is = ridge(hw), pk = hw.peak / 1e12, rate = (I) => Math.min(pk, (I * hw.bw) / 1e12);
-    const m = { l: mini ? 40 : 54, r: mini ? 58 : 92, t: 14, b: mini ? 30 : 40 };
+    const m = { l: mini ? 40 : 54, r: mini ? 58 : 92, t: 28, b: mini ? 30 : 40 };
     const xlo = 0.3, xhi = 3e4, xs = scale(xlo, xhi, m.l, W - m.r);
     const ylo = rate(xlo) / 1.6, yhi = pk * 1.9, ys = scale(ylo, yhi, H - m.b, m.t);
     const ra = rate(IAR), rt = rate(ITD), cx = (I) => xs(Math.min(Math.max(I, xlo), xhi));
@@ -182,7 +182,7 @@
     for (let e = 0; e <= 4; e++) s += `<text x="${xs(10 ** e)}" y="${H - m.b + 15}" text-anchor="middle">${10 ** e >= 1000 ? `${10 ** (e - 3)}k` : 10 ** e}</text>`;
     if (!mini) {
       s += `<text x="${(m.l + W - m.r) / 2}" y="${H - 6}" text-anchor="middle" class="ink">arithmetic intensity, FLOP per byte</text>`;
-      s += `<text x="12" y="${(m.t + H - m.b) / 2}" text-anchor="middle" transform="rotate(-90 12 ${(m.t + H - m.b) / 2})" class="ink">TFLOP/s</text>`;
+      s += `<text x="4" y="13" class="ink">TFLOP/s</text>`;
     }
     s += `<line x1="${xs(Is)}" x2="${xs(Is)}" y1="${ys(pk)}" y2="${H - m.b}" stroke="${c.muted}" stroke-dasharray="3 4"/>`;
     s += `<text x="${xs(Is) + 5}" y="${H - m.b - 6}">${mini ? 'I* ' : 'ridge I* = '}${fmt(Is)}</text>`;
@@ -404,7 +404,7 @@
     const curves = CBATCH.map((B) => CSCAN.map((C) => { const p = prop1(DG, hwOf('h200'), B, C); return { B, C, IAR: p.IAR, ITD: p.ITD }; }));
     draggable(pic, () => st.xs, CSCAN, () => st.i, (i) => { st.i = i; draw(); });
     function draw() {
-      const c = colors(), W = widthOf(pic), H = 330, m = { l: 48, r: 18, t: 16, b: 40 }, C = CSCAN[st.i];
+      const c = colors(), W = widthOf(pic), H = 344, m = { l: 48, r: 18, t: 30, b: 40 }, C = CSCAN[st.i];
       const hw = hwOf(shared.hw), Is = ridge(hw), ok = (p) => fits(DG, hw, p.B, p.C);
       const xs = scale(1024, 1 << 20, m.l, W - m.r), ylo = 0.7, yhi = 6000, ys = scale(ylo, yhi, H - m.b, m.t);
       let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Intensities of an AR step and of a TD pass against context, for batches ${CBATCH.join(', ')}">`;
@@ -412,7 +412,7 @@
       s += logGrid(ys, m.l, W - m.r, ylo, yhi, (v) => (v >= 1000 ? `${v / 1000}k` : v), c, [1]);
       for (const C2 of [1024, 4096, 16384, 65536, 262144, 1 << 20]) s += `<text x="${xs(C2)}" y="${H - m.b + 15}" text-anchor="middle">${kctx(C2)}</text>`;
       s += `<text x="${(m.l + W - m.r) / 2}" y="${H - 6}" text-anchor="middle" class="ink">context C, tokens in the KV cache</text>`;
-      s += `<text x="12" y="${(m.t + H - m.b) / 2}" text-anchor="middle" transform="rotate(-90 12 ${(m.t + H - m.b) / 2})" class="ink">FLOP per byte</text>`;
+      s += `<text x="4" y="13" class="ink">FLOP per byte</text>`;
       s += `<line x1="${m.l}" x2="${W - m.r}" y1="${ys(Is)}" y2="${ys(Is)}" stroke="${c.ink}" stroke-width="1.5"/>`;
       s += `<text class="ink halo" x="${W - m.r - 4}" y="${ys(Is) - 6}" text-anchor="end">ridge I* = ${fmt(Is)}: compute-bound above</text>`;
       const op = [0.4, 0.6, 0.8, 1];
@@ -640,7 +640,7 @@
     const ar = (B, x) => clin(C0.WAR(B) / B, x), td = (B, x) => clin(C0.WTD(B) / B, x);
     draggable(pic, () => st.xs, BMARK, () => st.i, (i) => { st.i = i; draw(); });
     function draw() {
-      const c = colors(), W = widthOf(pic), H = 340, m = { l: 50, r: 16, t: 14, b: 42 }, B = BMARK[st.i];
+      const c = colors(), W = widthOf(pic), H = 354, m = { l: 50, r: 16, t: 28, b: 42 }, B = BMARK[st.i];
       const xs = scale(1, 256, m.l, W - m.r), ylo = 1024, yhi = 2 ** 22, ys = scale(ylo, yhi, H - m.b, m.t);
       const yc = (v) => ys(Math.max(ylo, Math.min(yhi, v)));
       const path = (f) => BS.map((b2) => `${xs(b2)},${yc(f(b2))}`).join(' ');
@@ -650,7 +650,7 @@
       for (const v of [1024, 4096, 16384, 65536, 262144, 1 << 20, 1 << 22]) s += `<line x1="${m.l}" x2="${W - m.r}" y1="${ys(v)}" y2="${ys(v)}" stroke="${c.rule}"/><text x="${m.l - 6}" y="${ys(v) + 4}" text-anchor="end">${kctx(v)}</text>`;
       for (const v of BMARK) s += `<text x="${xs(v)}" y="${H - m.b + 15}" text-anchor="middle">${v}</text>`;
       s += `<text x="${(m.l + W - m.r) / 2}" y="${H - 6}" text-anchor="middle" class="ink">batch B (log scale)</text>`;
-      s += `<text x="12" y="${(m.t + H - m.b) / 2}" text-anchor="middle" transform="rotate(-90 12 ${(m.t + H - m.b) / 2})" class="ink">context C, tokens (log scale)</text>`;
+      s += `<text x="4" y="13" class="ink">context C, tokens (log scale)</text>`;
       s += `<polyline fill="none" stroke="${c.td}" stroke-width="2" stroke-dasharray="6 4" points="${path((b2) => td(b2, 0.5))}"/>`;
       s += `<polyline fill="none" stroke="${c.ar}" stroke-width="2.2" points="${path((b2) => ar(b2, 0.5))}"/><polyline fill="none" stroke="${c.ar}" stroke-width="1.4" points="${path((b2) => ar(b2, 0.9))}"/>`;
       const small = W < 480;
@@ -748,14 +748,14 @@
     const Pi = (C, b) => qTD(C, b) / qAR(C), Psel = (C, b) => Un(C, b) / Math.min(C, m);
     draggable(pic, () => st.xs, CSP, () => st.i, (i) => { st.i = i; draw(); });
     function draw() {
-      const c = colors(), W = widthOf(pic), H = 320, mg = { l: 46, r: 18, t: 16, b: 42 }, C = CSP[st.i], b = st.b;
+      const c = colors(), W = widthOf(pic), H = 334, mg = { l: 46, r: 18, t: 30, b: 42 }, C = CSP[st.i], b = st.b;
       const xs = scale(1024, 2 ** 28, mg.l, W - mg.r), ylo = 0.8, yhi = 400, ys = scale(ylo, yhi, H - mg.b, mg.t);
       let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Penalty of a sparse layer against context, canvas of ${b}">`;
       s += `<rect x="${xs(m)}" y="${mg.t}" width="${xs(b * m) - xs(m)}" height="${H - mg.b - mg.t}" fill="${c.soft}" opacity="0.6"/>`;
       for (const v of [1, 10, 100]) s += `<line x1="${mg.l}" x2="${W - mg.r}" y1="${ys(v)}" y2="${ys(v)}" stroke="${c.rule}"/><text x="${mg.l - 6}" y="${ys(v) + 4}" text-anchor="end">${v}</text>`;
       for (const v of [1 << 10, 1 << 14, 1 << 18, 1 << 22, 1 << 26]) s += `<text x="${xs(v)}" y="${H - mg.b + 15}" text-anchor="middle">${kctx(v)}</text>`;
       s += `<text x="${(mg.l + W - mg.r) / 2}" y="${H - 6}" text-anchor="middle" class="ink">context C, tokens in the KV cache (log scale)</text>`;
-      s += `<text x="12" y="${(mg.t + H - mg.b) / 2}" text-anchor="middle" transform="rotate(-90 12 ${(mg.t + H - mg.b) / 2})" class="ink">penalty (log scale)</text>`;
+      s += `<text x="4" y="13" class="ink">penalty (log scale)</text>`;
       for (const [v, t, anchor] of [[m, 'm', 'end'], [b * m, 'bm', 'start']]) s += `<line x1="${xs(v)}" x2="${xs(v)}" y1="${mg.t}" y2="${H - mg.b}" stroke="${c.muted}" stroke-dasharray="3 4"/><text x="${xs(v) + (anchor === 'end' ? -4 : 4)}" y="${mg.t + 11}" text-anchor="${anchor}" class="ink">C = ${t}</text>`;
       s += `<line x1="${mg.l}" x2="${W - mg.r}" y1="${ys(b)}" y2="${ys(b)}" stroke="${c.muted}" stroke-dasharray="3 4"/><text x="${W - mg.r - 4}" y="${ys(b) - 5}" text-anchor="end">b = ${b}</text>`;
       s += `<polyline fill="none" stroke="${c.ink}" stroke-width="1.6" stroke-dasharray="6 4" points="${CSP.map((x) => `${xs(x)},${ys(Psel(x, b))}`).join(' ')}"/>`;
@@ -786,13 +786,13 @@
     const flops = (C) => (C0.phi(C) - 2 * C0.Nact) / C0.phi(C);
     draggable(pic, () => st.xs, CSH, () => st.i, (i) => { st.i = i; draw(); });
     function draw() {
-      const c = colors(), W = widthOf(pic), H = 330, m = { l: 46, r: 18, t: 16, b: 42 }, C = CSH[st.i];
+      const c = colors(), W = widthOf(pic), H = 344, m = { l: 46, r: 18, t: 30, b: 42 }, C = CSH[st.i];
       const xs = scale(1024, 1 << 20, m.l, W - m.r), ys = scale(0, 1, H - m.b, m.t, false);
       let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Share of attention in the bytes of an AR step, for batches ${SHB.join(', ')}, and in the FLOPs of a position, against context">`;
       for (const v of [0, 0.25, 0.5, 0.75, 1]) s += `<line x1="${m.l}" x2="${W - m.r}" y1="${ys(v)}" y2="${ys(v)}" stroke="${v === 0.5 ? c.muted : c.rule}"${v === 0.5 ? ' stroke-dasharray="3 4"' : ''}/><text x="${m.l - 6}" y="${ys(v) + 4}" text-anchor="end">${v * 100}%</text>`;
       for (const v of [1024, 4096, 16384, 65536, 262144, 1 << 20]) s += `<text x="${xs(v)}" y="${H - m.b + 15}" text-anchor="middle">${v >= 1 << 20 ? '1M' : `${v / 1024}k`}</text>`;
       s += `<text x="${(m.l + W - m.r) / 2}" y="${H - 6}" text-anchor="middle" class="ink">context C, tokens in the KV cache (log scale)</text>`;
-      s += `<text x="12" y="${(m.t + H - m.b) / 2}" text-anchor="middle" transform="rotate(-90 12 ${(m.t + H - m.b) / 2})" class="ink">share taken by attention</text>`;
+      s += `<text x="4" y="13" class="ink">share taken by attention</text>`;
       const op = [1, 0.75, 0.55, 0.38];
       SHB.forEach((B, k) => {
         s += `<polyline fill="none" stroke="${c.ar}" stroke-opacity="${op[k]}" stroke-width="2.2" points="${CSH.map((x) => `${xs(x)},${ys(bytes(B, x))}`).join(' ')}"/>`;
