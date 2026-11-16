@@ -350,8 +350,8 @@
 <p>The main object of interest in this blogpost is the <em>throughput</em>. There are many other notions of "speed" that could be considered like Time Per Output Token (TPOT) and Time To First Token (TTFT) for example. For simplicity and to highlight the benefits of TD, we will <em>not</em> consider those other (important!) aspects of serving. The ratio of the TD throughput and the AR throughput will be called the <em>gain</em> and denoted \(\Gamma\). We will mostly consider gains over a grid of different batch sizes \(B\) and context \(C\) (i.e., tokens which are already in the KV cache). Different batch sizes and context correspond to different workloads:</p>
 
 <ul>
-<li>for instance a high batch size is associated with cloud serving most of the time (FIND A REFERENCE HERE)</li>
-<li>long context can appear in many situation but is very common in multi-turn and highly agentic scenarios. (FIND REFERENCE)</li>
+<li>for instance a high batch size is associated with cloud serving most of the time (<a href="https://arxiv.org/abs/2309.06180" rel="external nofollow noopener" target="_blank">Kwon et al., 2023</a>; <a href="https://arxiv.org/abs/2211.05102" rel="external nofollow noopener" target="_blank">Pope et al., 2022</a>)</li>
+<li>long context can appear in many situation but is very common in multi-turn and highly agentic scenarios. (<a href="https://arxiv.org/abs/2403.19708" rel="external nofollow noopener" target="_blank">Gao et al., 2024</a>; <a href="https://arxiv.org/abs/2605.26297" rel="external nofollow noopener" target="_blank">Yuan et al., 2026</a>)</li>
 </ul>
 
 <p>Of course, hardware specifications also enter the picture to determine which paradigm yields the best throughput. We will take all of these factors into consideration and try to predict as precisely as possible the value of the gain \(\Gamma\) and discuss when \(\Gamma &gt; 1\), i.e., when TD is beneficial.</p>
@@ -366,98 +366,137 @@ While this blogpost is mostly self-contained, I cannot recommend enough the foll
 
 
 
-  <h3 id="intro-plan">How the book is organised</h3>
-  <p>The book has two halves. <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/">Parts 1</a>–<a class="xref" href="/notes/block-diffusion-rooflines-6f924020/examples/">7</a> bound \(\Gamma\) on paper with a roofline model: every gain they report is a ratio of two lower bounds on time, one per decoder. Such a ratio is not itself a bound on the measured gain, which can fall on either side of it (<a class="xref" href="#figure-4">Figure 4</a> and <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/conclusion/#prop9">Proposition 9</a>); throughout, this ratio is called the roofline bound, or the bound. <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/effective/">Parts 8</a>–<a class="xref" href="/notes/block-diffusion-rooflines-6f924020/conclusion/">11</a> measure \(\Gamma\) for DiffusionGemma on one H200 and account for the difference between the bound and the measurement.</p>
+  <h3 id="intro-plan">How the blogpost is organised</h3>
+
+<p>The blogpost is divided in two main parts:</p>
+<ul>
+<li>In <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/">Parts 1</a>–<a class="xref" href="/notes/block-diffusion-rooflines-6f924020/examples/">7</a>, we provide a theoretical models on TD and AR roofline and give a simple formula for the gain \(\Gamma\). We discuss different scenarios depending on hardware and workload. </li>
+<li>In <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/effective/">Parts 8</a>–<a class="xref" href="/notes/block-diffusion-rooflines-6f924020/conclusion/">11</a>, we measure \(\Gamma\) for Diffusion Gemma on one H200 for on PG19, which is a long-context language modeling benchmark, see <a href="https://github.com/google-deepmind/pg19" rel="external nofollow noopener" target="_blank">the repository</a>. We fix several issues in the serving of TD (kernel engineering and vLLM work) in order to obtain comparable efficiencies between AR and TD. Finally, we compare our measured throughput with the theoretical bounds of <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/">Parts 1</a>–<a class="xref" href="/notes/block-diffusion-rooflines-6f924020/examples/">7</a> and provide some recommendation for evaluation of the inference of TD.</li>
+</ul>
+
+<p>A few notables chapters can be read as standalone:</p>
+
+<ul>
+<li>
+<b><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/calculator/">Part 6</a></b> contains a calculator for any accelerator and model</li>
+<li>
+<b><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/examples/">Part 7</a></b> gives a few exercises to assess the performance of TD over AR in different hardware specifications and workloads.</li>
+</ul>
+
+<p>I made a few (arbitraty) choices to help the reader throughout the blogpost:</p>
+
+<ul>
+<li>
+<b>Reading depth:</b> the switch at the top of each chapter folds every definition and proposition to its title and one sentence ("intuition", the default) or shows it in full ("full math").</li>
+<li>
+<b>Colours:</b> AR quantities are blue and TD quantities orange, in the equations and in the figures.</li>
+</ul>
+
   <div class="bdr-fig pfig" id="fig-map">
     <div class="fig-k" id="figure-3">Figure 3 · interactive</div>
-    <p class="fig-title">The book in two halves: bounds on paper, then measurements on one H200.</p>
+    <p class="fig-title"></p>
     <div class="v-wide"><div class="pfig-scroll"><svg viewbox="0 0 660 322" xmlns="http://www.w3.org/2000/svg" role="group" aria-label="Map of the book, each box a link to its chapter: Parts 1 to 7 bound the gain on paper; Parts 8 to 11 measure it on an H200 and compare" class="pfig-svg pfig-wide" style="max-width:660px"><defs><marker id="pa1" viewbox="0 0 10 10" refx="9" refy="5" markerwidth="7" markerheight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"></path></marker></defs><text x="10" y="18" style="font-size:11px;font-weight:600;letter-spacing:.06em;fill:var(--bdr-muted)">ON PAPER · PARTS 1–7</text><a href="setup/" class="pfig-link" aria-label="Part 1, Setup"><title>Go to Part 1: Setup</title>
-<rect x="10" y="30" width="100" height="86" rx="6" fill="var(--bdr-surface)" stroke="var(--bdr-muted)" stroke-width="1.4"></rect><text x="20" y="46" style="font-size:10px;letter-spacing:.06em;fill:var(--bdr-muted)">PART 1</text><text x="20" y="62" style="font-size:11.5px;font-weight:600;fill:var(--ink)">Setup</text><text x="20" y="77" style="font-size:11px;fill:var(--bdr-ink-2)">costs F, Q,</text><text x="20" y="92" style="font-size:11px;fill:var(--bdr-ink-2)">penalties</text></a><a href="gain/" class="pfig-link" aria-label="Part 2, The gain"><title>Go to Part 2: The gain</title>
-<rect x="122" y="30" width="100" height="86" rx="6" fill="var(--bdr-surface)" stroke="var(--bdr-muted)" stroke-width="1.4"></rect><text x="132" y="46" style="font-size:10px;letter-spacing:.06em;fill:var(--bdr-muted)">PART 2</text><text x="132" y="62" style="font-size:11.5px;font-weight:600;fill:var(--ink)">The gain</text><text x="132" y="77" style="font-size:11px;fill:var(--bdr-ink-2)">Prop. 1</text></a><line x1="111" y1="73.0" x2="121" y2="73.0" stroke="currentColor" marker-end="url(#pa1)"></line><rect x="231" y="27" width="132" height="92" rx="8" fill="none" stroke="var(--bdr-muted)" stroke-dasharray="3 3" stroke-opacity="0.7"></rect><a href="linear/" class="pfig-link" aria-label="Part 3, Linear part"><title>Go to Part 3: Linear part</title>
+<rect x="10" y="30" width="100" height="86" rx="6" fill="var(--bdr-surface)" stroke="var(--bdr-muted)" stroke-width="1.4"></rect><text x="20" y="46" style="font-size:10px;letter-spacing:.06em;fill:var(--bdr-muted)">PART 1</text><text x="20" y="62" style="font-size:11.5px;font-weight:600;fill:var(--ink)">Setup</text><text x="20" y="77" style="font-size:11px;fill:var(--bdr-ink-2)">Costs,</text><text x="20" y="92" style="font-size:11px;fill:var(--bdr-ink-2)">Penalties</text></a><a href="gain/" class="pfig-link" aria-label="Part 2, The gain"><title>Go to Part 2: The gain</title>
+<rect x="122" y="30" width="100" height="86" rx="6" fill="var(--bdr-surface)" stroke="var(--bdr-muted)" stroke-width="1.4"></rect><text x="132" y="46" style="font-size:10px;letter-spacing:.06em;fill:var(--bdr-muted)">PART 2</text><text x="132" y="62" style="font-size:11.5px;font-weight:600;fill:var(--ink)">The gain</text><text x="132" y="77" style="font-size:11px;fill:var(--bdr-ink-2)">Main result</text></a><line x1="111" y1="73.0" x2="121" y2="73.0" stroke="currentColor" marker-end="url(#pa1)"></line><rect x="231" y="27" width="132" height="92" rx="8" fill="none" stroke="var(--bdr-muted)" stroke-dasharray="3 3" stroke-opacity="0.7"></rect><a href="linear/" class="pfig-link" aria-label="Part 3, Linear part"><title>Go to Part 3: Linear part</title>
 <rect x="234" y="30.0" width="126" height="39.0" rx="6" fill="var(--bdr-surface)" stroke="var(--bdr-muted)" stroke-width="1.4"></rect><text x="244" y="46.0" style="font-size:10px;letter-spacing:.06em;fill:var(--bdr-muted)">PART 3</text><text x="244" y="62.0" style="font-size:11.5px;font-weight:600;fill:var(--ink)">Linear part</text></a><a href="attention/" class="pfig-link" aria-label="Part 4, Attention part"><title>Go to Part 4: Attention part</title>
 <rect x="234" y="77.0" width="126" height="39.0" rx="6" fill="var(--bdr-surface)" stroke="var(--bdr-muted)" stroke-width="1.4"></rect><text x="244" y="93.0" style="font-size:10px;letter-spacing:.06em;fill:var(--bdr-muted)">PART 4</text><text x="244" y="109.0" style="font-size:11.5px;font-weight:600;fill:var(--ink)">Attention part</text></a><line x1="223" y1="73.0" x2="230" y2="73.0" stroke="currentColor" marker-end="url(#pa1)"></line><a href="whole/" class="pfig-link" aria-label="Part 5, Whole picture"><title>Go to Part 5: Whole picture</title>
-<rect x="372" y="30" width="122" height="86" rx="6" fill="var(--bdr-surface)" stroke="var(--bdr-muted)" stroke-width="1.4"></rect><text x="382" y="46" style="font-size:10px;letter-spacing:.06em;fill:var(--bdr-muted)">PART 5</text><text x="382" y="62" style="font-size:11.5px;font-weight:600;fill:var(--ink)">Whole picture</text><text x="382" y="77" style="font-size:11px;fill:var(--bdr-ink-2)">regimes, maps</text></a><line x1="364" y1="73.0" x2="371" y2="73.0" stroke="currentColor" marker-end="url(#pa1)"></line><rect x="503" y="27" width="150" height="92" rx="8" fill="none" stroke="var(--bdr-muted)" stroke-dasharray="3 3" stroke-opacity="0.7"></rect><a href="calculator/" class="pfig-link" aria-label="Part 6, Calculator"><title>Go to Part 6: Calculator</title>
+<rect x="372" y="30" width="122" height="86" rx="6" fill="var(--bdr-surface)" stroke="var(--bdr-muted)" stroke-width="1.4"></rect><text x="382" y="46" style="font-size:10px;letter-spacing:.06em;fill:var(--bdr-muted)">PART 5</text><text x="382" y="62" style="font-size:11.5px;font-weight:600;fill:var(--ink)">Whole picture</text><text x="382" y="77" style="font-size:11px;fill:var(--bdr-ink-2)"></text></a><line x1="364" y1="73.0" x2="371" y2="73.0" stroke="currentColor" marker-end="url(#pa1)"></line><rect x="503" y="27" width="150" height="92" rx="8" fill="none" stroke="var(--bdr-muted)" stroke-dasharray="3 3" stroke-opacity="0.7"></rect><a href="calculator/" class="pfig-link" aria-label="Part 6, Calculator"><title>Go to Part 6: Calculator</title>
 <rect x="506" y="30.0" width="144" height="39.0" rx="6" fill="var(--bdr-surface)" stroke="var(--bdr-muted)" stroke-width="1.4"></rect><text x="516" y="46.0" style="font-size:10px;letter-spacing:.06em;fill:var(--bdr-muted)">PART 6</text><text x="516" y="62.0" style="font-size:11.5px;font-weight:600;fill:var(--ink)">Calculator</text></a><a href="examples/" class="pfig-link" aria-label="Part 7, Worked examples"><title>Go to Part 7: Worked examples</title>
 <rect x="506" y="77.0" width="144" height="39.0" rx="6" fill="var(--bdr-surface)" stroke="var(--bdr-muted)" stroke-width="1.4"></rect><text x="516" y="93.0" style="font-size:10px;letter-spacing:.06em;fill:var(--bdr-muted)">PART 7</text><text x="516" y="109.0" style="font-size:11.5px;font-weight:600;fill:var(--ink)">Worked examples</text></a><line x1="495" y1="73.0" x2="502" y2="73.0" stroke="currentColor" marker-end="url(#pa1)"></line><text x="654" y="178" text-anchor="end" style="font-size:11px;font-weight:600;letter-spacing:.06em;fill:var(--bdr-muted)">ON AN H200 · PARTS 8–11</text><a href="effective/" class="pfig-link" aria-label="Part 8, Empirical rooflines"><title>Go to Part 8: Empirical rooflines</title>
-<rect x="4" y="190" width="154" height="78" rx="6" fill="var(--bdr-surface)" stroke="var(--bdr-td)" stroke-width="1.4"></rect><text x="14" y="206" style="font-size:10px;letter-spacing:.06em;fill:var(--bdr-muted)">PART 8</text><text x="14" y="222" style="font-size:11.5px;font-weight:600;fill:var(--ink)">Empirical rooflines</text><text x="14" y="237" style="font-size:11px;fill:var(--bdr-ink-2)">measured π, β</text><text x="14" y="252" style="font-size:11px;fill:var(--bdr-ink-2)">and experts U</text></a><a href="stack/" class="pfig-link" aria-label="Part 9, Measurement stack"><title>Go to Part 9: Measurement stack</title>
-<rect x="170" y="190" width="154" height="78" rx="6" fill="var(--bdr-surface)" stroke="var(--bdr-td)" stroke-width="1.4"></rect><text x="180" y="206" style="font-size:10px;letter-spacing:.06em;fill:var(--bdr-muted)">PART 9</text><text x="180" y="222" style="font-size:11.5px;font-weight:600;fill:var(--ink)">Measurement stack</text><text x="180" y="237" style="font-size:11px;fill:var(--bdr-ink-2)">time per component</text></a><line x1="159" y1="229.0" x2="169" y2="229.0" stroke="currentColor" marker-end="url(#pa1)"></line><a href="kernels/" class="pfig-link" aria-label="Part 10, Kernels"><title>Go to Part 10: Kernels</title>
-<rect x="336" y="190" width="154" height="78" rx="6" fill="var(--bdr-surface)" stroke="var(--bdr-td)" stroke-width="1.4"></rect><text x="346" y="206" style="font-size:10px;letter-spacing:.06em;fill:var(--bdr-muted)">PART 10</text><text x="346" y="222" style="font-size:11.5px;font-weight:600;fill:var(--ink)">Kernels</text><text x="346" y="237" style="font-size:11px;fill:var(--bdr-ink-2)">two rewrites</text></a><line x1="325" y1="229.0" x2="335" y2="229.0" stroke="currentColor" marker-end="url(#pa1)"></line><a href="conclusion/" class="pfig-link" aria-label="Part 11, Conclusion"><title>Go to Part 11: Conclusion</title>
-<rect x="502" y="190" width="154" height="78" rx="6" fill="var(--bdr-surface)" stroke="var(--bdr-td)" stroke-width="1.4"></rect><text x="512" y="206" style="font-size:10px;letter-spacing:.06em;fill:var(--bdr-muted)">PART 11</text><text x="512" y="222" style="font-size:11.5px;font-weight:600;fill:var(--ink)">Conclusion</text><text x="512" y="237" style="font-size:11px;fill:var(--bdr-ink-2)">measured Γ</text><text x="512" y="252" style="font-size:11px;fill:var(--bdr-ink-2)">against the bound</text></a><line x1="491" y1="229.0" x2="501" y2="229.0" stroke="currentColor" marker-end="url(#pa1)"></line><line x1="128" y1="118" x2="128" y2="187" stroke="currentColor" marker-end="url(#pa1)"></line><text x="118" y="149.5" text-anchor="end" style="font-size:10.5px;fill:var(--bdr-muted)">its inputs,</text><text x="118" y="162.5" text-anchor="end" style="font-size:10.5px;fill:var(--bdr-muted)">measured</text><line x1="433" y1="118" x2="152" y2="187" stroke="currentColor" marker-end="url(#pa1)"></line><text x="330" y="160.5" style="font-size:10.5px;fill:var(--bdr-muted)">exact accounting</text><text x="10" y="303" style="font-size:11px;font-weight:600;letter-spacing:.06em;fill:var(--bdr-muted)">ALSO</text><a href="summary/" class="pfig-link" aria-label="Summary"><title>Go to the Summary</title>
-<rect x="58" y="286" width="196" height="26" rx="13" fill="var(--bdr-surface)" stroke="var(--bdr-muted)" stroke-width="1.2"></rect><text x="69" y="303" style="font-size:11px;fill:var(--ink)">Summary: the results first</text></a><a href="appendix/" class="pfig-link" aria-label="Appendix"><title>Go to the Appendix</title>
-<rect x="266" y="286" width="257" height="26" rx="13" fill="var(--bdr-surface)" stroke="var(--bdr-muted)" stroke-width="1.2"></rect><text x="277" y="303" style="font-size:11px;fill:var(--ink)">Appendix: exact accounting, sources</text></a></svg></div></div>
+<rect x="4" y="190" width="154" height="78" rx="6" fill="var(--bdr-surface)" stroke="var(--ink)" stroke-width="1.4"></rect><text x="14" y="206" style="font-size:10px;letter-spacing:.06em;fill:var(--bdr-muted)">PART 8</text><text x="14" y="222" style="font-size:11.5px;font-weight:600;fill:var(--ink)">Empirical rooflines</text><text x="14" y="237" style="font-size:11px;fill:var(--bdr-ink-2)">Measured ceilings</text><text x="14" y="252" style="font-size:11px;fill:var(--bdr-ink-2)"></text></a><a href="stack/" class="pfig-link" aria-label="Part 9, Measurement stack"><title>Go to Part 9: Measurement stack</title>
+<rect x="170" y="190" width="154" height="78" rx="6" fill="var(--bdr-surface)" stroke="var(--ink)" stroke-width="1.4"></rect><text x="180" y="206" style="font-size:10px;letter-spacing:.06em;fill:var(--bdr-muted)">PART 9</text><text x="180" y="222" style="font-size:11.5px;font-weight:600;fill:var(--ink)">Measurement stack</text><text x="180" y="237" style="font-size:11px;fill:var(--bdr-ink-2)">Time per component</text></a><line x1="159" y1="229.0" x2="169" y2="229.0" stroke="currentColor" marker-end="url(#pa1)"></line><a href="kernels/" class="pfig-link" aria-label="Part 10, Kernels"><title>Go to Part 10: Kernels</title>
+<rect x="336" y="190" width="154" height="78" rx="6" fill="var(--bdr-surface)" stroke="var(--ink)" stroke-width="1.4"></rect><text x="346" y="206" style="font-size:10px;letter-spacing:.06em;fill:var(--bdr-muted)">PART 10</text><text x="346" y="222" style="font-size:11.5px;font-weight:600;fill:var(--ink)">Kernels</text><text x="346" y="237" style="font-size:11px;fill:var(--bdr-ink-2)">TD kernel work</text></a><line x1="325" y1="229.0" x2="335" y2="229.0" stroke="currentColor" marker-end="url(#pa1)"></line><a href="conclusion/" class="pfig-link" aria-label="Part 11, Conclusion"><title>Go to Part 11: Conclusion</title>
+<rect x="502" y="190" width="154" height="78" rx="6" fill="var(--bdr-surface)" stroke="var(--ink)" stroke-width="1.4"></rect><text x="512" y="206" style="font-size:10px;letter-spacing:.06em;fill:var(--bdr-muted)">PART 11</text><text x="512" y="222" style="font-size:11.5px;font-weight:600;fill:var(--ink)">Conclusion</text><text x="512" y="237" style="font-size:11px;fill:var(--bdr-ink-2)">Everything together</text><text x="512" y="252" style="font-size:11px;fill:var(--bdr-ink-2)"></text></a><line x1="491" y1="229.0" x2="501" y2="229.0" stroke="currentColor" marker-end="url(#pa1)"></line><line x1="128" y1="118" x2="128" y2="187" stroke="currentColor" marker-end="url(#pa1)"></line><text x="118" y="149.5" text-anchor="end" style="font-size:10.5px;fill:var(--bdr-muted)">its inputs,</text><text x="118" y="162.5" text-anchor="end" style="font-size:10.5px;fill:var(--bdr-muted)">measured</text><line x1="433" y1="118" x2="152" y2="187" stroke="currentColor" marker-end="url(#pa1)"></line><text x="330" y="160.5" style="font-size:10.5px;fill:var(--bdr-muted)">exact accounting</text><text x="10" y="303" style="font-size:11px;font-weight:600;letter-spacing:.06em;fill:var(--bdr-muted)">ALSO</text><a href="summary/" class="pfig-link" aria-label="Summary"><title>Go to the Summary</title>
+<rect x="58" y="286" width="163" height="26" rx="13" fill="var(--bdr-surface)" stroke="var(--bdr-muted)" stroke-width="1.2"></rect><text x="69" y="303" style="font-size:11px;fill:var(--ink)">Summary: Main results</text></a><a href="appendix/" class="pfig-link" aria-label="Appendix"><title>Go to the Appendix</title>
+<rect x="233" y="286" width="237" height="26" rx="13" fill="var(--bdr-surface)" stroke="var(--bdr-muted)" stroke-width="1.2"></rect><text x="244" y="303" style="font-size:11px;fill:var(--ink)">Appendix: Sources and Accounting</text></a></svg></div></div>
 <div class="v-narrow"><div class="map-narrow">
 <div class="mn-h">On paper · Parts 1–7</div>
 <ol>
-<li><a href="setup/"><span class="mn-p">Part 1</span> <b>Setup</b> · costs F, Q, penalties</a></li>
-<li><a href="gain/"><span class="mn-p">Part 2</span> <b>The gain</b> · Prop. 1</a></li>
+<li><a href="setup/"><span class="mn-p">Part 1</span> <b>Setup</b> · Costs, Penalties</a></li>
+<li><a href="gain/"><span class="mn-p">Part 2</span> <b>The gain</b> · Main result</a></li>
 <li><a href="linear/"><span class="mn-p">Part 3</span> <b>Linear part</b></a></li>
 <li><a href="attention/"><span class="mn-p">Part 4</span> <b>Attention part</b></a></li>
-<li><a href="whole/"><span class="mn-p">Part 5</span> <b>Whole picture</b> · regimes, maps</a></li>
+<li><a href="whole/"><span class="mn-p">Part 5</span> <b>Whole picture</b> · </a></li>
 <li><a href="calculator/"><span class="mn-p">Part 6</span> <b>Calculator</b></a></li>
 <li><a href="examples/"><span class="mn-p">Part 7</span> <b>Worked examples</b></a></li>
 </ol>
 <div class="mn-h">On an H200 · Parts 8–11</div>
 <ol class="mn-h200">
-<li><a href="effective/"><span class="mn-p">Part 8</span> <b>Empirical rooflines</b> · measured π, β and experts U</a></li>
-<li><a href="stack/"><span class="mn-p">Part 9</span> <b>Measurement stack</b> · time per component</a></li>
-<li><a href="kernels/"><span class="mn-p">Part 10</span> <b>Kernels</b> · two rewrites</a></li>
-<li><a href="conclusion/"><span class="mn-p">Part 11</span> <b>Conclusion</b> · measured Γ against the bound</a></li>
+<li><a href="effective/"><span class="mn-p">Part 8</span> <b>Empirical rooflines</b> · Measured ceilings </a></li>
+<li><a href="stack/"><span class="mn-p">Part 9</span> <b>Measurement stack</b> · Time per component</a></li>
+<li><a href="kernels/"><span class="mn-p">Part 10</span> <b>Kernels</b> · TD kernel work</a></li>
+<li><a href="conclusion/"><span class="mn-p">Part 11</span> <b>Conclusion</b> · Everything together </a></li>
 </ol>
-<div class="mn-also">Also: <a href="summary/">Summary</a> (the results first), <a href="appendix/">Appendix</a> (exact accounting, sources)</div>
+<div class="mn-also">Also: <a href="summary/">Summary</a> (Main results), <a href="appendix/">Appendix</a> (Sources and Accounting)</div>
 </div></div>
-    <p class="fig-cap"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/">Parts 1</a>–<a class="xref" href="/notes/block-diffusion-rooflines-6f924020/examples/">7</a> derive the gain \(\Gamma\) as a ratio of roofline bounds and map it over batch and context. <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/effective/">Parts 8</a>–<a class="xref" href="/notes/block-diffusion-rooflines-6f924020/conclusion/">11</a> take the inputs of those bounds from measurements, time every kernel of both decoders in vLLM, rewrite the two kernels that lag most, and compare the measured gain with the bound. Select a box to open its chapter.</p>
+    <p class="fig-cap"></p>
   </div>
-  <ul>
-    <li>
-<b>Summary</b> states the results first, so that each later chapter reads as the proof of one of them.</li>
-    <li>
-<b><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/calculator/">Part 6</a></b> is a calculator for any accelerator and model, and <b><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/examples/">Part 7</a></b> works three variations of the running example.</li>
-  </ul>
 
-  <h3 id="intro-ladder">From the bound to the measurement</h3>
+  <h3 id="intro-ladder">From theory to practice</h3>
   <p>The bound of <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/">Parts 1</a>–<a class="xref" href="/notes/block-diffusion-rooflines-6f924020/examples/">7</a> rests on two kinds of input that are not measured there. The accelerator's rates, its peak FLOP/s \(\pi\) and memory bandwidth \(\beta\), come from its datasheet. The number of experts a pass touches comes from assumption (A5) of <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/gain/#prop1">Proposition 1</a>, that tokens choose their experts independently and uniformly. The measured gain then differs from the bound in a third way: real kernels run below their rooflines. <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/effective/">Part 8</a> measures the first two inputs, and <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/stack/">Parts 9</a>–<a class="xref" href="/notes/block-diffusion-rooflines-6f924020/conclusion/">11</a> account for the third difference.</p>
+
+<p>Theoretical inference results are only useful if they inform the practitioner.
+While the bounds of <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/">Parts 1</a>–<a class="xref" href="/notes/block-diffusion-rooflines-6f924020/examples/">7</a> seem fairly robust at first sight they rely on three assumptions that are often violated in practice:</p>
+
+<ul>
+<li>
+<strong>Hardware ceilings:</strong> First, hardware ceilings differ from what is announced on the datasheet. In <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/effective/">Part 8</a>, we measure those empirical ceilings properly on our chosen hardware (H200).</li>
+<li>
+<strong>Expert routing:</strong> Second, the number of experts per canvas is extremely important to derive proper inference gains. In the theoretical results, we take our best shot at approximating it using an independence assumptions for the experts chosen within one canvas. This assumption is often conservative and we can get away with less experts per canvas than what the independent assumption suggests. In <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/effective/">Part 8</a>, we measure the touched experts per stream for the given workload.</li>
+<li>
+<strong>Kernel engineering:</strong> Finally, while the first two points correspond to limitations of the datasheet and the theoretical roofline work, we also need to face the harsh truth that kernels do not run at their rooflines. While we can acknowledge <em>some</em> inefficiencies, TD still requires some kernel engineering work in the case of DiffusionGemma in order to run as efficiently as its AR counterpart. As a result, <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/stack/">Parts 9</a>–<a class="xref" href="/notes/block-diffusion-rooflines-6f924020/conclusion/">11</a> are dedicated to kernel engineering for TD.</li>
+</ul>
   <div class="bdr-fig pfig" id="fig-ladder">
     <div class="fig-k" id="figure-4">Figure 4 · interactive</div>
-    <p class="fig-title">From the book's bound to the measured gain: two measured inputs, then the measurement.</p>
-    <p class="fig-lede">Choose a context; hover over or tap a batch to read the four values.</p>
+    <p class="fig-title">From theoretical to measured gains</p>
     <div data-mfig="ladder" data-series="a,b,c,d"></div>
-    <p class="fig-cap">DiffusionGemma (TD) against Gemma 4 26B-A4B (AR) on one H200, FP8 weights, at the 25 measured points. (a) is the book's exact accounting, vocabulary included, with the kernel-by-kernel timing rule of <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/whole/">Part 5</a>, at FP8, with datasheet rates and independent routing, evaluated at the context of the measured windows. (b) uses the ceilings measured on this H200, (c) also the expert counts measured in the same runs, and (d) is the measured gain, in magenta. <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/effective/">Part 8</a> explains (a) to (c), and <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/conclusion/">Part 11</a> compares (c) with (d). The batch axis is logarithmic: the measured sizes 1, 2, 4, …, 64 are equally spaced.</p>
+    <p class="fig-cap">DiffusionGemma (TD) against Gemma 4 26B-A4B (AR) on one H200 with FP8 weights and BF16 KV cache. (a) is the blogpost derived theoretical gain. (b) is still theoretical but uses the hardware ceilings measured on this H200, (c) is again theoretical but also uses measured expert counts. Finally, (d) is the measured gain, in magenta.</p>
   </div>
-  <p>The two points of <a class="xref" href="#figure-4">Figure 4</a>, batch 1 and batch 64 at context 1k, show that the differences do not cancel and do not even share a sign. At batch 1 the measured routing raises the bound, in the exact accounting, from 2.7 to 4.2, because a canvas touches fewer experts than (A5) predicts, and the measured gain, 7.0, is higher still. At batch 64 each change of input lowers the gain, from 1.36 to 0.71, until AR is the faster decoder.</p>
-  <p>The measurements of <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/effective/">Parts 8</a>–<a class="xref" href="/notes/block-diffusion-rooflines-6f924020/conclusion/">11</a> share one setting.</p>
+  <p>All the practical chapters <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/effective/">Parts 8</a>–<a class="xref" href="/notes/block-diffusion-rooflines-6f924020/conclusion/">11</a> are evaluated under a common setting.</p>
   <ul>
     <li>
-<b>Models:</b> DiffusionGemma 26B-A4B (TD) and Gemma 4 26B-A4B (AR), which has the same backbone. <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/">Parts 1</a>–<a class="xref" href="/notes/block-diffusion-rooflines-6f924020/examples/">7</a> pair DiffusionGemma with a hypothetical AR twin that runs its own weights; the measurements use the released AR checkpoint, so AR's routing is Gemma 4's.</li>
+<b>Models:</b> DiffusionGemma 26B-A4B (TD) and Gemma 4 26B-A4B (AR), which has the same backbone. </li>
     <li>
-<b>Accelerator:</b> one H200 SXM, capped at 700 W.</li>
+<b>Accelerator:</b> one H200 SXM.</li>
     <li>
-<b>Engine:</b> vLLM 0.28.0 with CUDA graphs (each pass recorded once and replayed with a single launch; <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/stack/">Part 9</a>) and the fixes of <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/stack/">Part 9</a>; FP8 weights, BF16 KV cache.</li>
+<b>Engine:</b> vLLM 0.28.0 with CUDA graphs (methodology and fixes are described in <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/stack/">Part 9</a>); FP8 weights, BF16 KV cache.</li>
     <li>
 <b>Workload</b> (details in <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/stack/">Part 9</a>):
       <ul>
         <li>Prompts: passages cut from the PG-19 test books, each followed by a request for a long essay about the passage, in the model's chat template.</li>
-        <li>Measured canvases: for TD, the third to sixth canvases of the answer of the request that starts decoding last.</li>
-        <li>Grid: \(B \in \{1, 2, 4, \dots, 64\}\) and prompts of \(C \in \{1\text{k}, 4\text{k}, 16\text{k}, 64\text{k}\}\) tokens with \(BC \le 2^{21}\). For the measurements \(C\) is the prompt length, and the cache of the request that starts decoding last holds about \(C + 1024\) tokens at the middle of the measured windows.</li>
-        <li>Canvas and passes: \(b = 256\) positions and \(S = 14\) denoising passes.</li>
-        <li>Sampling: AR at temperature 1, TD with DiffusionGemma's own schedule, from 0.8 at the first denoising pass to 0.43 at the last.</li>
-        <li>Repeats: three per point, with different prompts.</li>
-        <li>Missing points: two TD points, \((B, C) = (32, 64\text{k})\) and \((64, 16\text{k})\), did not fit in memory with the expert kernel of <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/kernels/">Part 10</a>, so TD has 25 points and AR 27.</li>
+        <li>Grid: \(B \in \{1, 2, 4, \dots, 64\}\) and prompts of \(C \in \{1\text{k}, 4\text{k}, 16\text{k}, 64\text{k}\}\) tokens.</li>
+        <li>Canvas and passes: \(b = 256\) positions and \(S = 14\) denoising passes<sup class="fn-ref" id="fnref-2"><a href="#fn-2" title="For simplicity, we do not consider confidence or entropy based samplers which can considerably improve the throughput of TD. We leave a similar study for future work. Similarly, we do not consider rolling diffusion samplers.">2</a></sup>.</li>
+
+
+
+
+        <li>Sampling: AR at temperature 1, TD with DiffusionGemma's own schedule, from 0.8 at the first denoising pass to 0.43 at the last, using the documented temperature annealing strategy.</li>
       </ul>
 </li>
     <li>
-<b>Code:</b> the harness roofscope (not yet public), which runs the engine, records every kernel and routing decision, and computes the rooflines; <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/effective/">Parts 8</a>–<a class="xref" href="/notes/block-diffusion-rooflines-6f924020/kernels/">10</a> quote it where the text describes it, and <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/conclusion/">Part 11</a> gives the pipeline that produces every measured number.</li>
+<b>Code:</b> In addition to this blogpost, we also publish a harness for inference analysis: <a class="rs-mention" href="https://github.com/vdeborto/roofscope" rel="external nofollow noopener" target="_blank"><svg class="rs-logo" width="16" height="16" viewbox="0 0 64 64" aria-hidden="true"><path d="M10 8V54H58" fill="none" stroke="var(--bdr-muted)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"></path><path d="M10 50L30 22H58" fill="none" stroke="var(--bdr-td)" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"></path><circle cx="18.5" cy="47" r="3" fill="var(--bdr-ar)"></circle><circle cx="41" cy="44" r="3" fill="var(--bdr-ar)"></circle><circle cx="53" cy="30.5" r="3" fill="var(--bdr-ar)"></circle><circle cx="30" cy="22" r="10" fill="var(--bdr-surface)"></circle><path d="M16 50L30 22H44" fill="none" stroke="var(--bdr-td)" stroke-width="5" stroke-linejoin="round"></path><circle cx="30" cy="22" r="10" fill="none" stroke="var(--bdr-ink-2)" stroke-width="3"></circle><path d="M37 29L43 35" stroke="var(--bdr-ink-2)" stroke-width="4.5" stroke-linecap="round"></path></svg>roofscope</a>, which runs the engine, records every kernel and routing decision, and computes the rooflines.</li>
   </ul>
 
-  <h3 id="intro-read">How to read it</h3>
   <ul>
-    <li>
-<b>Reading depth:</b> the switch at the top of each chapter folds every definition and proposition to its title and one sentence ("intuition", the default) or shows it in full ("full math").</li>
-    <li>
-<b>Colours:</b> AR quantities are blue and TD quantities orange, in the equations and in the figures.</li>
   </ul>
 <section class="footnotes" aria-label="Notes"><h3 id="s-notes">Notes</h3>
-<ol><li id="fn-1">While parallel generations is now also common in AR models through Multi Tokens Prediction (MTP) and Speculative Sampling (SS), we do not consider those scenarios in the rest of the note. We will discuss both MTP and SS in the <a href="/notes/block-diffusion-rooflines-6f924020/conclusion/">Conclusion</a> <a href="#fnref-1" class="fn-back" aria-label="Back to the text">↩</a>
-</li></ol></section>
+<ol>
+<li id="fn-1">While parallel generations is now also common in AR models through Multi Tokens Prediction (MTP) and Speculative Sampling (SS), we do not consider those scenarios in the rest of the note. We will discuss both MTP and SS in the <a href="/notes/block-diffusion-rooflines-6f924020/conclusion/">Conclusion</a> <a href="#fnref-1" class="fn-back" aria-label="Back to the text">↩</a>
+</li>
+<li id="fn-2">For simplicity, we do not consider confidence or entropy based samplers which can considerably improve the throughput of TD. We leave a similar study for future work. Similarly, we do not consider rolling diffusion samplers. <a href="#fnref-2" class="fn-back" aria-label="Back to the text">↩</a>
+</li>
+</ol></section>
+</section>
+<section class="book-cite" id="cite">
+  <h3 id="s-citation">Citation</h3>
+  <div class="cite-entry">
+<button type="button" class="cite-copy">Copy</button><pre class="cite-bib">@misc{debortoli2026rooflines,
+  title = {Block Diffusion Rooflines},
+  author = {De Bortoli, Valentin},
+  howpublished = {\url{https://vdeborto.github.io/notes/block-diffusion-rooflines-6f924020/}},
+  year = {2026}
+}</pre>
+</div>
 </section>
 <nav class="book-nav" aria-label="Chapters"><a class="next" href="/notes/block-diffusion-rooflines-6f924020/summary/"><span>Next</span>Summary</a></nav>
 <section class="book-comments" id="bdr-comments" data-repo="vdeborto/vdeborto.github.io" data-repo-id="MDEwOlJlcG9zaXRvcnkxMTY1OTk1ODA=" data-category="Announcements" data-category-id="DIC_kwDOBvMrHM4DLMnm" data-term="Block Diffusion Rooflines · Part 0 · Introduction">
