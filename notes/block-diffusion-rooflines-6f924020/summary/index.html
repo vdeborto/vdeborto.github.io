@@ -396,7 +396,7 @@ Of course, this formula is <em>idealized</em>, as it holds under some critical a
 <p>This is what makes TD worth it. While TD is memory-bound, the gain grows linearly with \(b\).</p>
 <div class="card-more" hidden>
   <div class="eq">\[ \begin{gathered} \mathrm{TPF} = \frac{b}{\omega},\qquad \class{mj-td}{I_{TD}} = \frac{b}{\Pi}\,\class{mj-ar}{I_{AR}},\\[4pt] \class{mj-td}{B^\star_{TD}} \approx \frac{I^\star s_w\class{mj-td}{W_{TD}}}{2b\,N_{\mathrm{act}}}. \end{gathered} \]</div>
-  <p>While a TD pass is memory-bound, i.e., \(\class{mj-td}{I_{TD}} \leq I^\star\), we have that \(\Gamma = \mathrm{TPF}/\Pi\) and therefore the gain grows linearly with \(b\). Once it is compute-bound, \(\Gamma = I^\star/(\omega \class{mj-ar}{I_{AR}})\) no longer depends on \(b\). Additionally, a longer canvas reaches that regime at a smaller batch<sup class="fn-ref" id="fnref-1"><a href="#fn-1" title="One trade-off that we deliberately leave out of the analysis is that the longer the canvas, the harder it is for TD to reach the quality of AR.">1</a></sup>.</p>
+  <p>While a TD pass is memory-bound, i.e., \(\class{mj-td}{I_{TD}} \leq I^\star\), we have that \(\Gamma = \mathrm{TPF}/\Pi\) and therefore the gain grows linearly with \(b\). Once it is compute-bound, \(\Gamma = I^\star/(\omega \class{mj-ar}{I_{AR}})\) no longer depends on \(b\). Additionally, a longer canvas reaches that regime at a smaller batch<sup class="fn-ref" id="fnref-canvas-quality"><a href="#fn-canvas-quality" title="One trade-off that we deliberately leave out of the analysis is that the longer the canvas, the harder it is for TD to reach the quality of AR.">1</a></sup>.</p>
 
 
 
@@ -440,7 +440,7 @@ Of course, this formula is <em>idealized</em>, as it holds under some critical a
   <h3 id="s-what-the-formulas-leave-out">What the formulas leave out</h3>
   <p>The gains above are roofline bounds under the assumptions (A1)–(A5) of <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/gain/#prop1">Proposition 1</a>. What these assumptions leave out (the vocabulary, kernel-by-kernel timing, kernel efficiency, correlated routing and a few smaller effects) is listed in <a href="/notes/block-diffusion-rooflines-6f924020/gain/#gain-leave-out">Part 2</a>.</p>
 <section class="footnotes" aria-label="Notes"><h3 id="s-notes">Notes</h3>
-<ol><li id="fn-1">One trade-off that we deliberately leave out of the analysis is that the longer the canvas, the harder it is for TD to reach the quality of AR. <a href="#fnref-1" class="fn-back" aria-label="Back to the text">↩</a>
+<ol><li id="fn-canvas-quality">One trade-off that we deliberately leave out of the analysis is that the longer the canvas, the harder it is for TD to reach the quality of AR. <a href="#fnref-canvas-quality" class="fn-back" aria-label="Back to the text">↩</a>
 </li></ol></section>
 </section>
 <nav class="book-nav" aria-label="Chapters"><a class="prev" href="/notes/block-diffusion-rooflines-6f924020/"><span>Previous</span>Introduction</a><a class="next" href="/notes/block-diffusion-rooflines-6f924020/setup/"><span>Next</span>1 · Setup</a></nav>
