@@ -53,6 +53,29 @@ def logo(size: int, uid: str, label: bool = False) -> str:
             '<path d="M37 29L43 35" stroke="var(--bdr-ink-2)" stroke-width="4.5" stroke-linecap="round"/></svg>')
 
 
+
+# Every mention of roofscope in the book's prose: the name links to the repository, after a small
+# logo. Used by bin/build-roofline.py on every page and by the site editor's preview. The repository
+# is private for now, so the link shows readers GitHub's 404 page until it is public.
+MENTION_LINKS = True
+_KEEP = re.compile(r'<details class="code-card".*?</details>|<div class="repo-card">.*?</div></div></div>|'  # they carry the logo already
+                   r"<(a|code|pre|script|style|svg|summary|title|textarea)\b.*?</\1>|<[^>]+>|^---\n.*?\n---\n", re.S)
+_WORD = re.compile(r"\broofscope\b(?![/.\w-])")
+
+
+def mark_mentions(html: str, uid: str) -> str:
+    n = [0]
+
+    def word(_m):
+        n[0] += 1
+        mark = logo(16, f"rsm-{uid}-{n[0]}") + "roofscope"
+        return f'<a class="rs-mention" href="{GH}">{mark}</a>' if MENTION_LINKS else f'<span class="rs-mention">{mark}</span>'
+    parts, pos = [], 0
+    for m in _KEEP.finditer(html):  # tags, links, code, drawings and the front matter stay as they are
+        parts += [_WORD.sub(word, html[pos:m.start()]), m.group(0)]
+        pos = m.end()
+    return "".join(parts) + _WORD.sub(word, html[pos:])
+
 # name: (file, [(first-line regex, last-line regex), ...], caption, open)
 CARDS = {
     "ceilings": ("roofscope/ert.py",

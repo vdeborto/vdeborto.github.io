@@ -392,7 +392,8 @@ def main():
             problems.append(f"takeaway link {fid} says {name}, the figure is {m.group(1) if m else 'missing'}")
     pages = {k: name_headings(v) for k, v in pages.items()}
     pages = link_references(pages)
-    pages = {k: mark_roofscope(v, k) for k, v in pages.items()}
+    import roofline_code
+    pages = {k: roofline_code.mark_mentions(v, k or 'intro') for k, v in pages.items()}
     if problems:
         for p in problems:
             print("PROBLEM:", p)
@@ -460,30 +461,6 @@ def card_legacy_figures(body):
     if k != 4:
         problems.append(f"legacy figures carded: {k}, expected 4")
     return body
-
-
-# Every mention of roofscope in the prose: the name links to the repository, after a small logo.
-# The repository is private for now, so the link shows readers GitHub's 404 page until it is public.
-MENTION_LINKS = True
-_KEEP = re.compile(r'<details class="code-card".*?</details>|<div class="repo-card">.*?</div></div></div>|'  # they carry the logo already
-                   r"<(a|code|pre|script|style|svg|summary|title|textarea)\b.*?</\1>|<[^>]+>|^---\n.*?\n---\n", re.S)
-
-
-def mark_roofscope(html, page):
-    import roofline_code
-    n = [0]
-
-    def word(m):
-        n[0] += 1
-        mark = roofline_code.logo(16, f"rsm-{page or 'intro'}-{n[0]}") + "roofscope"
-        return f'<a class="rs-mention" href="{roofline_code.GH}">{mark}</a>' if MENTION_LINKS else f'<span class="rs-mention">{mark}</span>'
-    parts, pos = [], 0
-    for m in _KEEP.finditer(html):  # tags, links, code, drawings and the front matter stay as they are
-        parts.append(re.sub(r"\broofscope\b(?![/.\w-])", word, html[pos:m.start()]))
-        parts.append(m.group(0))
-        pos = m.end()
-    parts.append(re.sub(r"\broofscope\b(?![/.\w-])", word, html[pos:]))
-    return "".join(parts)
 
 
 def name_headings(html):
