@@ -521,7 +521,8 @@ def fig_map(base=BOOK_URL):
     bw, gap, bx = 154, 12, 4
     X = lambda i: bx + i * (bw + gap)
     for i, (slug, part, title, lines) in enumerate(MAP_BOT):
-        s.append(linkbox(X(i), y2, bw, h2, f"{base}{slug}/", part, title, lines, TD, f"Go to {part.title()}: {title}"))
+        # the measured half in ink, the paper half in grey: no hue, since orange and blue mean TD and AR
+        s.append(linkbox(X(i), y2, bw, h2, f"{base}{slug}/", part, title, lines, INK, f"Go to {part.title()}: {title}"))
         if i:
             s.append(f'<line x1="{X(i) - gap + 1}" y1="{y2 + h2 / 2}" x2="{X(i) - 1}" y2="{y2 + h2 / 2}" stroke="currentColor" marker-end="url(#pa1)"/>')
     # Part 8 measures the inputs of Part 2's proposition, and evaluates Part 5's exact accounting at them.
@@ -552,7 +553,7 @@ def fig_ladder(d):
     rungs = [("(a) book's bound", ["datasheet π, β,", "independent routing"], "roof_ind_ds", MUT),
              ("(b) ceilings", ["π, β measured", "on this H200"], "roof_ind", MUT),
              ("(c) routing", ["U counted in", "the same runs"], "roof", MUT),
-             ("(d) measured", ["vLLM with fixes", "and new kernels"], "measured", TD)]
+             ("(d) measured", ["vLLM with fixes", "and new kernels"], "measured", MEAS)]
     steps = ["Part 8", "Part 8", "Parts 9–10"]
     s = [arrow_defs(2)]
     for i, (t, l, key, col) in enumerate(rungs):
