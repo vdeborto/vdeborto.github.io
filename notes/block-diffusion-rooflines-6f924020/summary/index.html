@@ -361,7 +361,7 @@
 <b>At long context the batch stops mattering.</b> Both decoders are then reading the KV cache, which belongs to one sequence, so no batch can share it. What still separates them is when they become compute-bound: an AR step reads the cache for one query and never reaches the ridge, while a TD pass reads it once for \(b\) queries and does. <a class="tk-fig" href="/notes/block-diffusion-rooflines-6f924020/attention/#fig-context">Try it in Figure 13</a>
 </li>
       <li>
-<b>A higher ridge point means more to gain.</b> Whenever TD is compute-bound and AR is not, the gain scales with \(I^\star\), because \(I^\star\) measures the compute AR leaves idle. The price is that TD needs more to reach the ridge: a larger batch at short context, and a canvas longer than \(I^\star/I_{\mathrm{attn}}\) at long context. On a DGX Spark, 273 GB/s against the 7.9 GB that an AR step of DiffusionGemma reads per token in BF16 (batch 1, context 1k, vocabulary included) caps AR at about 35 tokens per second and 0.2% of the chip's BF16 compute; the rest is what TD can spend. <a class="tk-fig" href="/notes/block-diffusion-rooflines-6f924020/whole/#fig-accel">Try it in Figure 15</a>
+<b>A higher ridge point means more to gain.</b> Whenever TD is compute-bound and AR is not, the gain scales with \(I^\star\), because \(I^\star\) measures the compute AR leaves idle. The price is that TD needs more to reach the ridge: a larger batch at short context, and a canvas longer than \(I^\star/I_{\mathrm{attn}}\) at long context. On a DGX Spark, 273 GB/s against the 7.9 GB that an AR step of DiffusionGemma reads per token in BF16 (batch 1, context 1k, vocabulary included) caps AR at about 35 tokens per second and 0.2% of the chip's BF16 compute; the rest is what TD can spend. <a class="tk-fig" href="/notes/block-diffusion-rooflines-6f924020/whole/#fig-accel">Try it in Figure 16</a>
 </li>
     </ol>
   </div>
@@ -562,7 +562,7 @@
 <div class="card-more" hidden>
   <p>TD runs at the peak \(\pi\) and AR at \(\class{mj-ar}{I_{AR}}\,\beta\), so TD's FLOPs run \(I^\star/\class{mj-ar}{I_{AR}}\) times faster and it does \(\omega\) times as many. The gain is the compute that AR leaves idle, divided by TD's extra work. At short context \(\class{mj-ar}{I_{AR}}\) grows with the batch and \(\Gamma\) reaches 1 near batch 109. At long context \(\class{mj-ar}{I_{AR}} \to I_{\mathrm{attn}}\), and at any batch</p>
   <div class="eq">\[ \Gamma \to \frac{I^\star}{\omega\,I_{\mathrm{attn}}} = \frac{206}{15 \times 8} = 1.72. \]</div>
-  <p class="card-link"><a href="/notes/block-diffusion-rooflines-6f924020/whole/#prop7">Proposition 7</a> · <a href="/notes/block-diffusion-rooflines-6f924020/whole/#fig-accel">Figure 15</a></p>
+  <p class="card-link"><a href="/notes/block-diffusion-rooflines-6f924020/whole/#prop7">Proposition 7</a> · <a href="/notes/block-diffusion-rooflines-6f924020/whole/#fig-accel">Figure 16</a></p>
 </div>
 </div>
   </div>

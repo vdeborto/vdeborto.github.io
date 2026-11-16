@@ -399,3 +399,22 @@ html { scroll-behavior: smooth; }
 .bdr .bdr-card .fig-sub { font: 12.5px/1.5 var(--bdr-font-ui); color: var(--bdr-muted); margin: 0 0 8px; }
 .bdr .bdr-card .mapfig { margin: 8px 0 4px; }
 .bdr section > .fig-k { margin-top: 30px; padding-top: 16px; border-top: 1px solid var(--rule); }
+.bdr .mlegend { display: flex; flex-wrap: wrap; gap: 4px 14px; font: 12px var(--bdr-font-ui); color: var(--bdr-ink-2); margin: 4px 0 0 40px; }
+.bdr .mlegend span { display: inline-flex; align-items: center; gap: 5px; }
+.bdr .mchart .mlegend svg { width: 22px; height: 10px; display: inline-block; flex: none; }
+/* Part 5: the eight regimes as two 2x2 grids */
+.bdr .rgrid2 { display: grid; grid-template-columns: 1fr; gap: 20px; margin: 12px 0 6px; }
+@media (max-width: 760px) { .bdr .rgrid2 { grid-template-columns: 1fr; } }
+.bdr .rp-title { font: 600 13px var(--bdr-font-ui); color: var(--ink); }
+.bdr .rp-sub { font: 12px var(--bdr-font-ui); color: var(--bdr-muted); margin: 0 0 6px; }
+.bdr .rg { display: grid; grid-template-columns: 92px 1fr 1fr; gap: 8px; }
+.bdr .rg .rh { font: 11.5px var(--bdr-font-ui); color: var(--bdr-ink-2); text-align: center; align-self: end; }
+.bdr .rg .rv { font: 11.5px var(--bdr-font-ui); color: var(--bdr-ink-2); align-self: center; line-height: 1.3; }
+.bdr .rc { border: 1px solid var(--rule); border-radius: 5px; padding: 7px 10px 8px; min-height: 92px; position: relative; background: var(--bdr-surface); }
+.bdr .rc .rid { font: 600 11px var(--bdr-font-ui); letter-spacing: .06em; color: var(--bdr-muted); }
+.bdr .rc .rf { font-size: .95rem; margin: 2px 0 4px; }
+.bdr .rc .rn { font: 11.5px/1.4 var(--bdr-font-ui); color: var(--bdr-ink-2); }
+.bdr .rc.td { border-color: var(--bdr-td); box-shadow: inset 3px 0 0 var(--bdr-td); }
+.bdr .rc.td .rid { color: var(--bdr-td); }
+.bdr .rc.na { background: repeating-linear-gradient(135deg, transparent 0 6px, color-mix(in srgb, var(--rule) 55%, transparent) 6px 7px); }
+.bdr .rc.na .rf, .bdr .rc.na .rn { opacity: .75; }
