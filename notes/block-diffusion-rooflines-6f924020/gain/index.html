@@ -337,10 +337,10 @@
 
   <div class="bdr-fig wide" id="fig-roofline">
     <div class="fig-k" id="figure-5">Figure 5 · interactive</div>
-    <p class="fig-title"><a class="xref" href="#prop1">Proposition 1</a> on the roofline.</p>
+    <p class="fig-title">On the roofline, TD runs its FLOPs faster than AR by the ratio of attainable rates, and dividing by ω gives Γ.</p>
     <p class="fig-lede">Each dot sits at the arithmetic intensity of its pass, on the roofline of the accelerator. The bracket is how much faster TD's FLOPs run than AR's; dividing it by \(\omega\) gives \(\Gamma\). Move the batch and the context, or pick one of three settings: batch 1 and batch 8 at context 1k, and batch 4 at context 1M.</p>
     <div data-fig="roofline"></div>
-    <p class="fig-cap">The roofline is \(\min(\pi,\ I\beta)\), and the bracket is \(\min(\class{mj-td}{I_{TD}}, I^\star)/\min(\class{mj-ar}{I_{AR}}, I^\star)\). Intensities from <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/#def3">Definition 3</a> without the vocabulary, as in (A2): DiffusionGemma, BF16, \(b = 256\), \(S = 14\), \(\omega = 15\). The exact accounting of the appendix, at the same fixed context, is given under the plot for comparison.</p>
+    <p class="fig-cap">The roofline is \(\min(\pi,\ I\beta)\), and the bracket is \(\min(\class{mj-td}{I_{TD}}, I^\star)/\min(\class{mj-ar}{I_{AR}}, I^\star)\). Intensities from <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/#def3">Definition 3</a> without the vocabulary, as in (A2): DiffusionGemma, BF16, \(b = 256\), \(S = 14\), \(\omega = 15\). The exact accounting of the appendix, at the same fixed context, is given under the plot for comparison. Both axes are logarithmic.</p>
   </div>
   <div class="box prop" id="cor1">
     <div class="bdr-title">
