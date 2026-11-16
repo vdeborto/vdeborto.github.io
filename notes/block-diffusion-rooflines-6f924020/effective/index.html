@@ -410,6 +410,7 @@
     <li>
 <b>Context barely moves TD's count up to 16k.</b> At batch 16, \(U^{\mathrm{meas}}\) is 104, 106 and 107 at 1k, 4k and 16k, and 84 at 64k, where the generated text degrades.</li>
   </ul>
+  <details class="numbers"><summary>Table 12: the numbers behind Figure 24</summary>
   <div class="table-wrap nofold"><table class="pt">
     <caption id="table-12">Table 12. Effective number of independent tokens per pass, \(N^{\mathrm{eff}}\), the number of uniformly routed independent tokens that would touch the measured \(U\) (Definition 6). A TD pass holds \(256B\) positions, an AR step \(B\).</caption>
     <thead><tr>
@@ -471,6 +472,7 @@
 </tr>
 </tbody>
   </table></div>
+  </details>
   <p>In particular, at batch 1 a canvas of 256 positions touches 64–74 experts per layer at contexts 1k–16k, as many as 11 to 13 independent tokens, and at batch 64 its 16,384 positions touch as many as 38. An AR step at batch 64 touches as many as 12 independent tokens: its sequences are independent, but the popular experts take most of the selections. The DiffusionGemma technical report counts about 84 experts per canvas on PG-19 with its adaptive sampler, about 17 independent tokens, which is within the range of the batch-1 repeats here (32–79 experts at 1k–16k).</p>
   <div class="box prop" id="rem-neff">
     <div class="bdr-title">
