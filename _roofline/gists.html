@@ -16,7 +16,7 @@ If AR is compute-bound TD loses; otherwise the gain is the smaller of \(\mathrm{
 <!-- gist:prop2 -->
 Each intensity is the byte-weighted average of its linear and attention parts, so it lies between them, nearer to the part that carries more of the bytes.
 <!-- gist:prop3 -->
-A canvas touches almost every expert, so at batch 1 TD streams the total parameters where AR streams the active ones (a penalty of 7.9), and the penalty vanishes once the batch alone touches every expert.
+A canvas touches almost every expert, so at batch 1 TD streams the total parameters where AR streams the active ones (a penalty of 7.9), and the penalty falls to 1 once the batch alone touches every expert.
 <!-- gist:prop4 -->
 With dense attention and full windows, the weights dominate an AR step's bytes up to a context that shrinks as the batch grows, like \(1/B\) once the batch touches every expert, because the batch shares the weights but each sequence brings its own cache.
 <!-- gist:prop5 -->
@@ -34,7 +34,7 @@ The empirical ceiling of a rate is the highest value measured on this GPU; the e
 <!-- gist:def6 -->
 \(U^{\mathrm{meas}}\) counts the experts a pass actually touches; \(U^{\mathrm{freq}}\) is what independent tokens with the measured popularity would touch; \(N^{\mathrm{eff}}\) is the number of uniformly routed tokens that would touch \(U^{\mathrm{meas}}\).
 <!-- gist:rem-neff -->
-Measured routing enters Proposition 1 only through the expert penalty, which becomes \(U^{\mathrm{meas}}_{TD}/U^{\mathrm{meas}}_{AR}\).
+Measured routing enters Proposition 1 only through the expert weights each pass reads: the expert penalty becomes \(U^{\mathrm{meas}}_{TD}/U^{\mathrm{meas}}_{AR}\), and AR's intensity changes with them.
 <!-- gist:def7 -->
 A component's efficiency is its empirical roofline over its measured time; its recoverable time is what remains above the time of the best kernel available at its shape.
 <!-- gist:prop9 -->

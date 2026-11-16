@@ -1403,7 +1403,7 @@
     const pc = M.paramCounts(m);
     const cc = M.compact(m, w, o, hw), nG = m.layers.filter((l) => l.attn !== 'sliding').length;
     $('c-mspec').textContent = `${fmt(pc.total / 1e9, 3)}B parameters, ${fmt(pc.active / 1e9, 3)}B active (no vocabulary). ${nG} global, ${m.layers.length - nG} window layers. I_attn = ${fmt(cc.Ikv, 3)}; KV ${fmt((cc.nuG + cc.nuS) / 1e3, 3)} kB per cached token (window layers stop growing once their window is full).`;
-    $('c-note').textContent = `${(M.MODELS[$('c-model').value] || { label: 'Custom model' }).label}: ${fmt(pc.total / 1e9, 3)}B parameters, ${fmt(pc.active / 1e9, 3)}B active per token without the vocabulary${m.selfCond ? '; TD uses self-conditioning' : '; its TD twin shares the backbone, with no self-conditioning'}. Generated tokens rounded to ${w.G} (a multiple of the canvas). ω = Sr + 1 = ${fmt(omega(w), 4)}, TPF = b/ω = ${(w.b / omega(w)).toFixed(2)}. Ridge point I* = ${fmt(hw.peak / hw.bw)} FLOP/byte${hw.fp8 ? ' for BF16; FP8 linear layers run at twice the peak' : ''}.`;
+    $('c-note').textContent = `${(M.MODELS[$('c-model').value] || { label: 'Custom model' }).label}: ${fmt(pc.total / 1e9, 3)}B parameters, ${fmt(pc.active / 1e9, 3)}B active per token without the vocabulary${m.selfCond ? '; TD uses self-conditioning' : '; its TD twin shares the backbone, with no self-conditioning'}. Generated tokens rounded to ${w.G} (a multiple of the canvas). ω = Sr + 1 = ${fmt(omega(w), 4)}, TPF = b/ω = ${(w.b / omega(w)).toFixed(2)}. Ridge point I* = ${fmt(hw.peak / hw.bw)} FLOP/byte${hw.fp8 ? ' for BF16; FP8 linear layers run at the FP8 peak' : ''}.`;
   }
 
   // ---------------------------------------------------------------- calculator state in the page address

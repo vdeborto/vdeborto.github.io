@@ -21,7 +21,7 @@ from pygments.token import STANDARD_TYPES
 
 REPO = "vdeborto/roofscope"
 CLONE = Path.home() / "code/roofscope"
-SHA = "47662934412decb0f8b0e2b703b3ff6c530cfc14"
+SHA = "1b49abb4ba0a24949b1dd7ef6c7dcdbf72612d02"
 GH = f"https://github.com/{REPO}"
 
 
@@ -51,9 +51,11 @@ CARDS = {
     "ceilings": ("roofscope/ert.py",
                  [(r"^def sustained\(", r"^    return statistics\.median\(ts\)"),
                   (r"^def measure\(", r'^    return \{"t": t')],
-                 "How each ceiling of Definition 5 is timed: the median over three repeats of the mean time per "
-                 "call over about half a second of back-to-back calls, with the SM clock and the power sampled "
-                 "every 50 ms by <code>nvidia-smi</code> meanwhile.", False),
+                 "How the sustained rates of Definition 5 are timed: the median over three repeats of the mean "
+                 "time per call over about half a second of back-to-back calls, with the SM clock and the power "
+                 "sampled every 50 ms by <code>nvidia-smi</code> meanwhile. The ceiling is the highest rate of any "
+                 "benchmark; the FP8 and BF16 ceilings come from shorter bursts (CUDA-graph replays of about 2 ms, "
+                 "and 20 back-to-back GEMMs).", False),
     "routing": ("roofscope/routing.py",
                 [(r"^def _rs_routing_hist\(", r"^    tl\.atomic_add\("),
                  (r"^    def capture\(", r"^            _rs_routing_step\[")],
@@ -100,12 +102,14 @@ CARDS = {
             "columns next to their 128 up columns, so the activation is applied in registers; in the "
             "second, each row is scaled by its routing weight and added into its token's output.", True),
     "exchange": ("roofscope/kattn/make_pair.py",
-                 [(r"^    def xsend\(", r"^        cute\.copy\(atom, srcv, dstv"),
-                  (r"^    def xrecv\(", r"^            acc_S\[i\] = acc_S\[i\] \+ ")],
-                 "The score exchange of the pair kernel. Each thread converts its fragment of the partial "
-                 "scores to FP16 and pushes it into the partner CTA's shared memory with 16-byte "
-                 "asynchronous stores, completion counted in bytes on the partner's barrier; it then waits "
-                 "for the partner's fragment and adds it.", False),
+                 [(r"^    def exchange_S\(", r"^        base = \(slot \* self\.num_mma_threads"),
+                  (r"^            elif const_expr\(self\.xmode in \(8, 9, 10, 11\)\):", r"^                cute\.copy\(atom, srcv, dstv, mbar_ptr"),
+                  (r"^            # wait for the partner's fragment and add it", r"^                acc_S\[i\] = acc_S\[i\] \+ ")],
+                 "The score exchange of the pair kernel, in the generator that writes it into FlashAttention 4's "
+                 "source. The engine runs mode 9: each thread converts its fragment of the partial scores to "
+                 "FP16 and pushes it into the partner CTA's shared memory with 16-byte asynchronous stores, "
+                 "into one of two alternating buffers, with completion counted in bytes on the partner's "
+                 "barrier; it then waits for the partner's fragment and adds it.", False),
 }
 
 REPRO = """# the grid of Parts 8-11, one H200 per configuration

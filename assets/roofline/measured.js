@@ -16,7 +16,7 @@
   // ---------------------------------------------------------------- helpers
   const css = (v) => getComputedStyle(document.querySelector('.bdr') || document.documentElement).getPropertyValue(v).trim();
   const colors = () => ({
-    ar: css('--bdr-ar'), td: css('--bdr-td'), ink: css('--ink'), muted: css('--bdr-muted'), rule: css('--rule'),
+    ar: css('--bdr-ar'), td: css('--bdr-td'), meas: css('--bdr-int-comp'), ink: css('--ink'), muted: css('--bdr-muted'), rule: css('--rule'),
     bg: css('--bdr-bg'), surface: css('--bdr-surface'), accent: css('--accent'), ink2: css('--bdr-ink-2'),
   });
   const el = (html) => { const t = document.createElement('template'); t.innerHTML = html.trim(); return t.content.firstElementChild; };
@@ -172,8 +172,8 @@
   const LADDER = {
     a: { k: 'roof_ind_ds', label: '(a) datasheet, A2', long: '(a) the book\'s bound: datasheet rates, independent routing', dash: '2 4', w: 1.8, col: 'muted' },
     b: { k: 'roof_ind', label: '(b) measured ceilings', long: '(b) empirical ceilings', dash: '7 4', w: 1.8, col: 'muted' },
-    c: { k: 'roof', label: '(c) bound, measured inputs', long: '(c) empirical ceilings and measured routing', dash: '', w: 2.2, col: 'ink' },
-    d: { k: 'measured', label: '(d) measured', long: '(d) measured in vLLM', dash: '', w: 2.8, col: 'td', dots: true },
+    c: { k: 'roof', label: '(c) measured ceilings and routing', long: '(c) empirical ceilings and measured routing', dash: '', w: 2.2, col: 'ink' },
+    d: { k: 'measured', label: '(d) measured', long: '(d) measured in vLLM', dash: '', w: 2.8, col: 'meas', dots: true },
   };
   function mLadder(root) {
     const keys = (root.dataset.series || 'a,b,c,d').split(',');
@@ -195,7 +195,7 @@
         hover: (i) => {
           const r = D.gains[key(Bs[i], st.C)], head = `B = ${Bs[i]}, C = ${kc(st.C)}`;
           if (!r) return ro(head, [['not measured', 'the batch did not fit in memory']]);
-          return ro(head, keys.map((k) => [LADDER[k].long, `${f2(r[LADDER[k].k])}×`, k === 'd' ? 'td' : '']));
+          return ro(head, keys.map((k) => [LADDER[k].long, `${f2(r[LADDER[k].k])}×`, k === 'd' ? 'meas' : '']));
         },
       });
     }
@@ -316,14 +316,14 @@
       lineChart(pic, [
         { label: 'Prop. 1, A2', color: c.muted, width: 1.8, dash: '6 4', ys: Bs.map((B) => p(B).gain_ind ?? null) },
         { label: 'Prop. 1, measured routing', color: c.ink, width: 2.2, dots: true, bold: true, ys: Bs.map((B) => p(B).gain_meas ?? null) },
-        { label: 'measured', color: c.td, width: 2.8, dots: true, bold: true, ys: Bs.map((B) => (D.gains[key(B, st.C)] ? g(B).measured : null)) },
+        { label: 'measured', color: c.meas, width: 2.8, dots: true, bold: true, ys: Bs.map((B) => (D.gains[key(B, st.C)] ? g(B).measured : null)) },
       ], {
         W: widthOf(pic), H: 300, y0: 0, y1: 8, ticks: [0, 1, 2, 3, 4, 5, 6, 7, 8], yFmt: (v) => `${v}×`, yTitle: 'gain Γ, TD over AR',
         ref: { y: 1, label: 'parity: below it AR is faster' }, out, aria: `Proposition 1 and the measured gain against batch at context ${kc(st.C)}`,
         hover: (i) => {
           const q = D.prop1[key(Bs[i], st.C)], r = D.gains[key(Bs[i], st.C)], head = `B = ${Bs[i]}, C = ${kc(st.C)}`;
           if (!q || !r) return ro(head, [['not measured', '']]);
-          return ro(head, [['Proposition 1, A2', `${f2(q.gain_ind)}× (Π<sub>lin</sub> = ${f2(q.Pi_ind)})`], ['Proposition 1, measured routing', `${f2(q.gain_meas)}× (Π<sub>lin</sub> = ${f2(q.Pi_meas)})`], ['measured', `${f2(r.measured)}×`, 'td']]);
+          return ro(head, [['Proposition 1, A2', `${f2(q.gain_ind)}× (Π<sub>lin</sub> = ${f2(q.Pi_ind)})`], ['Proposition 1, measured routing', `${f2(q.gain_meas)}× (Π<sub>lin</sub> = ${f2(q.Pi_meas)})`], ['measured', `${f2(r.measured)}×`, 'meas']]);
         },
       });
     }

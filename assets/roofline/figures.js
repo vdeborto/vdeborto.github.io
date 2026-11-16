@@ -391,7 +391,7 @@
     watchWidth(pic, draw);
   }
 
-  // ---------------------------------------------------------------- Figure 13: both intensities forget the batch (Proposition 1)
+  // ---------------------------------------------------------------- Figure 13: both intensities become independent of the batch (Proposition 1)
   const CSCAN = Array.from({ length: 41 }, (_, i) => Math.round(1024 * 2 ** (i / 4)));
   const CBATCH = [1, 4, 16, 64];
   function figContext(root) {
@@ -810,7 +810,7 @@
       st.xs = xs;
       const sh = SHB.map((B) => bytes(B, C)), fl = flops(C), first = SHB.find((B, k) => sh[k] > 0.5 && fl < 0.5);
       out.innerHTML = `At <b>C = ${kctx(C)}</b>, attention is ${SHB.map((B, k) => `${pct(sh[k])}`).join(', ')} of an <span class="ar">AR step</span>'s bytes at batches ${SHB.join(', ')}, and <b>${pct(fl)}</b> of a position's FLOPs at every batch.`
-        + (first ? ` From batch ${first} on, the cache is already most of the bytes while the linear layers still do most of the FLOPs: the attention-dominated gain does not apply yet.` : fl >= 0.5 ? ' Attention does most of the FLOPs here.' : ' The weights are still most of the bytes at every batch shown.');
+        + (first ? ` At batch ${first}${first === SHB[SHB.length - 1] ? '' : ' and the larger batches shown'}, the cache is already most of the bytes while the linear layers still do most of the FLOPs: the attention-dominated gain does not apply yet.` : fl >= 0.5 ? ' Attention does most of the FLOPs here.' : ' The weights are still most of the bytes at every batch shown.');
     }
     draw(); onTheme(draw); watchWidth(pic, draw);
   }
