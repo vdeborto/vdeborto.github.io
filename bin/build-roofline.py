@@ -354,17 +354,17 @@ def main():
     body = sub_once(body, '  <div class="table-wrap breakout"><table class="cls t6">', figs["context"] + '  <div class="table-wrap breakout"><table class="cls t6">', "context anchor")
     body = sub_once(body, "<figcaption>Figure 3. Smallest compute-bound batch", "<figcaption>Figure 15. Smallest compute-bound batch", "Figure 15 caption")
     body = sub_once(body, "  <h3>Across accelerators and models</h3>\n", "  <h3>Across accelerators and models</h3>\n" + figs["accel"], "accel anchor")
-    # Parts 3-5: experts and weights (Proposition 3), where the weights dominate (Table 2), what a pass reads of
-    # the cache (Table 4), the sparse penalty (Proposition 5), attention's shares (Table 5), thresholds (Table 8).
+    # Parts 3-5: experts and weights (Proposition 3), where the weights dominate (Table 1), what a pass reads of
+    # the cache (Table 3), the sparse penalty (Proposition 5), attention's shares (Table 4), thresholds (Table 7).
     # A figure whose numbers are in a folded table goes before the fold, so that it is shown.
     for name, anchor in (("experts", "  <p>For DiffusionGemma, \\(E/k = 16\\)"),
                          ("weights", '  <div class="box prop" id="prop4">'),
-                         ("linmap", '  <details class="numbers"><summary>Table 2: '),
+                         ("linmap", '  <details class="numbers"><summary>Table 1: '),
                          ("attnread", '  <div class="box prop" id="prop5">'),
                          ("sparse", '  <div class="box prop" id="prop6">'),
-                         ("share", '  <details class="numbers"><summary>Table 5: '),
-                         ("thresholds", '  <details class="numbers"><summary>Table 8: '),
-                         ("models", '  <details class="numbers"><summary>Table 9: ')):
+                         ("share", '  <details class="numbers"><summary>Table 4: '),
+                         ("thresholds", '  <details class="numbers"><summary>Table 7: '),
+                         ("models", '  <details class="numbers"><summary>Table 8: ')):
         body = sub_once(body, anchor, figs[name] + anchor, f"{name} anchor")
     body = card_legacy_figures(body)
     body = add_practice(body)

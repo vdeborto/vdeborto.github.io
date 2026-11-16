@@ -164,7 +164,7 @@
   function figAccounting(root) {
     const hw = hwOf('h200');
     const rows = [
-      { name: 'Proposition 1', what: 'closed form of Part 2: no vocabulary, context fixed at 1k (at zero context, as in the closed forms of Part 3 and Table 8, TD is ahead up to batch 109)', used: 'Figures 6 and 14 and Table 3 (Figure 18 and Table 8 use it at zero context)', g: (B) => prop1(DG, hw, B, 1024).gain },
+      { name: 'Proposition 1', what: 'closed form of Part 2: no vocabulary, context fixed at 1k (at zero context, as in the closed forms of Part 3 and Table 7, TD is ahead up to batch 109)', used: 'Figures 6 and 14 and Table 2 (Figure 18 and Table 7 use it at zero context)', g: (B) => prop1(DG, hw, B, 1024).gain },
       { name: 'Exact, fixed context', what: 'every FLOP and byte of the appendix, vocabulary included, context fixed at 1k', used: 'Figures 10, 17 and 19 and the maps', g: (B) => steady(DG, hw, B, 1024).gain },
       { name: 'Exact, whole generation', what: 'the same accounting summed over a 1k prompt and 8k generated tokens: the context grows from 1k to 9k', used: 'the headline tiles of the Summary and the calculator above', g: (B) => M.generate(DG, { ...W0, B }, O0, hw).gainDecode, slow: true },
     ];
@@ -694,7 +694,7 @@
     draw(); onTheme(draw); watchWidth(pic, draw);
   }
 
-  // ---------------------------------------------------------------- what a pass reads of one sequence's cache (Table 4)
+  // ---------------------------------------------------------------- what a pass reads of one sequence's cache (Table 3)
   // A toy cache: columns are the cached tokens of one sequence, rows are the queries of a pass. A filled cell
   // is a (query, key) pair that the layer scores, so FLOPs count cells; bytes count the columns that hold one.
   function figAttnRead(root) {
@@ -749,7 +749,7 @@
       const law = kind === 'dense'
         ? `In a dense layer every query scores every cached token. The canvas scores ${b} times as many pairs and reads the same ${C} tokens, once: ${hsub('Π', 'attn')} = 1, and its intensity is <b>${b} times</b> that of an AR step (<i>b</i> times in general).`
         : kind === 'window'
-          ? `In a sliding-window layer every query scores the last <i>w</i> = ${w} cached tokens. The canvas reads the same ${w} tokens, once: ${hsub('Π', 'attn')} = 1, and its intensity is <b>${b} times</b> that of an AR step. (Drawn as Table 4 counts it: the window of a later canvas position starts later and ends inside the canvas, and reads no other cached token.)`
+          ? `In a sliding-window layer every query scores the last <i>w</i> = ${w} cached tokens. The canvas reads the same ${w} tokens, once: ${hsub('Π', 'attn')} = 1, and its intensity is <b>${b} times</b> that of an AR step. (Drawn as Table 3 counts it: the window of a later canvas position starts later and ends inside the canvas, and reads no other cached token.)`
           : `In a sparse layer every query scans the index keys of all ${C} tokens (pale cells, one read of the index for the whole canvas) and then attends to its own <i>m</i> = ${m} selected tokens (full cells). The canvas reads the union of its ${b} selections, ${t.cols} tokens in this draw and <i>U</i><sub>C,m</sub>(${b}) = ${expU.toFixed(2)} in expectation, so on the selected tokens it reads ${hsub('Π', 'sel')} = ${expU.toFixed(2)}/${m} = <b>${gx(expU / m)}</b> times what an AR step reads, for ${b} times the pairs.`;
       out.innerHTML = `<span class="ar">AR step</span>: ${a.cells} scored pairs${sparse ? ' on the selected tokens' : ''}, ${a.cols} tokens' keys and values read. <span class="td">TD pass</span>: ${t.cells} pairs, ${t.cols} tokens read.<br>${law}`;
     }
@@ -757,7 +757,7 @@
   }
 
   // ---------------------------------------------------------------- the penalty of a sparse layer (Proposition 5)
-  // A model whose attention is one sparse layer type, as in Table 6: constants of DiffusionGemma's global layers.
+  // A model whose attention is one sparse layer type, as in Table 5: constants of DiffusionGemma's global layers.
   const SP = bare(M.MODELS.dgemma_sparse.build());
   const CSP = Array.from({ length: 73 }, (_, i) => Math.round(1024 * 2 ** (i / 4))); // 1k to 268M
   function figSparse(root) {
@@ -891,7 +891,7 @@
     draw(); onTheme(draw); watchWidth(pic, draw);
   }
 
-  // ---------------------------------------------------------------- exact gains across models (Table 9)
+  // ---------------------------------------------------------------- exact gains across models (Table 8)
   function figModels(root) {
     const hw = REF.hw, st = { id: 'dgemma' };
     const pic = el('<div></div>'), out = el('<div class="readout" aria-live="polite"></div>');
@@ -901,7 +901,7 @@
     function compute() {
       rows = Object.entries(M.MODELS).map(([id, spec]) => {
         const m = spec.build(), w = { ...W0, lambdaTD: m.selfCond ? 5 : 2 };
-        // Memory of the weights, of B caches and of the logits kept per sequence, as in Table 9.
+        // Memory of the weights, of B caches and of the logits kept per sequence, as in Table 8.
         const need = (mode) => { const wt = M.footprint(m, { ...w, B: 0, P: 0, G: 0 }, O0, mode).weights, lam = mode === 'td' ? w.lambdaTD : w.lambdaAR, lg = lam > 0 ? (mode === 'td' ? w.b : 1) * m.V * O0.bl : 0; return (B, C) => wt + B * (M.kvBytesPerSeq(m, C, O0) + lg); };
         const nTD = need('td'), nAR = need('ar');
         const pts = POINTS.map(([B, C]) => ({ g: M.steady(m, { ...w, B }, O0, hw, C).gain, fit: nTD(B, C) <= hw.mem && nAR(B, C) <= hw.mem }));

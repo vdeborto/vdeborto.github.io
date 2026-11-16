@@ -56,7 +56,7 @@ window.BDR_SYMBOLS = [
   ["(^|[^\\\\A-Za-z_])g(?![A-Za-z_])", "g", "query heads per KV head on the global layers, \\(n_q/n_{kv,\\ell}\\) (8)", "T"],
   ["s_\\{kv\\}", "s_{kv}", "bytes per element of the KV cache (2)", ""],
   ["h_\\\\ell", "h_\\ell", "head dimension of layer \\(\\ell\\) (512 on the global layers, 256 on the window layers)", ""],
-  ["\\\\mathcal ?\\{?[GW]", "\\mathcal G,\\ \\mathcal W", "sets of the global-attention layers and of the sliding-window layers (5 and 25 layers)", "T"],
+  ["\\\\mathcal ?\\{?[GWS]", "\\mathcal G,\\ \\mathcal W,\\ \\mathcal S", "sets of the global-attention, sliding-window and sparse layers (5, 25 and none in DiffusionGemma)", "T"],
   ["\\\\Gamma_\\{\\\\mathrm\\{meas\\}\\}", "\\Gamma_{\\mathrm{meas}}", "measured gain: TD tokens per second over AR tokens per second", ""],
   ["\\\\Gamma_\\{\\\\mathrm\\{roof\\}\\}", "\\Gamma_{\\mathrm{roof}}", "roofline bound at the measured ceilings and routing", ""],
   ["\\\\tau", "\\tau", "empirical roofline time: \\(\\max(F/\\hat\\pi,\\ Q/\\hat\\beta)\\), of a component \\(c\\) or of a whole step \\(X\\)", ""],

@@ -54,7 +54,7 @@ sitemap: false
   <details class="answer">
     <summary>All predictions against the exact accounting</summary>
     <div class="table-wrap"><table>
-      <caption id="table-10">Table 10. Predictions from the propositions (no vocabulary) against the exact accounting, \(b = 32\).</caption>
+      <caption id="table-9">Table 9. Predictions from the propositions (no vocabulary) against the exact accounting, \(b = 32\).</caption>
       <thead><tr><th class="l">Quantity</th><th>Prediction</th><th>Exact</th></tr></thead>
       <tbody id="t-ex"></tbody>
     </table></div>
@@ -74,7 +74,7 @@ sitemap: false
   <ol class="exercise">
     <li><p><b>Batch 1, short context.</b> Which regime, and what gain?</p>
       <details class="answer"><summary>Answer</summary>
-        <p>\(b\,I_{\mathrm{lin}}(1) = 256\) is above \(I^\star = 206\), so a TD pass is already compute-bound at batch 1, while AR runs at intensity 1. That is R2: \(\Gamma = I^\star/(\omega I_{\mathrm{lin}}(1)) = 206/15 = 13.7\) (exact: 13.3). Nothing is lost to \(\Pi\), which is why dense models have the largest batch-1 gains in <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/whole/#table-9">Table 9</a>. On the map: the dark orange bottom row.</p></details></li>
+        <p>\(b\,I_{\mathrm{lin}}(1) = 256\) is above \(I^\star = 206\), so a TD pass is already compute-bound at batch 1, while AR runs at intensity 1. That is R2: \(\Gamma = I^\star/(\omega I_{\mathrm{lin}}(1)) = 206/15 = 13.7\) (exact: 13.3). Nothing is lost to \(\Pi\), which is why dense models have the largest batch-1 gains in <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/whole/#table-8">Table 8</a>. On the map: the dark orange bottom row.</p></details></li>
     <li><p><b>Where does AR catch up?</b></p>
       <details class="answer"><summary>Answer</summary>
         <p>In R2, \(\Gamma = I^\star/(\omega B)\), so \(\Gamma = 1\) at \(B_\times = I^\star/\omega \approx 14\) (exact: 15). TD is compute-bound from batch 1, so batch 1 is also its best batch, and the gain only falls from there. On the map: the dashed line \(\Gamma = 1\). It starts near batch 15 at short context and turns sharply upward around 16k tokens, because at long context TD wins at every batch (last question).</p></details></li>
