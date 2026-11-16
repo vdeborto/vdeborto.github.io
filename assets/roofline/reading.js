@@ -259,6 +259,26 @@
     } else load();
   }
 
+  // ---------------------------------------------------------------- equations that do not fit
+  // A display equation written in two forms (.eq-wide, then .eq-narrow) shows the wide one only
+  // where it fits its column; the CSS switch on the viewport width cannot see the column.
+  function fitEquations() {
+    page.querySelectorAll('.eq-wide').forEach((w) => {
+      const n = w.nextElementSibling;
+      if (!n || !n.classList.contains('eq-narrow')) return;
+      w.classList.remove('eq-off'); n.classList.remove('eq-on');
+      const m = w.querySelector('mjx-container');
+      if (!m || !w.offsetParent) return;
+      if (m.scrollWidth > w.clientWidth + 2) { w.classList.add('eq-off'); n.classList.add('eq-on'); }
+    });
+  }
+  const whenTypeset = () => (window.MathJax && MathJax.startup && MathJax.startup.promise) || null;
+  (function waitTypeset(k) {
+    const p = whenTypeset();
+    if (p) p.then(() => { fitEquations(); addEventListener('resize', () => requestAnimationFrame(fitEquations)); page.addEventListener('toggle', fitEquations, true); page.addEventListener('click', () => setTimeout(fitEquations, 0)); });
+    else if (k < 50) setTimeout(() => waitTypeset(k + 1), 100);
+  })(0);
+
   // ---------------------------------------------------------------- start
   let saved = null;
   try { saved = localStorage.getItem(KEY); } catch (e) { /* storage unavailable */ }
