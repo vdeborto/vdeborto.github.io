@@ -11,7 +11,7 @@ Blocks, separated by blank lines:
     a chunk of plain text                a paragraph (in a file whose text is not already in <p>)
     a <p> cut in two by a blank line     two paragraphs
 Footnotes: [^label] in the text and, anywhere in the book, a line "[^label]: the note" (continued on
-the following lines up to a blank line). footnotes() numbers them per page, in order of first use,
+the following lines of text, up to a blank line or a line of HTML). footnotes() numbers them per page, in order of first use,
 and lists the notes at the end of the page.
 HTML is left as it is, and nothing inside <script>, <style>, <pre>, <code>, <svg>, comments or math
 (\\( \\), \\[ \\], $$ $$) is touched.
@@ -26,7 +26,9 @@ BLOCK_TAG = re.compile(r"</?(p|div|ul|ol|li|table|thead|tbody|tr|td|th|section|f
                        r"h[1-6]|blockquote|dl|dt|dd|main|article|header|footer|nav|aside|hr|br|form)\b", re.I)
 ITEM = re.compile(r"^(\s*)([-*+]|\d+[.)])[ \t]+(.*)$")
 HEAD = re.compile(r"^(\s*)(#{3,6})[ \t]+(.+?)\s*#*\s*$")
-FNDEF = re.compile(r"^[ \t]*\[\^([\w-]+)\]:[ \t]*(.*(?:\n(?![ \t]*\n)(?![ \t]*\[\^[\w-]+\]:).*)*)", re.M)
+# A note continues on the following lines of text, up to a blank line, a line that opens with HTML (or
+# a comment, such as a figure's placeholder) and the next note.
+FNDEF = re.compile(r"^[ \t]*\[\^([\w-]+)\]:[ \t]*(.*(?:\n(?![ \t]*\n)(?![ \t]*\[\^[\w-]+\]:)(?![ \t]*[<\x00]).*)*)", re.M)
 FNREF = re.compile(r"\[\^([\w-]+)\](?!:)")
 DEFDIV = re.compile(r'<div class="fn-def" data-fn="([\w-]+)" hidden>(.*?)</div>', re.S)
 REFSUP = re.compile(r'<sup class="fn-ref" data-fn="([\w-]+)">\[[\w-]+\]</sup>')
@@ -95,6 +97,30 @@ def _chunk(c: str, wrap: bool) -> str:
     has_block = BLOCK_TAG.search(s) or "\x00" in s
     if not has_block:
         return f"{indent}<p>{out.strip()}</p>" if wrap else out
+    # Lines of plain text right after a closed element (a heading, a paragraph, a figure's placeholder),
+    # up to the next line of HTML: a paragraph written without a blank line before it.
+    if wrap:
+        ls, out_ls, k = out.split("\n"), [], 0
+        closed = re.compile(r"(</(p|h[1-6]|ul|ol|div|table|figure|section|details|blockquote|dl)>|-->|\x00\d+\x00)\s*$")
+        while k < len(ls):
+            ln = ls[k]
+            if ln.strip() and not ln.lstrip().startswith(("<", "\x00")) and (not out_ls or closed.search(out_ls[-1])):
+                j = k
+                while j < len(ls) and ls[j].strip() and not ls[j].lstrip().startswith(("<", "\x00")):
+                    j += 1
+                run = "\n".join(ls[k:j])
+                # text that closes an element opened earlier (the rest of a list item) is not a paragraph
+                unbalanced = any(run.count(f"</{t}>") > len(re.findall(rf"<{t}\b", run)) for t in set(re.findall(r"</(\w+)>", run)))
+                if unbalanced:
+                    out_ls += ls[k:j]
+                else:
+                    ind = re.match(r"\s*", ln).group(0)
+                    out_ls.append(ind + "<p>" + " ".join(x.strip() for x in ls[k:j]) + "</p>")
+                k = j
+            else:
+                out_ls.append(ln)
+                k += 1
+        out = "\n".join(out_ls)
     # A <p> cut in two by a blank line: close the first half, open the second.
     opens, closes = len(re.findall(r"<p\b", s)), len(re.findall(r"</p>", s))
     if s.startswith("<p") and opens > closes:
