@@ -11,7 +11,9 @@ Blocks, separated by blank lines:
     a chunk of plain text                a paragraph (in a file whose text is not already in <p>)
     a <p> cut in two by a blank line     two paragraphs
 Footnotes: [^label] in the text and, anywhere in the book, a line "[^label]: the note" (continued on
-the following lines of text, up to a blank line or a line of HTML). footnotes() numbers them per page, in order of first use,
+the following lines of text, up to a blank line or a line of HTML). A note line written without the
+colon, "[^label] the note", counts as one when it starts a block (after a blank line or a line of
+HTML), the same text marks [^label] elsewhere, and defines it nowhere else. footnotes() numbers them per page, in order of first use,
 and lists the notes at the end of the page.
 HTML is left as it is, and nothing inside <script>, <style>, <pre>, <code>, <svg>, comments or math
 (\\( \\), \\[ \\], $$ $$) is touched.
@@ -30,6 +32,24 @@ HEAD = re.compile(r"^(\s*)(#{3,6})[ \t]+(.+?)\s*#*\s*$")
 # a comment, such as a figure's placeholder) and the next note.
 FNDEF = re.compile(r"^[ \t]*\[\^([\w-]+)\]:[ \t]*(.*(?:\n(?![ \t]*\n)(?![ \t]*\[\^[\w-]+\]:)(?![ \t]*[<\x00]).*)*)", re.M)
 FNREF = re.compile(r"\[\^([\w-]+)\](?!:)")
+# "[^label] the note", the colon forgotten, at the start of a line (see the module's docstring).
+COLONLESS = re.compile(r"^([ \t]*)\[\^([\w-]+)\][ \t]+(?=\S)", re.M)
+
+
+def _add_colons(t: str) -> str:
+    """Read a note line written without its colon as a note (see the docstring)."""
+    defined = set(re.findall(r"^[ \t]*\[\^([\w-]+)\]:", t, re.M))
+
+    def fix(m):
+        lab = m.group(2)
+        lines = t[:m.start()].split("\n")  # the last item is this line's indentation
+        prev = lines[-2] if len(lines) >= 2 else ""
+        starts_block = len(lines) < 2 or not prev.strip() or prev.rstrip().endswith(">") or prev.lstrip().startswith("\x00")
+        used_elsewhere = len(re.findall(r"\[\^" + re.escape(lab) + r"\](?!:)", t)) >= 2
+        if lab in defined or not starts_block or not used_elsewhere:
+            return m.group(0)
+        return f"{m.group(1)}[^{lab}]: "
+    return COLONLESS.sub(fix, t)
 DEFDIV = re.compile(r'<div class="fn-def" data-fn="([\w-]+)" hidden>(.*?)</div>', re.S)
 REFSUP = re.compile(r'<sup class="fn-ref" data-fn="([\w-]+)">\[[\w-]+\]</sup>')
 PH = re.compile(r"[\x00\x01\x02](\d+)[\x00\x01\x02]")
@@ -160,7 +180,7 @@ def render(text: str, wrap: bool = True) -> str:
         body = inline(" ".join(ln.strip() for ln in m.group(2).split("\n")))
         raw.append(f'<div class="fn-def" data-fn="{m.group(1)}" hidden>{body}</div>')
         return f"\n\x00{len(raw) - 1}\x00\n"
-    t = FNDEF.sub(fndef, t)
+    t = FNDEF.sub(fndef, _add_colons(t))
     parts = re.split(r"(\n[ \t]*\n(?:[ \t]*\n)*)", t)
     out = []
     for k, p in enumerate(parts):

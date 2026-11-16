@@ -778,7 +778,7 @@ sitemap: false
         cite = cite_block() if CITATION and not slug else ""
         pages[slug] = front + head + text.strip() + "\n" + cite + foot + comments_block(ch) + "</div>\n{% endraw %}\n"
     for lab in sorted(set(missing)):
-        problems.append(f"footnote [^{lab}] is used but not defined")
+        problems.append(f"footnote [^{lab}] is used but not defined: write its note on a line of its own, \"[^{lab}]: the note\"")
     for lab in sorted(set(book_defs) - used):
         problems.append(f"footnote [^{lab}] is defined but not used")
     pages["introduction"] = f"""---

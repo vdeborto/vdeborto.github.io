@@ -43,7 +43,7 @@ b
 S
   what: denoising passes per canvas (14)
   in: Part 1
-  match: (^|[^\\A-Za-z_])S(?![A-Za-z_])
+  match: (^|[^\\A-Za-z_])(?<!\\mathcal )(?<!\\mathcal\{)S(?![A-Za-z_])
   rank: 500
   scope: T
 
@@ -216,10 +216,16 @@ m
 H_I
   what: heads of the indexer of a sparse layer (8)
   in: Part 4
+  match: H_I
+  rank: 517
+  scope: T
 
 h_I,\ s_I
   what: head dimension of the indexer and bytes per element of its keys (128, 1 in FP8)
   in: Part 4
+  match: [hs]_I
+  rank: 518
+  scope: T
 
 == Costs and intensities
 
