@@ -343,42 +343,40 @@ Of course, this formula is <em>idealized</em>, as it holds under some critical a
 
   <h3 id="s-the-three-regimes-that-occur">The three regimes that occur</h3>
 
-<p>The formula above involves the ratio of two minima. Hence this possibly leads to four different possible scenarios. Since we will see that we always have that \(I_{\mathrm{TD}} \geq I_{\mathrm{AR}}\) we only have three possible regimes.</p>
+<p>The formula above involves the ratio of two minima, which leads to four possible scenarios. Since, under reasonable assumptions, \(I_{\mathrm{TD}} \geq I_{\mathrm{AR}}\) (<a class="xref" href="/notes/block-diffusion-rooflines-6f924020/gain/#cor1">Corollary 1</a>), only three regimes occur.</p>
   <div class="cards three">
     <div class="bdr-card regime lose">
 <div class="card-k">AR compute-bound</div>
 <div class="card-v">\(\Gamma = 1/\omega\)</div>
-<p>TD is then compute-bound as well. Both run at peak, and TD does \(\omega\) times the work. In that scenario using TD is strictly worse. However, this scenario is extremely rare as we will see. </p>
+<p>TD is then compute-bound as well. Both run at peak, and TD does \(\omega\) times the work. In that scenario, using TD is strictly worse. However, this scenario is extremely rare, as we will see.</p>
 <div class="card-more" hidden>
-  <p>Both passes run at the peak, so time is FLOPs, and a canvas spends \(\omega\) times AR's FLOPs per token: \(\Gamma \le 1/\omega\), equal to it under <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/gain/#prop1">Proposition 1</a>. AR reaches the ridge at</p>
+  <p>Both passes run at the peak, so time is FLOPs, and a canvas spends \(\omega\) times AR's FLOPs per token: \(\Gamma \le 1/\omega\), equal to it under <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/gain/#prop1">Proposition 1</a>. We claim that this setting is unrealistic, but just how unrealistic is it? AR becomes compute-bound at</p>
   <div class="eq">\[ \begin{gathered} \class{mj-ar}{B^\star_{AR}} = \frac{I^\star s_wW_{\mathrm{tot}}}{2N_{\mathrm{act}}}\\[4pt] = \frac{206 \times 2 \times 24.5\text{B}}{2 \times 3.08\text{B}} \approx 1{,}640. \end{gathered} \]</div>
-  <p>This closed form takes zero context. By <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/whole/#prop8">Proposition 8</a>, beyond about 135 tokens of context no batch makes an AR step compute-bound. In addition, holding 1,640 sequences of 9k tokens, the 1k prompt and 8k generated tokens of the running example, would take about 650 GB of KV cache, more than four H200s hold.</p>
-  <p class="card-link"><a href="/notes/block-diffusion-rooflines-6f924020/gain/#cor1">Corollary 1</a> · <a href="/notes/block-diffusion-rooflines-6f924020/whole/#prop8">Proposition 8</a></p>
+  <p>This is with zero context \(C\)! The batch that AR needs grows with the context, and there is usually even a point beyond which no batch size renders AR compute-bound. For instance, by <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/whole/#prop8">Proposition 8</a>, beyond about 135 tokens of context no batch makes an AR step compute-bound.</p>
 </div>
 </div>
     <div class="bdr-card regime mem">
 <div class="card-k">Both memory-bound</div>
 <div class="card-v">\(\Gamma = \mathrm{TPF}/\Pi\)</div>
-<p>TD's extra FLOPs add no time. Each read serves TPF tokens, divided by the penalty of whichever bytes dominate: 17.07 / 7.94 ≈ 2.15 at batch 1.</p>
+<p>TD's extra FLOPs add no time. Each read of the weights and of the KV cache serves TPF tokens, divided by the penalty \(\Pi\): the linear (MoE) penalty, the attention (sparse) penalty, or a byte-weighted mix of the two (<a class="xref" href="/notes/block-diffusion-rooflines-6f924020/gain/#prop2">Proposition 2</a>).</p>
 <div class="card-more" hidden>
-  <p>Time is bytes. Per sequence, an AR step reads \(\class{mj-ar}{Q^{AR}}\) for one token; a canvas reads \(\omega\) times \(\class{mj-td}{Q^{TD}} = \Pi\,\class{mj-ar}{Q^{AR}}\) for \(b\) tokens. Hence</p>
+  <p>Per sequence, an AR step reads \(\class{mj-ar}{Q^{AR}}\) bytes for one token; a canvas reads \(\omega\) times \(\class{mj-td}{Q^{TD}} = \Pi\,\class{mj-ar}{Q^{AR}}\) for \(b\) tokens. Both passes are memory-bound, so the gain is the ratio of these bytes per token:</p>
   <div class="eq">\[ \Gamma = \frac{\class{mj-ar}{Q^{AR}}}{\omega\,\Pi\,\class{mj-ar}{Q^{AR}}/b} = \frac{\mathrm{TPF}}{\Pi}. \]</div>
-  <p>TD's extra FLOPs are hidden under the memory time. At batch 1, \(\mathrm{TPF} = 256/15 = 17.07\) and \(\Pi \approx \Pi_{\mathrm{lin}}(1) = 7.94\), so \(\Gamma \approx 2.15\); the exact accounting at a fixed context of 1k gives 2.53, and 2.55 over the whole generation.</p>
-  <p class="card-link"><a href="/notes/block-diffusion-rooflines-6f924020/gain/#cor1">Corollary 1</a> · <a href="/notes/block-diffusion-rooflines-6f924020/setup/#fig-reuse">Figure 5</a></p>
 </div>
 </div>
     <div class="bdr-card regime best">
 <div class="card-k">AR memory-, TD compute-bound</div>
 <div class="card-v">\(\Gamma = \dfrac{I^\star}{\omega\,\class{mj-ar}{I_{AR}}}\)</div>
-<p>TD uses the compute that AR leaves idle. At short context this falls with the batch, inversely proportional to \(B\) once AR touches every expert; at long context it tends to \(I^\star/(\omega I_{\mathrm{attn}})\), 1.72 on an H200, at any batch.</p>
+<p>This quantity decreases with the batch \(B\), as \(1/B\) once AR touches every expert; the gain rises with the batch only in the previous regime. At long context, it tends to \(I^\star/(\omega I_{\mathrm{attn}})\), which is at least 1 whenever \(\omega I_{\mathrm{attn}} \le I^\star\): 1.72 on an H200.</p>
 <div class="card-more" hidden>
-  <p>TD runs at the peak \(\pi\) and AR at \(\class{mj-ar}{I_{AR}}\,\beta\), so TD's FLOPs run \(I^\star/\class{mj-ar}{I_{AR}}\) times faster and it does \(\omega\) times as many. The gain is the compute that AR leaves idle, divided by TD's extra work. At short context \(\class{mj-ar}{I_{AR}}\) grows with the batch and \(\Gamma\) reaches 1 near batch 109. At long context \(\class{mj-ar}{I_{AR}} \to I_{\mathrm{attn}}\), and at any batch</p>
+  <p>TD runs at the peak FLOP rate \(\pi\) and AR at \(\class{mj-ar}{I_{AR}}\,\beta\), so TD computes \(I^\star/\class{mj-ar}{I_{AR}}\) times faster than AR but does \(\omega\) times as many FLOPs per token; the ratio of the two is the formula above. At short context, \(\class{mj-ar}{I_{AR}}\) grows with the batch. At long context, \(\class{mj-ar}{I_{AR}} \to I_{\mathrm{attn}}\), and at any batch we have</p>
   <div class="eq">\[ \Gamma \to \frac{I^\star}{\omega\,I_{\mathrm{attn}}} = \frac{206}{15 \times 8} = 1.72. \]</div>
-  <p class="card-link"><a href="/notes/block-diffusion-rooflines-6f924020/whole/#prop7">Proposition 7</a> · <a href="/notes/block-diffusion-rooflines-6f924020/whole/#fig-accel">Figure 17</a></p>
+
+  <p>The above suggests that at long context, TD is <em>(almost) always</em> better than AR when it comes to throughput.</p>
+
 </div>
 </div>
   </div>
-  <p>As long as AR is memory-bound, we have \(\Gamma = \min\bigl(\mathrm{TPF}/\Pi,\ I^\star/(\omega \class{mj-ar}{I_{AR}})\bigr)\). The first term grows with the batch, while the second shrinks. Hence, the best batch is the one at which TD turns compute-bound.</p>
 
   <h3 id="s-critical-hyperparameters">Critical hyperparameters</h3>
 
