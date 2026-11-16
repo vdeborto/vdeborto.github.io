@@ -354,6 +354,12 @@ def url_of(slug):
     return BASE + (slug + "/" if slug else "")
 
 
+def practice_tags(slug):
+    if slug not in PRACTICE_SLUGS:
+        return ""
+    return f'<script type="application/json" id="bdr-practice">{practice_json()}</script>\n<script defer src="/assets/roofline/measured.js"></script>'
+
+
 def label_of(ch):
     slug, num, title = ch[:3]
     return f"{num} · {title}" if num and slug else title
@@ -366,6 +372,20 @@ def measured_gains():
 
 
 MEAS = None
+PRACTICE_SLUGS = {"effective", "stack", "kernels", "conclusion"}
+
+
+def practice_json():
+    """The measurements that assets/roofline/measured.js charts, rounded to 4 digits."""
+    d = json.loads((ROOT / "_roofline" / "practice-data.json").read_text())
+    r4 = lambda v: round(v, 4) if isinstance(v, float) else v
+    clean = lambda x: {k: clean(v) for k, v in x.items()} if isinstance(x, dict) else r4(x)
+    keep = {"gains": ("roof_ind_ds", "roof_ind", "roof", "measured", "eta_td", "eta_ar")}
+    out = {"Bs": d["Bs"], "Cs": d["Cs"],
+           "gains": {k: {kk: v.get(kk) for kk in keep["gains"]} for k, v in d["gains"].items()},
+           "eta2": d["eta2"], "eta3": d["eta3"], "share": d["share"], "recoverable": d["recoverable"],
+           "vs2": {"td": {k: {"ratio": v["ratio"]} for k, v in d["vs2"]["td"].items()}}}
+    return json.dumps(clean(out), separators=(",", ":"))
 
 
 def bibtex(url):
@@ -494,6 +514,7 @@ sitemap: false
 <link rel="stylesheet" href="/assets/roofline/theme.css">
 <script type="application/json" id="bdr-book">{json.dumps(meta, separators=(",", ":"))}</script>
 <script type="application/json" id="bdr-meas">{MEAS}</script>
+{practice_tags(slug)}
 <script defer src="/assets/roofline/mathjax.js"></script>
 <script defer src="/assets/roofline/note.js"></script>
 <script defer src="/assets/roofline/figures.js"></script>

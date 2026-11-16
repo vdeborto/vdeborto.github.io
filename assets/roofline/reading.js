@@ -40,7 +40,7 @@
     if (gist) gist.after(foldButton(box, 'the statement'));
   }
   for (const wrap of page.querySelectorAll('section .table-wrap:not(.nofold)')) {
-    if (!wrap.querySelector('caption') || wrap.closest('.box, .calc, .bdr-fig, .card-more')) continue;
+    if (!wrap.querySelector('caption') || wrap.closest('.box, .calc, .bdr-fig, .card-more, details.numbers')) continue;
     wrap.classList.add('foldable');
     wrap.appendChild(foldButton(wrap, 'the table'));
   }
