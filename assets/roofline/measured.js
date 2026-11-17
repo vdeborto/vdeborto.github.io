@@ -1,10 +1,10 @@
-// Interactive charts of the measurements of Parts 6-9 (DiffusionGemma against Gemma 4 26B-A4B on
+// Interactive charts of the measurements of Parts 5-8 (DiffusionGemma against Gemma 4 26B-A4B on
 // one H200, vLLM, FP8). Every value comes from the JSON that bin/build-roofline.py writes into the
 // page (#bdr-practice), itself exported from the campaign data by roofscope's pages/book/export.py.
 // Nothing is computed here beyond ratios of those values.
 //
 // Mounts on [data-mfig]: ladder (data-series="a,b,c" or "c,d"), eff, comp (data-src="eta2" or
-// "eta3"), recover, vs2, chip (Part 8: the H200 and the two kernels).
+// "eta3"), recover, vs2, chip (Part 7: the H200 and the two kernels).
 (function () {
   'use strict';
   const node = document.getElementById('bdr-practice');
@@ -366,8 +366,8 @@
     draw(); watch(pic, draw);
   }
 
-  // ---------------------------------------------------------------- the chip, and what the two kernels of Part 8 change
-  // Written for readers who do not write kernels. Every number is stated in Part 8 (or, for the chip,
+  // ---------------------------------------------------------------- the chip, and what the two kernels of Part 7 change
+  // Written for readers who do not write kernels. Every number is stated in Part 7 (or, for the chip,
   // elsewhere in the text): the bytes each expert kernel writes per MoE layer at TD batch 32 (Figure 30),
   // shared memory per thread block (Figure 33), the busy share of FlashAttention 4's tensor cores, and
   // the per-tile timings of the pair kernel's exchange. Totals only add the sizes of Figure 30.

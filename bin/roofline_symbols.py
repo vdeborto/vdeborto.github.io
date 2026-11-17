@@ -15,7 +15,7 @@ TeX on a line of its own, followed by indented "field: value" lines:
           page; the build checks that a formula there uses the symbol, and links it)
   match:  JavaScript regular expression on a formula's TeX; with it, the symbol is in the symbol key
   rank:   order in the symbol key, which lists at most 14 symbols of a formula, lowest rank first
-  scope:  T = only in Parts 1-5, P = only in Parts 6-9 (a letter that means two things)
+  scope:  T = only in Parts 1-4, P = only in Parts 5-8 (a letter that means two things)
   key:    the symbol as the key shows it, when it differs from the page's (TeX)
   page:   "no" keeps the entry out of the page (key only)
 

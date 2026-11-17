@@ -48,6 +48,6 @@
   <p>TD runs at the peak FLOP rate \(\pi\) and AR at \(I^{\mathrm{AR}}\,\beta\), so TD computes \(I^\star/I^{\mathrm{AR}}\) times faster than AR but does \(\omega\) times as many FLOPs per token; the ratio of the two is the formula above. At short context, \(I^{\mathrm{AR}}\) grows with the batch. At long context, \(I^{\mathrm{AR}} \to I_{\mathrm{attn}}\), and at any batch we have</p>
   <div class="eq">\[ \Gamma \to \frac{I^\star}{\omega\,I_{\mathrm{attn}}} = \frac{206}{15 \times 8} = 1.72. \]</div>
 
-  For DiffusionGemma on an H200, TD is therefore better than AR at long context, whatever the batch. This needs \(\omega I_{\mathrm{attn}} \lt I^\star\), i.e., a ridge point above 120 here: it fails on the H20 (Figure 7), with the sparse variant (0.86, Part 3), and if keys equal to values were cached once (0.86, Part 1).
+  For DiffusionGemma on an H200, TD is therefore better than AR at long context, whatever the batch. This needs \(\omega I_{\mathrm{attn}} \lt I^\star\), i.e., a ridge point above 120 here: it fails on the H20 (Figure 7), with the sparse variant (0.86, Part 2), and if keys equal to values were cached once (0.86, Part 1).
 
 </div>

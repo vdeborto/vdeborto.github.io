@@ -115,7 +115,7 @@
   // ---------------------------------------------------------------- symbol key
   // [pattern on a formula's TeX, symbol in TeX, meaning, scope]: assets/roofline/symbols.js, which the
   // build makes from _roofline/symbols.txt, the file behind the Symbols page as well.
-  // A scope keeps a letter that means two things to its chapters: T is Parts 1-5, P is Parts 6-9.
+  // A scope keeps a letter that means two things to its chapters: T is Parts 1-4, P is Parts 5-8.
   const SYMBOLS = (window.BDR_SYMBOLS || []).map(([re, sym, what, scope]) => [new RegExp(re), sym, what, scope]);
   const sheet = chapters.find((c) => c.slug === 'symbols');
   const PRACTICE = new Set(['effective', 'stack', 'kernelwork', 'conclusion']);

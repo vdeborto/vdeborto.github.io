@@ -72,7 +72,7 @@
   // Expected number of distinct experts a layer touches when N tokens each pick a
   // uniformly random k-subset of the E experts.
   const distinctExperts = (m, N) => (m.E > 0 ? m.E * (1 - Math.pow(1 - m.k / m.E, N)) : 0);
-  // Measured routing (Part 6): m.routing = { td: [[B, Neff], ...], ar: [[B, Neff], ...] }, the independent
+  // Measured routing (Part 5): m.routing = { td: [[B, Neff], ...], ar: [[B, Neff], ...] }, the independent
   // tokens N_eff that would touch as many experts as a pass of that decoder did at batch B (canvas 256).
   // Between measured batches N_eff is interpolated log-log, beyond them extrapolated with the last slope;
   // a canvas of b positions is taken to touch what b/256 of a 256-position canvas would. Nothing was measured
@@ -320,7 +320,7 @@
     };
   }
 
-  // ------------------------------------------------------------ compact per-token model (Parts 1–4)
+  // ------------------------------------------------------------ compact per-token model (Parts 1–3)
 
   // Costs per generated token (batch-amortised): FLOPs f, bytes q. TD costs are per committed token.
   function compact(m, w, o, hw) {
@@ -442,7 +442,7 @@
   // "≈": derived from vendor material or disputed between sources. The FP8 peak defaults to twice BF16;
   // chips without an FP8 matrix rate above BF16's (A100, TPU v5e, v5p, v6e) dequantise FP8 weights, so tflops8 = tflops.
   // Memory in GB (10^9 bytes): Google lists TPU HBM in GiB (16, 95, 32, 192), converted here.
-  // tflopsAttn: the attention ceiling (Part 6, Table 5), used in place of the BF16 peak for attention kernels.
+  // tflopsAttn: the attention ceiling (Part 5, Table 5), used in place of the BF16 peak for attention kernels.
   const HW = [
     { group: 'NVIDIA data centre' },
     { id: 'a100', label: 'A100 SXM 80 GB', tflops: 312, tflops8: 312, tbps: 2.039, gb: 80 },
@@ -450,7 +450,7 @@
     { id: 'h100', label: 'H100 SXM', tflops: 989, tbps: 3.35, gb: 80 },
     { id: 'h20', label: 'H20', tflops: 148, tbps: 4.0, gb: 96 },
     { id: 'h200', label: 'H200 SXM', tflops: 989, tbps: 4.8, gb: 141 },
-    { id: 'h200meas', label: 'H200 SXM, measured ceilings (Part 6)', tflops: 781, tflops8: 1468, tflopsAttn: 638, tbps: 4.32, gb: 141, prec: 'fp8' },
+    { id: 'h200meas', label: 'H200 SXM, measured ceilings (Part 5)', tflops: 781, tflops8: 1468, tflopsAttn: 638, tbps: 4.32, gb: 141, prec: 'fp8' },
     { id: 'b200', label: 'B200 (HGX)', tflops: 2250, tbps: 8.0, gb: 180 },
     { id: 'gb200', label: 'GB200, per GPU', tflops: 2500, tbps: 8.0, gb: 186 },
     { id: 'b300', label: 'B300 / GB300, per GPU (≈)', tflops: 2500, tbps: 8.0, gb: 288 },
@@ -1116,7 +1116,7 @@
   }
 
   // Effective independent tokens per pass, measured on DiffusionGemma against Gemma 4 26B-A4B on one H200
-  // (Part 6): geometric mean over contexts 1k-16k at each batch (64k is left out: TD's text degrades there).
+  // (Part 5): geometric mean over contexts 1k-16k at each batch (64k is left out: TD's text degrades there).
   const MEASURED_ROUTING = {"td": [[1, 12.24], [2, 14.62], [4, 18.06], [8, 22.6], [16, 26.99], [32, 32.54], [64, 37.37]], "ar": [[1, 1.0], [2, 1.76], [4, 2.98], [8, 4.73], [16, 7.13], [32, 9.44], [64, 12.27]]};
   function routeApply(m) {
     const ok = MEASURED_ROUTING && m.E === 128 && m.k === 8 && /^dgemma/.test($('c-model').value);  // DiffusionGemma's own counts only
@@ -1181,7 +1181,7 @@
     const long = e.arKVshare >= 0.5;
     const id = `R${(long ? 4 : 0) + (e.arCompute ? 2 : 0) + (e.tdCompute ? 1 : 0) + 1}`;
     const [ctx, bound, f0, why] = REGIMES[id];
-    // Sparse attention: an AR step tends to the indexer's intensity I_idx, so the long-context limit is I*/(ω·I_idx) (Part 3).
+    // Sparse attention: an AR step tends to the indexer's intensity I_idx, so the long-context limit is I*/(ω·I_idx) (Part 2).
     const formula = id === 'R6' && m.sparse ? f0.replace('I<sub>attn</sub>', 'I<sub>idx</sub>') : f0;
     const { c } = bare({ ...st, w }, m);
     const p = prop1(c, w, w.B, Cm, hw);

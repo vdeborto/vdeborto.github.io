@@ -1,7 +1,7 @@
 // Interactive figures for the Block Diffusion Rooflines page. Every number comes from the note's own
 // cost model (window.BDModel) and helpers (window.BDR, exposed by note.js).
 //
-// The figures of Parts 2-3 on weights, the KV cache and attention shares (figWeights ... figShare)
+// The figures of Part 2 on weights, the KV cache and attention shares (figWeights ... figShare)
 // use the model as the propositions do: no vocabulary, independent uniform routing (A3) and
 // independent uniform selections in sparse layers.
 // Their toy grids (experts of one layer, cached tokens of one sequence) show one random draw; the
@@ -482,7 +482,7 @@
     watchWidth(pic, draw);
   }
 
-  // ---------------------------------------------------------------- helpers of the figures of Parts 2-4 below
+  // ---------------------------------------------------------------- helpers of the figures of Parts 2-3 below
   const gx = (x) => (x >= 100 ? String(Math.round(x)) : x >= 10 ? x.toFixed(1) : x.toFixed(2));
   const gbs = (x) => (x / 1e9 >= 10 ? (x / 1e9).toFixed(1) : (x / 1e9).toFixed(2));
   const segLabel = (text, s) => groupOf(text, s);
@@ -563,7 +563,7 @@
     const pic = el('<div></div>'), out = el('<div class="readout" aria-live="polite"></div>');
     root.append(pic, out);
     const ar = (B, x) => clin(C0.WAR(B) / B, x), td = (B, x) => clin(C0.WTD(B) / B, x);
-    // Context on the horizontal axis, as in the maps of Part 4; the batch marker is dragged vertically.
+    // Context on the horizontal axis, as in the maps of Part 3; the batch marker is dragged vertically.
     draggable(pic, () => st.ys, BMARK, () => st.i, (i) => { st.i = i; draw(); }, 'y');
     function draw() {
       const c = colors(), W = widthOf(pic), H = 354, m = { l: 50, r: 16, t: 28, b: 42 }, B = BMARK[st.i];

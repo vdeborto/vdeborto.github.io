@@ -65,14 +65,13 @@ CHAPTERS = [
     ("", "0", "Introduction", "intro", "why the question matters, the mental model, rooflines and gains, how the blogpost is organised and the measurement setting."),
     ("summary", "", "Summary", "tldr", "the main formula, four takeaways, the three possible regimes, and the hyperparameters that move the gain."),
     ("setup", "1", "Setup and the gain", "setup", "notation, costs, intensities and penalties; Proposition 1, what the formulas leave out, which side wins and the best batch, and the split of each intensity into a linear part and an attention part."),
-    ("linear", "2", "The linear part", "linear", "the expert and linear penalties, when the linear layers dominate, and the gain in that regime."),
-    ("attention", "3", "The attention part", "attention", "dense, windowed and sparse attention; the selection penalty as the twin of the expert penalty; when attention dominates, the gain there, and the batch that saturates compute at any context."),
-    ("calculator", "4", "Maps and calculator", "whole", "the exact maps over batch and context, the calculator and the exact accounting."),
-    ("examples", "5", "Exercises", "examples", "three exercises with folded solutions: a smaller canvas, a dense model, a low-ridge accelerator."),
-    ("effective", "6", "Empirical rooflines", "effective", "the ceilings one H200 sustains, the experts each decoder actually touches, and the bound they give."),
-    ("stack", "7", "The measurement stack", "stack", "how every kernel of a step is timed and attributed, three defects of the stock engine and one of the harness, and where the stock kernels stand."),
-    ("kernels", "8", "Kernels", "kernelwork", "two rewrites, of the experts and of global attention, and what they change in efficiency, throughput and quality."),
-    ("conclusion", "9", "Conclusion", "conclusion", "the bound against the measurement, what the roofline gets right, limitations, code and data, sources, related work, open problems."),
+    ("linear", "2", "Weights and cache", "linear", "the expert and linear penalties and the gain when the linear layers dominate; dense, windowed and sparse attention, the selection penalty as the twin of the expert penalty, and the gain when attention dominates; the batch that saturates compute at any context."),
+    ("calculator", "3", "Maps and calculator", "whole", "the exact maps over batch and context, the calculator and the exact accounting."),
+    ("examples", "4", "Exercises", "examples", "three exercises with folded solutions: a smaller canvas, a dense model, a low-ridge accelerator."),
+    ("effective", "5", "Empirical rooflines", "effective", "the ceilings one H200 sustains, the experts each decoder actually touches, and the bound they give."),
+    ("stack", "6", "The measurement stack", "stack", "how every kernel of a step is timed and attributed, three defects of the stock engine and one of the harness, and where the stock kernels stand."),
+    ("kernels", "7", "Kernels", "kernelwork", "two rewrites, of the experts and of global attention, and what they change in efficiency, throughput and quality."),
+    ("conclusion", "8", "Conclusion", "conclusion", "the bound against the measurement, what the roofline gets right, limitations, code and data, sources, related work, open problems."),
     ("symbols", "A", "Symbols", "symbols", "every symbol, its meaning and where it is defined."),  # made by add_symbols
 ]
 # Citation, and the comment threads (ids from https://giscus.app for the repository and category).
@@ -790,7 +789,7 @@ sitemap: false
 ---
 <!doctype html><html><head><meta charset="utf-8"><meta name="robots" content="noindex, nofollow"><link rel="canonical" href="{BASE}"><meta http-equiv="refresh" content="0; url={BASE}"></head><body><a href="{BASE}">{TITLE}</a></body></html>
 """
-    for old, to in (("gain", url_of("setup") + "#gain"), ("whole", url_of("calculator")), ("appendix", url_of("conclusion") + "#conc-sources")):  # pages merged into others
+    for old, to in (("gain", url_of("setup") + "#gain"), ("whole", url_of("calculator")), ("appendix", url_of("conclusion") + "#conc-sources"), ("attention", url_of("linear") + "#attention")):  # pages merged into others
         pages[old] = f"""---
 layout: null
 permalink: {url_of(old)}

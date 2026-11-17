@@ -7,7 +7,7 @@
 #           and checks that a formula there uses the symbol
 #   match:  JavaScript regular expression on a formula's TeX (the symbol key)
 #   rank:   order in the symbol key, which keeps the 14 lowest ranks of a formula
-#   scope:  T = only in Parts 1-5, P = only in Parts 6-9
+#   scope:  T = only in Parts 1-4, P = only in Parts 5-8
 #   key:    the symbol as the key shows it, when it differs from the page's
 #   page:   no = in the key only
 # A symbol that is not math is written "plain A1–A3". After a change: python3 -I bin/build-roofline.py
@@ -68,14 +68,14 @@ r
 
 P,\ G
   what: prompt tokens and generated tokens per sequence (1,024 and 8,192)
-  in: Part 4
+  in: Part 3
 
 \lambda
   what: logit-sized reads and writes of HBM per output position (5 for TD, 2 for AR); 0 means the logits stay on-chip
-  in: Part 4
+  in: Part 3
 
 t
-  what: noise level of a canvas, from 1 to 0 over the denoising passes (Figure 2); in Parts 6–9, \(t\) is a measured time
+  what: noise level of a canvas, from 1 to 0 over the denoising passes (Figure 2); in Parts 5–8, \(t\) is a measured time
   in: Part 0
 
 \Delta t
@@ -140,13 +140,13 @@ L
 
 d
   what: hidden size (2816)
-  in: Part 3
+  in: Part 2
   match: (^|[^\\A-Za-z_])d(?![A-Za-z_])
   rank: 511
 
 V
   what: vocabulary size (262,144)
-  in: Part 4
+  in: Part 3
 
 \mathcal G,\ \mathcal W,\ \mathcal S
   what: sets of the global-attention, sliding-window and sparse layers (5, 25 and none in DiffusionGemma)
@@ -200,7 +200,7 @@ W^e
 
 f_E
   what: width of one expert (704)
-  in: Part 4
+  in: Part 3
   match: f_E
   rank: 650
 
@@ -383,7 +383,7 @@ N
   in: Definition 4
 
 x
-  what: share of an AR step's bytes spent on one part (weights in Proposition 4, cache in Proposition 6); elsewhere a hidden state (Remark 1) or a layer input (Part 8)
+  what: share of an AR step's bytes spent on one part (weights in Proposition 4, cache in Proposition 6); elsewhere a hidden state (Remark 1) or a layer input (Part 7)
   in: Proposition 4
 
 I_n
@@ -428,7 +428,7 @@ W_n
 
 \zeta
   what: independent fraction of a canvas's selections: 1 when independent, \(1/b\) when every query selects the same tokens
-  in: Part 3
+  in: Part 2
   match: \\zeta
   rank: 420
 
@@ -563,47 +563,47 @@ N_{\mathrm{eff}}
 
 \mu
   what: rows per touched expert, \(Nk/U\)
-  in: Part 8
+  in: Part 7
   match: \\mu(?![A-Za-z])
   rank: 640
   scope: P
 
 M_q,\ M_k
   what: query rows and keys of one attention tile
-  in: Part 8
+  in: Part 7
   match: M_q|M_k|M_\{?[qk]
   rank: 660
   scope: P
 
 \mathbf{Q},\ \mathbf{K},\ \mathbf{V}
   what: query, key and value tiles of one attention block, split in two halves \(\mathbf{Q}_0, \mathbf{Q}_1\) (bold: not the bytes \(Q\))
-  in: Part 8
+  in: Part 7
   match: \\mathbf(\{| )[QKV]
   rank: 685
   scope: P
 
 \mathbf{O}_i
   what: output rows of query tile \(i\)
-  in: Part 8
+  in: Part 7
   match: \\mathbf(\{| )O
   rank: 686
   scope: P
 
 U
   what: experts touched by \(N\) tokens in one MoE layer (\(U_{\mathrm{meas}}\) when measured)
-  in: Part 8
+  in: Part 7
   scope: P
 
 \mathbf{Z}
   what: attention scores \(\mathbf{Q}\mathbf{K}^\top\) of one tile
-  in: Part 8
+  in: Part 7
   match: \\mathbf(\{| )Z
   rank: 680
   scope: P
 
 h
   what: head dimension of a global layer (512)
-  in: Part 8
+  in: Part 7
   match: (^|[^\\A-Za-z_])h(?![A-Za-z_])
   rank: 690
   scope: P
@@ -621,20 +621,20 @@ h
 
 p_{i,e}
   what: routing weight of expert \(e\) for token \(i\)
-  in: Part 8
+  in: Part 7
 
 \delta
   what: scale shared by a block of FP8 values, which stores \(x\) as \(\mathrm{round}(x/\delta)\)
-  in: Part 8
+  in: Part 7
 
 a_{i,e}
   what: activation of token \(i\) in expert \(e\)
-  in: Part 8
+  in: Part 7
 
 W_g,\ W_u
   what: gate and up matrices of an expert
-  in: Part 8
+  in: Part 7
 
 W_d
   what: down matrix of an expert
-  in: Part 8
+  in: Part 7

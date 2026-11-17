@@ -1,4 +1,4 @@
-"""Figures and tables of the book's practice chapters (Parts 0 and 6-9), as static HTML/SVG.
+"""Figures and tables of the book's practice chapters (Parts 0 and 5-8), as static HTML/SVG.
 
 Imported by bin/build-roofline.py, which replaces each <!-- pfig:NAME --> placeholder in the
 note's text with blocks()[NAME]. Numbers come from _roofline/practice-data.json, written by
@@ -93,7 +93,7 @@ def rng(xs, n=2):
 # ---------------------------------------------------------------- Part 0: diagrams
 
 
-# ---------------------------------------------------------------- Part 6
+# ---------------------------------------------------------------- Part 5
 def heat(d, key, title, scale, Bs=None, Cs=None, fmtv=None, color=None, size=(62, 30)):
     g = d["gains"]
     Bs, Cs = Bs or d["Bs"], Cs or d["Cs"]
@@ -156,8 +156,8 @@ def maps(d, specs):
     return '<div class="pfig-grid">' + "".join(f"<div>{heat(d, k, t, sc)}</div>" for k, t in specs) + "</div>"
 
 
-# ---------------------------------------------------------------- Part 7: diagrams
-# ---------------------------------------------------------------- Part 8: diagrams (from the kernel note)
+# ---------------------------------------------------------------- Part 6: diagrams
+# ---------------------------------------------------------------- Part 7: diagrams (from the kernel note)
 
 
 
@@ -467,22 +467,22 @@ def fig_map_narrow(base=BOOK_URL):
     top = [p for _, _, parts in MAP_TOP for p in parts]
     li = lambda slug, part, title, lines: (f'<li><a href="{base}{slug}/"><span class="mn-p">{part.title()}</span> '
                                            f'<b>{title}</b>{(" · " + " ".join(lines)) if lines else ""}</a></li>')
-    return ('<div class="map-narrow"><div class="mn-h">On paper · Parts 1–5</div><ol>' + "".join(li(*p) for p in top) + '</ol>'
-            '<div class="mn-h">On an H200 · Parts 6–9</div><ol class="mn-h200">' + "".join(li(*p) for p in MAP_BOT) + '</ol>'
+    return ('<div class="map-narrow"><div class="mn-h">On paper · Parts 1–4</div><ol>' + "".join(li(*p) for p in top) + '</ol>'
+            '<div class="mn-h">On an H200 · Parts 5–8</div><ol class="mn-h200">' + "".join(li(*p) for p in MAP_BOT) + '</ol>'
             '<div class="mn-also">Also: ' + ", ".join(f'<a href="{base}{slug}/">{t}</a> ({w})' for slug, t, w in MAP_SIDE) + '</div></div>')
 
 
 # The book map: one box per part, every box a link to its chapter.
 MAP_TOP = [  # (x, width, [(slug, part label, title, lines)]); two entries are stacked in one column
     (10, 150, [("setup", "PART 1", "Setup and the gain", ["Costs, penalties,", "main result"])]),
-    (174, 122, [("linear", "PART 2", "Linear part", []), ("attention", "PART 3", "Attention part", [])]),
-    (312, 170, [("calculator", "PART 4", "Maps and calculator", ["Model × Hardware"])]),
-    (498, 152, [("examples", "PART 5", "Exercises", ["Canvas, model,", "accelerator"])]),
+    (174, 140, [("linear", "PART 2", "Weights and cache", ["Linear part,", "attention part"])]),
+    (328, 156, [("calculator", "PART 3", "Maps and calculator", ["Model × Hardware"])]),
+    (498, 152, [("examples", "PART 4", "Exercises", ["Canvas, model,", "accelerator"])]),
 ]
-MAP_BOT = [("effective", "PART 6", "Empirical rooflines", ["Measured ceilings", ""]),
-           ("stack", "PART 7", "Measurement stack", ["Time per component"]),
-           ("kernels", "PART 8", "Kernels", ["TD kernel work"]),
-           ("conclusion", "PART 9", "Conclusion", ["Everything together", ""])]
+MAP_BOT = [("effective", "PART 5", "Empirical rooflines", ["Measured ceilings", ""]),
+           ("stack", "PART 6", "Measurement stack", ["Time per component"]),
+           ("kernels", "PART 7", "Kernels", ["TD kernel work"]),
+           ("conclusion", "PART 8", "Conclusion", ["Everything together", ""])]
 MAP_SIDE = [("summary", "Summary", "Main results"), ("symbols", "Symbols", "All notation")]
 
 
@@ -504,7 +504,7 @@ def linkbox(x, y, w, h, href, part, title, lines, col, tip):
 def fig_map(base=BOOK_URL):
     W, H, y1, h1, y2, h2 = 660, 322, 30, 86, 190, 78
     s = [arrow_defs(1)]
-    s.append(f'<text x="10" y="18" font-size="11" font-weight="600" letter-spacing=".06em" fill="{MUT}">ON PAPER · PARTS 1–5</text>')
+    s.append(f'<text x="10" y="18" font-size="11" font-weight="600" letter-spacing=".06em" fill="{MUT}">ON PAPER · PARTS 1–4</text>')
     prev = None
     for x, w, parts in MAP_TOP:
         pad = 0 if len(parts) == 1 else 3  # a stacked pair sits in a frame, on which the arrows end
@@ -519,7 +519,7 @@ def fig_map(base=BOOK_URL):
         if prev is not None:
             s.append(f'<line x1="{prev + 1}" y1="{y1 + h1 / 2}" x2="{x - pad - 1}" y2="{y1 + h1 / 2}" stroke="currentColor" marker-end="url(#pa1)"/>')
         prev = x + w + pad
-    s.append(f'<text x="{W - 6}" y="{y2 - 12}" text-anchor="end" font-size="11" font-weight="600" letter-spacing=".06em" fill="{MUT}">ON AN H200 · PARTS 6–9</text>')
+    s.append(f'<text x="{W - 6}" y="{y2 - 12}" text-anchor="end" font-size="11" font-weight="600" letter-spacing=".06em" fill="{MUT}">ON AN H200 · PARTS 5–8</text>')
     bw, gap, bx = 154, 12, 4
     X = lambda i: bx + i * (bw + gap)
     for i, (slug, part, title, lines) in enumerate(MAP_BOT):
@@ -527,7 +527,7 @@ def fig_map(base=BOOK_URL):
         s.append(linkbox(X(i), y2, bw, h2, f"{base}{slug}/", part, title, lines, INK, f"Go to {part.title()}: {title}"))
         if i:
             s.append(f'<line x1="{X(i) - gap + 1}" y1="{y2 + h2 / 2}" x2="{X(i) - 1}" y2="{y2 + h2 / 2}" stroke="currentColor" marker-end="url(#pa1)"/>')
-    # Part 6 measures the inputs of Part 1's proposition, and evaluates Part 4's exact accounting at them.
+    # Part 5 measures the inputs of Part 1's proposition, and evaluates Part 3's exact accounting at them.
     ya, yb = y1 + h1 + 2, y2 - 3
     s.append(f'<line x1="80" y1="{ya}" x2="80" y2="{yb}" stroke="currentColor" marker-end="url(#pa1)"/>')
     for j, lab in enumerate(("", "measured")):
@@ -545,7 +545,7 @@ def fig_map(base=BOOK_URL):
         cx += w + 12
     if cx > W:
         FIT.append(f"map: the chips need {cx} px, have {W}")
-    wide = svg(W, H, "Map of the blogpost, each box a link to its chapter: Parts 1 to 5 bound the gain on paper; Parts 6 to 9 measure it on an H200 and compare", "".join(s), role="group")
+    wide = svg(W, H, "Map of the blogpost, each box a link to its chapter: Parts 1 to 4 bound the gain on paper; Parts 5 to 8 measure it on an H200 and compare", "".join(s), role="group")
     return f'<div class="v-wide">{wide}</div><div class="v-narrow">{fig_map_narrow(base)}</div>'
 
 
@@ -556,7 +556,7 @@ def fig_ladder(d):
              ("(b) ceilings", ["π, β measured", "on this H200"], "roof_ind", MUT),
              ("(c) routing", ["U counted in", "the same runs"], "roof", MUT),
              ("(d) measured", ["vLLM with fixes", "and new kernels"], "measured", MEAS)]
-    steps = ["Part 6", "Part 6", "Parts 7–8"]
+    steps = ["Part 5", "Part 5", "Parts 6–7"]
     s = [arrow_defs(2)]
     for i, (t, l, key, col) in enumerate(rungs):
         x = x0 + i * (bw + gap)
@@ -604,7 +604,7 @@ def fig_stack():
              ("Wall clock of each pass", ["timed window, profiler off"], ("step time " + "<tspan font-style=\"italic\">t</tspan>", [])),
              ("Counter in each MoE layer", ["tokens per expert, in every pass", "of both windows"], ("experts " + "<tspan font-style=\"italic\">U</tspan>", ["per layer"])),
              ("Profiler trace", ["every kernel and its duration;", "its module, from an eager run"], ("time " + sub("<tspan font-style=\"italic\">t</tspan>", "c"), ["per component"])),
-             ("Microbenchmarks (Part 6)", ["highest FLOP rates", "and bandwidth measured"], ("ceilings", [f"{sub(hat('π', 12), 'c')} and {hat('β', 12)}"]))]
+             ("Microbenchmarks (Part 5)", ["highest FLOP rates", "and bandwidth measured"], ("ceilings", [f"{sub(hat('π', 12), 'c')} and {hat('β', 12)}"]))]
     for i, (title, lines, verb) in enumerate(stack):
         y = y0 + i * pitch
         s.append(box(ax, y, aw, title, lines, MUT))
@@ -827,7 +827,7 @@ def t_eta(d):
         rows.append(r)
     rows.append(["whole step", rng([v["step"] for k, v in d["eta2"]["td"].items() if big(k)]), rng([v["step"] for k, v in d["eta3"]["td"].items() if big(k)]),
                  rng([v["step"] for k, v in d["eta3"]["ar"].items() if big(k)])])
-    return table(f"Table 11. Efficiency against the empirical roofline, \\(\\eta_c = \\tau_c/t_c\\), over the {sum(1 for k in d['eta3']['td'] if big(k))} measured points with batch 8 and above. Stock kernels: the three engine fixes of Part 7 with vLLM's kernels; new kernels: the same with the two kernels of this Part, in the same campaign; the new kernels are the median of three repeats, each on its own prompts, against one stock run on the first repeat's prompts. AR runs vLLM's kernels throughout.",
+    return table(f"Table 11. Efficiency against the empirical roofline, \\(\\eta_c = \\tau_c/t_c\\), over the {sum(1 for k in d['eta3']['td'] if big(k))} measured points with batch 8 and above. Stock kernels: the three engine fixes of Part 6 with vLLM's kernels; new kernels: the same with the two kernels of this Part, in the same campaign; the new kernels are the median of three repeats, each on its own prompts, against one stock run on the first repeat's prompts. AR runs vLLM's kernels throughout.",
                  ["component", "TD, stock kernels", "TD, new kernels", "AR"], rows, fold="Figure 35")
 
 
@@ -886,7 +886,7 @@ def fig_attn_eff():
 
 
 def t_moe():
-    return table("Table 9. The expert path per denoising pass in the engine, vLLM's kernel against the new one, and its efficiency against the empirical roofline at the measured routing. These are dedicated runs of the expert kernel (three per arm), separate from the grid of Parts 6–9, so their efficiencies differ slightly from Table 11's.",
+    return table("Table 9. The expert path per denoising pass in the engine, vLLM's kernel against the new one, and its efficiency against the empirical roofline at the measured routing. These are dedicated runs of the expert kernel (three per arm), separate from the grid of Parts 5–8, so their efficiencies differ slightly from Table 11's.",
                  ["TD point (B, C)", "expert path per pass (ms)", "fraction of empirical roofline", "TD step (ms)"],
                  [["(8, 1k)", "15.03 → 12.23 (−19%)", "0.27 → 0.33", "43.56 → 40.07 (−8.0%)"],
                   ["(32, 1k)", "46.60 → 34.26 (−26%)", "0.34 → 0.47", "158.75 → 147.81 (−6.9%)"],
@@ -1006,7 +1006,7 @@ def blocks():
                         "A canvas of \\(b = 256\\) positions, \\(S = 14\\) denoising passes and one commit pass, so \\(15\\) passes per canvas and \\(\\mathrm{TPF} = b/(S+1) = 17.1\\) tokens per forward pass. "),
         "encdec": fig("fig-encdec", "Figure 2", "The causal encoder writes the KV cache; the bidirectional decoder only reads it.", "", fig_encdec(),
                       "An illustration of the inference in DiffusionGemma. The noise level \\(t\\) goes from 1 to 0 over the \\(S\\) denoising passes, in steps of \\(\\Delta t = 1/S\\), and \\(x_0\\) is the clean canvas. We briefly highlight the dependency of each step on the self-conditioning signal \\(s_t\\). We will discuss the role of self-conditioning in more detail when deriving rooflines. "),
-        "map": fig("fig-map", "Figure 4 · interactive", "Parts 1–5 bound the gain on paper; Parts 6–9 measure it on one H200.", "", fig_map(),
+        "map": fig("fig-map", "Figure 4 · interactive", "Parts 1–4 bound the gain on paper; Parts 5–8 measure it on one H200.", "", fig_map(),
                    "Each box links to its chapter."),
         "ladder": fig("fig-ladder", "Figure 3 · interactive", "The measured gain exceeds the roofline bound (a) up to batch 4 and falls below it from batch 8 on.", "Choose a context; hover over or tap a batch to read the three bounds and the measured gain.",
                       '<div data-mfig="ladder" data-series="a,b,c,d"></div>',
@@ -1020,9 +1020,9 @@ def blocks():
                         '<div data-mfig="ladder" data-series="a,b,c"></div>',
                         "Roofline bound on \\(\\Gamma\\) against batch, with FP8 weights, at the measured points; each curve changes one input of the previous one. (a) the blogpost's exact accounting with datasheet rates and independent routing (A3); (b) the empirical ceilings of Table 5; (c) the expert counts measured in the same runs. The measured ceilings lower the bound at every point, by 0.08–0.53; the measured routing then raises it at batch 1–2, changes it by at most 0.06 at batch 4, and lowers it from batch 8 on. Below the parity line AR is faster. Missing points were not measured: the grid keeps \\(BC \\le 2^{21}\\) tokens, and TD's batches at \\((32, 64\\text{k})\\) and \\((64, 16\\text{k})\\) did not fit in memory. The batch axis is logarithmic: the measured sizes 1, 2, 4, …, 64 are equally spaced."),
         "eager": fig("fig-eager", "Figure 23", "In eager mode the GPU waits for each launch; a CUDA graph runs the kernels of a pass back to back.", "", fig_eager(),
-                     "Four kernels of one forward pass, as in Part 6's small GEMMs: launching a kernel costs the CPU a few µs, and with 64 tokens or fewer a projection runs for 5–13 µs, so in eager mode the GPU waits a large share of the time. A CUDA graph replays the recorded sequence of kernels with one launch."),
+                     "Four kernels of one forward pass, as in Part 5's small GEMMs: launching a kernel costs the CPU a few µs, and with 64 tokens or fewer a projection runs for 5–13 µs, so in eager mode the GPU waits a large share of the time. A CUDA graph replays the recorded sequence of kernels with one launch."),
         "stack": fig("fig-stack", "Figure 24", "Each term of a component's efficiency is read at a different level of the serving stack.", "", fig_stack(),
-                     "Left: what runs when the engine serves a point \\((B, C)\\), from the prompts down to the accelerator. Middle: the four records roofscope takes, each at the level where the quantity exists. The engine's wall clock gives the step time \\(t\\); a counter in the model gives the experts touched, \\(U\\); the profiler's trace of kernels gives the time \\(t_c\\) of each component; and the microbenchmarks of Part 6 give the ceilings \\(\\hat\\pi_c\\), one per kind of kernel, and \\(\\hat\\beta\\) of the accelerator. Definitions 5 and 7 combine them: the FLOPs \\(F_c\\) and bytes \\(Q_c\\) of a component, counted by the cost model of Parts 1–5 at the point \\((B, C)\\) and at the measured \\(U\\), together with the ceilings, give its roofline time \\(\\tau_c\\) (Definition 5), which Definition 7 compares with \\(t_c\\). Each \\(\\tau_c\\) uses the expert count of the profiled window, where \\(t_c\\) is read, and the step's \\(\\tau\\) that of the timed window, where \\(t\\) is read. The rest of this section describes the two windows of a run (Figure 25) and the labelling of kernels (Figure 26)."),
+                     "Left: what runs when the engine serves a point \\((B, C)\\), from the prompts down to the accelerator. Middle: the four records roofscope takes, each at the level where the quantity exists. The engine's wall clock gives the step time \\(t\\); a counter in the model gives the experts touched, \\(U\\); the profiler's trace of kernels gives the time \\(t_c\\) of each component; and the microbenchmarks of Part 5 give the ceilings \\(\\hat\\pi_c\\), one per kind of kernel, and \\(\\hat\\beta\\) of the accelerator. Definitions 5 and 7 combine them: the FLOPs \\(F_c\\) and bytes \\(Q_c\\) of a component, counted by the cost model of Parts 1–4 at the point \\((B, C)\\) and at the measured \\(U\\), together with the ceilings, give its roofline time \\(\\tau_c\\) (Definition 5), which Definition 7 compares with \\(t_c\\). Each \\(\\tau_c\\) uses the expert count of the profiled window, where \\(t_c\\) is read, and the step's \\(\\tau\\) that of the timed window, where \\(t\\) is read. The rest of this section describes the two windows of a run (Figure 25) and the labelling of kernels (Figure 26)."),
         "run": fig("fig-run", "Figure 25", "One measured point: a profiled window for the kernels, a timed window for the step time.", "", fig_run(),
                    "TD at one batch size \\(B\\) and context \\(C\\): the windows are the third to sixth canvases of the answer of the request that starts decoding last; the first is produced during the prefill. The profiler slows the passes down, so the step time comes from the second window, where it is off. For AR the windows are 48 steps each, after 976 warm-up steps, which put AR's context at the middle of the windows at TD's."),
         "attrib": fig("fig-attrib", "Figure 26", "Each kernel of the graph run takes its module from the eager run.", "", fig_attrib(),
@@ -1050,10 +1050,10 @@ def blocks():
                         "Efficiency \\(\\eta_c = \\tau_c/t_c\\) of each component, its empirical roofline time over its measured kernel time, medians of three repeats (one run for TD with vLLM kernels); dashed, the whole step \\(\\eta^X = \\tau^X/t^X\\), which also counts time outside the model and idle time. The highlighted component is drawn in its decoder's colour, and the dotted line is its target efficiency \\(\\eta^\\star_c\\) of Definition 7. The choice TD with vLLM kernels repeats Figure 28 for comparison. The batch axis is logarithmic: the measured sizes 1, 2, 4, …, 64 are equally spaced."),
         "prop1": fig("fig-prop1", "Figure 21 · interactive", "At contexts 1k–4k, Proposition 1 underestimates the measured gain at batch 1–2 and overestimates it from batch 4 on, at either routing.", "Choose a context; hover over or tap a batch to read the penalties and gains.",
                      '<div data-mfig="prop1"></div>',
-                     "Gain against batch with FP8 weights and the empirical ceilings: the values of Table 7 at context 1k. Grey, dashed: Proposition 1 under independent uniform routing (A3). Dark grey, dotted: Proposition 1 with the measured expert counts of both decoders. Magenta: the measured gain, median of three repeats. At small batch the measured routing raises the bound, since a canvas touches fewer experts than independent routing predicts, and at batch 1–2 the measurement is higher still (Part 9). From batch 8 on it lowers the bound, since AR's count falls further below the prediction of independent routing than TD's, and Proposition 1 still overestimates the measured gain, mainly because it leaves out the vocabulary head. The batch axis is logarithmic: the measured sizes 1, 2, 4, …, 64 are equally spaced."),
+                     "Gain against batch with FP8 weights and the empirical ceilings: the values of Table 7 at context 1k. Grey, dashed: Proposition 1 under independent uniform routing (A3). Dark grey, dotted: Proposition 1 with the measured expert counts of both decoders. Magenta: the measured gain, median of three repeats. At small batch the measured routing raises the bound, since a canvas touches fewer experts than independent routing predicts, and at batch 1–2 the measurement is higher still (Part 8). From batch 8 on it lowers the bound, since AR's count falls further below the prediction of independent routing than TD's, and Proposition 1 still overestimates the measured gain, mainly because it leaves out the vocabulary head. The batch axis is logarithmic: the measured sizes 1, 2, 4, …, 64 are equally spaced."),
         "eta_stock": fig("fig-eta-stock", "Figure 28 · interactive", "With vLLM's own kernels, the experts and global attention are the furthest from their rooflines from batch 8 on.", "Highlight a component and choose a context; hover over or tap a batch to read every component.",
                          '<div data-mfig="comp" data-src="eta2"></div>',
-                         "Efficiency \\(\\eta_c = \\tau_c/t_c\\) of each component of TD's step with the three engine fixes and vLLM's own kernels, one run per point; dashed, the whole step, \\(\\eta = \\tau/t\\), which also counts time outside the model and idle time. The highlighted component is drawn in TD's colour, and the dotted line is its target efficiency \\(\\eta^\\star_c\\) of Definition 7. Table 8 gives the ranges, and Figure 35 the same curves after the kernel work of Part 8. The batch axis is logarithmic: the measured sizes 1, 2, 4, …, 64 are equally spaced."),
+                         "Efficiency \\(\\eta_c = \\tau_c/t_c\\) of each component of TD's step with the three engine fixes and vLLM's own kernels, one run per point; dashed, the whole step, \\(\\eta = \\tau/t\\), which also counts time outside the model and idle time. The highlighted component is drawn in TD's colour, and the dotted line is its target efficiency \\(\\eta^\\star_c\\) of Definition 7. Table 8 gives the ranges, and Figure 35 the same curves after the kernel work of Part 7. The batch axis is logarithmic: the measured sizes 1, 2, 4, …, 64 are equally spaced."),
         "vs2": fig("fig-vs2", "Figure 36 · interactive", "The two kernels raise TD's throughput at every measured point, by 4% to 22%, most at long context.", "Hover over or tap a batch to read the four contexts.",
                    '<div data-mfig="vs2"></div>',
                    "TD's tokens per second with the kernels of this chapter over its tokens per second with vLLM's kernels, at the same batch and context: the median of three repeats, each on its own prompts, over one run on the first repeat's prompts. Table 12 gives the ranges. The batch axis is logarithmic: the measured sizes 1, 2, 4, …, 64 are equally spaced."),
@@ -1062,7 +1062,7 @@ def blocks():
                        "Each component's share of TD's step after the kernel work, split into the time its target kernel would keep and the recoverable rest (Definition 7); time outside the model and idle time count in full. Grey: the time the component would take at its target efficiency \\(\\eta^\\star_c\\); orange: the recoverable rest; the number is the recoverable share of the step. At batch 1 the dense layers lead at contexts 1k–16k, with 8–10% of the step, and global attention at 64k, with 17%. Table 13 lists the two largest entries at contexts 1k and 64k."),
         "moe_eff": fig("fig-moe-eff", "Figure 31", "The new expert path raises the experts to 0.33–0.52 of their roofline at the four measured points, short of the 0.81 that cuBLAS reaches.", "",
                        fig_moe_eff(),
-                       "Efficiency of the expert path against its empirical roofline at the measured routing, in dedicated runs of the kernel, three per arm and separate from the grid of Parts 6–9; the label gives the change in time per pass. The dashed line is the stacked cuBLAS reference at batch 32, the target of Definition 7. Table 9 gives the times."),
+                       "Efficiency of the expert path against its empirical roofline at the measured routing, in dedicated runs of the kernel, three per arm and separate from the grid of Parts 5–8; the label gives the change in time per pass. The dashed line is the stacked cuBLAS reference at batch 32, the target of Definition 7. Table 9 gives the times."),
         "attn_eff": fig("fig-attn-eff", "Figure 34", "The pair kernel raises global attention from about half to about 0.7 of the attention ceiling.", "",
                         fig_attn_eff(),
                         "Global attention in the engine at three points, one run each: FlashAttention 4 with 64-token pages against the pair kernel with 80-token pages; the label gives the change in TD's step time. The ceiling is FlashAttention 3's sustained rate (Table 5). Table 10 gives the numbers."),
