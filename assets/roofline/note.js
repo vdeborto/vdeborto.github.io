@@ -76,7 +76,7 @@
   // tokens N_eff that would touch as many experts as a pass of that decoder did at batch B (canvas 256).
   // Between measured batches N_eff is interpolated log-log, beyond them extrapolated with the last slope;
   // a canvas of b positions is taken to touch what b/256 of a 256-position canvas would. Nothing was measured
-  // for prefill, so a prefill pass (canvas = false) routes its B·n tokens independently (A5).
+  // for prefill, so a prefill pass (canvas = false) routes its B·n tokens independently (A3).
   function neffAt(tab, B) {
     const L = (x) => Math.log(x);
     let i = tab.findIndex(([b]) => b >= B);
@@ -442,7 +442,7 @@
   // "≈": derived from vendor material or disputed between sources. The FP8 peak defaults to twice BF16;
   // chips without an FP8 matrix rate above BF16's (A100, TPU v5e, v5p, v6e) dequantise FP8 weights, so tflops8 = tflops.
   // Memory in GB (10^9 bytes): Google lists TPU HBM in GiB (16, 95, 32, 192), converted here.
-  // tflopsAttn: the attention ceiling (Part 6, Table 7), used in place of the BF16 peak for attention kernels.
+  // tflopsAttn: the attention ceiling (Part 6, Table 6), used in place of the BF16 peak for attention kernels.
   const HW = [
     { group: 'NVIDIA data centre' },
     { id: 'a100', label: 'A100 SXM 80 GB', tflops: 312, tflops8: 312, tbps: 2.039, gb: 80 },
@@ -573,7 +573,7 @@
   }
   const memNote = (hw, any, who = 'the decoder') => (any ? `<div class="note">Faded cells, past the thin dashed line: ${who}'s weights, the batch's KV cache and one pass's logits exceed ${fmt(hw.mem / 1e9)} GB.</div>` : '');
   // Gain maps: grey where TD does not fit, hatched where neither decoder does.
-  const memNoteBoth = (hw, anyTD, anyBoth) => (anyTD ? `<div class="note">Faded cells, past the dashed line: TD's weights, KV cache and one canvas's logits (<i>b</i>·<i>V</i> per sequence) exceed ${fmt(hw.mem / 1e9)} GB, so the gain there compares TD at a batch it cannot run.${anyBoth ? ' Hatched cells, past the dotted line: AR does not fit either.' : ''} With chunked logits (λ<sub>TD</sub> = 0) the two limits coincide.</div>` : '');
+  const memNoteBoth = (hw, anyTD, anyBoth) => (anyTD ? `<div class="note">Faded cells, past the dashed line: TD's weights, KV cache and one canvas's logits (<i>b</i>·<i>V</i> per sequence) exceed ${fmt(hw.mem / 1e9)} GB, so the gain there compares TD at a batch it cannot run.${anyBoth ? ' Hatched cells, past the dotted line: AR does not fit either.' : ''} With chunked logits (λ<sup>TD</sup> = 0) the two limits coincide.</div>` : '');
   const HATCH = '<defs><pattern id="oomHatch" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="6" stroke="currentColor" stroke-opacity="0.35" stroke-width="1.6"/></pattern></defs>';
 
 
@@ -850,17 +850,6 @@
       const C = c.CF * (x / (1 - x) - sigma);
       return `<td class="num">${C <= c.r ? 'any (≥ 1k)' : kTok(C)}</td>`;
     }).join('')}</tr>`;
-  }
-
-  function kvTable(st) {
-    const { c } = bare(st);
-    $('t-kv').innerHTML = [1, 8, 16, 64, 256].map((B) => {
-      const cell = (x) => {
-        const C = ((x / (1 - x)) * (c.WAR(B) / B) - c.nuS * c.r) / c.nuG;
-        return C <= c.r ? 'none for C ≥ w' : kTok(C);
-      };
-      return `<tr><td class="num">${B}</td><td class="num">${cell(0.1)}</td><td class="num">${cell(0.5)}</td></tr>`;
-    }).join('');
   }
 
   // Smallest batch at which AR's linear intensity reaches `target`, using the full W_AR(B).
@@ -1179,7 +1168,6 @@
     regimeMap($('map-sparse'), $('map-sparse-legend'), { ...REF, m: SPARSE_REF() });
     bstarChart($('bstar'), $('bstar-legend'), REF);
     attnTable(REF);
-    kvTable(REF);
     hwTable(REF);
     modelsTable(REF);
     regimeMap($('map-ref'), $('map-ref-legend'), REF);
@@ -1281,7 +1269,7 @@
   const REGIMES = {
     R1: ['short context', 'both memory-bound', 'Γ = TPF / Π(B)', 'TD shares each weight read over TPF tokens but streams more experts.'],
     R2: ['short context', 'AR memory-bound, TD compute-bound', 'Γ = I<sup>⋆</sup> / (ω · I<sub>lin</sub>(B))', 'TD spends compute AR leaves idle; the gain falls as the batch raises AR\'s intensity.'],
-    R3: ['short context', 'AR compute-bound, TD memory-bound', 'Γ ≤ 1/ω', 'Not reached: it needs a penalty above the canvas length, and Π ≤ b under (A2) and (A5) (Proposition 3(4)).'],
+    R3: ['short context', 'AR compute-bound, TD memory-bound', 'Γ ≤ 1/ω', 'Not reached: it needs a penalty above the canvas length, and Π ≤ b under (A2) and (A3) (Proposition 3(4)).'],
     R4: ['short context', 'both compute-bound', 'Γ = 1/ω', 'Both run at peak, and TD does ω times the work.'],
     R5: ['long context', 'both memory-bound', 'Γ = TPF', 'Both read the KV cache; TD shares each read over TPF tokens.'],
     R6: ['long context', 'AR memory-bound, TD compute-bound', 'Γ = I<sup>⋆</sup> / (ω · I<sub>attn</sub>)', 'TD spends the compute AR leaves idle while it streams the KV cache.'],
@@ -1306,7 +1294,7 @@
     $('c-verdict').className = `verdict ${g >= 1 ? 'win' : 'lose'}`;
     $('c-verdict').innerHTML = `<div class="big">${head}</div>
       <div class="chips"><span class="chip">${ctx}</span><span class="chip">${bound}</span></div>
-      <p>${why} Regime formula: <span class="mono">${formula}</span>. At the mean context of ${kTok(Cm)} tokens, Proposition 1 predicts <b>${p.gain.toFixed(2)}×</b> without vocabulary (I<sub>AR</sub> = ${fmt(p.IAR)}, I<sub>TD</sub> = ${fmt(p.ITD)}, I<sup>⋆</sup> = ${fmt(p.Istar)}${mix ? `, the ridge point at this context with ${mix}` : ''}).</p>`;
+      <p>${why} Regime formula: <span class="mono">${formula}</span>. At the mean context of ${kTok(Cm)} tokens, Proposition 1 predicts <b>${p.gain.toFixed(2)}×</b> without vocabulary (I<sup>AR</sup> = ${fmt(p.IAR)}, I<sup>TD</sup> = ${fmt(p.ITD)}, I<sup>⋆</sup> = ${fmt(p.Istar)}${mix ? `, the ridge point at this context with ${mix}` : ''}).</p>`;
   }
 
   // Bytes, FLOPs, roofline time and utilisation per generated token, at context C, for an AR step and a TD canvas.

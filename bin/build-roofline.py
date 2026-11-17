@@ -108,6 +108,26 @@ def sub_once(text, old, new, what):
     return text.replace(old, new) if need(text, old, what) else text
 
 
+def place_figures(body, figs):
+    """Replace each <!-- figure:NAME --> line of the text by figure NAME of _roofline/figures.html;
+    every figure is placed exactly once. A figure whose numbers are in a folded table goes before
+    the fold, so that it is shown."""
+    used = []
+    def put(m):
+        name = m.group(1)
+        if name not in figs:
+            problems.append(f"figure {name!r}: no such block in _roofline/figures.html")
+            return m.group(0)
+        used.append(name)
+        return figs[name]
+    body = re.sub(r"[ \t]*<!-- figure:([\w-]+) -->\n?", put, body)
+    for name in sorted(set(figs) - set(used)):
+        problems.append(f"figure {name!r} of _roofline/figures.html is not placed: add <!-- figure:{name} --> to the text")
+    for name in sorted({n for n in used if used.count(n) > 1}):
+        problems.append(f"figure {name!r} is placed {used.count(name)} times")
+    return body
+
+
 def rename_tokens(s):
     return TOKEN_RE.sub(lambda m: "--bdr-" + m.group(1), s)
 
@@ -180,11 +200,11 @@ def add_cards(body):
     return body
 
 
-# An AR or TD quantity in TeX: a letter or macro, optional ^\star, then _{AR} or ^{AR} with an
-# optional subscript (same for TD).
+# An AR or TD quantity in TeX: a letter or macro, optional ^\star, then _{\mathrm{AR}} or ^{\mathrm{AR}}
+# (or the older _{AR}) with an optional subscript (same for TD).
 _TOK = r"(?:\\[a-zA-Z]+|[A-Za-z])(?:\^\\star)?"
-_SUB = r"(?:_\{(?:[^{}]|\{[^{}]*\})*\}|_[A-Za-z0-9])"
-QTY = re.compile(_TOK + r"(?:_\{(AR|TD)\}|\^\{(AR|TD)\}" + _SUB + r"?)")
+_SUB = r"(?:_\{(?:[^{}]|\{[^{}]*\})*\}|_\\[A-Za-z]+|_[A-Za-z0-9])"
+QTY = re.compile(_TOK + r"(?:_\{(?:\\mathrm\{)?(AR|TD)\}?\}|\^\{(?:\\mathrm\{)?(AR|TD)\}?\}" + _SUB + r"?)")
 MATH = re.compile(r"\\\((.*?)\\\)|\\\[(.*?)\\\]", re.S)
 
 
@@ -254,7 +274,9 @@ def add_symbols(body):
     """The Symbols chapter and the symbol key's list, both from _roofline/symbols.txt
     (bin/roofline_symbols.py). The chapter goes after the last section of the note. Each symbol
     names where it is defined; a formula of that part, or of that statement and the text up to the
-    next statement, has to use it."""
+    next statement, has to use it. When it no longer does (a formula was deleted or moved), the page
+    lists the symbol where a formula first uses it, in reading order, and the build prints a note to
+    update symbols.txt: an edit never fails because of the symbol list."""
     import roofline_symbols
     intro, groups, entries, bad = roofline_symbols.load()
     problems.extend(bad)
@@ -264,6 +286,24 @@ def add_symbols(body):
     sections = {m.group(1): m.group(0) for m in re.finditer(r'<section class="[^"]*" id="([\w-]+)">.*?\n</section>', body, re.S)}
     parts = {c[1]: sections.get(c[3], "") for c in CHAPTERS}
     tags = [(m.start(), m.group(1)) for m in re.finditer(r'<span class="tag">((?:Proposition|Definition|Corollary|Remark) \d+)</span>', body)]
+    spans = {m.group(1): (m.start(), m.end()) for m in re.finditer(r'<section class="[^"]*" id="([\w-]+)">.*?\n</section>', body, re.S)}
+
+    def region(k):  # the statement tags[k] and the text up to the next statement or the section's end
+        start = tags[k][0]
+        return body[start:min([p for p, _ in tags if p > start] + [body.find("\n</section>", start)])]
+
+    def first_use(e):  # the first statement, else the first Part, whose formulas use the symbol
+        for c in CHAPTERS:
+            if not c[1].isdigit() or c[3] not in spans:
+                continue
+            a, b = spans[c[3]]
+            for k, (p, t) in enumerate(tags):
+                if a <= p < b and roofline_symbols.uses(e, region(k)):
+                    return t
+            if roofline_symbols.uses(e, body[a:b]):
+                return f"Part {c[1]}"
+        return None
+
     for e in entries:
         ref = e.get("in")
         if not ref:
@@ -278,10 +318,14 @@ def add_symbols(body):
                 start = tags[at[0]][0]
                 stop = min([p for p, _ in tags if p > start] + [body.find("\n</section>", start)])
                 where = body[start:stop]
-        if where is None:
-            problems.append(f"symbols.txt line {e['line']} ({e['sym']}): no such place as {ref!r}")
-        elif not roofline_symbols.uses(e, where):
-            problems.append(f"symbols.txt line {e['line']} ({e['sym']}): no formula of {ref} uses it")
+        if where is None or not roofline_symbols.uses(e, where):
+            new = first_use(e)
+            why = "no such place" if where is None else "no formula there uses it"
+            if new:
+                e["in"] = new
+                print(f"note: symbols.txt line {e['line']} ({e['sym']}): {ref}: {why}; listed under {new} instead (update symbols.txt)", file=sys.stderr)
+            else:
+                print(f"note: symbols.txt line {e['line']} ({e['sym']}): {ref}: {why}, and no formula uses it any more (remove the entry?)", file=sys.stderr)
     return body.rstrip() + "\n\n" + roofline_symbols.section(intro, groups, entries) + "\n"
 
 
@@ -322,28 +366,10 @@ def main():
                     "The cost model is the <code>BDModel</code> script in <code>/assets/roofline/note.js</code>, which every chapter loads.", "private repo sentence")
     # Interactive figures, in reading order. Figure numbers follow the page.
     # How the numbers are counted: method, not a result, so it closes the Calculator chapter.
-    body = sub_once(body, "  <!-- accounting -->\n", figs["accounting"], "accounting anchor")
+    # Each figure of _roofline/figures.html goes where the text has its <!-- figure:NAME --> line.
+    body = place_figures(body, figs)
     body = link_takeaways(body)
-    body = sub_once(body, '  <h3 id="setup-costs">', figs["reuse"] + '  <h3 id="setup-costs">', "reuse anchor")
-    body = sub_once(body, '  <h3 id="gain-leave-out">', figs["roofline"] + figs["accel"] + '  <h3 id="gain-leave-out">', "roofline and accelerator anchor")
-    old_fig1 = re.search(r'  <figure class="mapfig">\n    <figcaption>Figure 1\. .*?</figure>\n', body, re.S)
-    if old_fig1:
-        body = body.replace(old_fig1.group(0), figs["bestbatch"])
-    else:
-        problems.append("old Figure 5 block not found")
-    body = sub_once(body, '  <div class="table-wrap breakout"><table class="cls t6">', figs["context"] + '  <div class="table-wrap breakout"><table class="cls t6">', "context anchor")
-    body = sub_once(body, "<figcaption>Figure 3. Smallest compute-bound batch", "<figcaption>Figure 16. Smallest compute-bound batch", "Figure 16 caption")
-    # Parts 2-4: experts and weights (Proposition 3), where the weights dominate (Table 1), what a pass reads of
-    # the cache (Table 3), the sparse penalty (Proposition 5), attention's shares (Table 4).
-    # A figure whose numbers are in a folded table goes before the fold, so that it is shown.
-    for name, anchor in (("experts", "  <p>For DiffusionGemma, \\(E/k = 16\\)"),
-                         ("weights", '  <div class="box prop" id="prop4">'),
-                         ("linmap", '  <details class="numbers"><summary>Table 1: '),
-                         ("attnread", '  <div class="box prop" id="prop5">'),
-                         ("sparse", '  <h3 id="attn-dominate">'),
-                         ("share", '  <details class="numbers"><summary>Table 4: '),
-                         ):
-        body = sub_once(body, anchor, figs[name] + anchor, f"{name} anchor")
+    body = sub_once(body, "<figcaption>Figure 3. Smallest compute-bound batch", "<figcaption>Figure 15. Smallest compute-bound batch", "Figure 15 caption")
     body = card_legacy_figures(body)
     body = add_practice(body)
     body = add_code(body)
@@ -443,15 +469,15 @@ def url_of(slug):
 # of figures.js: a kicker with the number, a title that states the figure's claim, and the
 # original caption as a subtitle.
 LEGACY_CLAIMS = {
-    16: "As the context grows, the batch at which a pass turns compute-bound falls for a canvas of 256 and rises for AR (Proposition 7).",
-    # Figure 17 has four tabs, each with its own claim; figures.js shows the title of the selected tab.
-    17: ('<span data-tab-title="m-gain">In the roofline bound, AR catches up with TD at batch 110 at context 1k, and at a larger batch as the context grows, beyond 1,024 from 64k tokens on.</span>'
+    15: "As the context grows, the batch at which a pass turns compute-bound falls for a canvas of 256 and rises for AR (Proposition 7).",
+    # Figure 16 has four tabs, each with its own claim; figures.js shows the title of the selected tab.
+    16: ('<span data-tab-title="m-gain">In the roofline bound, AR catches up with TD at batch 110 at context 1k, and at a larger batch as the context grows, beyond 1,024 from 64k tokens on.</span>'
          '<span data-tab-title="m-ar" hidden>An AR step never reaches the ridge, and at long context its intensity tends to 8 whatever the batch.</span>'
          '<span data-tab-title="m-td" hidden>A TD canvas crosses the ridge at a batch that falls as the context grows, from 5 at 1k to 1 at 256k, and its intensity tends to 2,048.</span>'
          '<span data-tab-title="m-sparse" hidden>With sparse global layers, the roofline bound has AR catch up with TD near batch 90–110 at every context up to 1M tokens.</span>'),
-    18: "With a 32-token canvas, the roofline bound puts TD ahead of AR only between batch 9 and batch 110 at context 1k.",
-    19: "For a dense model, the roofline bound at context 1k is about 13 at batch 1 and falls like 1/B, to parity at batch 15.",
-    20: "On an H20, whose ridge point is 37, the roofline bound puts TD ahead of AR only up to batch 4 at short context.",
+    17: "With a 32-token canvas, the roofline bound puts TD ahead of AR only between batch 9 and batch 110 at context 1k.",
+    18: "For a dense model, the roofline bound at context 1k is about 13 at batch 1 and falls like 1/B, to parity at batch 15.",
+    19: "On an H20, whose ridge point is 37, the roofline bound puts TD ahead of AR only up to batch 4 at short context.",
 }
 
 
@@ -469,11 +495,11 @@ def card_legacy_figures(body):
     for mm in re.finditer(r'<div class="bdr-card">.*?</figure>', body, re.S):
         out.append(body[pos:mm.end()] + "\n  </div>"); pos = mm.end()
     body = "".join(out) + body[pos:]
-    tabs = '<div class="fig-k">Figure 17 · interactive</div>'
+    tabs = '<div class="fig-k">Figure 16 · interactive</div>'
     if tabs in body:
-        body = body.replace(tabs, f'{tabs}\n  <p class="fig-title tabs-title">{LEGACY_CLAIMS[17]}</p>', 1)
+        body = body.replace(tabs, f'{tabs}\n  <p class="fig-title tabs-title">{LEGACY_CLAIMS[16]}</p>', 1)
     else:
-        problems.append("Figure 17 kicker not found")
+        problems.append("Figure 16 kicker not found")
     if k != 4:
         problems.append(f"legacy figures carded: {k}, expected 4")
     return body
@@ -551,7 +577,7 @@ def link_references(pages):
                 word = m.group(1)
                 kind = next(k for k in ("Figure", "Table", "Proposition", "Definition", "Corollary", "Remark", "Part") if word.startswith(k))
                 nums = num.findall(m.group(2))
-                if len(nums) == 1:  # "Figure 24": the whole reference is the link
+                if len(nums) == 1:  # "Figure 23": the whole reference is the link
                     h = href_of(kind, int(nums[0]))
                     return f'<a class="xref" href="{h}">{m.group(0)}</a>' if h else m.group(0)
                 def one(mm):
@@ -756,8 +782,8 @@ sitemap: false
         pages[slug] = front + head + text.strip() + "\n" + cite + foot + comments_block(ch) + "</div>\n{% endraw %}\n"
     for lab in sorted(set(missing)):
         problems.append(f"footnote [^{lab}] is used but not defined: write its note on a line of its own, \"[^{lab}]: the note\"")
-    for lab in sorted(set(book_defs) - used):
-        problems.append(f"footnote [^{lab}] is defined but not used")
+    for lab in sorted(set(book_defs) - used):  # its marker was deleted: the note is simply not shown
+        print(f"note: footnote [^{lab}] is no longer used; its note is not shown (delete the line \"[^{lab}]: ...\" when convenient)", file=sys.stderr)
     pages["introduction"] = f"""---
 layout: null
 permalink: {url_of("introduction")}

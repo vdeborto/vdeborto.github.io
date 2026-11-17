@@ -30,7 +30,7 @@ Of course, this formula is <em>idealized</em>, as it holds under some critical a
 <p>You can click on any formula to see a definition of the symbols it uses.</p></div>
   <div class="formula-card">
     <div class="eq">\[
-    \Gamma \;=\; \frac{1}{\omega}\cdot\frac{\min\bigl(\class{mj-td}{I_{TD}},\,I^\star\bigr)}{\min\bigl(\class{mj-ar}{I_{AR}},\,I^\star\bigr)},\qquad \omega = S\,r + 1
+    \Gamma \;=\; \frac{1}{\omega}\cdot\frac{\min\bigl(\class{mj-td}{I^{\mathrm{TD}}},\,I^\star\bigr)}{\min\bigl(\class{mj-ar}{I^{\mathrm{AR}}},\,I^\star\bigr)},\qquad \omega = S\,r + 1
     \]</div>
     <p class="small"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/#prop1">Proposition 1</a>, the result of <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/">Part 1</a>. Every symbol is defined on the <a href="/notes/block-diffusion-rooflines-6f924020/symbols/">Symbols</a> page.</p>
   </div>
@@ -47,24 +47,24 @@ Of course, this formula is <em>idealized</em>, as it holds under some critical a
 
   <h3 id="s-the-three-possible-regimes">The three possible regimes</h3>
 
-<p>The formula above involves the ratio of two minima, which leads to four possible scenarios. Since, under reasonable assumptions, \(I_{\mathrm{TD}} \geq I_{\mathrm{AR}}\) (<a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/#cor1">Corollary 1</a>), only three regimes occur.</p>
+<p>The formula above involves the ratio of two minima, which leads to four possible scenarios. Since, under reasonable assumptions, \(\class{mj-td}{I^{\mathrm{TD}}} \geq \class{mj-ar}{I^{\mathrm{AR}}}\) (<a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/#cor1">Corollary 1</a>), only three regimes occur.</p>
   <div class="cards three">
     <div class="bdr-card regime lose"><div class="card-k">AR compute-bound</div><div class="card-v">\(\Gamma = 1/\omega\)</div><p>TD is then compute-bound as well. Both run at peak, and TD does \(\omega\) times the work. In that scenario, using TD is strictly worse. However, this scenario is extremely rare, as we will see.</p>
 <div class="card-more" hidden>
   <p>Both passes run at the peak, so time is FLOPs, and a canvas spends \(\omega\) times AR's FLOPs per token: \(\Gamma \le 1/\omega\), equal to it under <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/#prop1">Proposition 1</a>. We claim that this setting is unrealistic, but just how unrealistic is it? AR becomes compute-bound at</p>
-  <div class="eq">\[ \begin{gathered} \class{mj-ar}{B^\star_{AR}} = \frac{I^\star s_wW_{\mathrm{tot}}}{2N_{\mathrm{act}}}\\[4pt] = \frac{206 \times 2 \times 24.5\text{B}}{2 \times 3.08\text{B}} \approx 1{,}640. \end{gathered} \]</div>
+  <div class="eq">\[ \begin{gathered} \class{mj-ar}{B^{\mathrm{AR}}_\star} = \frac{I^\star s_wW_{\mathrm{tot}}}{2N_{\mathrm{act}}}\\[4pt] = \frac{206 \times 2 \times 24.5\text{B}}{2 \times 3.08\text{B}} \approx 1{,}640. \end{gathered} \]</div>
   <p>This is with zero context \(C\)! The batch that AR needs grows with the context, and there is usually even a point beyond which no batch size renders AR compute-bound. For instance, by <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/attention/#prop7">Proposition 7</a>, beyond about 135 tokens of context no batch makes an AR step compute-bound.</p>
 </div>
 </div>
     <div class="bdr-card regime mem"><div class="card-k">Both memory-bound</div><div class="card-v">\(\Gamma = \mathrm{TPF}/\Pi\)</div><p>TD's extra FLOPs add no time. Each read of the weights and of the KV cache serves TPF tokens, divided by the penalty \(\Pi\): the linear penalty \(\Pi_{\mathrm{lin}}\), the attention (sparse) penalty \(\Pi_{\mathrm{attn}}\), or a byte-weighted mix of the two (<a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/#prop2">Proposition 2</a>).</p>
 <div class="card-more" hidden>
-  <p>Per sequence, an AR step reads \(\class{mj-ar}{Q^{AR}}\) bytes for one token; a canvas reads \(\omega\) times \(\class{mj-td}{Q^{TD}} = \Pi\,\class{mj-ar}{Q^{AR}}\) for \(b\) tokens. Both passes are memory-bound, so the gain is the ratio of these bytes per token:</p>
-  <div class="eq">\[ \Gamma = \frac{\class{mj-ar}{Q^{AR}}}{\omega\,\Pi\,\class{mj-ar}{Q^{AR}}/b} = \frac{\mathrm{TPF}}{\Pi}. \]</div>
+  <p>Per sequence, an AR step reads \(\class{mj-ar}{Q^{\mathrm{AR}}}\) bytes for one token; a canvas reads \(\omega\) times \(\class{mj-td}{Q^{\mathrm{TD}}} = \Pi\,\class{mj-ar}{Q^{\mathrm{AR}}}\) for \(b\) tokens. Both passes are memory-bound, so the gain is the ratio of these bytes per token:</p>
+  <div class="eq">\[ \Gamma = \frac{\class{mj-ar}{Q^{\mathrm{AR}}}}{\omega\,\Pi\,\class{mj-ar}{Q^{\mathrm{AR}}}/b} = \frac{\mathrm{TPF}}{\Pi}. \]</div>
 </div>
 </div>
-    <div class="bdr-card regime best"><div class="card-k">AR memory-, TD compute-bound</div><div class="card-v">\(\Gamma = \dfrac{I^\star}{\omega\,\class{mj-ar}{I_{AR}}}\)</div><p>This quantity decreases with the batch \(B\), at short context roughly as \(1/B\) once AR touches every expert; the gain rises with the batch only in the previous regime. At long context, it tends to \(I^\star/(\omega I_{\mathrm{attn}})\), which is at least 1 whenever \(\omega I_{\mathrm{attn}} \le I^\star\): 1.72 on an H200.</p>
+    <div class="bdr-card regime best"><div class="card-k">AR memory-, TD compute-bound</div><div class="card-v">\(\Gamma = \dfrac{I^\star}{\omega\,\class{mj-ar}{I^{\mathrm{AR}}}}\)</div><p>This quantity decreases with the batch \(B\), at short context roughly as \(1/B\) once AR touches every expert; the gain rises with the batch only in the previous regime. At long context, it tends to \(I^\star/(\omega I_{\mathrm{attn}})\), which is at least 1 whenever \(\omega I_{\mathrm{attn}} \le I^\star\): 1.72 on an H200.</p>
 <div class="card-more" hidden>
-  <p>TD runs at the peak FLOP rate \(\pi\) and AR at \(\class{mj-ar}{I_{AR}}\,\beta\), so TD computes \(I^\star/\class{mj-ar}{I_{AR}}\) times faster than AR but does \(\omega\) times as many FLOPs per token; the ratio of the two is the formula above. At short context, \(\class{mj-ar}{I_{AR}}\) grows with the batch. At long context, \(\class{mj-ar}{I_{AR}} \to I_{\mathrm{attn}}\), and at any batch we have</p>
+  <p>TD runs at the peak FLOP rate \(\pi\) and AR at \(\class{mj-ar}{I^{\mathrm{AR}}}\,\beta\), so TD computes \(I^\star/\class{mj-ar}{I^{\mathrm{AR}}}\) times faster than AR but does \(\omega\) times as many FLOPs per token; the ratio of the two is the formula above. At short context, \(\class{mj-ar}{I^{\mathrm{AR}}}\) grows with the batch. At long context, \(\class{mj-ar}{I^{\mathrm{AR}}} \to I_{\mathrm{attn}}\), and at any batch we have</p>
   <div class="eq">\[ \Gamma \to \frac{I^\star}{\omega\,I_{\mathrm{attn}}} = \frac{206}{15 \times 8} = 1.72. \]</div>
 
   <p>The above suggests that at long context, TD is <em>(almost) always</em> better than AR when it comes to throughput.</p>
@@ -80,14 +80,14 @@ Of course, this formula is <em>idealized</em>, as it holds under some critical a
   <div class="cards">
     <div class="bdr-card"><div class="card-k">Canvas cost, \(\omega\)</div><p>A canvas costs \(\omega = Sr+1\) forward passes. This is what hurts TD, as the gain is inversely proportional to \(\omega\).</p>
 <div class="card-more" hidden>
-  <div class="eq">\[ \begin{gathered} \omega = S\,r + 1,\\[4pt] \Gamma = \frac{1}{\omega}\cdot\frac{\min(\class{mj-td}{I_{TD}},\,I^\star)}{\min(\class{mj-ar}{I_{AR}},\,I^\star)}. \end{gathered} \]</div>
+  <div class="eq">\[ \begin{gathered} \omega = S\,r + 1,\\[4pt] \Gamma = \frac{1}{\omega}\cdot\frac{\min(\class{mj-td}{I^{\mathrm{TD}}},\,I^\star)}{\min(\class{mj-ar}{I^{\mathrm{AR}}},\,I^\star)}. \end{gathered} \]</div>
   <p>The canvas cost \(\omega\) corresponds to \(S\) denoising passes, each one costing \(r\) forward passes (\(r \lt 1\) for a smaller denoiser), and one commit pass that writes the canvas to the KV cache. The intensity of a pass does not depend on \(S\), so under <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/#prop1">Proposition 1</a> the gain is proportional to \(1/\omega\).</p>
 </div>
 </div>
     <div class="bdr-card"><div class="card-k">Canvas length, \(b\)</div><p>This is what makes TD worth it. While TD is memory-bound, the gain grows (almost) linearly with \(b\).</p>
 <div class="card-more" hidden>
-  <div class="eq">\[ \begin{gathered} \mathrm{TPF} = \frac{b}{\omega},\qquad \class{mj-td}{I_{TD}} = \frac{b}{\Pi}\,\class{mj-ar}{I_{AR}},\\[4pt] \class{mj-td}{B^\star_{TD}} \approx \frac{I^\star s_w\class{mj-td}{W_{TD}}}{2b\,N_{\mathrm{act}}}. \end{gathered} \]</div>
-  <p>While a TD pass is memory-bound, i.e., \(\class{mj-td}{I_{TD}} \leq I^\star\), we have that \(\Gamma = \mathrm{TPF}/\Pi\). Hence, the gain grows (almost) linearly with \(b\): TPF is linear in \(b\), and the penalty \(\Pi\) grows with \(b\) only until a canvas touches every expert. Once it is compute-bound, \(\Gamma = I^\star/(\omega \class{mj-ar}{I_{AR}})\) no longer depends on \(b\). Additionally, a longer canvas reaches that regime at a smaller batch<sup class="fn-ref" id="fnref-canvas-quality"><a href="#fn-canvas-quality" title="One trade-off that we deliberately leave out of the analysis is that the longer the canvas, the harder it is for TD to reach the quality of AR.">1</a></sup>.</p>
+  <div class="eq">\[ \begin{gathered} \mathrm{TPF} = \frac{b}{\omega},\qquad \class{mj-td}{I^{\mathrm{TD}}} = \frac{b}{\Pi}\,\class{mj-ar}{I^{\mathrm{AR}}},\\[4pt] \class{mj-td}{B^{\mathrm{TD}}_\star} \approx \frac{I^\star s_w\class{mj-td}{W^{\mathrm{TD}}}}{2b\,N_{\mathrm{act}}}. \end{gathered} \]</div>
+  <p>While a TD pass is memory-bound, i.e., \(\class{mj-td}{I^{\mathrm{TD}}} \leq I^\star\), we have that \(\Gamma = \mathrm{TPF}/\Pi\). Hence, the gain grows (almost) linearly with \(b\): TPF is linear in \(b\), and the penalty \(\Pi\) grows with \(b\) only until a canvas touches every expert. Once it is compute-bound, \(\Gamma = I^\star/(\omega \class{mj-ar}{I^{\mathrm{AR}}})\) no longer depends on \(b\). Additionally, a longer canvas reaches that regime at a smaller batch<sup class="fn-ref" id="fnref-canvas-quality"><a href="#fn-canvas-quality" title="One trade-off that we deliberately leave out of the analysis is that the longer the canvas, the harder it is for TD to reach the quality of AR.">1</a></sup>.</p>
 
 
 
@@ -96,32 +96,32 @@ Of course, this formula is <em>idealized</em>, as it holds under some critical a
 </div>
     <div class="bdr-card"><div class="card-k">Linear penalty, \(\Pi_{\mathrm{lin}}\)</div><p>At small batches, TD has to load more experts from memory than AR. This lowers the gain.</p>
 <div class="card-more" hidden>
-  <div class="eq">\[ \begin{gathered} \Pi_{\mathrm{lin}}(B) = \frac{\class{mj-td}{W_{TD}}(B)}{\class{mj-ar}{W_{AR}}(B)},\\[4pt] \class{mj-ar}{W_{AR}}(B) = W_{\mathrm{ne}} + L\,U_{E,k}(B)\,W^e,\\[2pt] \class{mj-td}{W_{TD}}(B) = W_{\mathrm{ne}} + L\,U_{E,k}(Bb)\,W^e,\\[4pt] U_{E,k}(N) = E\Bigl[1 - \bigl(1 - \tfrac{k}{E}\bigr)^{N}\Bigr]. \end{gathered} \]</div>
+  <div class="eq">\[ \begin{gathered} \Pi_{\mathrm{lin}}(B) = \frac{\class{mj-td}{W^{\mathrm{TD}}}(B)}{\class{mj-ar}{W^{\mathrm{AR}}}(B)},\\[4pt] \class{mj-ar}{W^{\mathrm{AR}}}(B) = W_{\mathrm{ne}} + L\,U_{E,k}(B)\,W^e,\\[2pt] \class{mj-td}{W^{\mathrm{TD}}}(B) = W_{\mathrm{ne}} + L\,U_{E,k}(Bb)\,W^e,\\[4pt] U_{E,k}(N) = E\Bigl[1 - \bigl(1 - \tfrac{k}{E}\bigr)^{N}\Bigr]. \end{gathered} \]</div>
   <p>\(U_{E,k}(N)\) is the expected number of distinct experts that \(N\) positions touch in one layer. A TD step routes \(Bb\) positions, and an AR step routes \(B\) positions and touches about \(kB\) experts. The dense part \(W_{\mathrm{ne}}\) is read by both and dilutes the penalty incurred by TD. Dense models have \(\Pi_{\mathrm{lin}} = 1\). The penalty \(\Pi_{\mathrm{lin}}\) divides the gain when both TD and AR are memory-bound. Hence the effect is mostly felt at small batch sizes.</p>
 </div>
 </div>
     <div class="bdr-card"><div class="card-k">Attention penalty, \(\Pi_{\mathrm{attn}}\)</div><p>Similarly, when global layers are replaced by sparse ones, TD pays a larger price, i.e., it loads more of the KV cache than AR.</p>
 <div class="card-more" hidden>
-  <div class="eq">\[ \begin{gathered} \Pi_{\mathrm{attn}}(C) - 1 = \frac{\nu_S\,\bigl[\,U_{C,m}(b) - m\,\bigr]}{\class{mj-ar}{Q^{AR}_{\mathrm{attn}}}(C)},\\[4pt] U_{C,m}(b) = C\Bigl[1 - \bigl(1 - \tfrac{m}{C}\bigr)^{b}\Bigr] \quad (C \ge m). \end{gathered} \]</div>
+  <div class="eq">\[ \begin{gathered} \Pi_{\mathrm{attn}}(C) - 1 = \frac{\nu_S\,\bigl[\,U_{C,m}(b) - m\,\bigr]}{\class{mj-ar}{Q^{\mathrm{AR}}_{\mathrm{attn}}}(C)},\\[4pt] U_{C,m}(b) = C\Bigl[1 - \bigl(1 - \tfrac{m}{C}\bigr)^{b}\Bigr] \quad (C \ge m). \end{gathered} \]</div>
   <p>This is the counterpart of the linear penalty on the attention side, when the attention is sparse. Each query selects its own \(m\) cached tokens. A TD step reads \(U_{C,m}(b)\) tokens (up to \(\min(bm, C)\)), while an AR step reads only \(m\) (since there is only one query). The penalty is 1 while \(C \le m\), largest for \(m \lt C \lesssim bm\), and returns to 1 as \(C \to \infty\), since the union saturates at \(bm\) while the AR attention bytes grow linearly in \(C\) because of the indexer scan.</p>
 </div>
 </div>
     <div class="bdr-card"><div class="card-k">Batch, \(B\)</div><p>A larger batch raises the arithmetic intensity of both TD and AR. However, once a pass is compute-bound, raising the batch no longer speeds it up. Since TD becomes compute-bound before AR, large batches generally lower the gain.</p>
 <div class="card-more" hidden>
-  <div class="eq">\[ Q^{X}(B, C) = \underbrace{\frac{s_wW_X(B)}{B}}_{\text{weights}} + \underbrace{Q^{X}_{\mathrm{attn}}(C)}_{\text{cache}}. \]</div>
-  <p>For \(X \in \{AR, TD\}\), the weights are shared by the batch and each sequence has its own cache. A larger batch divides the weight bytes per sequence and leaves the cache bytes unchanged. At first it helps TD more, due to the linear penalty \(\Pi_{\mathrm{lin}}\). But once TD is compute-bound, it only raises \(\class{mj-ar}{I_{AR}}\), and \(\Gamma = I^\star/(\omega \class{mj-ar}{I_{AR}})\) falls.</p>
+  <div class="eq">\[ Q^{X}(B, C) = \underbrace{\frac{s_wW^X(B)}{B}}_{\text{weights}} + \underbrace{Q^{X}_{\mathrm{attn}}(C)}_{\text{cache}}. \]</div>
+  <p>For \(X \in \{\mathrm{AR}, \mathrm{TD}\}\), the weights are shared by the batch and each sequence has its own cache. A larger batch divides the weight bytes per sequence and leaves the cache bytes unchanged. At first it helps TD more, due to the linear penalty \(\Pi_{\mathrm{lin}}\). But once TD is compute-bound, it only raises \(\class{mj-ar}{I^{\mathrm{AR}}}\), and \(\Gamma = I^\star/(\omega \class{mj-ar}{I^{\mathrm{AR}}})\) falls.</p>
 </div>
 </div>
     <div class="bdr-card"><div class="card-k">Context, \(C\)</div><p>As the context grows, the arithmetic intensity of the model tends to that of the attention. This generally favours TD, whose attention intensity is \(b\) times that of AR.</p>
 <div class="card-more" hidden>
-  <div class="eq">\[ \begin{gathered} I_X = \theta^X_{\mathrm{lin}}\,I^X_{\mathrm{lin}} + \theta^X_{\mathrm{attn}}\,I^X_{\mathrm{attn}},\\[4pt] \theta^X_{\mathrm{attn}} = \frac{Q^X_{\mathrm{attn}}}{Q^X}. \end{gathered} \]</div>
+  <div class="eq">\[ \begin{gathered} I^X = \theta^X_{\mathrm{lin}}\,I^X_{\mathrm{lin}} + \theta^X_{\mathrm{attn}}\,I^X_{\mathrm{attn}},\\[4pt] \theta^X_{\mathrm{attn}} = \frac{Q^X_{\mathrm{attn}}}{Q^X}. \end{gathered} \]</div>
   <p>Each intensity (TD or AR) is the weighted average of its two parts, linear and attention (<a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/#prop2">Proposition 2</a>). As \(C\) grows, the attention share \(\theta^X_{\mathrm{attn}}\) goes to 1 and the intensity of the model is roughly the intensity of the attention. Without sparse layers, the arithmetic intensity of the attention of TD is \(b\) times that of AR, and therefore long contexts favour TD.</p>
 </div>
 </div>
   </div>
 
-  <h3 id="s-what-the-formulas-leave-out">What the formulas leave out</h3>
-  <p>The gains above are roofline bounds under the assumptions (A1)–(A5) of <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/#prop1">Proposition 1</a>. What these assumptions leave out (the vocabulary, kernel-by-kernel timing, kernel efficiency, correlated routing and a few smaller effects) is listed in <a href="/notes/block-diffusion-rooflines-6f924020/setup/#gain-leave-out">Part 1</a>.</p>
+  <h4>Some limitations</h4>
+  <p>The gains above are roofline bounds under the assumptions (A1)–(A3) of <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/#prop1">Proposition 1</a>. What these assumptions leave out (the vocabulary, kernel-by-kernel timing, kernel efficiency, correlated routing and a few smaller effects) is listed in <a href="/notes/block-diffusion-rooflines-6f924020/setup/#gain-leave-out">Part 1</a>.</p>
 <section class="footnotes" aria-label="Notes"><h3 id="s-notes">Notes</h3><ol><li id="fn-canvas-quality">One trade-off that we deliberately leave out of the analysis is that the longer the canvas, the harder it is for TD to reach the quality of AR. <a href="#fnref-canvas-quality" class="fn-back" aria-label="Back to the text">↩</a></li></ol></section>
 </section>
 <nav class="book-nav" aria-label="Chapters"><a class="prev" href="/notes/block-diffusion-rooflines-6f924020/"><span>Previous</span>Introduction</a><a class="next" href="/notes/block-diffusion-rooflines-6f924020/setup/"><span>Next</span>1 · Setup and the gain</a></nav>

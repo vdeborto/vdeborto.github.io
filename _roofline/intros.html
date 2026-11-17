@@ -10,7 +10,11 @@ Of course, this formula is *idealized*, as it holds under some critical assumpti
 You can click on any formula to see a definition of the symbols it uses.
 <!-- intro:setup -->
 
-  <h3 id="what-we-need">What do we need to track?</h3>
+  In this chapter, we first lay down the setup and discuss the concept of arithmetic intensities, see [Pope et al., 2022](https://arxiv.org/abs/2211.05102) for a more thorough introduction to the topic. Next, we derive the throughput gains of TD versus AR and discuss a few consequences of our main result. 
+
+    <h3 id="the-setup">The setup</h3>
+
+  <h4 id="what-we-need">What do we need to track?</h4>
 
 In order for us to state our main result (Proposition 1), we need to define the key quantities which govern the inference throughput of AR and TD.
 These quantities determine whether moving bytes (weights and KV cache) or performing actual work (matrix multiplies) is the limiting factor, i.e., whether the model is memory-bound or compute-bound.
@@ -48,7 +52,7 @@ Therefore, in the rest of this blogpost, *we do not concern ourselves with discu
   I am not an expert on these topics myself, and I hope that this blogpost serves as a gentle introduction for the curious reader.
 
 <!-- intro:effective -->
-Proposition 1 takes two kinds of input that Parts 1–5 do not measure: the rates of the accelerator, which we take from its datasheet, and the experts each pass touches, which we take from the assumption that tokens route independently (A5). In this chapter, we measure both on one H200, for DiffusionGemma and Gemma 4. We will see that the measured ceilings lower the bound at every point, while routing moves it by the largest factors, upward at small batch and downward at large batch.
+Proposition 1 takes two kinds of input that Parts 1–5 do not measure: the rates of the accelerator, which we take from its datasheet, and the experts each pass touches, which we take from the assumption that tokens route independently (A3). In this chapter, we measure both on one H200, for DiffusionGemma and Gemma 4. We will see that the measured ceilings lower the bound at every point, while routing moves it by the largest factors, upward at small batch and downward at large batch.
 <!-- intro:stack -->
 Part 6 gives a roofline time for each component of a forward pass. To compare it with the GPU, we need a measured time for the same components. In this chapter, we describe how the measured time of a pass in vLLM is split into these components, so that the two can be compared. We also describe the three defects of the stock engine, and one of the harness, that these measurements exposed.
 <!-- intro:kernels -->
