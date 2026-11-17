@@ -19,7 +19,7 @@ TeX on a line of its own, followed by indented "field: value" lines:
   key:    the symbol as the key shows it, when it differs from the page's (TeX)
   page:   "no" keeps the entry out of the page (key only)
 
-A symbol that is not math is written "plain R1–R8" (page only). The key gets TeX, which reading.js
+A symbol that is not math is written "plain A1–A3" (page only). The key gets TeX, which reading.js
 has MathJax typeset when it shows an entry, so a symbol looks the same there as in the formulas.
 """
 import html as _html

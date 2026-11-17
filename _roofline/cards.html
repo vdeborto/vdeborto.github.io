@@ -30,7 +30,7 @@
 <!-- card:Context, -->
 <div class="card-more" hidden>
   <div class="eq">\[ \begin{gathered} I^X = \theta^X_{\mathrm{lin}}\,I^X_{\mathrm{lin}} + \theta^X_{\mathrm{attn}}\,I^X_{\mathrm{attn}},\\[4pt] \theta^X_{\mathrm{attn}} = \frac{Q^X_{\mathrm{attn}}}{Q^X}. \end{gathered} \]</div>
-  <p>Each intensity (TD or AR) is the weighted average of its two parts, linear and attention (Proposition 2). As \(C\) grows, the attention share \(\theta^X_{\mathrm{attn}}\) goes to 1 and the intensity of the model is roughly the intensity of the attention. Without sparse layers, the arithmetic intensity of the attention of TD is \(b\) times that of AR, and therefore long contexts favour TD.</p>
+  <p>Each intensity (TD or AR) is the weighted average of its two parts, linear and attention (Proposition 2). As \(C\) grows, the attention share \(\theta^X_{\mathrm{attn}}\) goes to 1 and the intensity of the model is roughly the intensity of the attention. Without sparse layers, the arithmetic intensity of the attention of TD is \(b\) times that of AR. Hence, at long context the gain tends to a limit that does not depend on the batch (1.72 here, when TD is compute-bound): TD keeps a gain at every batch, but at the batches where it gains most at short context, its gain falls.</p>
 </div>
 <!-- card:AR compute-bound -->
 <div class="card-more" hidden>
@@ -48,6 +48,6 @@
   <p>TD runs at the peak FLOP rate \(\pi\) and AR at \(I^{\mathrm{AR}}\,\beta\), so TD computes \(I^\star/I^{\mathrm{AR}}\) times faster than AR but does \(\omega\) times as many FLOPs per token; the ratio of the two is the formula above. At short context, \(I^{\mathrm{AR}}\) grows with the batch. At long context, \(I^{\mathrm{AR}} \to I_{\mathrm{attn}}\), and at any batch we have</p>
   <div class="eq">\[ \Gamma \to \frac{I^\star}{\omega\,I_{\mathrm{attn}}} = \frac{206}{15 \times 8} = 1.72. \]</div>
 
-  The above suggests that at long context, TD is *(almost) always* better than AR when it comes to throughput.
+  For DiffusionGemma on an H200, TD is therefore better than AR at long context, whatever the batch. This needs \(\omega I_{\mathrm{attn}} \lt I^\star\), i.e., a ridge point above 120 here: it fails on the H20 (Figure 7), with the sparse variant (0.86, Part 3), and if keys equal to values were cached once (0.86, Part 1).
 
 </div>

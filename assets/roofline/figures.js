@@ -698,7 +698,7 @@
       const IAR = f(C) / qAR(C), ITD = (b * f(C)) / qTD(C, b), om = W0.S + 1, tpf = b / om, P = Pi(C, b);
       const gain = Math.min(ITD, Is) / (om * Math.min(IAR, Is));
       out.innerHTML = `At <b>C = ${kctx(C)}</b>, a canvas of ${b} queries reads <i>U</i><sub>C,m</sub>(${b}) = ${kctx(Un(C, b))} selected tokens where one query reads ${kctx(Math.min(C, m))}: ${hsub('Π', 'sel')} = ${gx(Psel(C, b))}, and with the index cache <b>${hsub('Π', 'attn')} = ${gx(P)}</b>.<br>`
-        + `Attention intensities: ${IATT('AR')} = ${fmt(IAR)}, ${IATT('TD')} = <i>b</i> ${IATT('AR')}/${hsub('Π', 'attn')} = ${fmt(ITD)} (<span class="td">TD ${ITD >= Is ? 'compute' : 'memory'}-bound</span> on an H200, ${HIS} = ${fmt(Is)}). If attention dominated both decoders, Proposition 1 would give Γ = ${ITD >= Is ? `${HIS}/(ω ${hsub('I', 'AR')})` : `TPF/${hsub('Π', 'attn')} = ${fmt(tpf)}/${gx(P)}`} = <b>${gx(gain)}</b>.`;
+        + `Attention intensities: ${IATT('AR')} = ${fmt(IAR)}, ${IATT('TD')} = <i>b</i> ${IATT('AR')}/${hsub('Π', 'attn')} = ${fmt(ITD)} (<span class="td">TD ${ITD >= Is ? 'compute' : 'memory'}-bound</span> on an H200, ${HIS} = ${fmt(Is)}). If attention dominated both decoders, Corollary 3 would give Γ = ${ITD >= Is ? `${HIS}/(ω ${IATT('AR')})` : `TPF/${hsub('Π', 'attn')} = ${fmt(tpf)}/${gx(P)}`} = <b>${gx(gain)}</b>.`;
     }
     draw(); onTheme(draw); watchWidth(pic, draw);
   }

@@ -607,6 +607,9 @@
     const { hw, o, w } = st;
     const mdl = st.m || model;
     const Is = hw.peak / hw.bw;
+    // Plain ridge I* = pi/beta only when every FLOP runs at the BF16 peak and a pass is one kernel; otherwise the
+    // colours, the ridge line and the tooltip all follow the roofline time of the pass (passTime).
+    const plain = !hw.fp8 && !hw.peakAttn && hw.kernels !== 'sum';
     const W = 640, H = 434, mg = { l: 54, r: 14, t: 24, b: 44 };
     const cx0 = 9, cx1 = 20, by1 = 10, nx = 44, ny = 40;
     const X = (C) => mg.l + ((Math.log2(C) - cx0) / (cx1 - cx0)) * (W - mg.l - mg.r);
@@ -639,7 +642,8 @@
         cells.push({ B, C, ...e, over });
         vals.push(Math.log2(e.I));
         rrs.push(e.rr);
-        colors.push(over ? dimColor(intensityColor(e.I, Is)) : intensityColor(e.I, Is));
+        const col = plain ? intensityColor(e.I, Is) : intensityColor(Is * 2 ** e.rr, Is);
+        colors.push(over ? dimColor(col) : col);
       }
     }
     s += gridSvg(gridImage(colors, nx, ny), mg.l, mg.t, W - mg.r, H - mg.b);
@@ -662,8 +666,6 @@
       s += `<text class="isolbl" x="${best.mx.toFixed(1)}" y="${(my - 4).toFixed(1)}" text-anchor="middle">${lev}</text>`;
     });
     s += draw(contour(lmem, nx, ny, 0, xc, yc), 'memline');
-    // Plain ridge I* = pi/beta only when every FLOP runs at the BF16 peak and a pass is one kernel.
-    const plain = !hw.fp8 && !hw.peakAttn && hw.kernels !== 'sum';
     const ridge = contour(rrs, nx, ny, 0, xc, yc);
     const ridgeName = plain ? `ridge I<tspan baseline-shift="super" font-size="70%">⋆</tspan> = ${Math.round(Is)}` : 'ridge of this accelerator';
     s += draw(ridge, 'halo-l') + draw(ridge, 'ridge');
@@ -676,6 +678,7 @@
     s += '</svg><div class="tip" hidden></div>';
     el.innerHTML = s + memNote(hw, anyOver, which === 'ar' ? 'AR' : 'TD');
     intensityLegend(legendEl, Is);
+    if (!plain) legendEl.insertAdjacentHTML('beforeend', '<span class="muted">Colours show how far each pass is from the ridge of this accelerator (FP8 peak, attention ceiling or kernel-by-kernel rule), not the intensity against π/β.</span>');
 
     const svg = el.querySelector('svg'), tip = el.querySelector('.tip');
     ['pointermove', 'pointerdown'].forEach((type) => svg.addEventListener(type, (ev) => {
@@ -685,7 +688,7 @@
       if (j < 0 || j >= nx || i < 0 || i >= ny) { tip.hidden = true; return; }
       const c = cells[j * ny + i];
       const ctx = c.C >= 1e6 ? `${fmt(c.C / 2 ** 20)}M` : `${fmt(c.C / 1024)}k`;
-      tip.innerHTML = `<b>B ≈ ${fmt(c.B, 2)}, C ≈ ${ctx}</b><br>I = ${fmt(c.I)} FLOP/B (ridge ${Math.round(Is)})` +
+      tip.innerHTML = `<b>B ≈ ${fmt(c.B, 2)}, C ≈ ${ctx}</b><br>I = ${fmt(c.I)} FLOP/B${plain ? ` (ridge ${Math.round(Is)})` : ''}` +
         (which === 'td' ? `<br>denoise pass ${fmt(c.Iden)}, commit ${fmt(c.Icom)}` : '') +
         `<br>${which === 'td' ? 'denoise pass' : 'step'} is ${c.bound ? 'compute' : 'memory'}-bound` + (c.over ? '<br><b>does not fit in memory</b>' : '');
       tip.hidden = false;
@@ -902,7 +905,10 @@
     const kvSegs = contour(lkv, nx, ny, 0, xc, yc);
     s += lines(contour(lmem, nx, ny, 0, xc, yc), 'memline') + lines(contour(lmemAR, nx, ny, 0, xc, yc), 'memline-ar') + both(kvSegs) + both(tdSegs) + both(gSegs, '6 4');
     const { c } = bare(st, mdl);
-    const C50 = c.CF * (1 - (c.aS * c.r) / (2 * c.Nact));
+    // context at which attention is half of an AR step's FLOPs in the exact accounting (independent of the batch)
+    const attnShare = (C) => { const r = M.pass(mdl, M.passes.arDecode({ ...w, B: 1 }, C), o); return r.fatt / r.F; };
+    let C50 = Infinity;
+    if (attnShare(2 ** cx1) >= 0.5) { let lo = 2 ** cx0, hi = 2 ** cx1; for (let k = 0; k < 50; k++) { const mid = Math.sqrt(lo * hi); if (attnShare(mid) < 0.5) lo = mid; else hi = mid; } C50 = hi; }
     if (C50 > 2 ** cx0 && C50 < 2 ** cx1) s += `<line x1="${X(C50)}" x2="${X(C50)}" y1="${mg.t}" y2="${H - mg.b}" class="curve" stroke-dasharray="2 4"/>` + label(X(C50) - 4, H - mg.b - 8, 'attention = ½ of FLOPs', 'end');
     if (tdSegs.length) { const p = mid(pick(tdSegs, (sg) => mid(sg)[0])); s += label(p[0] + 4, p[1] - 8, st.hw.kernels === 'sum' ? 'every TD kernel compute-bound above' : 'TD compute-bound above'); }
     // AR's compute-bound line, drawn only where asked (the calculator).
@@ -1293,6 +1299,9 @@
     let q;
     try { q = new URLSearchParams(location.search); } catch (e) { q = new URLSearchParams(); }
     for (const id of STATE_IDS) q.delete(keyOf(id));
+    q.delete('attn');
+    // a custom accelerator keeps the attention ceiling of the preset it was edited from
+    if ($('c-hw').value === 'custom' && LAST_ATTN) q.set('attn', String(LAST_ATTN));
     for (const id of STATE_IDS) {
       if (HW_FIELDS.includes(id) && $('c-hw').value !== 'custom') continue;
       if (id.startsWith('m-') && $('c-model').value !== 'custom') continue;
@@ -1309,6 +1318,7 @@
     if (![...q.keys()].length) return;
     const set = (id) => { const k = keyOf(id); if (!q.has(k)) return; const el = $(id); if (el.type === 'checkbox') el.checked = q.get(k) === '1'; else el.value = q.get(k); };
     set('c-hw'); if ($('c-hw').value !== 'custom') applyPreset();
+    else if (q.has('attn')) LAST_ATTN = parseFloat(q.get('attn')) || undefined;
     set('c-model'); if (M.MODELS[$('c-model').value]) { const m = M.MODELS[$('c-model').value].build(); fillSpecs(m); $('c-lt').value = m.selfCond ? 5 : 2; }
     for (const id of STATE_IDS) if (id !== 'c-hw' && id !== 'c-model') set(id);
     syncScWidth();

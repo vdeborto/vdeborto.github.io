@@ -51,7 +51,7 @@ window.BDR_SYMBOLS = [
   ["(^|[^\\\\A-Za-z_])C(?![A-Za-z_])", "C", "context: tokens already in the KV cache of each sequence", ""],
   ["(^|[^\\\\A-Za-z_])b(?![A-Za-z])", "b", "canvas length, in tokens (256)", ""],
   ["(^|[^\\\\A-Za-z_])(?<!\\\\mathcal )(?<!\\\\mathcal\\{)S(?![A-Za-z_])", "S", "denoising passes per canvas (14)", "T"],
-  ["(^|[^\\\\A-Za-z_])r(?![A-Za-z])", "r", "cost of a denoising pass relative to a forward pass (1)", "T"],
+  ["(^|[^\\\\A-Za-z_])r(?![A-Za-z])", "r", "cost of a denoising pass relative to a commit pass, i.e., a forward pass of the causal encoder (1)", "T"],
   ["(^|[^\\\\A-Za-z_])d(?![A-Za-z_])", "d", "hidden size (2816)", ""],
   ["(^|[^\\\\A-Za-z_])g(?![A-Za-z_])", "g", "query heads per KV head on the global layers, \\(n_q/n_{\\mathrm{kv},\\ell}\\) (8)", "T"],
   ["s_\\{\\\\mathrm\\{kv\\}\\}", "s_{\\mathrm{kv}}", "bytes per element of the KV cache (2)", ""],
@@ -78,5 +78,7 @@ window.BDR_SYMBOLS = [
   ["M_q|M_k|M_\\{?[qk]", "M_q,\\ M_k", "query rows and keys of one attention tile", "P"],
   ["n_q|n_\\{\\\\mathrm\\{kv", "n_q,\\ n_{\\mathrm{kv},\\ell}", "query heads and KV heads of a layer (16 query heads; 2 KV heads on the global layers, 8 on the window layers)", ""],
   ["\\\\mathbf(\\{| )Z", "\\mathbf{Z}", "attention scores \\(\\mathbf{Q}\\mathbf{K}^\\top\\) of one tile", "P"],
+  ["\\\\mathbf(\\{| )[QKV]", "\\mathbf{Q},\\ \\mathbf{K},\\ \\mathbf{V}", "query, key and value tiles of one attention block, split in two halves \\(\\mathbf{Q}_0, \\mathbf{Q}_1\\) (bold: not the bytes \\(Q\\))", "P"],
+  ["\\\\mathbf(\\{| )O", "\\mathbf{O}_i", "output rows of query tile \\(i\\)", "P"],
   ["(^|[^\\\\A-Za-z_])h(?![A-Za-z_])", "h", "head dimension of a global layer (512)", "P"]
 ];

@@ -16,7 +16,7 @@ interactive figures kept in this repo:
                                 steppers, the symbol key, the citation's copy button and the comment thread
   _roofline/symbols.txt         every symbol of the book, once: bin/roofline_symbols.py makes the Symbols
                                 page (the last one) and the list of the symbol key from it
-Every AR quantity in the math (I_{AR}, W_{AR}, F^{AR}_{...}, B^\\star_{AR}, ...) is wrapped in
+Every AR quantity in the math (I^{\\mathrm{AR}}, W^{\\mathrm{AR}}, F^{\\mathrm{AR}}_{...}, B^{\\mathrm{AR}}_\\star, ...) is wrapped in
 \\class{mj-ar}{...} and every TD quantity in \\class{mj-td}{...}, so that it takes the figures' colours.
   assets/roofline/theme.css     the note's colour and font tokens mapped to the site's palette,
                                 layout overrides, and the figures' styles (hand-written)

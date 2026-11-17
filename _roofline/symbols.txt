@@ -48,7 +48,7 @@ S
   scope: T
 
 r
-  what: cost of a denoising pass relative to a forward pass (1)
+  what: cost of a denoising pass relative to a commit pass, i.e., a forward pass of the causal encoder (1)
   in: Part 1
   match: (^|[^\\A-Za-z_])r(?![A-Za-z])
   rank: 510
@@ -73,6 +73,22 @@ P,\ G
 \lambda
   what: logit-sized reads and writes of HBM per output position (5 for TD, 2 for AR); 0 means the logits stay on-chip
   in: Part 4
+
+t
+  what: noise level of a canvas, from 1 to 0 over the denoising passes (Figure 2); in Parts 6–9, \(t\) is a measured time
+  in: Part 0
+
+\Delta t
+  what: step of the noise level from one denoising pass to the next, \(1/S\)
+  in: Part 0
+
+x_0
+  what: clean canvas, the target of the denoising passes (Figure 2)
+  in: Part 0
+
+s_t
+  what: self-conditioning signal: the previous pass's prediction, fed back to the next pass (Figure 2)
+  in: Part 0
 
 == Accelerator and precision
 
@@ -232,6 +248,10 @@ h_{I,\ell},\ s_I
 
 z_{i,j},\ \gamma_{i,a}
   what: the indexer's score of cached token \(j\) for query \(i\), and the query-dependent weight of indexer head \(a\)
+  in: Remark 1
+
+q^I_{i,a},\ k^I_j
+  what: the indexer's query of head \(a\) for query \(i\), and its key of cached token \(j\), shared by its heads
   in: Remark 1
 
 == Costs and intensities
@@ -422,13 +442,13 @@ B^{\mathrm{TD}}_\star
 
 B^{\mathrm{AR}}_\star
   what: smallest batch at which an AR step is compute-bound
-  in: Part 2
+  in: Corollary 2
   match: B\^\{\\mathrm\{AR\}\}_\\star
   rank: 150
 
 B_\times
   what: parity batch: beyond it AR is faster
-  in: Part 2
+  in: Corollary 2
   match: B_\\times
   rank: 160
 
@@ -553,6 +573,25 @@ M_q,\ M_k
   in: Part 8
   match: M_q|M_k|M_\{?[qk]
   rank: 660
+  scope: P
+
+\mathbf{Q},\ \mathbf{K},\ \mathbf{V}
+  what: query, key and value tiles of one attention block, split in two halves \(\mathbf{Q}_0, \mathbf{Q}_1\) (bold: not the bytes \(Q\))
+  in: Part 8
+  match: \\mathbf(\{| )[QKV]
+  rank: 685
+  scope: P
+
+\mathbf{O}_i
+  what: output rows of query tile \(i\)
+  in: Part 8
+  match: \\mathbf(\{| )O
+  rank: 686
+  scope: P
+
+U
+  what: experts touched by \(N\) tokens in one MoE layer (\(U_{\mathrm{meas}}\) when measured)
+  in: Part 8
   scope: P
 
 \mathbf{Z}

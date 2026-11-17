@@ -32,11 +32,15 @@ sitemap: false
       <tr><td>\(C\)</td><td class="l">context: tokens already in the KV cache of each sequence</td><td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/">Part 1</a></td></tr>
       <tr><td>\(b\)</td><td class="l">canvas length, in tokens (256)</td><td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/">Part 1</a></td></tr>
       <tr><td>\(S\)</td><td class="l">denoising passes per canvas (14)</td><td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/">Part 1</a></td></tr>
-      <tr><td>\(r\)</td><td class="l">cost of a denoising pass relative to a forward pass (1)</td><td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/">Part 1</a></td></tr>
+      <tr><td>\(r\)</td><td class="l">cost of a denoising pass relative to a commit pass, i.e., a forward pass of the causal encoder (1)</td><td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/">Part 1</a></td></tr>
       <tr><td>\(\omega = Sr + 1\)</td><td class="l">forward passes that one canvas costs (15)</td><td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/">Part 1</a></td></tr>
       <tr><td>\(\mathrm{TPF} = b/\omega\)</td><td class="l">tokens committed per forward pass (17.07)</td><td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/">Part 1</a></td></tr>
       <tr><td>\(P,\ G\)</td><td class="l">prompt tokens and generated tokens per sequence (1,024 and 8,192)</td><td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/calculator/">Part 4</a></td></tr>
       <tr><td>\(\lambda\)</td><td class="l">logit-sized reads and writes of HBM per output position (5 for TD, 2 for AR); 0 means the logits stay on-chip</td><td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/calculator/">Part 4</a></td></tr>
+      <tr><td>\(t\)</td><td class="l">noise level of a canvas, from 1 to 0 over the denoising passes (<a class="xref" href="/notes/block-diffusion-rooflines-6f924020/#figure-2">Figure 2</a>); in <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/effective/">Parts 6</a>–<a class="xref" href="/notes/block-diffusion-rooflines-6f924020/conclusion/">9</a>, \(t\) is a measured time</td><td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/">Part 0</a></td></tr>
+      <tr><td>\(\Delta t\)</td><td class="l">step of the noise level from one denoising pass to the next, \(1/S\)</td><td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/">Part 0</a></td></tr>
+      <tr><td>\(x_0\)</td><td class="l">clean canvas, the target of the denoising passes (<a class="xref" href="/notes/block-diffusion-rooflines-6f924020/#figure-2">Figure 2</a>)</td><td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/">Part 0</a></td></tr>
+      <tr><td>\(s_t\)</td><td class="l">self-conditioning signal: the previous pass's prediction, fed back to the next pass (<a class="xref" href="/notes/block-diffusion-rooflines-6f924020/#figure-2">Figure 2</a>)</td><td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/">Part 0</a></td></tr>
     </tbody>
   </table></div>
   <h3 id="s-accelerator-and-precision">Accelerator and precision</h3>
@@ -75,6 +79,7 @@ sitemap: false
       <tr><td>\(h_{I,\ell},\ s_I\)</td><td class="l">head dimension of the indexer of sparse layer \(\ell\) (\(h_I\) when the layer is clear) and bytes per element of its keys (128, 1 in FP8)</td><td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/#def1">Definition 1</a></td></tr>
       <tr><td>\(\mathcal M_i\)</td><td class="l">tokens that query \(i\) selects in a sparse layer</td><td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/attention/#dsa">Remark 1</a></td></tr>
       <tr><td>\(z_{i,j},\ \gamma_{i,a}\)</td><td class="l">the indexer's score of cached token \(j\) for query \(i\), and the query-dependent weight of indexer head \(a\)</td><td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/attention/#dsa">Remark 1</a></td></tr>
+      <tr><td>\(q^I_{i,a},\ k^I_j\)</td><td class="l">the indexer's query of head \(a\) for query \(i\), and its key of cached token \(j\), shared by its heads</td><td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/attention/#dsa">Remark 1</a></td></tr>
     </tbody>
   </table></div>
   <h3 id="s-costs-and-intensities">Costs and intensities</h3>
@@ -125,8 +130,8 @@ sitemap: false
     <thead><tr><th class="l">Symbol</th><th class="l">Meaning</th><th class="l">Introduced</th></tr></thead>
     <tbody>
       <tr><td>\(\class{mj-td}{B^{\mathrm{TD}}_\star}\)</td><td class="l">batch at which a TD pass reaches the ridge, \(\class{mj-td}{I^{\mathrm{TD}}} = I^\star\); the best batch when AR is memory-bound</td><td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/#cor1">Corollary 1</a></td></tr>
-      <tr><td>\(\class{mj-ar}{B^{\mathrm{AR}}_\star}\)</td><td class="l">smallest batch at which an AR step is compute-bound</td><td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/linear/">Part 2</a></td></tr>
-      <tr><td>\(B_\times\)</td><td class="l">parity batch: beyond it AR is faster</td><td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/linear/">Part 2</a></td></tr>
+      <tr><td>\(\class{mj-ar}{B^{\mathrm{AR}}_\star}\)</td><td class="l">smallest batch at which an AR step is compute-bound</td><td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/linear/#cor2">Corollary 2</a></td></tr>
+      <tr><td>\(B_\times\)</td><td class="l">parity batch: beyond it AR is faster</td><td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/linear/#cor2">Corollary 2</a></td></tr>
       <tr><td>\(b_c\)</td><td class="l">critical canvas length \(I^\star/I_{\mathrm{attn}}\): above it a longer context helps TD reach the ridge</td><td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/attention/#prop7">Proposition 7</a></td></tr>
       <tr><td>A1–A3</td><td class="l">the assumptions of <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/#prop1">Proposition 1</a></td><td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/">Part 1</a></td></tr>
       <tr><td>\(C_{\mathrm{lin}}(B, x)\)</td><td class="l">context below which the weights are at least a share \(x\) of an AR step's bytes</td><td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/linear/#prop4">Proposition 4</a></td></tr>
@@ -152,6 +157,9 @@ sitemap: false
       <tr><td>\(\rho_e\)</td><td class="l">frequency with which a token selects expert \(e\)</td><td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/effective/#def6">Definition 6</a></td></tr>
       <tr><td>\(\mu\)</td><td class="l">rows per touched expert, \(Nk/U\)</td><td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/kernels/">Part 8</a></td></tr>
       <tr><td>\(M_q,\ M_k\)</td><td class="l">query rows and keys of one attention tile</td><td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/kernels/">Part 8</a></td></tr>
+      <tr><td>\(\mathbf{Q},\ \mathbf{K},\ \mathbf{V}\)</td><td class="l">query, key and value tiles of one attention block, split in two halves \(\mathbf{Q}_0, \mathbf{Q}_1\) (bold: not the bytes \(Q\))</td><td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/kernels/">Part 8</a></td></tr>
+      <tr><td>\(\mathbf{O}_i\)</td><td class="l">output rows of query tile \(i\)</td><td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/kernels/">Part 8</a></td></tr>
+      <tr><td>\(U\)</td><td class="l">experts touched by \(N\) tokens in one MoE layer (\(U_{\mathrm{meas}}\) when measured)</td><td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/kernels/">Part 8</a></td></tr>
       <tr><td>\(\mathbf{Z}\)</td><td class="l">attention scores \(\mathbf{Q}\mathbf{K}^\top\) of one tile</td><td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/kernels/">Part 8</a></td></tr>
       <tr><td>\(h\)</td><td class="l">head dimension of a global layer (512)</td><td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/kernels/">Part 8</a></td></tr>
       <tr><td>\(\eta^\star_c\)</td><td class="l">target efficiency of a component: that of the best kernel timed alone at representative shapes (the mean of three for global attention), 0.8 where none was timed</td><td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/stack/#def7">Definition 7</a></td></tr>

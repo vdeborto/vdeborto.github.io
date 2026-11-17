@@ -476,7 +476,7 @@ def fig_map_narrow(base=BOOK_URL):
 MAP_TOP = [  # (x, width, [(slug, part label, title, lines)]); two entries are stacked in one column
     (10, 150, [("setup", "PART 1", "Setup and the gain", ["Costs, penalties,", "main result"])]),
     (174, 122, [("linear", "PART 2", "Linear part", []), ("attention", "PART 3", "Attention part", [])]),
-    (312, 170, [("calculator", "PART 4", "Maps and calculator", ["Model x Hardware"])]),
+    (312, 170, [("calculator", "PART 4", "Maps and calculator", ["Model × Hardware"])]),
     (498, 152, [("examples", "PART 5", "Exercises", ["Canvas, model,", "accelerator"])]),
 ]
 MAP_BOT = [("effective", "PART 6", "Empirical rooflines", ["Measured ceilings", ""]),
