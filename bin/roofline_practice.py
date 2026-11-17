@@ -66,7 +66,7 @@ def fig(fid, kicker, title, lede, inner, cap, wide=False):
     return (f'  <div class="bdr-fig pfig{" breakout" if wide else ""}" id="{fid}">\n'
             f'    <div class="fig-k">{kicker}</div>\n' + (f'    <p class="fig-title">{title}</p>\n' if title else "")
             + (f'    <p class="fig-lede">{lede}</p>\n' if lede else "")
-            + f'    {inner}\n    <p class="fig-cap">{cap}</p>\n  </div>\n')
+            + f'    {inner}\n' + (f'    <p class="fig-cap">{cap}</p>\n' if cap.strip() else "") + '  </div>\n')
 
 
 def table(caption, head, rows, cls="pt", fold=None):
