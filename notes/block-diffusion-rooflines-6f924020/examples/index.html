@@ -381,7 +381,7 @@
     <li>
 <p><b>Where does AR catch up?</b></p>
       <details class="answer"><summary>Solution</summary>
-        <p>With TD compute-bound and AR memory-bound, \(\Gamma = I^\star/(\omega B)\), so \(\Gamma = 1\) at \(B_\times = I^\star/\omega \approx 14\) (exact: 15). TD is compute-bound from batch 1, so batch 1 is also its best batch, and the gain only falls from there. On the map: the dashed line \(\Gamma = 1\). It starts near batch 15 at short context and turns sharply upward around 16k tokens, because at long context TD wins at every batch (last question).</p></details>
+        <p>With TD compute-bound and AR memory-bound, \(\Gamma = I^\star/(\omega B)\), so \(\Gamma = 1\) at \(B_\times = I^\star/\omega \approx 14\) (exact: 15). TD is compute-bound from batch 1, so batch 1 is also its best batch, and the gain only falls from there. On the map: the dashed line \(\Gamma = 1\). It starts near batch 15 at short context and turns sharply upward around 11k–12k tokens, because at long context TD wins at every batch (last question).</p></details>
 </li>
     <li>
 <p><b>Does AR ever become compute-bound at 1k context?</b></p>
@@ -415,7 +415,7 @@
     <li>
 <p><b>Where does AR catch up?</b></p>
       <details class="answer"><summary>Solution</summary>
-        <p>With TD compute-bound and AR memory-bound, \(\Gamma = 1\) when \(I_{\mathrm{lin}}(B) = I^\star/\omega = 2.47\). The closed form \(B_\times = \class{mj-ar}{B^{\mathrm{AR}}_\star}/\omega = 19.6\) does not apply here, because at such small batches AR does not yet touch every expert. Solving with the full \(\class{mj-ar}{W^{\mathrm{AR}}}(B)\) gives \(B \approx 10\). The exact parity is at 4.5: once TD is compute-bound its vocabulary FLOPs count in full and lower its gain by about a quarter, so parity needs only \(I_{\mathrm{lin}}(B) \approx 2.47 \times 0.74 \approx 1.8\), which happens near batch 4. On the map: the dashed line, close to the bottom.</p></details>
+        <p>With TD compute-bound and AR memory-bound, \(\Gamma = 1\) when \(I_{\mathrm{lin}}(B) = I^\star/\omega = 2.47\). The closed form \(B_\times = \class{mj-ar}{B^{\mathrm{AR}}_\star}/\omega = 19.6\) does not apply here, because at such small batches AR does not yet touch every expert. Solving with the full \(\class{mj-ar}{W^{\mathrm{AR}}}(B)\) gives \(B \approx 10\). The exact parity is at 4.5: once TD is compute-bound its vocabulary FLOPs count in full and lower its gain by about a fifth (a factor 0.79 at batches 4–5), so parity comes much earlier. On the map: the dashed line, close to the bottom.</p></details>
 </li>
     <li>
 <p><b>Long context.</b> Who wins?</p>

@@ -327,7 +327,7 @@ By doing so, we will be able to establish the arithmetic intensities of both mod
 
 
 
-  <p>A denoising pass costs \(r\) times a forward pass<sup class="fn-ref" id="fnref-r-one"><a href="#fn-r-one">2</a></sup>. Hence, a canvas costs \(\omega = Sr + 1\) forward passes, and TD commits \(\mathrm{TPF} = b/\omega\) tokens per forward pass. <a class="xref" href="#figure-5">Figure 5</a> below illustrates the two paradigms.</p>
+  <p>A denoising pass costs \(r\) times a commit pass, i.e., a forward pass of the causal encoder<sup class="fn-ref" id="fnref-r-one"><a href="#fn-r-one">2</a></sup>. Hence, a canvas costs \(\omega = Sr + 1\) forward passes, and TD commits \(\mathrm{TPF} = b/\omega\) tokens per forward pass. <a class="xref" href="#figure-5">Figure 5</a> below illustrates the two paradigms.</p>
 
 
 
@@ -387,7 +387,7 @@ By doing so, we will be able to establish the arithmetic intensities of both mod
 </tr>
         <tr>
 <td>\(g = n_q/n_{\mathrm{kv},\ell}\)</td>
-<td class="l">query heads per KV head on the global layers </td>
+<td class="l">query heads per KV head on the global layers, taken the same on every global layer</td>
 </tr>
         <tr>
 <td>\(w,\ m\)</td>
@@ -455,7 +455,7 @@ By doing so, we will be able to establish the arithmetic intensities of both mod
   <div class="box def widebox" id="def2">
     <div class="bdr-title">
 <span class="tag">Definition 2</span>FLOPs and bytes of a pass</div>
-    <p>\(F\) denotes FLOPs and \(Q\) bytes, per sequence and per pass, for an AR step and for a TD pass, each split into a linear part and an attention part.</p>
+    <p>\(F\) denotes FLOPs and \(Q\) bytes, per sequence and per pass, for an AR step and for a TD commit pass (a denoising pass costs \(r\) times as much), each split into a linear part and an attention part.</p>
     <h4>Linear FLOPs</h4>
     <div class="eq">\[ \class{mj-ar}{F^{\mathrm{AR}}_{\mathrm{lin}}} = 2N_{\mathrm{act}},\qquad \class{mj-td}{F^{\mathrm{TD}}_{\mathrm{lin}}} = 2b\,N_{\mathrm{act}},\qquad N_{\mathrm{act}} = W_{\mathrm{ne}} + L\,k\,W^e. \]</div>
 
@@ -524,7 +524,7 @@ By doing so, we will be able to establish the arithmetic intensities of both mod
 </tr>
         <tr>
 <td>\(I_{\mathrm{attn}} = \dfrac{\alpha_G}{\nu_G} = \dfrac{4g}{\kappa^c_\ell s_{\mathrm{kv}}}\),<br>\(I_{\mathrm{win}} = \dfrac{\alpha_W}{\nu_W}\), \(I_{\mathrm{idx}} = \dfrac{\alpha_I}{\nu_I}\)</td>
-<td class="l">attention FLOPs per cache byte for a single query, on a global layer, a window layer, an indexer</td>
+<td class="l">attention FLOPs per cache byte for a single query, on a global layer, a window layer, an indexer; the form \(4g/(\kappa^c_\ell s_{\mathrm{kv}})\) holds when every global layer has the same \(n_{\mathrm{kv},\ell}\) and \(\kappa^c_\ell\)</td>
 <td class="num">8, 2; 16 for the indexer of the sparse variant (<a class="xref" href="/notes/block-diffusion-rooflines-6f924020/attention/">Part 3</a>)</td>
 </tr>
       </tbody>
@@ -591,7 +591,7 @@ By doing so, we will be able to establish the arithmetic intensities of both mod
       <dt>A1 · Roofline</dt>
 <dd>On an accelerator with peak compute \(\pi\) (FLOP/s) and memory bandwidth \(\beta\) (bytes/s), a pass with \(F\) FLOPs and \(Q\) bytes read from memory takes \(\max(F/\pi,\,Q/\beta)\).</dd>
       <dt>A2 · Costs</dt>
-<dd>Per sequence, an AR step costs \(\class{mj-ar}{F^{\mathrm{AR}}}\) FLOPs and \(\class{mj-ar}{Q^{\mathrm{AR}}}\) bytes, and a TD pass \(\class{mj-td}{F^{\mathrm{TD}}}\) and \(\class{mj-td}{Q^{\mathrm{TD}}}\), as in <a class="xref" href="#def2">Definition 2</a>. </dd>
+<dd>Per sequence, an AR step costs \(\class{mj-ar}{F^{\mathrm{AR}}}\) FLOPs and \(\class{mj-ar}{Q^{\mathrm{AR}}}\) bytes, and a TD commit pass \(\class{mj-td}{F^{\mathrm{TD}}}\) and \(\class{mj-td}{Q^{\mathrm{TD}}}\), as in <a class="xref" href="#def2">Definition 2</a>. </dd>
       <dt>A3 · Routing</dt>
 <dd>Expert routing and token selection are independent across positions and uniform: each token picks its \(k\) experts uniformly among the \(E\), and each query its \(m\) tokens uniformly among the \(C\).</dd>
     </dl>
