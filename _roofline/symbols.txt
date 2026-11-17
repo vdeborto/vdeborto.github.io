@@ -3,11 +3,11 @@
 #   - the symbol key (a click on a formula lists the symbols it uses), for the entries with "match".
 # An entry is the symbol in TeX on its own line, then indented fields:
 #   what:   the meaning; math goes in \( \)
-#   in:     where the symbol is introduced ("Part 3", "Definition 2", "Proposition 8"); the build links it
+#   in:     where the symbol is introduced ("Part 2", "Definition 2", "Proposition 8"); the build links it
 #           and checks that a formula there uses the symbol
 #   match:  JavaScript regular expression on a formula's TeX (the symbol key)
 #   rank:   order in the symbol key, which keeps the 14 lowest ranks of a formula
-#   scope:  T = only in Parts 1-7, P = only in Parts 8-11
+#   scope:  T = only in Parts 1-5, P = only in Parts 6-9
 #   key:    the symbol as the key shows it, when it differs from the page's
 #   page:   no = in the key only
 # A symbol that is not math is written "plain R1–R8". After a change: python3 -I bin/build-roofline.py
@@ -68,11 +68,11 @@ r
 
 P,\ G
   what: prompt tokens and generated tokens per sequence (1,024 and 8,192)
-  in: Part 6
+  in: Part 4
 
 \lambda
   what: logit-sized reads and writes of HBM per output position (5 for TD, 2 for AR); 0 means chunked logits
-  in: Part 6
+  in: Part 4
 
 == Accelerator and precision
 
@@ -124,13 +124,13 @@ L
 
 d
   what: hidden size (2816)
-  in: Part 4
+  in: Part 3
   match: (^|[^\\A-Za-z_])d(?![A-Za-z_])
   rank: 511
 
 V
   what: vocabulary size (262,144)
-  in: Part 6
+  in: Part 4
 
 \mathcal G,\ \mathcal W,\ \mathcal S
   what: sets of the global-attention, sliding-window and sparse layers (5, 25 and none in DiffusionGemma)
@@ -184,7 +184,7 @@ W^e
 
 f_E
   what: width of one expert (704)
-  in: Part 10
+  in: Part 8
   match: f_E
   rank: 650
   scope: P
@@ -203,7 +203,7 @@ N_{\mathrm{act}}
 
 W_{\mathrm{tot}}
   what: all parameters, \(W_{\mathrm{ne}} + LEW^e\) (24.5B, without the vocabulary)
-  in: Part 3
+  in: Part 2
   match: W_\{\\mathrm\{tot\}\}
   rank: 180
 
@@ -377,7 +377,7 @@ C_F
 
 \zeta
   what: independent fraction of a canvas's selections: 1 when independent, \(1/b\) when every query selects the same tokens
-  in: Part 4
+  in: Part 3
   match: \\zeta
   rank: 420
 
@@ -385,19 +385,19 @@ C_F
 
 B^\star_{TD}
   what: smallest batch at which a TD pass is compute-bound
-  in: Part 3
+  in: Part 2
   match: B\^\\star_\{TD\}
   rank: 140
 
 B^\star_{AR}
   what: smallest batch at which an AR step is compute-bound
-  in: Part 3
+  in: Part 2
   match: B\^\\star_\{AR\}
   rank: 150
 
 B_\times
   what: parity batch: beyond it AR is faster
-  in: Part 3
+  in: Part 2
   match: B_\\times
   rank: 160
 
@@ -408,12 +408,12 @@ b_c
   rank: 440
 
 plain R1–R8
-  what: the eight regimes (Figure 16)
-  in: Part 5
+  what: the eight regimes (Figure 17)
+  in: Part 4
 
 plain A1–A5
   what: the assumptions of Proposition 1
-  in: Part 2
+  in: Part 1
 
 C_{\mathrm{lin}}(B, x)
   what: context below which the weights are at least a share \(x\) of an AR step's bytes
@@ -508,28 +508,28 @@ N^{\mathrm{eff}}
 
 \mu
   what: rows per touched expert, \(Nk/U\)
-  in: Part 10
+  in: Part 8
   match: \\mu(?![A-Za-z])
   rank: 640
   scope: P
 
 M_q,\ M_k
   what: query rows and keys of one attention tile
-  in: Part 10
+  in: Part 8
   match: M_q|M_k|M_\{?[qk]
   rank: 660
   scope: P
 
 \mathbf{Z}
   what: attention scores \(\mathbf{Q}\mathbf{K}^\top\) of one tile
-  in: Part 10
+  in: Part 8
   match: \\mathbf(\{| )Z
   rank: 680
   scope: P
 
 h
   what: head dimension of a global layer (512)
-  in: Part 10
+  in: Part 8
   match: (^|[^\\A-Za-z_])h(?![A-Za-z_])
   rank: 690
   scope: P
@@ -540,4 +540,4 @@ h
 
 p_{i,e}
   what: routing weight of expert \(e\) for token \(i\)
-  in: Part 10
+  in: Part 8

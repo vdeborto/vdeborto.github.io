@@ -11,7 +11,7 @@ interactive figures kept in this repo:
   _roofline/cards.html          "more" panels of the TL;DR cards, one <!-- card:TITLE PREFIX --> block each
   _roofline/gists.html          one-sentence summary of each definition and proposition box
   _roofline/intros.html         opening paragraph of each chapter page
-  bin/roofline_practice.py      figures and tables of the practice chapters (Parts 0, 8-11), from
+  bin/roofline_practice.py      figures and tables of the practice chapters (Parts 0, 6-9), from
                                 _roofline/practice-data.json (exported by roofscope's pages/book/export.py)
   assets/roofline/reading.js    contents rail, reading progress, the intuition / full-math switch, the
                                 steppers, the symbol key, the citation's copy button and the comment thread
@@ -65,18 +65,16 @@ TITLE = "Block Diffusion Rooflines"
 CHAPTERS = [
     ("", "0", "Introduction", "intro", "what is already measured, the question, the measurement setting, how the book is organised and how to read it."),
     ("summary", "", "Summary", "tldr", "the headline numbers, four takeaways, the three regimes that occur, and what moves the gain."),
-    ("setup", "1", "Setup", "setup", "notation, costs, intensities, penalties."),
-    ("gain", "2", "The gain", "gain", "Proposition 1, what the formulas leave out, and the split of each intensity into a linear part and an attention part."),
-    ("linear", "3", "The linear part", "linear", "the expert and linear penalties, when the linear layers dominate, and the gain in that regime."),
-    ("attention", "4", "The attention part", "attention", "dense, windowed and sparse attention; the selection penalty as the twin of the expert penalty; when attention dominates, and the gain there."),
-    ("whole", "5", "The whole picture", "whole", "when TD wins, the batch needed to saturate compute, the eight regimes, other accelerators and models, the exact maps."),
-    ("calculator", "6", "Calculator", "calc", "any accelerator, model, attention layout and decoding setup, with the exact accounting."),
-    ("examples", "7", "Worked examples", "examples", "a smaller canvas, a dense model, a low-ridge accelerator."),
-    ("effective", "8", "Empirical rooflines", "effective", "the ceilings one H200 sustains, the experts each decoder actually touches, and the bound they give."),
-    ("stack", "9", "The measurement stack", "stack", "how every kernel of a step is timed and attributed, three defects of the stock engine and one of the harness, and where the stock kernels stand."),
-    ("kernels", "10", "Kernels", "kernelwork", "two rewrites, of the experts and of global attention, and what they change in efficiency, throughput and quality."),
-    ("conclusion", "11", "Conclusion", "conclusion", "the bound against the measurement, what the roofline gets right, limitations, code and data, related work, open problems."),
-    ("appendix", "A", "Appendix", "appendix", "the exact accounting, a check against measurements, sources."),
+    ("setup", "1", "Setup and the gain", "setup", "notation, costs, intensities and penalties; Proposition 1, what the formulas leave out, which side wins, and the split of each intensity into a linear part and an attention part."),
+    ("linear", "2", "The linear part", "linear", "the expert and linear penalties, when the linear layers dominate, and the gain in that regime."),
+    ("attention", "3", "The attention part", "attention", "dense, windowed and sparse attention; the selection penalty as the twin of the expert penalty; when attention dominates, and the gain there."),
+    ("calculator", "4", "Regimes, maps and calculator", "whole", "when TD wins, the batch needed to saturate compute, the regimes, the exact maps over batch and context, the calculator and the exact accounting."),
+    ("examples", "5", "Exercises", "examples", "three exercises with folded solutions: a smaller canvas, a dense model, a low-ridge accelerator."),
+    ("effective", "6", "Empirical rooflines", "effective", "the ceilings one H200 sustains, the experts each decoder actually touches, and the bound they give."),
+    ("stack", "7", "The measurement stack", "stack", "how every kernel of a step is timed and attributed, three defects of the stock engine and one of the harness, and where the stock kernels stand."),
+    ("kernels", "8", "Kernels", "kernelwork", "two rewrites, of the experts and of global attention, and what they change in efficiency, throughput and quality."),
+    ("conclusion", "9", "Conclusion", "conclusion", "the bound against the measurement, what the roofline gets right, limitations, code and data, related work, open problems."),
+    ("appendix", "A", "Appendix", "appendix", "where the cost model lives, and sources."),
     ("symbols", "B", "Symbols", "symbols", "every symbol, its meaning and where it is defined."),  # made by add_symbols
 ]
 # Citation, and the comment threads (ids from https://giscus.app for the repository and category).
@@ -215,7 +213,7 @@ def link_takeaways(body):
 
 
 def add_practice(body):
-    """Figures and tables of the practice chapters (Parts 0, 8-11): each <!-- pfig:NAME --> in the
+    """Figures and tables of the practice chapters (Parts 0, 6-9): each <!-- pfig:NAME --> in the
     note is replaced by bin/roofline_practice.py's block NAME."""
     sys.path.insert(0, str(Path(__file__).resolve().parent))
     import roofline_practice
@@ -235,7 +233,7 @@ def add_practice(body):
 
 
 def add_code(body):
-    """Code cards (Parts 8-11): each <!-- code:NAME --> in the note is replaced by
+    """Code cards (Parts 6-9): each <!-- code:NAME --> in the note is replaced by
     bin/roofline_code.py's card NAME, an excerpt of roofscope at a pinned commit."""
     sys.path.insert(0, str(Path(__file__).resolve().parent))
     import roofline_code
@@ -337,25 +335,19 @@ def main():
                     "The cost model is the <code>BDModel</code> script in <code>/assets/roofline/note.js</code>, which every chapter loads.", "private repo sentence")
     # Interactive figures, in reading order. Figure numbers follow the page.
     # How the numbers are counted: method, not a result, so it closes the Calculator chapter.
-    i = body.find('<section class="wide" id="calc">')
-    j = body.find('</section>', i)
-    if i < 0 or j < 0:
-        problems.append("accounting anchor: calculator section not found")
-    else:
-        body = body[:j] + '  <div class="col">\n' + figs["accounting"] + '  </div>\n' + body[j:]
+    body = sub_once(body, "  <!-- accounting -->\n", figs["accounting"], "accounting anchor")
     body = link_takeaways(body)
     body = sub_once(body, '  <h3 id="setup-costs">', figs["reuse"] + '  <h3 id="setup-costs">', "reuse anchor")
-    body = sub_once(body, '  <h3 id="gain-sides">', figs["roofline"] + '  <h3 id="gain-sides">', "roofline anchor")
+    body = sub_once(body, '  <h3 id="gain-leave-out">', figs["roofline"] + figs["accel"] + '  <h3 id="gain-leave-out">', "roofline and accelerator anchor")
     old_fig1 = re.search(r'  <figure class="mapfig">\n    <figcaption>Figure 1\. .*?</figure>\n', body, re.S)
     if old_fig1:
         body = body.replace(old_fig1.group(0), figs["bestbatch"])
     else:
         problems.append("old Figure 5 block not found")
     body = sub_once(body, '  <div class="table-wrap breakout"><table class="cls t6">', figs["context"] + '  <div class="table-wrap breakout"><table class="cls t6">', "context anchor")
-    body = sub_once(body, "<figcaption>Figure 3. Smallest compute-bound batch", "<figcaption>Figure 15. Smallest compute-bound batch", "Figure 15 caption")
-    body = sub_once(body, "  <h3>Across accelerators and models</h3>\n", "  <h3>Across accelerators and models</h3>\n" + figs["accel"], "accel anchor")
-    # Parts 3-5: experts and weights (Proposition 3), where the weights dominate (Table 1), what a pass reads of
-    # the cache (Table 3), the sparse penalty (Proposition 5), attention's shares (Table 4), thresholds (Table 7).
+    body = sub_once(body, "<figcaption>Figure 3. Smallest compute-bound batch", "<figcaption>Figure 16. Smallest compute-bound batch", "Figure 16 caption")
+    # Parts 2-4: experts and weights (Proposition 3), where the weights dominate (Table 1), what a pass reads of
+    # the cache (Table 3), the sparse penalty (Proposition 5), attention's shares (Table 4).
     # A figure whose numbers are in a folded table goes before the fold, so that it is shown.
     for name, anchor in (("experts", "  <p>For DiffusionGemma, \\(E/k = 16\\)"),
                          ("weights", '  <div class="box prop" id="prop4">'),
@@ -363,8 +355,7 @@ def main():
                          ("attnread", '  <div class="box prop" id="prop5">'),
                          ("sparse", '  <h3 id="attn-dominate">'),
                          ("share", '  <details class="numbers"><summary>Table 4: '),
-                         ("thresholds", '  <details class="numbers"><summary>Table 7: '),
-                         ("models", '  <details class="numbers"><summary>Table 8: ')):
+                         ):
         body = sub_once(body, anchor, figs[name] + anchor, f"{name} anchor")
     body = card_legacy_figures(body)
     body = add_practice(body)
@@ -466,15 +457,15 @@ def url_of(slug):
 # of figures.js: a kicker with the number, a title that states the figure's claim, and the
 # original caption as a subtitle.
 LEGACY_CLAIMS = {
-    15: "As the context grows, the batch at which a pass turns compute-bound falls for a canvas of 256 and rises for AR (Proposition 8).",
-    # Figure 20 has four tabs, each with its own claim; figures.js shows the title of the selected tab.
-    20: ('<span data-tab-title="m-gain">At context 1k AR catches up with TD at batch 110, and at a larger batch as the context grows, beyond 1,024 from 64k tokens on.</span>'
+    16: "As the context grows, the batch at which a pass turns compute-bound falls for a canvas of 256 and rises for AR (Proposition 8).",
+    # Figure 18 has four tabs, each with its own claim; figures.js shows the title of the selected tab.
+    18: ('<span data-tab-title="m-gain">At context 1k AR catches up with TD at batch 110, and at a larger batch as the context grows, beyond 1,024 from 64k tokens on.</span>'
          '<span data-tab-title="m-ar" hidden>An AR step never reaches the ridge, and at long context its intensity tends to 8 whatever the batch.</span>'
          '<span data-tab-title="m-td" hidden>A TD canvas crosses the ridge at a batch that falls as the context grows, from 5 at 1k to 1 at 256k, and its intensity tends to 2,048.</span>'
          '<span data-tab-title="m-sparse" hidden>With sparse global layers, AR catches up with TD near batch 90–110 at every context up to 1M tokens.</span>'),
-    21: "With a 32-token canvas, TD is faster than AR only between batch 9 and batch 110 at context 1k.",
-    22: "For a dense model, the gain at context 1k is about 13 at batch 1 and falls like 1/B, to parity at batch 15.",
-    23: "On an H20, whose ridge point is 37, TD is faster than AR only up to batch 4 at short context.",
+    19: "With a 32-token canvas, TD is faster than AR only between batch 9 and batch 110 at context 1k.",
+    20: "For a dense model, the gain at context 1k is about 13 at batch 1 and falls like 1/B, to parity at batch 15.",
+    21: "On an H20, whose ridge point is 37, TD is faster than AR only up to batch 4 at short context.",
 }
 
 
@@ -492,11 +483,11 @@ def card_legacy_figures(body):
     for mm in re.finditer(r'<div class="bdr-card">.*?</figure>', body, re.S):
         out.append(body[pos:mm.end()] + "\n  </div>"); pos = mm.end()
     body = "".join(out) + body[pos:]
-    tabs = '<div class="fig-k">Figure 20 · interactive</div>'
+    tabs = '<div class="fig-k">Figure 18 · interactive</div>'
     if tabs in body:
         body = body.replace(tabs, f'{tabs}\n  <p class="fig-title tabs-title">{LEGACY_CLAIMS[20]}</p>', 1)
     else:
-        problems.append("Figure 20 kicker not found")
+        problems.append("Figure 18 kicker not found")
     if k != 4:
         problems.append(f"legacy figures carded: {k}, expected 4")
     return body
@@ -574,13 +565,13 @@ def link_references(pages):
                 word = m.group(1)
                 kind = next(k for k in ("Figure", "Table", "Proposition", "Definition", "Corollary", "Remark", "Part") if word.startswith(k))
                 nums = num.findall(m.group(2))
-                if len(nums) == 1:  # "Figure 27": the whole reference is the link
+                if len(nums) == 1:  # "Figure 25": the whole reference is the link
                     h = href_of(kind, int(nums[0]))
                     return f'<a class="xref" href="{h}">{m.group(0)}</a>' if h else m.group(0)
                 def one(mm):
                     h = href_of(kind, int(mm.group(0)))
                     return f'<a class="xref" href="{h}">{mm.group(0)}</a>' if h else mm.group(0)
-                # "Parts 3 and 4": the word goes with the first number, so that each target is wide enough
+                # "Parts 2 and 3": the word goes with the first number, so that each target is wide enough
                 first = num.search(m.group(2))
                 h0 = href_of(kind, int(first.group(0)))
                 head = m.group(1) + m.group(2)[:first.end()]
@@ -787,6 +778,14 @@ permalink: {url_of("introduction")}
 sitemap: false
 ---
 <!doctype html><html><head><meta charset="utf-8"><meta name="robots" content="noindex, nofollow"><link rel="canonical" href="{BASE}"><meta http-equiv="refresh" content="0; url={BASE}"></head><body><a href="{BASE}">{TITLE}</a></body></html>
+"""
+    for old, to in (("gain", url_of("setup") + "#gain"), ("whole", url_of("calculator"))):  # pages merged into others
+        pages[old] = f"""---
+layout: null
+permalink: {url_of(old)}
+sitemap: false
+---
+<!doctype html><html><head><meta charset="utf-8"><meta name="robots" content="noindex, nofollow"><link rel="canonical" href="{to}"><meta http-equiv="refresh" content="0; url={to}"></head><body><a href="{to}">{TITLE}</a></body></html>
 """
     return pages
 

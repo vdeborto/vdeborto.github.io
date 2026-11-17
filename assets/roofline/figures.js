@@ -1,7 +1,7 @@
 // Interactive figures for the Block Diffusion Rooflines page. Every number comes from the note's own
 // cost model (window.BDModel) and helpers (window.BDR, exposed by note.js).
 //
-// The figures of Parts 3-5 on experts, weights, the KV cache and thresholds (figExperts ... figThresholds)
+// The figures of Parts 2-4 on experts, weights, the KV cache and thresholds (figExperts ... figThresholds)
 // use the model as the propositions do: no vocabulary, independent uniform routing (A5) and
 // independent uniform selections in sparse layers.
 // Their toy grids (experts of one layer, cached tokens of one sequence) show one random draw; the
@@ -130,10 +130,10 @@
   const rerenders = [];
   const onTheme = (f) => rerenders.push(f);
 
-  // The accelerator is shared by Figures 6, 10, 14 and 17: choosing one in a figure sets it in all.
+  // The accelerator is shared by Figures 6, 11, 15 and 7: choosing one in a figure sets it in all.
   const ACCEL = ['h20', 'rtx5090', 'a100', 'h200', 'v5e', 'b200', 'mi355x', 'h100pcie', 'spark', 'v6e'];
   const SHORT = { h20: 'H20', rtx5090: 'RTX 5090', a100: 'A100', h200: 'H200', v5e: 'TPU v5e', b200: 'B200', mi355x: 'MI355X', h100pcie: 'H100 PCIe', spark: 'DGX Spark', v6e: 'TPU v6e' };
-  // labels of Figure 17's dots on narrow screens
+  // labels of Figure 7's dots on narrow screens
   const NARROW = { rtx5090: 'RTX5090', v5e: 'v5e', h100pcie: 'H100P', spark: 'Spark', v6e: 'v6e' };
   // The choice is shared within the page only: every page opens on the H200, the accelerator the text quotes.
   const shared = { hw: 'h200', subs: [] };
@@ -164,8 +164,8 @@
   function figAccounting(root) {
     const hw = hwOf('h200');
     const rows = [
-      { name: 'Proposition 1', what: 'closed form of Part 2: no vocabulary, context fixed at 1k (at zero context, as in the closed forms of Part 3 and Table 7, TD is ahead up to batch 109)', used: 'Figures 6 and 14 and Table 2 (Figure 18 and Table 7 use it at zero context)', g: (B) => prop1(DG, hw, B, 1024).gain },
-      { name: 'Exact, fixed context', what: 'every FLOP and byte of the appendix, vocabulary included, context fixed at 1k', used: 'Figures 10, 17 and 19 and the maps', g: (B) => steady(DG, hw, B, 1024).gain },
+      { name: 'Proposition 1', what: 'closed form of Part 1: no vocabulary, context fixed at 1k (at zero context, as in the closed forms of Part 2, TD is ahead up to batch 109)', used: 'Figures 6 and 15 and Table 2', g: (B) => prop1(DG, hw, B, 1024).gain },
+      { name: 'Exact, fixed context', what: 'every FLOP and byte of the exact accounting below, vocabulary included, context fixed at 1k', used: 'Figures 7 and 11 and the maps', g: (B) => steady(DG, hw, B, 1024).gain },
       { name: 'Exact, whole generation', what: 'the same accounting summed over a 1k prompt and 8k generated tokens: the context grows from 1k to 9k', used: 'the headline tiles of the Summary and the calculator above', g: (B) => M.generate(DG, { ...W0, B }, O0, hw).gainDecode, slow: true },
     ];
     // short rows of numbers, then what each accounting is, as a list
@@ -303,7 +303,7 @@
     watchWidth(pic, draw);
   }
 
-  // ---------------------------------------------------------------- Figure 10: find the best batch (exact, fixed context)
+  // ---------------------------------------------------------------- Figure 11: find the best batch (exact, fixed context)
   const BSCAN = [...new Set([...Array.from({ length: 40 }, (_, i) => i + 1), ...Array.from({ length: 60 }, (_, i) => Math.round(40 * 1.056 ** (i + 1))), 64, 128, 256, 512, 1024])].filter((B) => B <= 1024).sort((a, b) => a - b);
   const curveCache = new Map();
   function gainCurve(hwId, rule) {
@@ -396,7 +396,7 @@
     watchWidth(pic, draw);
   }
 
-  // ---------------------------------------------------------------- Figure 14: both intensities become independent of the batch (Proposition 1)
+  // ---------------------------------------------------------------- Figure 15: both intensities become independent of the batch (Proposition 1)
   const CSCAN = Array.from({ length: 41 }, (_, i) => Math.round(1024 * 2 ** (i / 4)));
   const CBATCH = [1, 4, 16, 64];
   function figContext(root) {
@@ -456,7 +456,7 @@
     watchWidth(pic, draw);
   }
 
-  // ---------------------------------------------------------------- Figure 17: the gain is a function of the ridge point (exact)
+  // ---------------------------------------------------------------- Figure 7: the gain is a function of the ridge point (exact)
   // Scaling peak and bandwidth together scales every pass time alike, so the gain depends on the
   // accelerator only through I* = peak / bandwidth. The curve is drawn for a chip with unlimited memory.
   function figAccel(root) {
@@ -548,7 +548,7 @@
     watchWidth(pic, draw);
   }
 
-  // ---------------------------------------------------------------- helpers of the figures of Parts 3-5 below
+  // ---------------------------------------------------------------- helpers of the figures of Parts 2-4 below
   const gx = (x) => (x >= 100 ? String(Math.round(x)) : x >= 10 ? x.toFixed(1) : x.toFixed(2));
   const gbs = (x) => (x / 1e9 >= 10 ? (x / 1e9).toFixed(1) : (x / 1e9).toFixed(2));
   const segLabel = (text, s) => groupOf(text, s);
@@ -840,7 +840,7 @@
     draw(); onTheme(draw); watchWidth(pic, draw);
   }
 
-  // ---------------------------------------------------------------- batch thresholds by accelerator (Part 5)
+  // ---------------------------------------------------------------- batch thresholds by accelerator (Part 4)
   // Under Proposition 1 at zero context: a TD pass is compute-bound from B*_TD, AR is ahead from B_x.
   function figThresholds(root) {
         const pic = el('<div></div>'), out = el('<div class="readout" aria-live="polite"></div>');
@@ -891,7 +891,7 @@
     draw(); onTheme(draw); watchWidth(pic, draw);
   }
 
-  // ---------------------------------------------------------------- exact gains across models (Table 8)
+  // ---------------------------------------------------------------- exact gains across models (Table X8)
   function figModels(root) {
     const hw = REF.hw, st = { id: 'dgemma' };
     const pic = el('<div></div>'), out = el('<div class="readout" aria-live="polite"></div>');
@@ -901,7 +901,7 @@
     function compute() {
       rows = Object.entries(M.MODELS).map(([id, spec]) => {
         const m = spec.build(), w = { ...W0, lambdaTD: m.selfCond ? 5 : 2 };
-        // Memory of the weights, of B caches and of the logits kept per sequence, as in Table 8.
+        // Memory of the weights, of B caches and of the logits kept per sequence, as in Table X8.
         const need = (mode) => { const wt = M.footprint(m, { ...w, B: 0, P: 0, G: 0 }, O0, mode).weights, lam = mode === 'td' ? w.lambdaTD : w.lambdaAR, lg = lam > 0 ? (mode === 'td' ? w.b : 1) * m.V * O0.bl : 0; return (B, C) => wt + B * (M.kvBytesPerSeq(m, C, O0) + lg); };
         const nTD = need('td'), nAR = need('ar');
         const pts = POINTS.map(([B, C]) => ({ g: M.steady(m, { ...w, B }, O0, hw, C).gain, fit: nTD(B, C) <= hw.mem && nAR(B, C) <= hw.mem }));
@@ -978,7 +978,7 @@
   }
   initCards();
 
-  // Figure 20 has one title per tab (bin/build-roofline.py writes all of them): show the selected tab's.
+  // Figure 18 has one title per tab (bin/build-roofline.py writes all of them): show the selected tab's.
   document.querySelectorAll('.bdr .tabs-title').forEach((title) => {
     const spans = title.querySelectorAll('[data-tab-title]'), tabs = title.nextElementSibling;
     if (!spans.length || !tabs || !tabs.classList.contains('tabs')) return;

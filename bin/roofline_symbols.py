@@ -11,11 +11,11 @@ paragraph. "== Title" starts a group (a heading and a table on the page). An ent
 TeX on a line of its own, followed by indented "field: value" lines:
 
   what:   the meaning, in HTML with \\( \\) math (required)
-  in:     where the symbol is introduced: "Part 3", "Definition 2", "Proposition 8" (required for the
+  in:     where the symbol is introduced: "Part 2", "Definition 2", "Proposition 8" (required for the
           page; the build checks that a formula there uses the symbol, and links it)
   match:  JavaScript regular expression on a formula's TeX; with it, the symbol is in the symbol key
   rank:   order in the symbol key, which lists at most 14 symbols of a formula, lowest rank first
-  scope:  T = only in Parts 1-7, P = only in Parts 8-11 (a letter that means two things)
+  scope:  T = only in Parts 1-5, P = only in Parts 6-9 (a letter that means two things)
   key:    the symbol as the key shows it, when it differs from the page's (TeX)
   page:   "no" keeps the entry out of the page (key only)
 

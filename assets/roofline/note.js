@@ -72,7 +72,7 @@
   // Expected number of distinct experts a layer touches when N tokens each pick a
   // uniformly random k-subset of the E experts.
   const distinctExperts = (m, N) => (m.E > 0 ? m.E * (1 - Math.pow(1 - m.k / m.E, N)) : 0);
-  // Measured routing (Part 8): m.routing = { td: [[B, Neff], ...], ar: [[B, Neff], ...] }, the independent
+  // Measured routing (Part 6): m.routing = { td: [[B, Neff], ...], ar: [[B, Neff], ...] }, the independent
   // tokens N_eff that would touch as many experts as a pass of that decoder did at batch B (canvas 256).
   // Between measured batches N_eff is interpolated log-log, beyond them extrapolated with the last slope;
   // a canvas of b positions is taken to touch what b/256 of a 256-position canvas would.
@@ -318,7 +318,7 @@
     };
   }
 
-  // ------------------------------------------------------------ compact per-token model (Parts 2–5)
+  // ------------------------------------------------------------ compact per-token model (Parts 1–4)
 
   // Costs per generated token (batch-amortised): FLOPs f, bytes q. TD costs are per committed token.
   function compact(m, w, o, hw) {
@@ -367,7 +367,7 @@
     return { om, Nact, Vd, aG, aS, nuG, nuS, aSp, nuSp, aI, nuI, msel, sp, unionRead, r, TPF, Istar, phi, qkv, qkvTD, WAR, WTD, Wtot, muAR, muTD, fAR, fTD, qAR, qTD, gain, Pi, CF, Ikv, BTD, Bx, CQ, Cx };
   }
 
-  // Per-kernel-class version of the compact model, for the kernel-by-kernel rule (Remark 2): FLOPs per position and
+  // Per-kernel-class version of the compact model, for the kernel-by-kernel rule (Part 1): FLOPs per position and
   // bytes per pass by class, the per-class intensities, and the harmonic-mean gain.
   function split(m, w, o, hw) {
     const L = m.layers.length, We = expertParams(m), r = isFinite(m.window) ? m.window - 1 : 0;
@@ -445,7 +445,7 @@
     { id: 'h100', label: 'H100 SXM', tflops: 989, tbps: 3.35, gb: 80 },
     { id: 'h20', label: 'H20', tflops: 148, tbps: 4.0, gb: 96 },
     { id: 'h200', label: 'H200 SXM', tflops: 989, tbps: 4.8, gb: 141 },
-    { id: 'h200meas', label: 'H200 SXM, measured ceilings (Part 8)', tflops: 781, tflops8: 1468, tbps: 4.32, gb: 141, prec: 'fp8' },
+    { id: 'h200meas', label: 'H200 SXM, measured ceilings (Part 6)', tflops: 781, tflops8: 1468, tbps: 4.32, gb: 141, prec: 'fp8' },
     { id: 'b200', label: 'B200 (HGX)', tflops: 2250, tbps: 8.0, gb: 180 },
     { id: 'gb200', label: 'GB200, per GPU', tflops: 2500, tbps: 8.0, gb: 186 },
     { id: 'b300', label: 'B300 / GB300, per GPU (≈)', tflops: 2500, tbps: 8.0, gb: 288 },
@@ -1223,7 +1223,7 @@
   }
 
   // Effective independent tokens per pass, measured on DiffusionGemma against Gemma 4 26B-A4B on one H200
-  // (Part 8): geometric mean over contexts 1k-16k at each batch (64k is left out: TD's text degrades there).
+  // (Part 6): geometric mean over contexts 1k-16k at each batch (64k is left out: TD's text degrades there).
   const MEASURED_ROUTING = {"td": [[1, 12.24], [2, 14.62], [4, 18.06], [8, 22.6], [16, 26.99], [32, 32.54], [64, 37.37]], "ar": [[1, 1.0], [2, 1.76], [4, 2.98], [8, 4.73], [16, 7.13], [32, 9.44], [64, 12.27]]};
   function routeApply(m) {
     const ok = MEASURED_ROUTING && m.E === 128 && m.k === 8 && /^dgemma/.test($('c-model').value);  // DiffusionGemma's own counts only

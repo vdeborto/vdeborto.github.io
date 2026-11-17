@@ -27,8 +27,6 @@ With full windows, attention overtakes the weights in an AR step's bytes at the 
 TD wins exactly when a pass serves more tokens per read than it pays in penalty (\(\mathrm{TPF} \ge \Pi\)) and AR uses at most a fraction \(1/\omega\) of the compute (\(I_{AR} \le I^\star/\omega\)).
 <!-- gist:prop8 -->
 With dense attention and full windows, a batch cannot saturate compute on cache bytes, since each sequence brings its own cache, but a canvas can: once \(b\,I_{\mathrm{attn}} \gt I^\star\), a longer context makes a TD pass compute-bound at a smaller batch, not a larger one.
-<!-- gist:kernels -->
-Timing a pass as a chain of kernels instead of one fully overlapped kernel is never faster and at most twice as slow; on an H200 it moves DiffusionGemma's best batch from 5 to 9.
 <!-- gist:def5 -->
 The empirical ceiling of a rate is the highest value measured on this GPU (for attention, a sustained reference rate); the empirical roofline of a component is \(\max(F_c/\hat\pi_c,\ Q_c/\hat\beta)\) at those ceilings.
 <!-- gist:def6 -->

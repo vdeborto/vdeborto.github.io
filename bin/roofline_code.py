@@ -142,7 +142,7 @@ CARDS = {
                  "barrier; it then waits for the partner's fragment and adds it.", False),
 }
 
-REPRO = """# the grid of Parts 8-11, one H200 per configuration
+REPRO = """# the grid of Parts 6-9, one H200 per configuration
 modal run cloud/modal_c2.py::runs --spec specs/c4.json
 modal run cloud/modal_c2.py::fetch --tag c4
 python3 -m roofscope.analyze2 results/c2/c4 results/c2/c4
@@ -228,7 +228,7 @@ def card(name: str) -> str:
 def repo_card() -> str:
     return ('<div class="repo-card">' + logo(52, "rsl-repo", label=True) +
             f'<div><div class="repo-name">{_a(f"{GH}/tree/{SHA}", "roofscope")}</div>'
-            '<div class="repo-desc">The harness behind Parts 8–11: it runs vLLM on Modal, records every '
+            '<div class="repo-desc">The harness behind Parts 6–9: it runs vLLM on Modal, records every '
             'kernel and every routing decision, and turns them into the components, rooflines and '
             'efficiencies of these chapters. The code excerpts quote it at commit '
             f'<code>{SHA[:7]}</code>, with their line numbers'
@@ -239,7 +239,7 @@ def repro_card() -> str:
     return ('<details class="code-card" id="code-reproduce" open>'
             f'<summary><span class="code-top">{logo(18, "rsl-repro")}<span class="code-file">'
             '<span class="code-dir">roofscope/</span>README.md</span><span class="code-n">pipeline</span></span>'
-            '<span class="code-cap">From the GPU runs to the numbers of Parts 8–11. Raw traces and routing '
+            '<span class="code-cap">From the GPU runs to the numbers of Parts 6–9. Raw traces and routing '
             'arrays stay on the Modal volume; the repository keeps the analysed summaries.</span></summary>'
             f'<div class="code-body nolines mathjax_ignore tex2jax_ignore"><pre><code>{_rows(REPRO.split(chr(10)), BashLexer(), None)}</code></pre></div>'
             f'<div class="code-foot">{_a(f"{GH}/tree/{SHA}#readme", f"the README of roofscope at commit <code>{SHA[:7]}</code>")}</div>'

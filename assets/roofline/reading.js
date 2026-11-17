@@ -40,7 +40,7 @@
     return btn;
   }
   for (const box of page.querySelectorAll('.box.prop, .box.def')) {
-    if (box.closest('#setup')) { box.classList.add('open'); continue; }  // Setup's definitions are always shown in full
+    if (box.closest('#setup')) { box.classList.add('open'); continue; }  // Setup's definitions and Part 1's statements are always shown in full (proofs still fold)
     const gist = box.querySelector('.gist');
     if (gist) gist.after(foldButton(box, box.classList.contains('def') ? 'the definition' : 'the statement'));
   }
@@ -150,7 +150,7 @@
   // ---------------------------------------------------------------- symbol key
   // [pattern on a formula's TeX, symbol in TeX, meaning, scope]: assets/roofline/symbols.js, which the
   // build makes from _roofline/symbols.txt, the file behind the Symbols page as well.
-  // A scope keeps a letter that means two things to its chapters: T is Parts 1-7, P is Parts 8-11.
+  // A scope keeps a letter that means two things to its chapters: T is Parts 1-5, P is Parts 6-9.
   const SYMBOLS = (window.BDR_SYMBOLS || []).map(([re, sym, what, scope]) => [new RegExp(re), sym, what, scope]);
   const sheet = chapters.find((c) => c.slug === 'symbols');
   const PRACTICE = new Set(['effective', 'stack', 'kernelwork', 'conclusion']);

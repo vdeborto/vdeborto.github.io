@@ -1,10 +1,10 @@
-// Interactive charts of the measurements of Parts 8-11 (DiffusionGemma against Gemma 4 26B-A4B on
+// Interactive charts of the measurements of Parts 6-9 (DiffusionGemma against Gemma 4 26B-A4B on
 // one H200, vLLM, FP8). Every value comes from the JSON that bin/build-roofline.py writes into the
 // page (#bdr-practice), itself exported from the campaign data by roofscope's pages/book/export.py.
 // Nothing is computed here beyond ratios of those values.
 //
 // Mounts on [data-mfig]: ladder (data-series="a,b,c" or "c,d"), eff, comp (data-src="eta2" or
-// "eta3"), recover, vs2, chip (Part 10: the H200 and the two kernels).
+// "eta3"), recover, vs2, chip (Part 8: the H200 and the two kernels).
 (function () {
   'use strict';
   const node = document.getElementById('bdr-practice');
@@ -364,16 +364,16 @@
     draw(); watch(pic, draw);
   }
 
-  // ---------------------------------------------------------------- the chip, and what the two kernels of Part 10 change
-  // Written for readers who do not write kernels. Every number is stated in Part 10 (or, for the chip,
-  // elsewhere in the text): the bytes each expert kernel writes per MoE layer at TD batch 32 (Figure 35),
-  // shared memory per thread block (Figure 38), the busy share of FlashAttention 4's tensor cores, and
-  // the per-tile timings of the pair kernel's exchange. Totals only add the sizes of Figure 35.
+  // ---------------------------------------------------------------- the chip, and what the two kernels of Part 8 change
+  // Written for readers who do not write kernels. Every number is stated in Part 8 (or, for the chip,
+  // elsewhere in the text): the bytes each expert kernel writes per MoE layer at TD batch 32 (Figure 33),
+  // shared memory per thread block (Figure 36), the busy share of FlashAttention 4's tensor cores, and
+  // the per-tile timings of the pair kernel's exchange. Totals only add the sizes of Figure 33.
   // rows: [kernel, how many kernels, MB written to HBM (null: no size given; 'L2': summed on the chip), what it does]
   const CHIP = {
     experts: {
       old: { name: "vLLM's kernels", short: 'vLLM', rows: [
-        ['quantise x', 2, null, 'Convert the layer input <i>x</i> to 8-bit numbers (FP8), the format the matrix multiplications read. vLLM does this in two kernels; Figure 35 gives no size for their output.'],
+        ['quantise x', 2, null, 'Convert the layer input <i>x</i> to 8-bit numbers (FP8), the format the matrix multiplications read. vLLM does this in two kernels; Figure 33 gives no size for their output.'],
         ['sort rows by expert', 1, null, 'Each token goes to 8 of the 128 experts. This kernel sorts the (token, expert) pairs by expert, so that the rows of one expert sit together.'],
         ['GEMM 1 (gate, up)', 1, 184, 'First matrix multiplication (GEMM): each row times its expert\'s gate and up matrices. The result leaves the chip: 184 MB written to HBM.'],
         ['act_and_mul', 1, 92, 'A separate kernel reads that result back from HBM, applies the activation gelu(gate) · up, and writes it to HBM again: 92 MB.'],
@@ -600,12 +600,12 @@
         if (h && h[0] === 'r') { const r = rows[+h.slice(1)]; return P(`${+h.slice(1) + 1}. ${r[0]}`, r[3]); }
         if (st.step != null) { const r = rows[st.step]; return P(`Kernel ${st.step + 1} of ${rows.length}: ${r[0]}`, r[3]); }
         return st.ver === 'old'
-          ? P("vLLM's expert path: 9 kernels", 'Between two kernels, an intermediate tensor goes through HBM: one kernel writes it, and the next reads it back. vLLM\'s path splits one MoE layer into 9 kernels, so its intermediate tensors make round trips through the slowest memory: 737 MB written per layer at TD batch 32 (the sum of the sizes in Figure 35). Half of it is the 369 MB of rows that the second GEMM writes and moe_sum reads back only to add them up.', 'Press ▶ to go through the kernels one at a time.')
+          ? P("vLLM's expert path: 9 kernels", 'Between two kernels, an intermediate tensor goes through HBM: one kernel writes it, and the next reads it back. vLLM\'s path splits one MoE layer into 9 kernels, so its intermediate tensors make round trips through the slowest memory: 737 MB written per layer at TD batch 32 (the sum of the sizes in Figure 33). Half of it is the 369 MB of rows that the second GEMM writes and moe_sum reads back only to add them up.', 'Press ▶ to go through the kernels one at a time.')
           : P('The rewrite (moe_ws): 6 kernels', 'The two matrix multiplications are as fast as vLLM\'s; the rewrite removes the traffic between them. The activation is applied in registers inside the first GEMM, and the second GEMM adds its rows straight into the output, where a token\'s 8 rows meet in the L2 cache. One MoE layer writes 173 MB instead of 737. The expert path takes 19–28% less time per pass, and the TD step 4–8% less.', 'Press ▶ to go through the kernels one at a time.');
       }
       return st.ver === 'old'
         ? P('FlashAttention 4 at head dimension 512', 'An SM works on a tile of 64 queries against a tile of 64 keys and values. At head dimension 512, these tiles fill 200 KB of the 227 KB of shared memory, so there is no room for a second buffer: the SM cannot load the next keys while it uses the current ones. Loading and computing take turns, and the tensor cores are busy 36% of the time. It runs at 296–357 TFLOP/s, against 700–729 at head dimension 256.')
-        : P('The pair kernel (attn512): one head split across two SMs', 'Each of two SMs takes 256 of the 512 columns, so each tile takes half the room. The freed space holds either a second buffer, so that the next keys load during the work (two stages of 64 keys, as drawn), or larger tiles of 80 keys in one stage, the fastest configuration with the 80-token KV pages that TD uses.', 'The price is the exchange: the scores need all 512 columns, so after each tile of keys the two SMs swap their partial scores. In the engine, global attention then runs at 0.68–0.71 of the attention ceiling, 1.36–1.37 times faster than FlashAttention 4 (Table 15).');
+        : P('The pair kernel (attn512): one head split across two SMs', 'Each of two SMs takes 256 of the 512 columns, so each tile takes half the room. The freed space holds either a second buffer, so that the next keys load during the work (two stages of 64 keys, as drawn), or larger tiles of 80 keys in one stage, the fastest configuration with the 80-token KV pages that TD uses.', 'The price is the exchange: the scores need all 512 columns, so after each tile of keys the two SMs swap their partial scores. In the engine, global attention then runs at 0.68–0.71 of the attention ceiling, 1.36–1.37 times faster than FlashAttention 4 (Table 13).');
     }
     draw(); watch(pic, draw);
   }
