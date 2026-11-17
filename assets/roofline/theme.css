@@ -63,6 +63,11 @@ html { scroll-behavior: smooth; }
   width: var(--bdr-wide); max-width: none; position: relative; left: 0; transform: none;
   margin-left: calc(50% - var(--bdr-wide) / 2);
 }
+/* A wide table takes the width it needs (at least the column, at most --bdr-wide) and stays centred
+   on the column, instead of sitting at the left of a 1000px box. */
+.bdr .table-wrap.breakout { width: max-content; min-width: 100%; max-width: var(--bdr-wide); margin-left: 0; left: 50%; transform: translateX(-50%); }
+/* folded to its caption (intuition mode): the column's width, like any other caption */
+.bdr.intuition .table-wrap.breakout.foldable:not(.open) { width: 100%; left: 0; transform: none; }
 .bdr .cards, .bdr .hero-tiles, .bdr .formula-card, .bdr .widebox, .bdr .takeaways { width: auto; }
 .bdr section.wide > .bdr-col { max-width: 44rem; margin: 0 auto; }
 

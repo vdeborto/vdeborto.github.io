@@ -559,7 +559,7 @@
     <p class="fig-cap">DiffusionGemma in BF16 under <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/gain/#prop1">Proposition 1</a> at zero context. Orange bar: the batches at which TD is ahead, from 1 to the parity batch \(B_\times\), which solves \(\class{mj-ar}{I^{AR}_{\mathrm{lin}}}(B) = I^\star/\omega\). Diamond: \(\class{mj-td}{B^\star_{TD}}\), from which a TD pass is compute-bound and where the gain is largest. Blue: from \(B_\times\) to \(\class{mj-ar}{B^\star_{AR}}\), AR is ahead although it is still memory-bound; the dot is \(\class{mj-ar}{B^\star_{AR}}\), from which an AR step is compute-bound too. All three thresholds are proportional to the ridge point \(I^\star\) once the batch touches every expert. The batch axis is logarithmic.</p>
   </div>
   <details class="numbers"><summary>Table 7: the numbers behind Figure 18</summary>
-  <div class="table-wrap"><table>
+  <div class="table-wrap breakout"><table>
     <caption id="table-7">Table 7. Regime thresholds by accelerator, DiffusionGemma in BF16 under Proposition 1. The parity batch solves \(\class{mj-ar}{I^{AR}_{\mathrm{lin}}}(B) = I^\star/\omega\) with the full \(\class{mj-ar}{W_{AR}}(B)\). A higher ridge point favours TD. The row "H200 SXM, measured ceilings" uses the rates measured in Part 8 in place of the datasheet's.</caption>
     <thead><tr>
 <th class="l">Accelerator</th>
@@ -590,7 +590,7 @@
     <p class="fig-cap">Exact gains on an H200 in BF16, with a canvas of 256 and \(S = 14\), as in <a class="xref" href="#table-8">Table 8</a>. Filled circle: batch 1 at context 1k; open circle: batch 64 at context 1k; diamond: batch 1 at 1M context. Models are ordered by \(\Pi(1)\), the penalty of <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/linear/#prop3">Proposition 3</a> at batch 1, from the dense models (\(\Pi = 1\)) to gpt-oss-120b (25.4). At batch 1, <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/gain/#cor1">Corollary 1</a> gives \(\Gamma \approx \min\bigl(\mathrm{TPF}/\Pi(1),\ I^\star/(\omega \class{mj-ar}{I_{AR}})\bigr)\): the dense models reach the second term, about 13.7, and the MoE models the first, which falls as the penalty grows. At batch 64 the order is reversed, because the intensity of an AR step at a given batch, about \(B\,N_{\mathrm{act}}/\class{mj-ar}{W_{AR}}(B)\) in BF16, is lowest for the models with the most inactive weights. Faint markers: the point does not fit in the H200's 141 GB (the † of <a class="xref" href="#table-8">Table 8</a>). The gain axis is logarithmic.</p>
   </div>
   <details class="numbers"><summary>Table 8: the numbers behind Figure 19</summary>
-  <div class="table-wrap"><table>
+  <div class="table-wrap breakout"><table>
     <caption id="table-8">Table 8. Exact gains on H200, BF16, canvas 256, \(S = 14\), context 1k (1M and batch 1 for the last column). †: the weights and the KV cache of that point exceed the H200's 141 GB, so the gain is that of a hypothetical accelerator with the same rates and more memory. Total parameters include the embedding matrix; active ones exclude it, as \(N_{\mathrm{act}}\) does. \(\Pi(1)\) under Proposition 3.</caption>
     <thead><tr>
 <th class="l">Model</th>
@@ -686,7 +686,7 @@
 
   
   
-    Last updated: November 16, 2026.
+    Last updated: November 17, 2026.
   
 
     </div>

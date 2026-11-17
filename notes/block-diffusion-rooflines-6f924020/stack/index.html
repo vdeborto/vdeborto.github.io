@@ -394,16 +394,20 @@
 <div class="box def" id="def7">
     <div class="bdr-title">
 <span class="tag">Definition 7</span>Efficiency and recoverable time</div>
-    <p class="gist"><span>In short.</span> A component's efficiency is its empirical roofline over its measured time; its recoverable time is what remains above the time of the best kernel available at its shape.</p>
+    <p class="gist"><span>In short.</span> A component's efficiency is its empirical roofline over its measured time; its recoverable time is what remains above the time of the best kernel available, timed at one representative shape.</p>
     <p>With \(t_c\) the measured time of component \(c\) per step and \(t\) the step time, the efficiency of the component and of the step are</p>
     <div class="eq">\[ \eta_c = \frac{\tau_c}{t_c}, \qquad \eta = \frac{\tau}{t}, \]</div>
-    <p>where time outside the model and idle time count in \(t\) but have no roofline. Each \(\tau_c\) is evaluated at the expert count of the profiled window, in which \(t_c\) is measured, and \(\tau = \sum_c \tau_c\) at that of the timed window, in which \(t\) is measured (the \(U^{\mathrm{meas}}\) of <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/effective/#def6">Definition 6</a>). Since the two windows hold different canvases, the sum of the profiled \(\tau_c\) differs slightly from \(\tau\). The target efficiency \(\eta^\star_c\) is that of the best kernel available at the same shape, timed alone, where we timed one, and 0.8 otherwise:</p>
+    <p>where time outside the model and idle time count in \(t\) but have no roofline. Each \(\tau_c\) is evaluated at the expert count of the profiled window, in which \(t_c\) is measured, and \(\tau = \sum_c \tau_c\) at that of the timed window, in which \(t\) is measured (the \(U^{\mathrm{meas}}\) of <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/effective/#def6">Definition 6</a>). Since the two windows hold different canvases, the sum of the profiled \(\tau_c\) differs slightly from \(\tau\). The target efficiency \(\eta^\star_c\) is that of the best kernel available, timed alone at one representative shape, where we timed one, and 0.8 otherwise; each target is applied at every point:</p>
     <ul>
       <li>TD's experts: 0.81, cuBLAS on all rows stacked (<a class="xref" href="/notes/block-diffusion-rooflines-6f924020/kernels/">Part 10</a>);</li>
-      <li>AR's experts: 0.58, vLLM's own expert kernel timed alone at batch 32, with 43 experts touched;</li>
+      <li>AR's experts: 0.58, vLLM's own expert kernel timed alone at batch 32, with 43 experts touched<sup class="fn-ref" id="fnref-ar-expert-target"><a href="#fn-ar-expert-target" title="The benchmark used a sampled routing with 43 experts touched, while AR's batch-32 steps in the grid touch 57–60 experts per layer (Figure 25); at the mean count of the run that set the target (53), the same kernel reaches 0.71. AR's experts run at 0.59–0.72 of their roofline from batch 8 on, so this target lies below what the engine already reaches, and they keep no recoverable time.">2</a></sup>;</li>
       <li>TD's global attention: 0.73, the pair kernel of <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/kernels/">Part 10</a> alone, at the engine's layout;</li>
       <li>every other component: 0.8, with no standalone reference.</li>
     </ul>
+
+
+
+
     <p>The recoverable time of a component is \(\Delta t_c = \max(0,\ t_c - \tau_c/\eta^\star_c)\); time outside the model and idle time are recoverable in full.</p>
   </div>
   <p>Finally, four checks guard the numbers:</p>
@@ -432,7 +436,7 @@
 <pre class="excerpt">self._causal_buf = torch.zeros(
     self.max_num_reqs, dtype=torch.int32, device=device   <span class="c"># was dtype=torch.bool</span>
 )</pre>
-  <p>With the flags of the capture step, commit passes ran bidirectionally and wrote wrong keys and values into the cache. A probe inside the graph found up to 14 of 15 passes reading a wrong flag<sup class="fn-ref" id="fnref-probe-runs"><a href="#fn-probe-runs" title="The probe ran only in the runs that found and verified the defect, not in the measured runs.">2</a></sup>. In addition, GSM8K accuracy under CUDA graphs was 34%, against 96% with the fix. Timings were also wrong, since a bidirectional pass costs more than a causal one<sup class="fn-ref" id="fnref-flags-upstream"><a href="#fn-flags-upstream" title="vLLM 0.32.0 allocates the buffer as int32 upstream.">3</a></sup>.</p>
+  <p>With the flags of the capture step, a pass could run with the wrong mask: a commit pass bidirectionally, which wrote wrong keys and values into the cache, or a denoising pass causally. A probe inside the graph found up to 14 of 15 passes reading a wrong flag<sup class="fn-ref" id="fnref-probe-runs"><a href="#fn-probe-runs" title="The probe ran only in the runs that found and verified the defect, not in the measured runs.">3</a></sup>. In addition, GSM8K accuracy under CUDA graphs was 34%, against 96% with the fix. Timings were also wrong, since a bidirectional pass costs more than a causal one<sup class="fn-ref" id="fnref-flags-upstream"><a href="#fn-flags-upstream" title="vLLM 0.32.0 allocates the buffer as int32 upstream.">4</a></sup>.</p>
 
 
 
@@ -448,7 +452,7 @@
 if const_expr(self._mDynamicCausal is not None and not self.is_local):
     <span class="c"># per-sequence causal flag; for a bidirectional sequence the kernel</span>
     <span class="c"># resets the key-block range to the whole sequence</span></pre>
-  <p>With the fix, at batch 16 and context 16k, window attention fell from 52.2 to 5.1 ms per pass<sup class="fn-ref" id="fnref-window-upstream"><a href="#fn-window-upstream" title="The override is still in the FlashAttention commit that vLLM 0.33.0 ships.">4</a></sup>.</p>
+  <p>With the fix, at batch 16 and context 16k, window attention fell from 52.2 to 5.1 ms per pass<sup class="fn-ref" id="fnref-window-upstream"><a href="#fn-window-upstream" title="The override is still in the FlashAttention commit that vLLM 0.33.0 ships.">5</a></sup>.</p>
 
 
 
@@ -515,7 +519,7 @@ if const_expr(self._mDynamicCausal is not None and not self.is_local):
 <li>
 <strong>Experts:</strong> They run at 0.27–0.38 of their roofline. With the stock kernels, they take 26–34% of TD's step at 1k from batch 8 on, and up to 47% at batch 1.</li>
 <li>
-<strong>Global attention:</strong> It runs at 0.43–0.56 of its roofline<sup class="fn-ref" id="fnref-attn-common-points"><a href="#fn-attn-common-points" title="0.45–0.56 at the 13 points that Part 10 also measures; the stock run also fitted \((32, 64\text{k})\) and \((64, 16\text{k})\).">5</a></sup>. With the stock kernels, it takes 63–66% of TD's step at 64k from batch 8 on, and 46% at batch 1.</li>
+<strong>Global attention:</strong> It runs at 0.43–0.56 of its roofline<sup class="fn-ref" id="fnref-attn-common-points"><a href="#fn-attn-common-points" title="0.45–0.56 at the 13 points that Part 10 also measures; the stock run also fitted \((32, 64\text{k})\) and \((64, 16\text{k})\).">6</a></sup>. With the stock kernels, it takes 63–66% of TD's step at 64k from batch 8 on, and 46% at batch 1.</li>
 </ul>
 
   <p>At batch 1–4, the dense GEMMs and window attention are also low, but they take at most 16% and 7% of TD's step. <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/kernels/">Part 10</a> therefore rewrites the kernels of these two components.</p>
@@ -527,6 +531,8 @@ if const_expr(self._mDynamicCausal is not None and not self.is_local):
 <section class="footnotes" aria-label="Notes"><h3 id="s-notes">Notes</h3>
 <ol>
 <li id="fn-ar-windows">For AR, each window is 48 steps, after 976 warm-up steps, so that the middle of AR's windows is at the same context as TD's, \(C + 1024\). <a href="#fnref-ar-windows" class="fn-back" aria-label="Back to the text">↩</a>
+</li>
+<li id="fn-ar-expert-target">The benchmark used a sampled routing with 43 experts touched, while AR's batch-32 steps in the grid touch 57–60 experts per layer (<a class="xref" href="/notes/block-diffusion-rooflines-6f924020/effective/#figure-25">Figure 25</a>); at the mean count of the run that set the target (53), the same kernel reaches 0.71. AR's experts run at 0.59–0.72 of their roofline from batch 8 on, so this target lies below what the engine already reaches, and they keep no recoverable time. <a href="#fnref-ar-expert-target" class="fn-back" aria-label="Back to the text">↩</a>
 </li>
 <li id="fn-probe-runs">The probe ran only in the runs that found and verified the defect, not in the measured runs. <a href="#fnref-probe-runs" class="fn-back" aria-label="Back to the text">↩</a>
 </li>
@@ -577,7 +583,7 @@ if const_expr(self._mDynamicCausal is not None and not self.is_local):
 
   
   
-    Last updated: November 16, 2026.
+    Last updated: November 17, 2026.
   
 
     </div>

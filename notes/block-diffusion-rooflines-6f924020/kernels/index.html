@@ -422,7 +422,7 @@
 <strong>Second GEMM:</strong> It is bound by latency: the tensor cores are busy 41% of the time, with two CTAs per SM.</li>
 </ul>
 
-  <p>What would close the gap is what cuBLAS has and Triton does not expose on Hopper: separate producer and consumer warps, TMA loads shared across a two-CTA cluster, and an epilogue that overlaps the next tile.</p>
+  <p>We expect the gap to close with what cuBLAS uses and our Triton kernels do not: separate producer and consumer warps, TMA loads shared across a two-CTA cluster, and an epilogue that overlaps the next tile; we have not tested this.</p>
 
   <h3 id="kern-attention">Global attention at head dimension 512</h3>
   <p>Five of the 30 layers attend globally, with \(n_q = 16\) query heads, \(n_{kv} = 2\) key/value heads and head dimension \(h = 512\). In a denoising pass, the \(b = 256\) canvas queries of a sequence attend to its \(C + b\) keys, so</p>
@@ -731,7 +731,7 @@
 
   
   
-    Last updated: November 16, 2026.
+    Last updated: November 17, 2026.
   
 
     </div>
