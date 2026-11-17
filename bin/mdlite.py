@@ -244,7 +244,9 @@ def footnotes(html: str, defs=None, missing=None) -> str:
             order[lab] = len(order) + 1
         tip = re.sub(r"<[^>]+>", "", d.get(lab, "")).replace('"', "&quot;")
         anchor = f' id="fnref-{lab}"' if first else ""
-        return f'<sup class="fn-ref"{anchor}><a href="#fn-{lab}" title="{tip}">{order[lab]}</a></sup>'
+        # A native tooltip is not typeset by MathJax: notes with math get none (the note list and sidenotes show them).
+        title = "" if re.search(r"\\[(\[]|\$", tip) else f' title="{tip}"'
+        return f'<sup class="fn-ref"{anchor}><a href="#fn-{lab}"{title}>{order[lab]}</a></sup>'
     html = REFSUP.sub(ref, html)
     if not order:
         return html

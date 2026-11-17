@@ -387,15 +387,14 @@ def main():
     js = "\n".join(scripts)
     js = sub_once(js, "    initTheme();\n", "", "initTheme call")
     js = sub_once(js, "    initRail();\n", "", "initRail call")
-    js = sub_once(js, "    rooflineIntuition($('roof-int'), REF.hw, REF.o, REF.w);\n", "", "Figure 5 call")
     js = sub_once(js, ".box[id] > .title, section.wide[id] > .col > h2", ".box[id] > .bdr-title, section.wide[id] > .bdr-col > h2", "anchor selector")
-    js = sub_once(js, "  init();\n})();", "  window.BDR = { HW, HWBYID, REF, boe, omega, fmt, comma, kTok, css, model };\n  init();\n})();", "expose internals")
+    js = sub_once(js, "  init();\n})();", "  window.BDR = { HW, HWBYID, REF, omega, fmt, comma, kTok, css, model };\n  init();\n})();", "expose internals")
     # Each page holds one chapter: a missing element is a detached stand-in, the maps and charts
     # skip elements that are not on the page, and the calculator is wired only where it is.
     js = sub_once(js, "  const $ = (id) => document.getElementById(id);\n",
                   "  const GHOST = {}; // stand-ins for elements that live on another page of the book\n"
                   "  const $ = (id) => document.getElementById(id) || GHOST[id] || (GHOST[id] = document.createElement('div'));\n", "$ helper")
-    for fn in ("intensityMap", "lineChart", "regimeMap", "bstarChart", "ratioChart", "ctxChart", "etaChart"):
+    for fn in ("intensityMap", "lineChart", "regimeMap", "bstarChart", "ctxChart", "etaChart"):
         js, n = re.subn(r"(  function " + fn + r"\(el\b[^)]*\) \{\n)", r"\1    if (!el.isConnected) return;\n", js)
         if n != 1:
             problems.append(f"chart function {fn}: found {n}")

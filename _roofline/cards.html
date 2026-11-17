@@ -34,9 +34,9 @@
 </div>
 <!-- card:AR compute-bound -->
 <div class="card-more" hidden>
-  <p>Both passes run at the peak, so time is FLOPs, and a canvas spends \(\omega\) times AR's FLOPs per token: \(\Gamma \le 1/\omega\), equal to it under Proposition 1. We claim that this setting is unrealistic, but just how unrealistic is it? AR becomes compute-bound at</p>
+  <p>Both passes run at the peak, so time is FLOPs, and a canvas spends \(\omega\) times AR's FLOPs per token: \(\Gamma \le 1/\omega\), equal to it under Proposition 1. We claim that this setting is unrealistic, but just how unrealistic is it? With \(W_{\mathrm{tot}} = 24.5\)B the parameters of all layers without the vocabulary (Part 2), AR becomes compute-bound at</p>
   <div class="eq">\[ \begin{gathered} B^{\mathrm{AR}}_\star = \frac{I^\star s_wW_{\mathrm{tot}}}{2N_{\mathrm{act}}}\\[4pt] = \frac{206 \times 2 \times 24.5\text{B}}{2 \times 3.08\text{B}} \approx 1{,}640. \end{gathered} \]</div>
-  <p>This is with zero context \(C\)! The batch that AR needs grows with the context, and there is usually even a point beyond which no batch size renders AR compute-bound. For instance, by Proposition 7, beyond about 135 tokens of context no batch makes an AR step compute-bound.</p>
+  <p>This is with zero context \(C\)! The batch that AR needs grows with the context, and there is usually even a point beyond which no batch size renders AR compute-bound. For instance, beyond about 135 tokens of context no batch makes an AR step compute-bound: there, a sequence's FLOPs no longer cover what its own cache reads need at the ridge, \(D_1(C) \le 0\) in Proposition 7, whose inequality holds at every context.</p>
 </div>
 <!-- card:Both memory-bound -->
 <div class="card-more" hidden>

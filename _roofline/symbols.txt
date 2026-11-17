@@ -184,10 +184,9 @@ W^e
 
 f_E
   what: width of one expert (704)
-  in: Part 8
+  in: Part 4
   match: f_E
   rank: 650
-  scope: P
 
 W_{\mathrm{ne}}
   what: non-expert parameters of all layers (1.66B for DiffusionGemma)
@@ -364,7 +363,7 @@ N
   in: Definition 4
 
 x
-  what: share of an AR step's bytes spent on one part (weights in Proposition 4, cache in Proposition 6)
+  what: share of an AR step's bytes spent on one part (weights in Proposition 4, cache in Proposition 6); elsewhere a hidden state (Remark 1) or a layer input (Part 8)
   in: Proposition 4
 
 I_n
@@ -416,8 +415,8 @@ W_n
 == Thresholds and regimes
 
 B^{\mathrm{TD}}_\star
-  what: smallest batch at which a TD pass is compute-bound
-  in: Part 2
+  what: batch at which a TD pass reaches the ridge, \(I^{\mathrm{TD}} = I^\star\); the best batch when AR is memory-bound
+  in: Corollary 1
   match: B\^\{\\mathrm\{TD\}\}_\\star
   rank: 140
 
@@ -571,8 +570,15 @@ h
   scope: P
 
 \eta^\star_c
-  what: target efficiency of a component: that of the best kernel timed alone at one representative shape, 0.8 where none was timed
+  what: target efficiency of a component: that of the best kernel timed alone at representative shapes (the mean of three for global attention), 0.8 where none was timed
   in: Definition 7
+
+\Delta t_c
+  what: recoverable time of a component, \(\max(0,\ t_c - \tau_c/\eta^\star_c)\)
+  in: Definition 7
+  match: \\Delta t_c
+  rank: 655
+  scope: P
 
 p_{i,e}
   what: routing weight of expert \(e\) for token \(i\)

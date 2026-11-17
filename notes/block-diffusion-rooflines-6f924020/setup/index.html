@@ -38,7 +38,7 @@ By doing so, we will be able to establish the arithmetic intensities of both mod
 
 
 
-  <p>A denoising pass costs \(r\) times a forward pass<sup class="fn-ref" id="fnref-r-one"><a href="#fn-r-one" title="In the case of DiffusionGemma we always have \(r=1\), but one could get creative regarding the encoder-decoder architecture.">2</a></sup>. Hence, a canvas costs \(\omega = Sr + 1\) forward passes, and TD commits \(\mathrm{TPF} = b/\omega\) tokens per forward pass. <a class="xref" href="#figure-5">Figure 5</a> below illustrates the two paradigms.</p>
+  <p>A denoising pass costs \(r\) times a forward pass<sup class="fn-ref" id="fnref-r-one"><a href="#fn-r-one">2</a></sup>. Hence, a canvas costs \(\omega = Sr + 1\) forward passes, and TD commits \(\mathrm{TPF} = b/\omega\) tokens per forward pass. <a class="xref" href="#figure-5">Figure 5</a> below illustrates the two paradigms.</p>
 
 
 
@@ -78,7 +78,7 @@ By doing so, we will be able to establish the arithmetic intensities of both mod
         <tr><td>\(w,\ m\)</td><td class="l">earlier tokens that a window layer sees, and cached tokens that each query selects in a sparse layer </td></tr>
         <tr><td>\(n_{I,\ell},\ h_{I,\ell}\)</td><td class="l">heads and head dimension of the indexer of sparse layer \(\ell\)</td></tr>
         <tr><td>\(s_w,\ s_{\mathrm{kv}},\ s_I\)</td><td class="l"> bytes per weight (2 in BF16, 16-bit floats; 1 in FP8, 8-bit floats), per element of the KV cache  and per element of the indexer's keys </td></tr>
-        <tr><td>\(\kappa^c\)</td><td class="l">K/V tensors that a layer caches per KV head and per token (2: keys and values stored separately; 1 for a global layer whose \(K = V\) is stored once)</td></tr>
+        <tr><td>\(\kappa^c_\ell\)</td><td class="l">K/V tensors that layer \(\ell\) caches per KV head and per token (2: keys and values stored separately; 1 for a global layer whose \(K = V\) is stored once)</td></tr>
       </tbody>
     </table></div>
 
@@ -93,9 +93,9 @@ By doing so, we will be able to establish the arithmetic intensities of both mod
         <tr><td>\(\alpha_W = 4n_q\sum_{\ell\in\mathcal W}h_\ell\)</td><td class="l">the same, sliding-window layers</td></tr>
         <tr><td>\(\alpha_S = 4n_q\sum_{\ell\in\mathcal S}h_\ell\)</td><td class="l">the same, sparse layers, per selected token</td></tr>
         <tr><td>\(\alpha_I = 2\sum_{\ell\in\mathcal S}n_{I,\ell}h_{I,\ell}\)</td><td class="l">the same, for the indexer, the scan that selects a sparse layer's tokens (<a class="xref" href="/notes/block-diffusion-rooflines-6f924020/attention/">Part 3</a>)</td></tr>
-        <tr><td>\(\nu_G = s_{\mathrm{kv}}\sum_{\ell\in\mathcal G}\kappa^cn_{\mathrm{kv},\ell}h_\ell\)</td><td class="l">KV bytes per cached token, global layers</td></tr>
-        <tr><td>\(\nu_W = s_{\mathrm{kv}}\sum_{\ell\in\mathcal W}\kappa^cn_{\mathrm{kv},\ell}h_\ell\)</td><td class="l">the same, sliding-window layers</td></tr>
-        <tr><td>\(\nu_S = s_{\mathrm{kv}}\sum_{\ell\in\mathcal S}\kappa^cn_{\mathrm{kv},\ell}h_\ell\)</td><td class="l">the same, sparse layers, per selected token</td></tr>
+        <tr><td>\(\nu_G = s_{\mathrm{kv}}\sum_{\ell\in\mathcal G}\kappa^c_\ell n_{\mathrm{kv},\ell}h_\ell\)</td><td class="l">KV bytes per cached token, global layers</td></tr>
+        <tr><td>\(\nu_W = s_{\mathrm{kv}}\sum_{\ell\in\mathcal W}\kappa^c_\ell n_{\mathrm{kv},\ell}h_\ell\)</td><td class="l">the same, sliding-window layers</td></tr>
+        <tr><td>\(\nu_S = s_{\mathrm{kv}}\sum_{\ell\in\mathcal S}\kappa^c_\ell n_{\mathrm{kv},\ell}h_\ell\)</td><td class="l">the same, sparse layers, per selected token</td></tr>
         <tr><td>\(\nu_I = s_I\sum_{\ell\in\mathcal S}h_{I,\ell}\)</td><td class="l">bytes per cached token of the scan's own cache (<a class="xref" href="/notes/block-diffusion-rooflines-6f924020/attention/">Part 3</a>)</td></tr>
       </tbody>
     </table></div>
@@ -145,7 +145,7 @@ By doing so, we will be able to establish the arithmetic intensities of both mod
         <tr><td>\(\class{mj-td}{I^{\mathrm{TD}}}(B,C) = \dfrac{\class{mj-td}{F^{\mathrm{TD}}}(C)}{\class{mj-td}{Q^{\mathrm{TD}}}(B,C)}\)</td><td class="l">one TD pass at batch \(B\) and context \(C\), over a canvas of \(b\) positions per sequence</td><td class="num">32 · 2.1k</td></tr>
         <tr><td>\(I^{X}_{\mathrm{lin}}(B) = \dfrac{F^{X}_{\mathrm{lin}}}{Q^{X}_{\mathrm{lin}}(B)}\)</td><td class="l">the linear part of the same passes, \(X \in \{\mathrm{AR}, \mathrm{TD}\}\); \(I_{\mathrm{lin}}(B)\) denotes \(\class{mj-ar}{I^{\mathrm{AR}}_{\mathrm{lin}}}(B)\)</td><td class="num">AR 1.0 · 8.2<br>TD 32 · 2.1k</td></tr>
         <tr><td>\(I^{X}_{\mathrm{attn}}(C) = \dfrac{F^{X}_{\mathrm{attn}}(C)}{Q^{X}_{\mathrm{attn}}(C)}\)</td><td class="l">the attention part of the same passes</td><td class="num">as \(C \to \infty\):<br>AR 8, TD 2,048</td></tr>
-        <tr><td>\(I_{\mathrm{attn}} = \dfrac{\alpha_G}{\nu_G} = \dfrac{4g}{\kappa^cs_{\mathrm{kv}}}\),<br>\(I_{\mathrm{win}} = \dfrac{\alpha_W}{\nu_W}\), \(I_{\mathrm{idx}} = \dfrac{\alpha_I}{\nu_I}\)</td><td class="l">attention FLOPs per cache byte for a single query, on a global layer, a window layer, an indexer</td><td class="num">8, 2; 16 in the sparse variant</td></tr>
+        <tr><td>\(I_{\mathrm{attn}} = \dfrac{\alpha_G}{\nu_G} = \dfrac{4g}{\kappa^c_\ell s_{\mathrm{kv}}}\),<br>\(I_{\mathrm{win}} = \dfrac{\alpha_W}{\nu_W}\), \(I_{\mathrm{idx}} = \dfrac{\alpha_I}{\nu_I}\)</td><td class="l">attention FLOPs per cache byte for a single query, on a global layer, a window layer, an indexer</td><td class="num">8, 2; 16 for the indexer of the sparse variant (<a class="xref" href="/notes/block-diffusion-rooflines-6f924020/attention/">Part 3</a>)</td></tr>
       </tbody>
     </table></div>
   </div>
@@ -165,7 +165,7 @@ By doing so, we will be able to establish the arithmetic intensities of both mod
     <p>so that \(\class{mj-td}{I^{\mathrm{TD}}_{\mathrm{lin}}} = b\,\class{mj-ar}{I^{\mathrm{AR}}_{\mathrm{lin}}}/\Pi_{\mathrm{lin}}\), \(\class{mj-td}{I^{\mathrm{TD}}_{\mathrm{attn}}} = b\,\class{mj-ar}{I^{\mathrm{AR}}_{\mathrm{attn}}}/\Pi_{\mathrm{attn}}\) and \(\class{mj-td}{I^{\mathrm{TD}}} = b\,\class{mj-ar}{I^{\mathrm{AR}}}/\Pi\). </p>
 
     <p>We have that:</p>
-    <ul><li>\(\Pi_{\mathrm{lin}}\) relates to the <em>sparsity</em> in <strong>Mixture of Experts</strong> (MoE).</li><li>\(\Pi_{\mathrm{attn}}\) relates to the <em>sparsity</em> in <strong>sparse attention layers</strong>. <sup class="fn-ref" id="fnref-4"><a href="#fn-4" title="In particular, in DiffusionGemma we have \(\Pi_{\mathrm{attn}}=1\).">4</a></sup></li></ul>
+    <ul><li>\(\Pi_{\mathrm{lin}}\) relates to the <em>sparsity</em> in <strong>Mixture of Experts</strong> (MoE).</li><li>\(\Pi_{\mathrm{attn}}\) relates to the <em>sparsity</em> in <strong>sparse attention layers</strong>. <sup class="fn-ref" id="fnref-4"><a href="#fn-4">4</a></sup></li></ul>
 
 
 
@@ -204,11 +204,11 @@ By doing so, we will be able to establish the arithmetic intensities of both mod
   </div>
 
   <p>In practice, when profiling models, we often look at <strong>rooflines</strong> which plot the attainable FLOPs/s as a function of the arithmetic intensity.
-  <a class="xref" href="#prop1">Proposition 1</a> can be read off the roofline: the ratio of TD's height to AR's height on the roofline plot is \(\frac{\min(\class{mj-td}{I^{\mathrm{TD}}}, I^\star)}{\min(\class{mj-ar}{I^{\mathrm{AR}}}, I^\star)}\). Hence, the throughput gain \(\Gamma\) satisfies \(\Gamma \geq 1\) if and only if this ratio is greater than the number of passes to commit a canvas \(\omega\). This is illustrated in <a class="xref" href="#figure-6">Figure 6</a>.</p>
+  <a class="xref" href="#prop1">Proposition 1</a> can be read off the roofline: the ratio of TD's height to AR's height on the roofline plot is \(\frac{\min(\class{mj-td}{I^{\mathrm{TD}}}, I^\star)}{\min(\class{mj-ar}{I^{\mathrm{AR}}}, I^\star)}\). Hence, the throughput gain \(\Gamma\) satisfies \(\Gamma \geq 1\) if and only if this ratio is at least the number of passes to commit a canvas, \(\omega\). This is illustrated in <a class="xref" href="#figure-6">Figure 6</a>.</p>
 
   <div class="bdr-fig wide" id="fig-roofline">
     <div class="fig-k" id="figure-6">Figure 6 · interactive</div>
-    <p class="fig-title">Hiking the roofline.</p>
+    <p class="fig-title">The gain is TD's height on the roofline over AR's, divided by \(\omega\).</p>
     <div data-fig="roofline"></div>
     <p class="fig-cap">The roofline is \(\min(\pi,\ I\beta)\), and the bracket is \(\min(\class{mj-td}{I^{\mathrm{TD}}}, I^\star)/\min(\class{mj-ar}{I^{\mathrm{AR}}}, I^\star)\). </p>
   </div>
@@ -218,7 +218,7 @@ However, we can also look at it in terms of hardware choice. In particular, unde
 
   <div class="bdr-fig wide" id="fig-accel">
     <div class="fig-k" id="figure-7">Figure 7 · interactive</div>
-    <p class="fig-title">The higher ridge the better the throughput gains.</p>
+    <p class="fig-title">A higher ridge point raises the gain, as long as TD is compute-bound and AR is not.</p>
     <div data-fig="accel"></div>
     <p class="fig-cap">Solid: the exact roofline bound \(\Gamma\) at batch 1 and context 1M against the ridge point. Dashed: its limit as the context grows, \(I^\star/(\omega I_{\mathrm{attn}})\). Filled dots: accelerators on which the model and a 1M-token cache fit.</p>
   </div>
@@ -253,11 +253,11 @@ However, we can also look at it in terms of hardware choice. In particular, unde
     <ol>
       <li><p>If AR is compute-bound (\(\class{mj-ar}{I^{\mathrm{AR}}} \ge I^\star\)), then \(\Gamma \le 1/\omega\). Otherwise</p>
     <div class="eq">\[ \Gamma = \min\Bigl(\frac{\mathrm{TPF}}{\Pi},\ \frac{I^\star}{\omega\,\class{mj-ar}{I^{\mathrm{AR}}}}\Bigr),\quad \mathrm{TPF} = \frac{b}{\omega}. \]</div></li>
-      <li><p>Let \(C\) be a context at which AR is memory-bound, assume that \(\Pi(\cdot, C)\) is non-increasing in the batch<sup class="fn-ref" id="fnref-pi-batch"><a href="#fn-pi-batch" title="This can fail for short canvases. In the case of DiffusionGemma for \(b = 8\), \(\Pi_{\mathrm{lin}}\) is 3.52 at batch 1 and 3.70 at batch 2 (Proposition 3).">7</a></sup>, and let \(\class{mj-td}{B^{\mathrm{TD}}_\star}(C)\) be the batch that maximises \(\Gamma\) at this context, if it exists<sup class="fn-ref" id="fnref-real-batch"><a href="#fn-real-batch" title="We treat \(B\) as a real variable. Over integer batches, the maximum in case (c) is at \(\lfloor \class{mj-td}{B^{\mathrm{TD}}_\star}(C)\rfloor\) or \(\lceil \class{mj-td}{B^{\mathrm{TD}}_\star}(C)\rceil\).">8</a></sup>. There are three cases:</p>
+      <li><p>Fix a context \(C\), restrict to the batches at which AR is memory-bound, assume that \(\Pi(\cdot, C)\) is non-increasing in the batch<sup class="fn-ref" id="fnref-pi-batch"><a href="#fn-pi-batch">7</a></sup>, and let \(\class{mj-td}{B^{\mathrm{TD}}_\star}(C)\) be the batch at which a TD pass reaches the ridge, \(\class{mj-td}{I^{\mathrm{TD}}} = I^\star\), if it exists<sup class="fn-ref" id="fnref-real-batch"><a href="#fn-real-batch">8</a></sup>. The batch that maximises \(\Gamma\) at this context is:</p>
         <ol type="a">
-          <li>if \(\class{mj-td}{I^{\mathrm{TD}}} \ge I^\star\) already at \(B = 1\), then \(\class{mj-td}{B^{\mathrm{TD}}_\star}(C) = 1\);</li>
-          <li>if \(\class{mj-td}{I^{\mathrm{TD}}} \lt I^\star\) at every batch, then \(\Gamma = \mathrm{TPF}/\Pi\) is non-decreasing in \(B\), and the largest batch that fits is best;</li>
-          <li>otherwise, \(\class{mj-td}{B^{\mathrm{TD}}_\star}(C)\) is the batch at which \(\class{mj-td}{I^{\mathrm{TD}}} = I^\star\).</li>
+          <li>\(B = 1\), if \(\class{mj-td}{I^{\mathrm{TD}}} \ge I^\star\) already at \(B = 1\);</li>
+          <li>the largest batch that fits, if \(\class{mj-td}{I^{\mathrm{TD}}} \lt I^\star\) at every batch, since \(\Gamma = \mathrm{TPF}/\Pi\) is then non-decreasing in \(B\);</li>
+          <li>\(\class{mj-td}{B^{\mathrm{TD}}_\star}(C)\) otherwise.</li>
         </ol></li>
     </ol>
 
@@ -282,7 +282,7 @@ However, we can also look at it in terms of hardware choice. In particular, unde
     <div class="eq eq-narrow">\[ \begin{gathered} I^X = \theta^X_{\mathrm{lin}}\,I^X_{\mathrm{lin}} + \theta^X_{\mathrm{attn}}\,I^X_{\mathrm{attn}},\\[4pt] \Pi = \class{mj-ar}{\theta^{\mathrm{AR}}_{\mathrm{lin}}}\Pi_{\mathrm{lin}}\\ \qquad + \class{mj-ar}{\theta^{\mathrm{AR}}_{\mathrm{attn}}}\Pi_{\mathrm{attn}} . \end{gathered} \]</div>
     <details class="proof"><summary>Proof</summary><p>\(I^X = F^X/Q^X = \sum_c (Q^X_c/Q^X)(F^X_c/Q^X_c)\) over the two parts \(c\). For the penalty, \(\class{mj-td}{Q^{\mathrm{TD}}_c} = \Pi_c\,\class{mj-ar}{Q^{\mathrm{AR}}_c}\) by <a class="xref" href="#def4">Definition 4</a>, so \(\Pi = \sum_c \class{mj-td}{Q^{\mathrm{TD}}_c}/\class{mj-ar}{Q^{\mathrm{AR}}} = \sum_c \class{mj-ar}{\theta^{\mathrm{AR}}_c}\,\Pi_c\). \(\blacksquare\)</p></details>
   </div>
-<section class="footnotes" aria-label="Notes"><h3 id="s-notes">Notes</h3><ol><li id="fn-ar-parallel">As emphasized in the introduction, we do not consider parallel decoding techniques for AR such as Multi-Token Prediction (MTP) or Speculative Sampling (SS). The Conclusion discusses speculative decoding among related work. <a href="#fnref-ar-parallel" class="fn-back" aria-label="Back to the text">↩</a></li><li id="fn-r-one">In the case of DiffusionGemma we always have \(r=1\), but one could get creative regarding the encoder-decoder architecture. <a href="#fnref-r-one" class="fn-back" aria-label="Back to the text">↩</a></li><li id="fn-3">There are no sparse attention layers in our running example with DiffusionGemma. However, since recent models such as <a href="https://huggingface.co/Qwen/Qwen3.8-Flash-Next">Qwen 3.8 Flash Next</a> use sparse attention layers and they impact the throughput gains, we include them in our analysis. <a href="#fnref-3" class="fn-back" aria-label="Back to the text">↩</a></li><li id="fn-4">In particular, in DiffusionGemma we have \(\Pi_{\mathrm{attn}}=1\). <a href="#fnref-4" class="fn-back" aria-label="Back to the text">↩</a></li><li id="fn-kv-twice">As vLLM does; the global-attention kernel of <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/kernels/">Part 8</a> also reads keys and values as two tensors. <a href="#fnref-kv-twice" class="fn-back" aria-label="Back to the text">↩</a></li><li id="fn-fused-activations">Activations stay in on-chip memory when consecutive operations are fused into one kernel. <a href="#fnref-fused-activations" class="fn-back" aria-label="Back to the text">↩</a></li><li id="fn-pi-batch">This can fail for short canvases. In the case of DiffusionGemma for \(b = 8\), \(\Pi_{\mathrm{lin}}\) is 3.52 at batch 1 and 3.70 at batch 2 (<a class="xref" href="/notes/block-diffusion-rooflines-6f924020/linear/#prop3">Proposition 3</a>). <a href="#fnref-pi-batch" class="fn-back" aria-label="Back to the text">↩</a></li><li id="fn-real-batch">We treat \(B\) as a real variable. Over integer batches, the maximum in case (c) is at \(\lfloor \class{mj-td}{B^{\mathrm{TD}}_\star}(C)\rfloor\) or \(\lceil \class{mj-td}{B^{\mathrm{TD}}_\star}(C)\rceil\). <a href="#fnref-real-batch" class="fn-back" aria-label="Back to the text">↩</a></li></ol></section>
+<section class="footnotes" aria-label="Notes"><h3 id="s-notes">Notes</h3><ol><li id="fn-ar-parallel">As emphasized in the introduction, we do not consider parallel decoding techniques for AR such as Multi-Token Prediction (MTP) or Speculative Sampling (SS). The Conclusion discusses speculative decoding among related work. <a href="#fnref-ar-parallel" class="fn-back" aria-label="Back to the text">↩</a></li><li id="fn-r-one">In the case of DiffusionGemma we always have \(r=1\), but one could get creative regarding the encoder-decoder architecture. <a href="#fnref-r-one" class="fn-back" aria-label="Back to the text">↩</a></li><li id="fn-3">There are no sparse attention layers in our running example with DiffusionGemma. However, since recent models such as <a href="https://huggingface.co/Qwen/Qwen3.8-Flash-Next">Qwen 3.8 Flash Next</a> use sparse attention layers and they impact the throughput gains, we include them in our analysis. <a href="#fnref-3" class="fn-back" aria-label="Back to the text">↩</a></li><li id="fn-4">In particular, in DiffusionGemma we have \(\Pi_{\mathrm{attn}}=1\). <a href="#fnref-4" class="fn-back" aria-label="Back to the text">↩</a></li><li id="fn-kv-twice">As vLLM does; the global-attention kernel of <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/kernels/">Part 8</a> also reads keys and values as two tensors. <a href="#fnref-kv-twice" class="fn-back" aria-label="Back to the text">↩</a></li><li id="fn-fused-activations">Activations stay in on-chip memory when consecutive operations are fused into one kernel. <a href="#fnref-fused-activations" class="fn-back" aria-label="Back to the text">↩</a></li><li id="fn-pi-batch">This can fail for short canvases: for DiffusionGemma with \(b = 8\), \(\Pi_{\mathrm{lin}}\) is 3.52 at batch 1 and 3.70 at batch 2. <a href="#fnref-pi-batch" class="fn-back" aria-label="Back to the text">↩</a></li><li id="fn-real-batch">We treat \(B\) as a real variable. Over integer batches, the maximum in case (c) is at \(\lfloor \class{mj-td}{B^{\mathrm{TD}}_\star}(C)\rfloor\) or \(\lceil \class{mj-td}{B^{\mathrm{TD}}_\star}(C)\rceil\). <a href="#fnref-real-batch" class="fn-back" aria-label="Back to the text">↩</a></li></ol></section>
 </section>
 <nav class="book-nav" aria-label="Chapters"><a class="prev" href="/notes/block-diffusion-rooflines-6f924020/summary/"><span>Previous</span>Summary</a><a class="next" href="/notes/block-diffusion-rooflines-6f924020/linear/"><span>Next</span>2 · The linear part</a></nav>
 <section class="book-comments" id="bdr-comments" data-repo="vdeborto/vdeborto.github.io" data-repo-id="MDEwOlJlcG9zaXRvcnkxMTY1OTk1ODA=" data-category="Announcements" data-category-id="DIC_kwDOBvMrHM4DLMnm" data-term="Block Diffusion Rooflines · Part 1 · Setup and the gain">

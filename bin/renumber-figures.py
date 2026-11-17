@@ -16,7 +16,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 FILES = [Path.home() / "code/diffusion-roofline/site/block-diffusion-rooflines.html"] + [ROOT / p for p in (
-    "_roofline/intros.html", "_roofline/gists.html", "_roofline/cards.html", "_roofline/figures.html",
+    "_roofline/intros.html", "_roofline/cards.html", "_roofline/figures.html",
     "bin/roofline_practice.py", "bin/build-roofline.py", "bin/roofline_code.py",
     "assets/roofline/figures.js", "assets/roofline/measured.js", "assets/roofline/reading.js")]
 REF = re.compile(r"\b(Fig(?:ure|\.)?s?)((?:\s|&nbsp;)+)(\d+(?:(?:\s*(?:–|,|and|or)\s*)\d+)*)")

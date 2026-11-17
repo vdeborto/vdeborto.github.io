@@ -220,7 +220,7 @@
   const ATTN = ['attnG', 'attnW', 'attnS', 'index'];
   function passTime(r, hw) {
     const fFast = hw.fp8 ? r.flin : 0, pA = hw.peakAttn || hw.peak;
-    const tc = fFast / hw.peakFp8 + r.fatt / pA + (r.F - fFast - r.fatt) / hw.peak;
+    const tc = (fFast ? fFast / hw.peakFp8 : 0) + r.fatt / pA + (r.F - fFast - r.fatt) / hw.peak;
     const tm = r.Q / hw.bw;
     const tWhole = Math.max(tc, tm);
     const cls = {};
@@ -488,53 +488,8 @@
   const gb = (x) => fmt(x / 1e9);
   const kTok = (x) => (x >= 1e6 ? `${fmt(x / 1e6)}M` : x >= 1e3 ? `${fmt(x / 1e3)}k` : `${Math.round(x)}`);
 
-  function boe(hw, o, w) {
-    const bare = { ...model, V: 0, fSC: 0 };
-    const c = M.compact(bare, w, { ...o, ba: 0, bl: 0 }, hw);
-    const num = (C) => c.phi(C);
-    const IAR = (B, C) => num(C) / (c.WAR(B) / B + c.qkv(C));
-    const ITD = (B, C) => (w.b * num(C)) / (c.WTD(B) / B + c.qkv(C));
-    const gain = (B, C) => Math.min(ITD(B, C), c.Istar) / (omega(w) * Math.min(IAR(B, C), c.Istar));
-    return { bare, c, IAR, ITD, gain, IARshort: (B) => (2 * B * c.Nact) / c.WAR(B), ITDshort: (B) => (2 * B * w.b * c.Nact) / c.WTD(B) };
-  }
 
 
-
-
-  function rooflineIntuition(el, hw, o, w) {
-    const x = boe(hw, o, w), Is = x.c.Istar, pk = hw.peak / 1e12, S1 = omega(w);
-    const pairs = [
-      { name: 'R1 · batch 1, short context', a: x.IARshort(1), t: x.ITDshort(1) },
-      { name: 'R2 · batch 8, short context', a: x.IARshort(8), t: x.ITDshort(8) },
-      { name: 'R6 · long context, any batch', a: x.c.Ikv, t: w.b * x.c.Ikv },
-    ];
-    const rate = (I) => Math.min(pk, (I * hw.bw) / 1e12);
-    const W = 340, H = 250, mg = { l: 40, r: 58, t: 10, b: 38 };
-    const x0 = -0.3, x1 = 3.8, y0 = 0.3, y1 = 3.2;
-    const X = (I) => mg.l + ((Math.log10(I) - x0) / (x1 - x0)) * (W - mg.l - mg.r);
-    const Y = (T) => H - mg.b - ((Math.log10(T) - y0) / (y1 - y0)) * (H - mg.t - mg.b);
-    const grid = css('--rule'), muted = css('--bdr-muted'), ar = css('--bdr-ar'), td = css('--bdr-td'), surf = css('--bdr-surface'), ink = css('--ink');
-    const panel = (p, k) => {
-      const ra = rate(p.a), rt = rate(p.t), speed = rt / ra, g = Math.min(p.t, Is) / (S1 * Math.min(p.a, Is));
-      let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${p.name}: AR at ${fmt(ra)} TFLOP/s, TD at ${fmt(rt)} TFLOP/s"><defs><marker id="ah${k}" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="${ink}"/></marker></defs>`;
-      for (const e of [1, 2, 3]) s += `<line x1="${mg.l}" x2="${W - mg.r}" y1="${Y(10 ** e)}" y2="${Y(10 ** e)}" stroke="${grid}"/><text x="${mg.l - 5}" y="${Y(10 ** e) + 4}" text-anchor="end">${10 ** e}</text>`;
-      for (const e of [0, 1, 2, 3]) s += `<text x="${X(10 ** e)}" y="${H - mg.b + 15}" text-anchor="middle">${10 ** e}</text>`;
-      s += `<text x="${(mg.l + W - mg.r) / 2}" y="${H - 4}" text-anchor="middle">FLOP / byte</text>`;
-      const xs = [10 ** x0, Is, 10 ** x1];
-      s += `<polyline fill="none" stroke="${muted}" stroke-width="2" points="${xs.map((I) => `${X(I)},${Y(rate(I))}`).join(' ')}"/>`;
-      const bx = W - mg.r + 14;
-      s += `<line x1="${X(p.a)}" x2="${bx}" y1="${Y(ra)}" y2="${Y(ra)}" stroke="${ar}" stroke-dasharray="3 3"/>`;
-      s += `<line x1="${X(p.t)}" x2="${bx}" y1="${Y(rt)}" y2="${Y(rt)}" stroke="${td}" stroke-dasharray="3 3"/>`;
-      s += `<line x1="${bx}" x2="${bx}" y1="${Y(ra) - 4}" y2="${Y(rt) + 4}" stroke="${ink}" stroke-width="1.5" marker-start="url(#ah${k})" marker-end="url(#ah${k})"/>`;
-      s += `<text class="clbl" x="${bx + 6}" y="${(Y(ra) + Y(rt)) / 2 + 4}">×${fmt(speed, 3)}</text>`;
-      s += `<text x="${X(p.a) + 9}" y="${Y(ra) + 14}">AR ${fmt(ra, 2)} TF/s</text>`;
-      s += `<text x="${X(p.t) - 6}" y="${Y(rt) + 16}" text-anchor="end">TD ${fmt(rt, 3)} TF/s</text>`;
-      s += `<circle cx="${X(p.a)}" cy="${Y(ra)}" r="6" fill="${ar}" stroke="${surf}" stroke-width="2"/><circle cx="${X(p.t)}" cy="${Y(rt)}" r="6" fill="${td}" stroke="${surf}" stroke-width="2"/>`;
-      s += '</svg>';
-      return `<figure><figcaption>${p.name}</figcaption>${s}<div class="note" style="margin-top:2px">TD's FLOPs run ×${fmt(speed, 3)} faster, TD does ×${fmt(S1, 3)} more: <b>Γ = ${g.toFixed(2)}</b></div></figure>`;
-    };
-    el.innerHTML = `<div class="charts">${pairs.map(panel).join('')}</div>`;
-  }
 
 
   // Paints an nx × ny grid of colours (index j·ny + i, i = 0 at the bottom) into a PNG data URL,
@@ -659,14 +614,15 @@
     const exact = (B, C) => {
       const ww = { ...w, B };
       if (which === 'ar') {
-        const r = M.pass(mdl, M.passes.arDecode(ww, C), o);
-        return { I: r.AI, bound: M.passTime(r, hw).tc >= M.passTime(r, hw).tm };
+        const r = M.pass(mdl, M.passes.arDecode(ww, C), o), t = M.passTime(r, hw);
+        return { I: r.AI, bound: t.compute, rr: Math.log2(t.ratio) };
       }
       const d0 = M.pass(mdl, M.passes.tdDenoise(ww, C, 0), o), d1 = M.pass(mdl, M.passes.tdDenoise(ww, C, 1), o), cm = M.pass(mdl, M.passes.tdCommit(ww, C), o);
       const F = d0.F + (w.S - 1) * d1.F + cm.F, Q = d0.Q + (w.S - 1) * d1.Q + cm.Q;
-      return { I: F / Q, Iden: d1.AI, Icom: cm.AI, bound: M.passTime(d1, hw).tc >= M.passTime(d1, hw).tm };
+      const t1 = M.passTime(d1, hw);
+      return { I: F / Q, Iden: d1.AI, Icom: cm.AI, bound: t1.compute, rr: Math.log2(t1.ratio) };
     };
-    const cells = [], vals = [], cxs = [], cys = [], colors = [];
+    const cells = [], vals = [], rrs = [], cxs = [], cys = [], colors = [];
     const need = memNeed(mdl, o, w, which === 'ar' ? 'ar' : 'td'), lmem = [];
     let anyOver = false;
     let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Heatmap of the exact ${which === 'ar' ? 'AR decode' : 'TD canvas'} arithmetic intensity by batch and context">`;
@@ -682,6 +638,7 @@
         lmem.push(Math.log2(need(B, C) / hw.mem));
         cells.push({ B, C, ...e, over });
         vals.push(Math.log2(e.I));
+        rrs.push(e.rr);
         colors.push(over ? dimColor(intensityColor(e.I, Is)) : intensityColor(e.I, Is));
       }
     }
@@ -705,13 +662,16 @@
       s += `<text class="isolbl" x="${best.mx.toFixed(1)}" y="${(my - 4).toFixed(1)}" text-anchor="middle">${lev}</text>`;
     });
     s += draw(contour(lmem, nx, ny, 0, xc, yc), 'memline');
-    const ridge = contour(vals, nx, ny, Math.log2(Is), xc, yc);
+    // Plain ridge I* = pi/beta only when every FLOP runs at the BF16 peak and a pass is one kernel.
+    const plain = !hw.fp8 && !hw.peakAttn && hw.kernels !== 'sum';
+    const ridge = contour(rrs, nx, ny, 0, xc, yc);
+    const ridgeName = plain ? `ridge I<tspan baseline-shift="super" font-size="70%">⋆</tspan> = ${Math.round(Is)}` : 'ridge of this accelerator';
     s += draw(ridge, 'halo-l') + draw(ridge, 'ridge');
     if (ridge.length) {
       const top = ridge.reduce((a, sg) => (Math.min(sg[0][1], sg[1][1]) < Math.min(a[0][1], a[1][1]) ? sg : a));
-      s += `<text class="clbl" x="${(top[0][0] + 6).toFixed(1)}" y="${(Math.min(top[0][1], top[1][1]) - 8).toFixed(1)}">ridge I<tspan baseline-shift="super" font-size="70%">⋆</tspan> = ${Math.round(Is)}: compute-bound beyond</text>`;
+      s += `<text class="clbl" x="${(top[0][0] + 6).toFixed(1)}" y="${(Math.min(top[0][1], top[1][1]) - 8).toFixed(1)}">${ridgeName}: compute-bound beyond</text>`;
     } else {
-      s += `<text class="clbl" x="${W - mg.r - 8}" y="${mg.t + 16}" text-anchor="end">never reaches the ridge I<tspan baseline-shift="super" font-size="70%">⋆</tspan> = ${Math.round(Is)} in this range</text>`;
+      s += `<text class="clbl" x="${W - mg.r - 8}" y="${mg.t + 16}" text-anchor="end">never reaches the ${ridgeName} in this range</text>`;
     }
     s += '</svg><div class="tip" hidden></div>';
     el.innerHTML = s + memNote(hw, anyOver, which === 'ar' ? 'AR' : 'TD');
@@ -854,33 +814,6 @@
     return hi;
   }
 
-  function hwTable(st) {
-    const { c } = bare(st);
-    const S1 = omega(st.w);
-    $('t-hw').innerHTML = HW.filter((h) => h.id).map((h) => {
-      const Is = h.tflops / h.tbps;
-      const BTD = (Is * c.WTD(1)) / (2 * st.w.b * c.Nact);
-      const Bx = solveLin(c, Is / S1);
-      const R6 = Is / (S1 * c.Ikv);
-      return `<tr><td class="l">${h.label}</td><td class="num">${Math.round(Is)}</td><td class="num">${fmt(BTD, 2)}</td><td class="num">${fmt(Bx, 3)}</td><td class="num">${R6.toFixed(2)}${R6 < 1 ? ' <span class="muted">(AR wins)</span>' : ''}</td></tr>`;
-    }).join('');
-  }
-
-  function modelsTable(st) {
-    $('t-models').innerHTML = Object.entries(M.MODELS).map(([id, spec]) => {
-      const m = spec.build();
-      const pc = M.paramCounts(m);
-      const w = { ...st.w, lambdaTD: m.selfCond ? 5 : 2 };
-      const s1 = { ...st, w };
-      const { c } = bare(s1, m);
-      const g = (B, C) => M.steady(m, { ...w, B }, st.o, st.hw, C).gain;
-      const needTD = memNeed(m, st.o, w, 'td'), needAR = memNeed(m, st.o, w, 'ar');
-      const fits = (B, C) => needTD(B, C) <= st.hw.mem && needAR(B, C) <= st.hw.mem;
-      const cell = (B, C) => { const x = g(B, C); return `<td class="num${x < 1 ? ' lose' : ''}">${x.toFixed(2)}×${fits(B, C) ? '' : '<sup class="oom" title="does not fit in memory">†</sup>'}</td>`; };
-      return `<tr><td class="l">${spec.label} <span class="muted">${spec.group === 'Dense' ? 'dense' : 'MoE'}</span></td><td class="num">${fmt(pc.total / 1e9, 3)}B / ${fmt(pc.active / 1e9, 2)}B</td><td class="num">${c.Pi(1).toFixed(1)}</td><td class="num">${m.sparse ? `${fmt(c.aI / c.nuI, 2)} <span class="muted">(I<sub>idx</sub>)</span>` : fmt(c.Ikv, 2)}</td>${cell(1, 1024)}${cell(64, 1024)}${cell(1, 1048576)}</tr>`;
-    }).join('');
-  }
-
   // Worked example: predictions from the propositions against the exact accounting, b = 32.
   function exerciseTable() {
     const st = { ...REF, w: { ...REF.w, b: 32 } };
@@ -903,7 +836,11 @@
     const pts = scanB((B) => ex(B, 1024).gain);
     const cr = crossings(pts);
     const tdFirst = pts.map(([B]) => B).find((B) => ex(B, 1024).tdCompute);
-    const exPeak = pts.reduce((a, p) => (p[1] > a[1] ? p : a));
+    const coarse = pts.reduce((a, p) => (p[1] > a[1] ? p : a));
+    let exPeak = coarse;
+    for (let k = -50; k <= 50; k++) { const B = coarse[0] * 1.06 ** (k / 50); const g = ex(B, 1024).gain; if (g > exPeak[1]) exPeak = [B, g]; }
+    // report the best integer batch, as the text does
+    exPeak = [Math.floor(exPeak[0]), Math.ceil(exPeak[0])].map((B) => [Math.max(1, B), ex(Math.max(1, B), 1024).gain]).reduce((a, p) => (p[1] > a[1] ? p : a));
     const rows = [
       ['Γ at batch 1, short context', r1.toFixed(2), ex(1, 1024).gain.toFixed(2)],
       ['TD overtakes AR at batch', fmt(parityLow, 2), cr[0] ? fmt(cr[0], 2) : '–'],
@@ -1083,24 +1020,6 @@
   }
 
   // ---------------------------------------------------------------- decoder ratio figure: exact gain against r
-  function ratioChart(el) {
-    if (!el.isConnected) return;
-    const rs = Array.from({ length: 21 }, (_, k) => 2 ** ((k - 12) / 4));
-    const cases = [
-      { color: '--bdr-td', label: 'batch 1, 1k context', B: 1, C: 1024 },
-      { color: '--bdr-s3', label: 'batch 64, 1k context', B: 64, C: 1024 },
-      { color: '--bdr-hi', label: 'batch 4, 1M context', B: 4, C: 1048576 },
-    ];
-    const data = cases.map((cs) => ({ ...cs, ys: rs.map((r) => M.steady(model, { ...REF.w, r, B: cs.B }, REF.o, REF.hw, cs.C).gain) }));
-    const rFmt = (r) => (r >= 1 ? `${r}` : `1/${Math.round(1 / r)}`);
-    lineChart(el, data.map((d) => ({ color: d.color, label: '', points: rs.map((r, k) => ({ x: r, y: d.ys[k] })) })), {
-      aria: 'Exact TD over AR gain against the decoder ratio r for DiffusionGemma on H200', refY: 1, refX: 1, dots: false,
-      xLabel: 'decoder ratio r (cost of a denoising pass / commit pass)', xFmt: rFmt, yFmt: (v) => `${v}×`,
-      tip: (i) => `<b>r = ${fmt(rs[i], 3)}</b>, ω = ${fmt(omega({ ...REF.w, r: rs[i] }), 3)}<br>` + data.map((d) => `<span class="swatch" style="background:var(${d.color})"></span>${d.label}: ${d.ys[i].toFixed(2)}×`).join('<br>'),
-    });
-    $('ratio-legend').innerHTML = data.map((d) => `<span><span class="swatch" style="background:var(${d.color})"></span>${d.label}</span>`).join('') + '<span class="muted">dashed: parity and r = 1 (DiffusionGemma)</span>';
-  }
-
   // ---------------------------------------------------------------- sparse attention figures
   const SPARSE_REF = () => M.MODELS.dgemma_sparse.build();
   function ctxChart(el, legendEl) {
@@ -1137,30 +1056,11 @@
     legendEl.innerHTML = series.map((sr) => `<span><span class="swatch" style="background:var(${sr.color})"></span>${sr.label}</span>`).join('');
   }
   // Bytes per generated token by class, AR step and TD canvas, kB.
-  function bytesTable() {
-    const ms = SPARSE_REF();
-    const col = (m, C) => {
-      const w = { ...REF.w, B: 64 };
-      const ar = M.pass(m, M.passes.arDecode(w, C), REF.o);
-      const d0 = M.pass(m, M.passes.tdDenoise(w, C, 0), REF.o), d1 = M.pass(m, M.passes.tdDenoise(w, C, 1), REF.o), cm = M.pass(m, M.passes.tdCommit(w, C), REF.o);
-      const td = {}; for (const k of M.CLASSES) td[k] = (d0.cls[k].Q + (w.S - 1) * d1.cls[k].Q + cm.cls[k].Q) / (w.B * w.b);
-      const arT = {}; for (const k of M.CLASSES) arT[k] = ar.cls[k].Q / w.B;
-      return { ar: arT, td };
-    };
-    const cols = [col(model, 131072), col(ms, 131072), col(ms, 2 ** 20)];
-    const names = { dense: 'dense linear', expert: 'experts', attnG: 'global attention', attnW: 'window attention', attnS: 'sparse core', index: 'indexer', head: 'vocabulary head' };
-    const kb = (x) => (x === 0 ? '–' : x >= 1e8 ? comma(x / 1e6) : (x / 1e6).toFixed(2));
-    $('t-bytes').innerHTML = M.CLASSES.map((k) => `<tr><td class="l">${names[k]}</td>${cols.map((c) => `<td class="num">${kb(c.ar[k])}</td><td class="num">${kb(c.td[k])}</td>`).join('')}</tr>`).join('')
-      + `<tr class="tot"><td class="l">total</td>${cols.map((c) => `<td class="num">${kb(Object.values(c.ar).reduce((a, x) => a + x, 0))}</td><td class="num">${kb(Object.values(c.td).reduce((a, x) => a + x, 0))}</td>`).join('')}</tr>`;
-  }
-
   // ---------------------------------------------------------------- static figures (reference setting)
   function staticFigures() {
     regimeMap($('map-sparse'), $('map-sparse-legend'), { ...REF, m: SPARSE_REF() });
     bstarChart($('bstar'), $('bstar-legend'), REF);
     attnTable(REF);
-    hwTable(REF);
-    modelsTable(REF);
     regimeMap($('map-ref'), $('map-ref-legend'), REF);
     intensityMap($('imap-ar'), $('imap-ar-legend'), REF, 'ar');
     intensityMap($('imap-td'), $('imap-td-legend'), REF, 'td');
@@ -1226,7 +1126,7 @@
     const peak = Math.max(1, v('c-peak') || 1) * 1e12, peak8 = Math.max(1, v('c-peak8') || 2 * v('c-peak') || 2) * 1e12;
     return {
       m: routeApply(sparseApply(modelFromSpecs())),
-      hw: { peak, peakFp8: peak8, peakAttn: (HWBYID[$('c-hw').value] || {}).tflopsAttn * 1e12 || undefined, bw: Math.max(0.01, v('c-bw') || 0.01) * 1e12, mem: Math.max(1, v('c-mem') || 1) * 1e9, fp8, kernels: $('c-kern').value },
+      hw: { peak, peakFp8: peak8, peakAttn: ((HWBYID[$('c-hw').value] || {}).tflopsAttn ?? ($('c-hw').value === 'custom' ? LAST_ATTN : undefined)) * 1e12 || undefined, bw: Math.max(0.01, v('c-bw') || 0.01) * 1e12, mem: Math.max(1, v('c-mem') || 1) * 1e9, fp8, kernels: $('c-kern').value },
       o: { bw: fp8 ? 1 : 2, bwOther: 2, bkv: 2, ba: $('c-actl2').checked ? 0 : 2, bl: v('c-bl'), kvOnce: $('c-kvonce').checked, rkv: Math.max(1, v('c-rho') || 1), honourWindow: $('c-win').checked },
       w: { B: Math.max(1, Math.round(v('c-B')) || 1), P: Math.max(1, Math.round(v('c-P')) || 1), G, b, S: Math.max(1, Math.round(v('c-S')) || 1), r: Math.max(0.01, v('c-r') || 1), lambdaAR: v('c-la') || 0, lambdaTD: v('c-lt') || 0 },
     };
@@ -1242,7 +1142,7 @@
       ['TD commit pass', M.passes.tdCommit(w, C)],
     ].map(([name, p]) => {
       const r = M.pass(m, p, o), t = M.passTime(r, hw);
-      return `<tr><td class="l">${name}</td><td class="num">${fmt(r.F / 1e12)}</td><td class="num">${gb(r.qw)}</td><td class="num">${gb(r.qkvr + r.qkvw)}</td><td class="num">${gb(r.qact)}</td><td class="num">${gb(r.qio)}</td><td class="num">${gb(r.Q)}</td><td class="num">${fmt(r.AI)}</td><td>${t.tc >= t.tm ? 'compute' : 'memory'}</td><td class="num">${time(t.t)}</td></tr>`;
+      return `<tr><td class="l">${name}</td><td class="num">${fmt(r.F / 1e12)}</td><td class="num">${gb(r.qw)}</td><td class="num">${gb(r.qkvr + r.qkvw)}</td><td class="num">${gb(r.qact)}</td><td class="num">${gb(r.qio)}</td><td class="num">${gb(r.Q)}</td><td class="num">${fmt(r.AI)}</td><td>${t.compute ? 'compute' : 'memory'}</td><td class="num">${time(t.t)}</td></tr>`;
     }).join('');
   }
 
@@ -1293,11 +1193,12 @@
     const ar = M.pass(m, M.passes.arDecode(w, C), o), tA = M.passTime(ar, hw);
     const d0 = M.pass(m, M.passes.tdDenoise(w, C, 0), o), d1 = M.pass(m, M.passes.tdDenoise(w, C, 1), o), cm = M.pass(m, M.passes.tdCommit(w, C), o);
     const F = d0.F + (w.S - 1) * d1.F + cm.F, Q = d0.Q + (w.S - 1) * d1.Q + cm.Q;
-    const t = M.passTime(d0, hw).t + (w.S - 1) * M.passTime(d1, hw).t + M.passTime(cm, hw).t;
+    const t0 = M.passTime(d0, hw), t1 = M.passTime(d1, hw), tm = M.passTime(cm, hw);
+    const t = t0.t + (w.S - 1) * t1.t + tm.t, tc = t0.tc + (w.S - 1) * t1.tc + tm.tc;
     const n = w.B * w.b;
     return {
-      ar: { bytes: ar.Q / w.B, flop: ar.F / w.B, weights: ar.qw / w.B, cache: (ar.qkvr + ar.qkvw) / w.B, t: tA.t / w.B, util: ar.F / (hw.peak * tA.t) },
-      td: { bytes: Q / n, flop: F / n, weights: (d0.qw + (w.S - 1) * d1.qw + cm.qw) / n, cache: (d0.qkvr + (w.S - 1) * d1.qkvr + cm.qkvr + cm.qkvw) / n, t: t / n, util: F / (hw.peak * t) },
+      ar: { bytes: ar.Q / w.B, flop: ar.F / w.B, weights: ar.qw / w.B, cache: (ar.qkvr + ar.qkvw) / w.B, t: tA.t / w.B, util: tA.tc / tA.t },
+      td: { bytes: Q / n, flop: F / n, weights: (d0.qw + (w.S - 1) * d1.qw + cm.qw) / n, cache: (d0.qkvr + (w.S - 1) * d1.qkvr + cm.qkvr + cm.qkvw) / n, t: t / n, util: tc / t },
     };
   }
   const pad = (x, n) => String(x).padStart(n);
@@ -1396,7 +1297,8 @@
       if (HW_FIELDS.includes(id) && $('c-hw').value !== 'custom') continue;
       if (id.startsWith('m-') && $('c-model').value !== 'custom') continue;
       const v = valOf($(id));
-      if (v !== DEFAULTS[id]) q.set(keyOf(id), v);
+      const presetDependent = ['c-prec', 'c-lt', 'c-la'].includes(id) && (valOf($('c-hw')) !== DEFAULTS['c-hw'] || valOf($('c-model')) !== DEFAULTS['c-model']);
+      if (v !== DEFAULTS[id] || presetDependent) q.set(keyOf(id), v);
     }
     const qs = q.toString();
     try { history.replaceState(null, '', `${location.pathname}${qs ? `?${qs}` : ''}${location.hash}`); } catch (e) { /* sandboxed */ }
@@ -1412,9 +1314,12 @@
     syncScWidth();
   }
 
+  // The attention ceiling of the last preset applied: a custom accelerator edited from it keeps it.
+  let LAST_ATTN;
   function applyPreset() {
     const h = HWBYID[$('c-hw').value];
     if (!h) return;
+    LAST_ATTN = h.tflopsAttn;
     $('c-peak').value = h.tflops;
     $('c-peak8').value = h.tflops8 || 2 * h.tflops;
     $('c-bw').value = h.tbps;
@@ -1573,6 +1478,6 @@
     const land = () => { const t = location.hash && $(decodeURIComponent(location.hash.slice(1))); if (t) t.scrollIntoView({ behavior: 'instant' }); };
     if (window.MathJax && MathJax.startup && MathJax.startup.promise) MathJax.startup.promise.then(() => setTimeout(land, 50));
   }
-  window.BDR = { HW, HWBYID, REF, boe, omega, fmt, comma, kTok, css, model };
+  window.BDR = { HW, HWBYID, REF, omega, fmt, comma, kTok, css, model };
   init();
 })();

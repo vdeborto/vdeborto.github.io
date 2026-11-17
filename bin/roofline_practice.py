@@ -474,7 +474,7 @@ def fig_map_narrow(base=BOOK_URL):
 
 # The book map: one box per part, every box a link to its chapter.
 MAP_TOP = [  # (x, width, [(slug, part label, title, lines)]); two entries are stacked in one column
-    (10, 150, [("setup", "PART 1", "Throughput gains", ["Costs, penalties,", "main result"])]),
+    (10, 150, [("setup", "PART 1", "Setup and the gain", ["Costs, penalties,", "main result"])]),
     (174, 122, [("linear", "PART 2", "Linear part", []), ("attention", "PART 3", "Attention part", [])]),
     (312, 170, [("calculator", "PART 4", "Maps and calculator", ["Model x Hardware"])]),
     (498, 152, [("examples", "PART 5", "Exercises", ["Canvas, model,", "accelerator"])]),
