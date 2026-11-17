@@ -442,7 +442,7 @@
   // "≈": derived from vendor material or disputed between sources. The FP8 peak defaults to twice BF16;
   // chips without an FP8 matrix rate above BF16's (A100, TPU v5e, v5p, v6e) dequantise FP8 weights, so tflops8 = tflops.
   // Memory in GB (10^9 bytes): Google lists TPU HBM in GiB (16, 95, 32, 192), converted here.
-  // tflopsAttn: the attention ceiling (Part 6, Table 8), used in place of the BF16 peak for attention kernels.
+  // tflopsAttn: the attention ceiling (Part 6, Table 7), used in place of the BF16 peak for attention kernels.
   const HW = [
     { group: 'NVIDIA data centre' },
     { id: 'a100', label: 'A100 SXM 80 GB', tflops: 312, tflops8: 312, tbps: 2.039, gb: 80 },
@@ -1305,7 +1305,7 @@
     const head = (g >= 1 ? `TD is <b>${g.toFixed(2)}×</b> faster than AR` : `AR is <b>${(1 / g).toFixed(2)}×</b> faster than TD`) + ' (exact roofline bound)';
     $('c-verdict').className = `verdict ${g >= 1 ? 'win' : 'lose'}`;
     $('c-verdict').innerHTML = `<div class="big">${head}</div>
-      <div class="chips"><span class="chip strong">${id}</span><span class="chip">${ctx}</span><span class="chip">${bound}</span></div>
+      <div class="chips"><span class="chip">${ctx}</span><span class="chip">${bound}</span></div>
       <p>${why} Regime formula: <span class="mono">${formula}</span>. At the mean context of ${kTok(Cm)} tokens, Proposition 1 predicts <b>${p.gain.toFixed(2)}×</b> without vocabulary (I<sub>AR</sub> = ${fmt(p.IAR)}, I<sub>TD</sub> = ${fmt(p.ITD)}, I<sup>⋆</sup> = ${fmt(p.Istar)}${mix ? `, the ridge point at this context with ${mix}` : ''}).</p>`;
   }
 

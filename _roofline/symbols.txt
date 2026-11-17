@@ -3,14 +3,14 @@
 #   - the symbol key (a click on a formula lists the symbols it uses), for the entries with "match".
 # An entry is the symbol in TeX on its own line, then indented fields:
 #   what:   the meaning; math goes in \( \)
-#   in:     where the symbol is introduced ("Part 2", "Definition 2", "Proposition 8"); the build links it
+#   in:     where the symbol is introduced ("Part 2", "Definition 2", "Proposition 7"); the build links it
 #           and checks that a formula there uses the symbol
 #   match:  JavaScript regular expression on a formula's TeX (the symbol key)
 #   rank:   order in the symbol key, which keeps the 14 lowest ranks of a formula
 #   scope:  T = only in Parts 1-5, P = only in Parts 6-9
 #   key:    the symbol as the key shows it, when it differs from the page's
 #   page:   no = in the key only
-# A symbol that is not math is written "plain R1–R8". After a change: python3 -I bin/build-roofline.py
+# A symbol that is not math is written "plain A1–A5". After a change: python3 -I bin/build-roofline.py
 
 intro: This page lists every symbol of the blogpost, with its meaning and the place where it is introduced. The values in parentheses are those of DiffusionGemma 26B-A4B and of an H200. In the other chapters, a click on a formula lists the symbols that it uses.
 
@@ -369,11 +369,11 @@ x
 
 I_n
   what: intensity of a pass that routes \(n\) positions per sequence (\(I_1 = I_{AR}\), \(I_b = I_{TD}\))
-  in: Proposition 8
+  in: Proposition 7
 
 W_n
   what: weights that such a pass reads (\(W_1 = W_{AR}\), \(W_b = W_{TD}\))
-  in: Proposition 8
+  in: Proposition 7
 
 == Penalties
 
@@ -435,13 +435,9 @@ B_\times
 
 b_c
   what: critical canvas length \(I^\star/I_{\mathrm{attn}}\): above it a longer context helps TD reach the ridge
-  in: Proposition 8
+  in: Proposition 7
   match: b_c
   rank: 440
-
-plain R1–R8
-  what: the eight regimes (Figure 17)
-  in: Part 4
 
 plain A1–A5
   what: the assumptions of Proposition 1
@@ -453,7 +449,7 @@ C_{\mathrm{lin}}(B, x)
 
 B^\star_n(C),\ D_n(C)
   what: smallest compute-bound batch for \(n\) queries per sequence at context \(C\), and the FLOPs per sequence left for the weights
-  in: Proposition 8
+  in: Proposition 7
 
 == Measurements
 
@@ -500,7 +496,7 @@ t_X,\ t_c
 
 n_X
   what: tokens a step commits: \(B\) for AR, \(Bb/\omega\) for TD
-  in: Proposition 9
+  in: Proposition 8
   key: n
   match: (^|[^\\A-Za-z_])n_\{?(X|AR|TD)
   rank: 590
@@ -508,13 +504,13 @@ n_X
 
 \Gamma_{\mathrm{meas}}
   what: measured gain: TD tokens per second over AR tokens per second
-  in: Proposition 9
+  in: Proposition 8
   match: \\Gamma_\{\\mathrm\{meas\}\}
   rank: 520
 
 \Gamma_{\mathrm{roof}}
   what: roofline bound at the measured ceilings and routing
-  in: Proposition 9
+  in: Proposition 8
   match: \\Gamma_\{\\mathrm\{roof\}\}
   rank: 530
 

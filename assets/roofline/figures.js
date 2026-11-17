@@ -980,7 +980,7 @@
   }
   initCards();
 
-  // Figure 18 has one title per tab (bin/build-roofline.py writes all of them): show the selected tab's.
+  // Figure 17 has one title per tab (bin/build-roofline.py writes all of them): show the selected tab's.
   document.querySelectorAll('.bdr .tabs-title').forEach((title) => {
     const spans = title.querySelectorAll('[data-tab-title]'), tabs = title.nextElementSibling;
     if (!spans.length || !tabs || !tabs.classList.contains('tabs')) return;

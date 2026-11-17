@@ -1,7 +1,4 @@
 // Reading aids for the Block Diffusion Rooflines page:
-//  - the intuition / full-math switch: in intuition mode (the default) every definition and
-//    proposition folds to its title and one-sentence summary, and every captioned table to its
-//    caption, each with a button to open it;
 //  - the contents list: a rail in the left margin on wide screens, a sheet opened by a "Contents"
 //    button elsewhere, with the reading progress;
 //  - the symbol key: selecting a formula lists what its symbols mean.
@@ -26,49 +23,7 @@
     }
   } catch (e) { /* no book data */ }
   const el = (html) => { const t = document.createElement('template'); t.innerHTML = html.trim(); return t.content.firstElementChild; };
-  const KEY = 'bdr-depth';
 
-  // ---------------------------------------------------------------- reading depth
-  function foldButton(host, label) {
-    const btn = el(`<button type="button" class="box-more" aria-expanded="false">show ${label} +</button>`);
-    btn.addEventListener('click', () => {
-      const on = !host.classList.contains('open');
-      host.classList.toggle('open', on);
-      btn.setAttribute('aria-expanded', String(on));
-      btn.textContent = on ? `hide ${label} −` : `show ${label} +`;
-    });
-    return btn;
-  }
-  for (const box of page.querySelectorAll('.box.prop, .box.def')) {
-    if (box.closest('#setup')) { box.classList.add('open'); continue; }  // Setup's definitions and Part 1's statements are always shown in full (proofs still fold)
-    const gist = box.querySelector('.gist');
-    if (gist) gist.after(foldButton(box, box.classList.contains('def') ? 'the definition' : 'the statement'));
-  }
-  for (const wrap of page.querySelectorAll('section .table-wrap:not(.nofold)')) {
-    if (!wrap.querySelector('caption') || wrap.closest('.box, .calc, .bdr-fig, .card-more, details.numbers, details.answer')) continue;
-    wrap.classList.add('foldable');
-    wrap.appendChild(foldButton(wrap, 'the table'));
-  }
-  const switches = [];
-  function setDepth(depth, save) {
-    page.classList.toggle('intuition', depth === 'intuition');
-    switches.forEach((s) => s.querySelectorAll('button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.depth === depth))));
-    if (save) { try { localStorage.setItem(KEY, depth); } catch (e) { /* storage unavailable */ } }
-  }
-  function depthSwitch(cls) {
-    const s = el(`<div class="depth ${cls}" role="group" aria-label="Reading depth"><span>reading</span><button type="button" data-depth="intuition">intuition</button><button type="button" data-depth="full">full math</button></div>`);
-    s.addEventListener('click', (ev) => {
-      const d = ev.target.dataset && ev.target.dataset.depth; if (!d) return;
-      // keep the reader's place: the element at the top of the window stays there
-      const probe = [...page.querySelectorAll('h2, h3, .bdr-fig, p')].find((e) => e.getBoundingClientRect().top > 80), y0 = probe && probe.getBoundingClientRect().top;
-      setDepth(d, true);
-      if (probe) scrollBy({ top: probe.getBoundingClientRect().top - y0, behavior: 'instant' });
-    });
-    switches.push(s);
-    return s;
-  }
-  const hero = page.querySelector('.hero .jump');
-  if (hero) hero.after(depthSwitch('depth-hero'));
 
   // ---------------------------------------------------------------- contents: rail or sheet
   // The note is a short book (one page per chapter, described by #bdr-book); the rail lists the chapters.
@@ -119,11 +74,6 @@
     for (const s of subLinks) if (s[0].getBoundingClientRect().top < 140) cur = s;
     for (const [, a] of subLinks) a.classList.toggle('on', !!cur && (a === cur[1] || a === cur[2]));
   }
-  // A chapter page without the rail's switch on narrow screens still gets one under its title.
-  const partLine = page.querySelector('.book-part');
-  const folds = !(here && here.slug === 'symbols'); // the Symbols page has nothing to fold
-  if (partLine && folds) partLine.after(depthSwitch('depth-hero'));
-  if (folds) rail.appendChild(depthSwitch('depth-rail'));
   const fab = el('<button type="button" class="rail-fab" aria-expanded="false" aria-controls="bdr-contents">Contents <span></span></button>');
   const backdrop = el('<div class="rail-backdrop" hidden></div>');
   rail.id = 'bdr-contents';
@@ -396,11 +346,6 @@
     let opened = false;
     for (let e = t; e && e !== document.body; e = e.parentElement) {
       if (e.tagName === 'DETAILS' && !e.open) { e.open = true; opened = true; }
-      if ((e.classList.contains('foldable') || e.matches('.box.prop, .box.def')) && !e.classList.contains('open') && page.classList.contains('intuition')) {
-        const btn = e.querySelector(':scope > .box-more');
-        if (btn) btn.click(); else e.classList.add('open');
-        opened = true;
-      }
     }
     if (opened) requestAnimationFrame(() => { const box = t.closest('details.numbers, .table-wrap') || t; scrollTo(0, box.getBoundingClientRect().top + scrollY - 96); });
   }
@@ -546,8 +491,5 @@
   })(0);
 
   // ---------------------------------------------------------------- start
-  let saved = null;
-  try { saved = localStorage.getItem(KEY); } catch (e) { /* storage unavailable */ }
-  setDepth(saved === 'full' ? 'full' : 'intuition', false);
   update();
 })();

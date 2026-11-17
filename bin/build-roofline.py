@@ -9,11 +9,10 @@ interactive figures kept in this repo:
   _roofline/figures.html        markup of the interactive figures, one <!-- fig:NAME --> block each
                                 (main() below places each one at an anchor of the note's text)
   _roofline/cards.html          "more" panels of the TL;DR cards, one <!-- card:TITLE PREFIX --> block each
-  _roofline/gists.html          one-sentence summary of each definition and proposition box
   _roofline/intros.html         opening paragraph of each chapter page
   bin/roofline_practice.py      figures and tables of the practice chapters (Parts 0, 6-9), from
                                 _roofline/practice-data.json (exported by roofscope's pages/book/export.py)
-  assets/roofline/reading.js    contents rail, reading progress, the intuition / full-math switch, the
+  assets/roofline/reading.js    contents rail, reading progress, the
                                 steppers, the symbol key, the citation's copy button and the comment thread
   _roofline/symbols.txt         every symbol of the book, once: bin/roofline_symbols.py makes the Symbols
                                 page (the last one) and the list of the symbol key from it
@@ -65,10 +64,10 @@ TITLE = "Block Diffusion Rooflines"
 CHAPTERS = [
     ("", "0", "Introduction", "intro", "why the question matters, the mental model, rooflines and gains, how the blogpost is organised and the measurement setting."),
     ("summary", "", "Summary", "tldr", "the main formula, four takeaways, the three possible regimes, and the hyperparameters that move the gain."),
-    ("setup", "1", "Setup and the gain", "setup", "notation, costs, intensities and penalties; Proposition 1, what the formulas leave out, which side wins, and the split of each intensity into a linear part and an attention part."),
+    ("setup", "1", "Setup and the gain", "setup", "notation, costs, intensities and penalties; Proposition 1, what the formulas leave out, which side wins and the best batch, and the split of each intensity into a linear part and an attention part."),
     ("linear", "2", "The linear part", "linear", "the expert and linear penalties, when the linear layers dominate, and the gain in that regime."),
-    ("attention", "3", "The attention part", "attention", "dense, windowed and sparse attention; the selection penalty as the twin of the expert penalty; when attention dominates, and the gain there."),
-    ("calculator", "4", "Regimes, maps and calculator", "whole", "when TD wins, the batch needed to saturate compute, the regimes, the exact maps over batch and context, the calculator and the exact accounting."),
+    ("attention", "3", "The attention part", "attention", "dense, windowed and sparse attention; the selection penalty as the twin of the expert penalty; when attention dominates, the gain there, and the batch that saturates compute at any context."),
+    ("calculator", "4", "Maps and calculator", "whole", "the exact maps over batch and context, the calculator and the exact accounting."),
     ("examples", "5", "Exercises", "examples", "three exercises with folded solutions: a smaller canvas, a dense model, a low-ridge accelerator."),
     ("effective", "6", "Empirical rooflines", "effective", "the ceilings one H200 sustains, the experts each decoder actually touches, and the bound they give."),
     ("stack", "7", "The measurement stack", "stack", "how every kernel of a step is timed and attributed, three defects of the stock engine and one of the harness, and where the stock kernels stand."),
@@ -86,7 +85,6 @@ GISCUS = {"repo": "vdeborto/vdeborto.github.io", "repo-id": "MDEwOlJlcG9zaXRvcnk
 ASSETS = ROOT / "assets/roofline"
 FIGS = ROOT / "_roofline/figures.html"
 CARDS = ROOT / "_roofline/cards.html"
-GISTS = ROOT / "_roofline/gists.html"
 INTROS = ROOT / "_roofline/intros.html"
 
 # Note tokens that do not exist on the site; --ink, --rule and --accent are the site's own.
@@ -251,16 +249,6 @@ def add_code(body):
     return body
 
 
-def add_gists(body):
-    blocks = re.split(r"<!-- gist:([\w-]+) -->\n", GISTS.read_text())
-    for i in range(1, len(blocks), 2):
-        bid, gist = blocks[i], mdlite.render_inline(blocks[i + 1].strip())
-        pat = re.compile(r'(<div class="box [^"]*" id="' + re.escape(bid) + r'">\s*<div class="title">.*?</div>)', re.S)
-        body, n = pat.subn(lambda m: m.group(1) + f'\n    <p class="gist"><span>In short.</span> {gist}</p>', body, count=1)
-        if n != 1:
-            problems.append(f"gist box {bid!r} not found")
-    return body
-
 
 def add_symbols(body):
     """The Symbols chapter and the symbol key's list, both from _roofline/symbols.txt
@@ -360,7 +348,6 @@ def main():
     body = add_practice(body)
     body = add_code(body)
     body = add_cards(body)
-    body = add_gists(body)
     body = add_symbols(body)
     body = sub_once(body, '  <div class="takeaways">', '  <p class="math-key">In the equations, <span class="q-ar">AR quantities are in blue</span> and <span class="q-td">TD quantities in orange</span>, as in the figures.</p>\n  <div class="takeaways">', "math key anchor")
     body = color_math(body)
@@ -456,15 +443,15 @@ def url_of(slug):
 # of figures.js: a kicker with the number, a title that states the figure's claim, and the
 # original caption as a subtitle.
 LEGACY_CLAIMS = {
-    16: "As the context grows, the batch at which a pass turns compute-bound falls for a canvas of 256 and rises for AR (Proposition 8).",
-    # Figure 18 has four tabs, each with its own claim; figures.js shows the title of the selected tab.
-    18: ('<span data-tab-title="m-gain">In the roofline bound, AR catches up with TD at batch 110 at context 1k, and at a larger batch as the context grows, beyond 1,024 from 64k tokens on.</span>'
+    16: "As the context grows, the batch at which a pass turns compute-bound falls for a canvas of 256 and rises for AR (Proposition 7).",
+    # Figure 17 has four tabs, each with its own claim; figures.js shows the title of the selected tab.
+    17: ('<span data-tab-title="m-gain">In the roofline bound, AR catches up with TD at batch 110 at context 1k, and at a larger batch as the context grows, beyond 1,024 from 64k tokens on.</span>'
          '<span data-tab-title="m-ar" hidden>An AR step never reaches the ridge, and at long context its intensity tends to 8 whatever the batch.</span>'
          '<span data-tab-title="m-td" hidden>A TD canvas crosses the ridge at a batch that falls as the context grows, from 5 at 1k to 1 at 256k, and its intensity tends to 2,048.</span>'
          '<span data-tab-title="m-sparse" hidden>With sparse global layers, the roofline bound has AR catch up with TD near batch 90–110 at every context up to 1M tokens.</span>'),
-    19: "With a 32-token canvas, the roofline bound puts TD ahead of AR only between batch 9 and batch 110 at context 1k.",
-    20: "For a dense model, the roofline bound at context 1k is about 13 at batch 1 and falls like 1/B, to parity at batch 15.",
-    21: "On an H20, whose ridge point is 37, the roofline bound puts TD ahead of AR only up to batch 4 at short context.",
+    18: "With a 32-token canvas, the roofline bound puts TD ahead of AR only between batch 9 and batch 110 at context 1k.",
+    19: "For a dense model, the roofline bound at context 1k is about 13 at batch 1 and falls like 1/B, to parity at batch 15.",
+    20: "On an H20, whose ridge point is 37, the roofline bound puts TD ahead of AR only up to batch 4 at short context.",
 }
 
 
@@ -482,11 +469,11 @@ def card_legacy_figures(body):
     for mm in re.finditer(r'<div class="bdr-card">.*?</figure>', body, re.S):
         out.append(body[pos:mm.end()] + "\n  </div>"); pos = mm.end()
     body = "".join(out) + body[pos:]
-    tabs = '<div class="fig-k">Figure 18 · interactive</div>'
+    tabs = '<div class="fig-k">Figure 17 · interactive</div>'
     if tabs in body:
-        body = body.replace(tabs, f'{tabs}\n  <p class="fig-title tabs-title">{LEGACY_CLAIMS[18]}</p>', 1)
+        body = body.replace(tabs, f'{tabs}\n  <p class="fig-title tabs-title">{LEGACY_CLAIMS[17]}</p>', 1)
     else:
-        problems.append("Figure 18 kicker not found")
+        problems.append("Figure 17 kicker not found")
     if k != 4:
         problems.append(f"legacy figures carded: {k}, expected 4")
     return body
@@ -564,7 +551,7 @@ def link_references(pages):
                 word = m.group(1)
                 kind = next(k for k in ("Figure", "Table", "Proposition", "Definition", "Corollary", "Remark", "Part") if word.startswith(k))
                 nums = num.findall(m.group(2))
-                if len(nums) == 1:  # "Figure 25": the whole reference is the link
+                if len(nums) == 1:  # "Figure 24": the whole reference is the link
                     h = href_of(kind, int(nums[0]))
                     return f'<a class="xref" href="{h}">{m.group(0)}</a>' if h else m.group(0)
                 def one(mm):
