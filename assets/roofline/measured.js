@@ -196,7 +196,7 @@
           ys: Bs.map((B) => (D.gains[key(B, st.C)] || {})[L.k] ?? null) };
       });
       lineChart(pic, series, {
-        W: widthOf(pic), H: 310, y0: 0, y1, ticks: Array.from({ length: y1 + 1 }, (_, i) => i), yFmt: (v) => `${v}×`, yTitle: 'gain Γ, TD over AR',
+        W: widthOf(pic), H: 310, y0: 0, y1, ticks: Array.from({ length: y1 + 1 }, (_, i) => i), yFmt: (v) => `${v}×`, yTitle: keys.includes('d') ? 'Γ, TD over AR: roofline bound or measured' : 'roofline bound Γ, TD over AR',
         ref: { y: 1, label: 'parity: below it AR is faster' }, out, aria: `Gain against batch at context ${kc(st.C)}`,
         hover: (i) => {
           const r = D.gains[key(Bs[i], st.C)], head = `B = ${Bs[i]}, C = ${kc(st.C)}`;
@@ -255,7 +255,7 @@
       series.push({ label: fn, color: m === 'td' ? c.td : c.ar, width: 3, dots: true, bold: true, ys: Bs.map((B) => val(B, st.focus)) });
       lineChart(pic, series, {
         W: widthOf(pic), H: 310, y0: 0, y1: 1, ticks: [0, 0.2, 0.4, 0.6, 0.8, 1], yFmt: (v) => v.toFixed(1), yTitle: 'efficiency η = roofline / measured time',
-        ref: { y: tgt, label: `target η* = ${tgt.toFixed(2)} (Definition 7)`, dash: '3 3', at: 'right' }, out, aria: `${name}: efficiency of each component against batch`,
+        ref: { y: tgt, label: `target η<tspan baseline-shift="super" font-size="0.75em">⋆</tspan> = ${tgt.toFixed(2)} (Definition 7)`, dash: '3 3', at: 'right' }, out, aria: `${name}: efficiency of each component against batch`,
         hover: (i) => {
           const r = (D[src][m] || {})[key(Bs[i], st.C)], head = `${name}, B = ${Bs[i]}, C = ${kc(st.C)}`;
           if (!r) return ro(head, [['not measured', '']]);
@@ -326,7 +326,7 @@
         { label: 'Prop. 1,\nmeasured routing', color: c.ink2, width: 2, dash: '2 3', bold: true, ys: Bs.map((B) => p(B).gain_meas ?? null) },
         { label: 'measured', color: c.meas, width: 2.8, dots: true, bold: true, ys: Bs.map((B) => (D.gains[key(B, st.C)] ? g(B).measured : null)) },
       ], {
-        W: widthOf(pic), H: 300, y0: 0, y1: 8, ticks: [0, 1, 2, 3, 4, 5, 6, 7, 8], yFmt: (v) => `${v}×`, yTitle: 'gain Γ, TD over AR',
+        W: widthOf(pic), H: 300, y0: 0, y1: 8, ticks: [0, 1, 2, 3, 4, 5, 6, 7, 8], yFmt: (v) => `${v}×`, yTitle: 'Γ, TD over AR: roofline bound or measured',
         ref: { y: 1, label: 'parity: below it AR is faster' }, out, aria: `Proposition 1 and the measured gain against batch at context ${kc(st.C)}`,
         hover: (i) => {
           const q = D.prop1[key(Bs[i], st.C)], r = D.gains[key(Bs[i], st.C)], head = `B = ${Bs[i]}, C = ${kc(st.C)}`;
@@ -356,8 +356,10 @@
         hover: (i) => {
           const r = R[key(Bs[i], st.C)], head = `${st.m.toUpperCase()}, B = ${Bs[i]}, C = ${kc(st.C)}`;
           if (!r) return ro(head, [['not measured', '']]);
+          // U_{E,k}(N) = U with E = 128, k = 8, solved for N where the export leaves it out (as Table 9 does)
+          const neff = r.neff || (r.meas != null && r.meas < 128 ? Math.log(1 - r.meas / 128) / Math.log(1 - 8 / 128) : null);
           return ro(`${head}: ${Math.round(r.N)} tokens per pass`, [['measured U', `${r.meas.toFixed(1)} (repeats ${r.meas_lo.toFixed(0)}–${r.meas_hi.toFixed(0)})`, st.m],
-            ['as many as', `${r.neff != null ? r.neff.toFixed(1) : '–'} independent uniform tokens`], ['independent, measured popularity', r.pop.toFixed(1)], ['independent, uniform', r.uni.toFixed(1)]]);
+            ['as many as', `${neff != null ? neff.toFixed(1) : '–'} independent uniform tokens`], ['independent, measured popularity', r.pop.toFixed(1)], ['independent, uniform', r.uni.toFixed(1)]]);
         },
       });
     }
@@ -458,14 +460,14 @@
       }
       if (hiSM.length === 2) g += `<rect x="${x0 + 4 * cw - 2}" y="${y0 + 3 * (ch + gy) - 2}" width="${2 * cw + 1}" height="${ch + 4}" rx="3" fill="none" stroke="${c.ink}" stroke-dasharray="3 2"/>`;
       const gridBottom = y0 + 11 * (ch + gy);
-      g += T(x0, gridBottom + 11, '132 SMs: the processors', { s: 11.5, c: c.ink }) + T(x0, gridBottom + 25, 'each: tensor cores, registers, shared memory', { s: 10.5 }) + `</g>`;
+      g += T(x0, gridBottom + 11, '132 SMs: the processors', { c: c.ink }) + T(x0, gridBottom + 25, 'with tensor cores, registers, shared memory') + `</g>`;
       const ly = gridBottom + 34;
       const l2text = exNew && (stepRow == null || stepRow[2] === 'L2') ? 'L2: each token\'s 8 rows are added here' : 'L2 cache: on the chip, shared by all SMs';
-      g += `<g data-k="l2" style="cursor:help"><rect x="${x0}" y="${ly}" width="${chipW - 28}" height="24" rx="4" fill="${c.muted}" fill-opacity="${st.hover === 'l2' || (stepRow && stepRow[2] === 'L2') ? 0.4 : 0.2}" stroke="${c.muted}"/>` + T(x0 + (chipW - 28) / 2, ly + 16, l2text, { a: 'middle', c: c.ink2, s: 11.5 }) + `</g>`;
+      g += `<g data-k="l2" style="cursor:help"><rect x="${x0}" y="${ly}" width="${chipW - 28}" height="24" rx="4" fill="${c.muted}" fill-opacity="${st.hover === 'l2' || (stepRow && stepRow[2] === 'L2') ? 0.4 : 0.2}" stroke="${c.muted}"/>` + T(x0 + (chipW - 28) / 2, ly + 16, l2text, { a: 'middle', c: c.ink2 }) + `</g>`;
       // HBM, under the chip
       const hy = 312;
       g += `<g data-k="hbm" style="cursor:help"><rect x="4" y="${hy}" width="${chipW}" height="40" rx="6" fill="${c.surface}" stroke="${c.ink2}" stroke-opacity="${st.hover === 'hbm' ? 1 : 0.7}"/>`
-        + T(4 + chipW / 2, hy + 16, 'HBM: the main memory, off the chip', { a: 'middle', c: c.ink, s: 11.5 }) + T(4 + chipW / 2, hy + 31, '141 GB, read at 4.8 TB/s: the slowest level', { a: 'middle', c: c.ink2, s: 10.5 }) + `</g>`;
+        + T(4 + chipW / 2, hy + 16, 'HBM: the main memory, off the chip', { a: 'middle', c: c.ink }) + T(4 + chipW / 2, hy + 32, '141 GB, read at 4.8 TB/s: the slowest level', { a: 'middle', c: c.ink2 }) + `</g>`;
       H = hy + 46;
       if (st.tab === 'experts') {
         const v = CHIP.experts[st.ver], rows = v.rows;
@@ -479,34 +481,34 @@
           });
         } else if (typeof stepRow[2] === 'number') {
           const ax = 4 + chipW / 2;
-          g += arrowDown(ax, a1, a2, Math.max(1.6, Math.sqrt(stepRow[2]) / 2.2), crit) + T(ax + 14, (a1 + a2) / 2 + 4, `${stepRow[2]} MB written`, { c: crit, s: 11.5, w: 1 });
+          g += arrowDown(ax, a1, a2, Math.max(1.6, Math.sqrt(stepRow[2]) / 2.2), crit) + T(ax + 14, (a1 + a2) / 2 + 4, `${stepRow[2]} MB written`, { c: crit, w: 1 });
         } else if (stepRow[2] === 'L2') {
-          g += T(4 + chipW / 2, (a1 + a2) / 2 + 4, 'nothing written to HBM', { a: 'middle', c: c.ink2, s: 11.5 });
+          g += T(4 + chipW / 2, (a1 + a2) / 2 + 4, 'nothing written to HBM', { a: 'middle', c: c.ink2 });
         }
         // the kernels, in order, with what each writes to HBM
         const rh = 30, maxMB = 369, barX = px + bw - 108;
-        g += T(px, py - 8, `${v.short}: ${rows.reduce((n, r) => n + r[1], 0)} kernels`, { c: c.ink, w: 1 }) + T(barX, py - 8, 'written to HBM', { s: 11 });
+        g += T(px, py - 8, `${v.short}: ${rows.reduce((n, r) => n + r[1], 0)} kernels`, { c: c.ink, w: 1 }) + T(barX, py - 8, 'written to HBM');
         rows.forEach((r, i) => {
           const y = py + i * rh, on = st.hover === `r${i}` || st.step === i, dim = st.step != null && st.step !== i;
           g += `<g data-k="r${i}" style="cursor:pointer" opacity="${dim ? 0.45 : 1}"><rect x="${px}" y="${y}" width="${bw}" height="${rh - 4}" rx="4" fill="${on ? c.hi : 'transparent'}" fill-opacity="0.14" stroke="${st.step === i ? c.ink : c.muted}" stroke-opacity="${st.step === i ? 1 : 0.6}"/>`;
-          g += T(px + 8, y + 17, `${i + 1}. ${r[0]}${r[1] > 1 ? ` (${r[1]} kernels)` : ''}`, { c: c.ink, s: 11.5 });
-          if (typeof r[2] === 'number') g += `<rect x="${barX}" y="${y + 8}" width="${Math.max(2, 54 * r[2] / maxMB)}" height="10" rx="2" fill="${st.step === i ? crit : c.ink2}" fill-opacity="0.8"/>` + T(barX + 58, y + 17, `${r[2]} MB`, { c: c.ink2, s: 11 });
-          else if (r[2] === 'L2') g += T(barX, y + 17, 'stays in L2', { c: c.ink2, s: 11 });
-          else g += T(barX, y + 17, '–', { c: c.muted, s: 11 });
+          g += T(px + 8, y + 17, `${i + 1}. ${r[0]}${r[1] > 1 ? ` (${r[1]} kernels)` : ''}`, { c: c.ink });
+          if (typeof r[2] === 'number') g += `<rect x="${barX}" y="${y + 8}" width="${Math.max(2, 54 * r[2] / maxMB)}" height="10" rx="2" fill="${st.step === i ? crit : c.ink2}" fill-opacity="0.8"/>` + T(barX + 58, y + 17, `${r[2]} MB`, { c: c.ink2 });
+          else if (r[2] === 'L2') g += T(barX, y + 17, 'stays in L2', { c: c.ink2 });
+          else g += T(barX, y + 17, '–', { c: c.muted });
           g += `</g>`;
         });
         // running totals: bytes written to HBM by one MoE layer, both versions
         let ty = py + rows.length * rh + 14;
         const tw = bw - 150;
         const full = { old: mbOf(CHIP.experts.old.rows), new: mbOf(CHIP.experts.new.rows) }, top = Math.max(full.old, full.new);
-        g += T(px, ty + 4, 'written to HBM by one MoE layer (TD batch 32)', { s: 11, c: c.ink });
+        g += T(px, ty + 4, 'written to HBM by one MoE layer (TD batch 32)', { c: c.ink });
         ty += 12;
         for (const k of ['old', 'new']) {
           const cur = k === st.ver, sofar = cur && st.step != null ? mbOf(CHIP.experts[k].rows, st.step) : full[k];
-          g += T(px, ty + 13, k === 'old' ? "vLLM's" : 'rewrite', { s: 11, c: cur ? c.ink : c.muted });
+          g += T(px, ty + 13, k === 'old' ? "vLLM's" : 'rewrite', { c: cur ? c.ink : c.muted });
           g += `<rect x="${px + 52}" y="${ty + 4}" width="${tw * full[k] / top}" height="11" rx="2" fill="${c.muted}" fill-opacity="0.18"/>`;
           g += `<rect x="${px + 52}" y="${ty + 4}" width="${Math.max(0.5, tw * sofar / top)}" height="11" rx="2" fill="${cur ? crit : c.muted}" fill-opacity="${cur ? 0.8 : 0.5}"/>`;
-          g += T(px + 58 + tw * full[k] / top, ty + 13, cur && st.step != null ? `${sofar} / ${full[k]} MB` : `${full[k]} MB`, { s: 11, c: cur ? c.ink : c.muted });
+          g += T(px + 58 + tw * full[k] / top, ty + 13, cur && st.step != null ? `${sofar} / ${full[k]} MB` : `${full[k]} MB`, { c: cur ? c.ink : c.muted });
           ty += 20;
         }
         H = Math.max(H, ty + 8);
@@ -515,43 +517,43 @@
         // what one SM's shared memory holds (two SMs for the pair, joined by the exchange)
         const sc = (bw - 56) / 227, lim = px + 227 * sc, gapY = 78, y0b = py + 34;
         g += T(px, py - 8, 'shared memory of one SM', { c: c.ink, w: 1 });
-        g += T(lim, py + 12, 'limit: 227 KB per SM', { a: 'end', c: crit, s: 10.5 });
+        g += T(lim, py + 12, 'limit: 227 KB per SM', { a: 'end', c: crit });
         for (let k = 0; k < v.sms; k++) {
           const y = y0b + k * gapY;
           let x = px;
-          g += T(px, y - 5, v.rowLabel(k), { s: 11 });
+          g += T(px, y - 5, v.rowLabel(k));
           for (const [nm, kb, col] of v.segs) {
             const w = kb * sc;
             g += `<rect x="${x}" y="${y}" width="${w - 1.5}" height="24" rx="3" fill="${fillOf[col]}" fill-opacity="0.8"/>`;
-            g += T(x + w / 2, y + 16, nm, { a: 'middle', c: c.bg, s: 10.5 });
+            g += T(x + w / 2, y + 16, nm, { a: 'middle', c: c.bg });
             x += w;
           }
           g += `<line x1="${lim}" y1="${y - 2}" x2="${lim}" y2="${y + 26}" stroke="${crit}" stroke-dasharray="4 3"/>`;
-          g += T(lim + 5, y + 16, `${v.segs.reduce((n, sg) => n + sg[1], 0)} KB`, { c: c.ink, s: 11 });
+          g += T(lim + 5, y + 16, `${v.segs.reduce((n, sg) => n + sg[1], 0)} KB`, { c: c.ink });
         }
         if (v.sms === 2) {  // the exchange, in the gap between the two SMs' bars
           const ya = y0b + 28, yb = y0b + gapY - 18, on = st.hover === 'x', sw = on ? 2.6 : 1.6;
           g += `<g data-k="x" style="cursor:help"><rect x="${px}" y="${ya - 2}" width="${bw - 56}" height="${yb - ya + 4}" fill="transparent"/>`
             + `<line x1="${px + 14}" y1="${ya}" x2="${px + 14}" y2="${yb}" stroke="${c.ink}" stroke-width="${sw}"/><path d="M${px + 10},${yb - 6} L${px + 14},${yb} L${px + 18},${yb - 6}" fill="none" stroke="${c.ink}" stroke-width="${sw}"/>`
             + `<line x1="${px + 30}" y1="${yb}" x2="${px + 30}" y2="${ya}" stroke="${c.ink}" stroke-width="${sw}"/><path d="M${px + 26},${ya + 6} L${px + 30},${ya} L${px + 34},${ya + 6}" fill="none" stroke="${c.ink}" stroke-width="${sw}"/>`
-            + T(px + 42, (ya + yb) / 2 + 4, 'exchange of partial scores', { s: 11, c: c.ink2 }) + `</g>`;
+            + T(px + 42, (ya + yb) / 2 + 4, 'exchange of partial scores', { c: c.ink2 }) + `</g>`;
         }
         let yk = y0b + (v.sms - 1) * gapY + 46;
-        g += T(px, yk, v.fits, { c: c.ink, s: 11.5, w: 1 });
-        v.key.forEach((part, k) => { g += T(px, yk + 17 + 14 * k, part, { s: 10.5 }); });
-        yk += 17 + 14 * v.key.length;
+        g += T(px, yk, v.fits, { c: c.ink, w: 1 });
+        v.key.forEach((part, k) => { g += T(px, yk + 17 + 15 * k, part); });
+        yk += 17 + 15 * v.key.length;
         // the timeline: what the tensor cores do, tile after tile
-        const tx0 = narrow ? 8 : 4, tw = W - tx0 - 8, labW = narrow ? 0 : 150;
+        const tx0 = narrow ? 8 : 4, tw = W - tx0 - 8, labW = narrow ? 0 : 192;
         let ty = Math.max(H, yk) + 22;
         if (narrow) {
           g += T(tx0, ty, 'Over time, for three tiles of keys', { c: c.ink, w: 1, s: 12 });
-          ty += 16; g += T(tx0, ty, st.ver === 'old' ? 'loading and computing take turns' : '64-key tiles, two stages', { s: 11, c: c.ink2 });
+          ty += 16; g += T(tx0, ty, st.ver === 'old' ? 'loading and computing take turns' : '64-key tiles, two stages', { c: c.ink2 });
         } else g += T(tx0, ty, st.ver === 'old' ? 'Over time, for three tiles of keys: loading and computing take turns' : 'Over time, for three tiles of keys (64-key tiles, two stages)', { c: c.ink, w: 1, s: 12 });
         ty += 12;
         const lanes = st.ver === 'old' ? ['load keys and values', 'tensor cores'] : ['load keys and values', 'tensor cores', 'exchange with the partner'];
         const laneH = 18, lx = tx0 + labW, lw = tw - labW, laneY = [];
         lanes.forEach((nm, k) => {
-          if (narrow) { ty += 13; g += T(tx0, ty, nm, { s: 10.5 }); ty += 4; } else g += T(tx0, ty + 13, nm, { s: 11 });
+          if (narrow) { ty += 14; g += T(tx0, ty, nm); ty += 4; } else g += T(tx0, ty + 13, nm);
           laneY.push(ty); ty += laneH + (narrow ? 4 : 8);
         });
         const seg2 = (k, a, b, kind) => {
@@ -566,15 +568,15 @@
             const a = k / 3, m = a + 0.64 / 3, b = (k + 1) / 3;
             g += seg2(0, a, m, 'load') + seg2(1, a, m, 'idle') + seg2(1, m, b, 'comp');
           }
-          g += T(lx, ty + 8, narrow ? 'tensor cores busy 36% of the time' : 'the tensor cores are busy 36% of the time (Nsight Compute)', { s: 11, c: c.ink2 });
+          g += T(lx, ty + 8, narrow ? 'tensor cores busy 36% of the time' : 'the tensor cores are busy 36% of the time (Nsight Compute)', { c: c.ink2 });
         } else {
           const per = 1.5 + 0.67 + 0.5, u = 1 / (3 * per);
           for (let k = 0; k < 3; k++) {
             const t0 = k * per * u, tc = t0 + 1.5 * u, tx = tc + 0.67 * u, te = tx + 0.5 * u;
             g += seg2(0, t0 + 0.08 * u, tc - 0.12 * u, 'load') + seg2(1, t0, tc, 'comp') + seg2(1, tc, te, 'idle') + seg2(2, tc, tx, 'x') + seg2(2, tx, te, 'idle');
-            if (k === 0 && !narrow) g += T(lx + (t0 + tc) / 2 * lw, ty + 8, '1.5 µs', { a: 'middle', s: 10.5 }) + T(lx + (tc + tx) / 2 * lw, ty + 8, '0.67', { a: 'middle', s: 10.5 }) + T(lx + (tx + te) / 2 * lw, ty + 8, '0.5', { a: 'middle', s: 10.5 });
+            if (k === 0 && !narrow) g += T(lx + (t0 + tc) / 2 * lw, ty + 9, '1.5 µs', { a: 'middle' }) + T(lx + (tc + tx) / 2 * lw, ty + 9, '0.67', { a: 'middle' }) + T(lx + (tx + te) / 2 * lw, ty + 9, '0.5', { a: 'middle' });
           }
-          g += T(lx, ty + (narrow ? 8 : 24), narrow ? 'per tile: 1.5 µs work, 0.67 send, 0.5 wait' : 'the next tile loads during the work; each tile then waits for the exchange', { s: 11, c: c.ink2 });
+          g += T(lx, ty + (narrow ? 8 : 24), narrow ? 'per tile: 1.5 µs work, 0.67 send, 0.5 wait' : 'loads overlap the work; each tile then waits for the exchange', { c: c.ink2 });
           if (!narrow) ty += 16;
         }
         H = ty + 18;

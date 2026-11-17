@@ -38,8 +38,10 @@
   const g2 = (x) => (x >= 10 ? x.toFixed(1) : x.toFixed(2));
   const kctx = (C) => (C >= 1 << 20 ? `${fmt(C / (1 << 20))}M` : `${fmt(C / 1024)}k`);
   const pct = (x) => (x >= 0.995 ? '100%' : x >= 0.1 ? `${Math.round(x * 100)}%` : `${fmt(x * 100, 2)}%`);
-  const sub = (base, s) => `${base}<tspan baseline-shift="sub" font-size="0.8em">${s}</tspan>`;
-  const hsub = (base, s) => { const t = `<i>${base}</i><sub>${s}</sub>`; return s === 'AR' || s === 'TD' ? `<span class="q-${s.toLowerCase()}">${t}</span>` : t; };
+  // A trailing * on a base is typeset as a superscript star: sub('B*', 'TD') is B^⋆_TD.
+  const STAR = '<tspan baseline-shift="super" font-size="0.75em">⋆</tspan>', HIS = '<i>I</i><sup>⋆</sup>';
+  const sub = (base, s) => `${base.endsWith('*') ? base.slice(0, -1) + STAR : base}<tspan baseline-shift="sub" font-size="0.8em">${s}</tspan>`;
+  const hsub = (base, s) => { const t = base.endsWith('*') ? `<i>${base.slice(0, -1)}</i><sup>⋆</sup><sub>${s}</sub>` : `<i>${base}</i><sub>${s}</sub>`; return s === 'AR' || s === 'TD' ? `<span class="q-${s.toLowerCase()}">${t}</span>` : t; };
   const colors = () => ({
     ar: css('--bdr-ar'), td: css('--bdr-td'), ink: css('--ink'), muted: css('--bdr-muted'), rule: css('--rule'),
     bg: css('--bdr-bg'), surface: css('--bdr-surface'), hi: css('--bdr-hi'), soft: css('--bdr-accent-soft'),
@@ -201,7 +203,7 @@
       s += `<text x="4" y="13" class="ink">attainable FLOP rate, TFLOP/s</text>`;
     }
     s += `<line x1="${xs(Is)}" x2="${xs(Is)}" y1="${ys(pk)}" y2="${H - m.b}" stroke="${c.muted}" stroke-dasharray="3 4"/>`;
-    s += `<text x="${xs(Is) + 5}" y="${H - m.b - 6}">${mini ? 'I* ' : 'ridge I* = '}${fmt(Is)}</text>`;
+    s += `<text x="${xs(Is) + 5}" y="${H - m.b - 6}">${mini ? `I${STAR} ` : `ridge I${STAR} = `}${fmt(Is)}</text>`;
     s += `<polyline fill="none" stroke="${c.ink}" stroke-width="2" points="${[xlo, Is, xhi].map((I) => `${xs(I)},${ys(rate(I))}`).join(' ')}"/>`;
     if (!mini) s += `<text x="${xs(Is * 3)}" y="${ys(pk) - 6}" class="ink">peak π = ${fmt(pk)} TFLOP/s</text>`;
     const bx = W - m.r + (mini ? 14 : 22);
@@ -219,7 +221,7 @@
 
   // ---------------------------------------------------------------- Figure 5: byte reuse (dense model)
   function figReuse(root) {
-    const st = { b: 64, S: 14, t: 0, timer: 0 };
+    const st = { b: 256, S: 14, t: 0, timer: 0 };
     const ctl = el('<div class="fig-controls"></div>');
     const bSeg = groupOf('canvas length <i>b</i>', seg([16, 32, 64, 128, 256].map((v) => [v, String(v)]), st.b, (v) => { st.b = v; reset(); }));
     const sS = slider('denoising passes <i>S</i>', Array.from({ length: 32 }, (_, i) => i + 1), st.S - 1, (v) => `${v}  (ω = ${v + 1})`);
@@ -253,7 +255,7 @@
       for (let j = 0; j < n; j++) {
         const done = j < t, last = j === n - 1;
         s += `<rect x="${x0 + j * sw + 1}" y="18" width="${Math.max(2, sw - 2)}" height="22" rx="2" fill="${done ? c.ink : 'none'}" fill-opacity="${done ? 0.82 : 0}" stroke="${c.muted}" stroke-opacity="0.6"/>`;
-        if (sw > 22) s += `<text x="${x0 + j * sw + sw / 2}" y="33" text-anchor="middle" style="fill:${done ? c.bg : c.muted};font-size:11px">${last ? (sw >= 46 ? 'commit' : '+1') : j + 1}</text>`;
+        if (sw > 22) s += `<text x="${x0 + j * sw + sw / 2}" y="33" text-anchor="middle" style="fill:${done ? c.bg : c.muted};font-size:12px">${last ? (sw >= 50 ? 'commit' : '+1') : j + 1}</text>`;
       }
       // AR: one token per pass
       s += `<text x="0" y="84" class="ar">AR</text><text x="0" y="98">1 token per pass</text>`;
@@ -269,7 +271,7 @@
       const tpf = b / n;
       out.innerHTML = t < n
         ? `After <b>${t}</b> of <b>${n}</b> passes: <span class="ar">AR</span> has committed ${t} token${t === 1 ? '' : 's'}, <span class="td">TD</span> none yet.`
-        : `<span class="big">In ${n} passes, <span class="ar">AR</span> commits ${n} tokens and <span class="td">TD</span> commits ${b}: TPF = ${b}/${n} = <b>${fmt(tpf)}</b>.</span><br>Per token, TD reads 1/TPF = ${fmt(1 / tpf)} times the weight bytes of AR and performs ${n} times its FLOPs. If both passes are memory-bound, <b>Γ = TPF = ${fmt(tpf)}</b>${tpf < 1 ? ': TPF is below 1, so AR is faster' : ''}.${b > 206 ? ` A dense TD pass over ${b} positions has an intensity of about ${b}, above the ridge of an H200 (206): there it is compute-bound, and the gain is capped at <i>I</i>*/(ω ${hsub('I', 'AR')}) (Corollary 1, Figure 6).` : ''}`;
+        : `<span class="big">In ${n} passes, <span class="ar">AR</span> commits ${n} tokens and <span class="td">TD</span> commits ${b}: TPF = ${b}/${n} = <b>${fmt(tpf)}</b>.</span><br>Per token, TD reads 1/TPF = ${fmt(1 / tpf)} times the weight bytes of AR and performs ${n} times its FLOPs. If both passes are memory-bound, <b>Γ = TPF = ${fmt(tpf)}</b>${tpf < 1 ? ': TPF is below 1, so AR is faster' : ''}.${b > 206 ? ` A dense TD pass over ${b} positions has an intensity of about ${b}, above the ridge of an H200 (206): there it is compute-bound, and the gain is capped at ${HIS}/(ω ${hsub('I', 'AR')}) (Corollary 1, Figure 6).` : ''}`;
     }
     reset();
     onTheme(draw);
@@ -294,7 +296,7 @@
       const hw = hwOf(shared.hw), B = sB.value, C = sC.value, p = prop1(DG, hw, B, C);
       pic.innerHTML = rooflineSvg({ hw, IAR: p.IAR, ITD: p.ITD, W: widthOf(pic), H: widthOf(pic) < 480 ? 260 : 300 });
       const bound = (I) => (I >= p.Is ? 'compute-bound' : 'memory-bound');
-      out.innerHTML = `${hsub('I', 'AR')} = ${fmt(p.IAR)} (<span class="ar">AR ${bound(p.IAR)}</span>), ${hsub('I', 'TD')} = ${fmt(p.ITD)} (<span class="td">TD ${bound(p.ITD)}</span>), <i>I</i>* = ${fmt(p.Is)}.<br>`
+      out.innerHTML = `${hsub('I', 'AR')} = ${fmt(p.IAR)} (<span class="ar">AR ${bound(p.IAR)}</span>), ${hsub('I', 'TD')} = ${fmt(p.ITD)} (<span class="td">TD ${bound(p.ITD)}</span>), ${HIS} = ${fmt(p.Is)}.<br>`
         + `<span class="big">TD's FLOPs run ×${fmt(p.speed)} faster; a canvas costs ω = ${p.om} passes; <b>Γ = ${fmt(p.speed)}/${p.om} = ${g2(p.gain)}</b> (Proposition 1).</span> Exact accounting at this context: Γ = ${g2(steady(DG, hw, B, C).gain)}.${fits(DG, hw, B, C) ? '' : ` At this batch and context the model and its KV cache do not fit in ${HWBYID[shared.hw].gb} GB.`}`;
     }
     shared.subs.push(draw);
@@ -347,7 +349,7 @@
       const cur = gainCurve(shared.hw, st.rule), pts = cur.pts, B = BSCAN[st.i], P = pts[st.i];
       const xs = scale(1, 1024, m.l, W - m.r);
       const ylo = Math.min(0.25, ...pts.map((p) => p.g)) * 0.9, yhi = Math.max(8, ...pts.map((p) => p.g)) * 1.25, ys = scale(ylo, yhi, H - m.b, m.t);
-      let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Gain against batch">`;
+      let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Roofline bound Γ against batch">`;
       if (st.revealed && cur.bstar) s += `<rect x="${m.l}" y="${m.t}" width="${xs(cur.bstar) - m.l}" height="${H - m.b - m.t}" fill="${c.soft}" opacity="0.8"/>`;
       s += logGrid(ys, m.l, W - m.r, ylo, yhi, (v) => `${v}×`, c);
       for (let e = 0; e <= 10; e += W < 480 ? 2 : 1) s += `<text x="${xs(2 ** e)}" y="${H - m.b + 15}" text-anchor="middle">${2 ** e}</text>`;
@@ -419,7 +421,7 @@
       s += `<text x="${(m.l + W - m.r) / 2}" y="${H - 6}" text-anchor="middle" class="ink">${W < 480 ? 'context C, tokens' : 'context C, tokens in the KV cache'}</text>`;
       s += `<text x="4" y="13" class="ink">arithmetic intensity, FLOP per byte</text>`;
       s += `<line x1="${m.l}" x2="${W - m.r}" y1="${ys(Is)}" y2="${ys(Is)}" stroke="${c.ink}" stroke-width="1.5"/>`;
-      s += `<text class="ink halo" x="${W - m.r - 4}" y="${ys(Is) - 6}" text-anchor="end">ridge I* = ${fmt(Is)}: compute-bound above</text>`;
+      s += `<text class="ink halo" x="${W - m.r - 4}" y="${ys(Is) - 6}" text-anchor="end">ridge I${STAR} = ${fmt(Is)}: compute-bound above</text>`;
       const op = [0.4, 0.6, 0.8, 1];
       // AR curves start close together: lift each label at least 15px above the one of the batch below.
       const arY = [];
@@ -435,8 +437,8 @@
       s += `<text class="td halo" x="${xs(mid)}" y="${ys(curves[3][18].ITD) - 10}" text-anchor="middle">TD pass, ${sub('I', 'TD')}</text>`;
       s += `<text class="ar halo" x="${xs(mid)}" y="${ys(curves[0][18].IAR) + 20}" text-anchor="middle">AR step, ${sub('I', 'AR')}</text>`;
       s += `<g class="drag" tabindex="0" role="slider" aria-label="Context" aria-valuemin="1024" aria-valuemax="${1 << 20}" aria-valuenow="${C}" aria-valuetext="context ${kctx(C)} tokens"><rect x="${m.l}" y="${m.t}" width="${W - m.r - m.l}" height="${H - m.b - m.t}" fill="transparent"/>`;
-      s += `<line x1="${xs(C)}" x2="${xs(C)}" y1="${m.t}" y2="${H - m.b}" stroke="${c.ink}" stroke-opacity="0.55" stroke-width="1.5"/>`;
-      s += `<path d="M${xs(C) - 7},${H - m.b} l7,-11 l7,11 z" fill="${c.ink}"/>`;
+      s += `<line x1="${xs(C)}" x2="${xs(C)}" y1="${m.t}" y2="${H - m.b}" stroke="${c.hi}" stroke-width="2"/>`;
+      s += `<path d="M${xs(C) - 7},${H - m.b} l7,-11 l7,11 z" fill="${c.hi}"/>`;
       curves.forEach((pts, k) => {
         s += `<circle cx="${xs(C)}" cy="${ys(pts[st.i].ITD)}" r="4" fill="${c.td}" fill-opacity="${op[k]}" stroke="${c.bg}" stroke-width="1.5"/>`;
         s += `<circle cx="${xs(C)}" cy="${ys(pts[st.i].IAR)}" r="4" fill="${c.ar}" fill-opacity="${op[k]}" stroke="${c.bg}" stroke-width="1.5"/>`;
@@ -485,16 +487,16 @@
       const c = colors(), W = widthOf(pic), H = 330, m = { l: 48, r: 22, t: 28, b: 42 }, short = st.mode === 'short';
       const xs = scale(25, 800, m.l, W - m.r), ylo = 0.25, yhi = 14, ys = scale(ylo, yhi, H - m.b, m.t);
       const val = (p) => (short ? p.best.g : p.long), P = data.pts[st.i];
-      let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Gain against ridge point">`;
+      let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Roofline bound Γ against ridge point">`;
       s += logGrid(ys, m.l, W - m.r, ylo, yhi, (v) => `${v}×`, c);
       for (const v of [25, 50, 100, 200, 400, 800]) s += `<text x="${xs(v)}" y="${H - m.b + 15}" text-anchor="middle">${v}</text>`;
-      s += `<text x="${(m.l + W - m.r) / 2}" y="${H - 6}" text-anchor="middle" class="ink">ridge point I* = π/β, FLOP per byte</text>`;
-      s += `<text x="4" y="13" class="ink">${short ? (W < 480 ? 'best gain Γ over the batch, context 1k' : 'best roofline bound Γ over the batch, context 1k') : 'roofline bound Γ at batch 1, context 1M'}</text>`;
+      s += `<text x="${(m.l + W - m.r) / 2}" y="${H - 6}" text-anchor="middle" class="ink">ridge point I${STAR} = π/β, FLOP per byte</text>`;
+      s += `<text x="4" y="13" class="ink">${short ? (W < 480 ? 'best roofline bound Γ, context 1k' : 'best roofline bound Γ over the batch, context 1k') : 'roofline bound Γ at batch 1, context 1M'}</text>`;
       s += `<line x1="${m.l}" x2="${W - m.r}" y1="${ys(1)}" y2="${ys(1)}" stroke="${c.muted}" stroke-width="1.5"/><text x="${W - m.r - 4}" y="${ys(1) + 15}" text-anchor="end">parity, Γ = 1</text>`;
       if (!short) {
         const f = (Is) => Is / (OM * data.Ikv), xa = Math.max(25, ylo * OM * data.Ikv);
         s += `<line x1="${xs(xa)}" x2="${xs(800)}" y1="${ys(f(xa))}" y2="${ys(f(800))}" stroke="${c.muted}" stroke-width="1.5" stroke-dasharray="5 4"/>`;
-        s += `<text class="ink halo" x="${xs(640)}" y="${ys(f(640)) + 18}" text-anchor="end">C → ∞: I*/(ω ${sub('I', 'attn')})</text>`;
+        s += `<text class="ink halo" x="${xs(640)}" y="${ys(f(640)) + 18}" text-anchor="end">C → ∞: I${STAR}/(ω ${sub('I', 'attn')})</text>`;
       }
       s += `<polyline fill="none" stroke="${c.ink}" stroke-width="2.2" stroke-linejoin="round" points="${data.pts.map((p) => `${xs(p.Is)},${ys(val(p))}`).join(' ')}"/>`;
       // marker, under the dots so that a dot stays clickable
@@ -537,10 +539,10 @@
         g.addEventListener('keydown', (ev) => { if (ev.key === 'Enter' || ev.key === ' ') { pick(); ev.preventDefault(); } });
       });
       const dot = data.dots.find((d) => d.id === shared.hw && RIDGES[d.id] === P.Is), h = dot && HWBYID[dot.id];
-      const who = dot ? `<b>${h.label}</b>, <i>I</i>* = ${fmt(P.Is)} (${fmt(h.tflops)} TFLOP/s over ${fmt(h.tbps)} TB/s)` : `<b>A chip with <i>I</i>* = ${fmt(P.Is)}</b>`;
+      const who = dot ? `<b>${h.label}</b>, ${HIS} = ${fmt(P.Is)} (${fmt(h.tflops)} TFLOP/s over ${fmt(h.tbps)} TB/s)` : `<b>A chip with ${HIS} = ${fmt(P.Is)}</b>`;
       out.innerHTML = short
         ? `${who}: best roofline bound <b>Γ = ${g2(P.best.g)}× at B = ${P.best.B}</b>; a TD pass is compute-bound from batch ${P.tdc}, and at the best batch an AR step uses ${pct(P.best.uAR)} of the peak compute.${dot && !dot.fitShort ? ` The model does not fit in ${h.gb} GB.` : ''}`
-        : `${who}: at 1M context and batch 1, <b>Γ = ${g2(P.long)}×</b>; as the context grows it tends to <i>I</i>*/(ω ${hsub('I', 'attn')}) = ${fmt(P.Is)}/(${OM} × ${fmt(data.Ikv)}) = ${g2(P.limit)}.${P.limit < 1 ? ' The ridge is so low that AR wins at long context.' : ''}${dot && !dot.fitLong ? ` The model and a 1M-token cache do not fit in ${h.gb} GB.` : ''}`;
+        : `${who}: at 1M context and batch 1, <b>Γ = ${g2(P.long)}×</b>; as the context grows it tends to ${HIS}/(ω ${hsub('I', 'attn')}) = ${fmt(P.Is)}/(${OM} × ${fmt(data.Ikv)}) = ${g2(P.limit)}.${P.limit < 1 ? ' The ridge is so low that AR wins at long context.' : ''}${dot && !dot.fitLong ? ` The model and a 1M-token cache do not fit in ${h.gb} GB.` : ''}`;
     }
     shared.subs.push((id) => { st.i = ISCAN.indexOf(RIDGES[id]); draw(); });
     draw();
@@ -750,7 +752,7 @@
         ? `In a dense layer every query scores every cached token. The canvas scores ${b} times as many pairs and reads the same ${C} tokens, once: ${hsub('Π', 'attn')} = 1, and its intensity is <b>${b} times</b> that of an AR step (<i>b</i> times in general).`
         : kind === 'window'
           ? `In a sliding-window layer every query scores the last <i>w</i> = ${w} cached tokens. The canvas reads the same ${w} tokens, once: ${hsub('Π', 'attn')} = 1, and its intensity is <b>${b} times</b> that of an AR step. (Drawn as Table 3 counts it: the window of a later canvas position starts later and ends inside the canvas, and reads no other cached token.)`
-          : `In a sparse layer every query scans the index keys of all ${C} tokens (pale cells, one read of the index for the whole canvas) and then attends to its own <i>m</i> = ${m} selected tokens (full cells). The canvas reads the union of its ${b} selections, ${t.cols} tokens in this draw and <i>U</i><sub>C,m</sub>(${b}) = ${expU.toFixed(2)} in expectation, so on the selected tokens it reads ${hsub('Π', 'sel')} = ${expU.toFixed(2)}/${m} = <b>${gx(expU / m)}</b> times what an AR step reads, for ${b} times the pairs.`;
+          : `In a sparse layer every query first scores the index keys of all ${C} cached tokens, selected or not (every cell of its row, pale or full; the index is read once for the whole canvas), and then attends to its own <i>m</i> = ${m} selected tokens (full cells). The canvas reads the union of its ${b} selections, ${t.cols} tokens in this draw and <i>U</i><sub>C,m</sub>(${b}) = ${expU.toFixed(2)} in expectation, so on the selected tokens it reads ${hsub('Π', 'sel')} = ${expU.toFixed(2)}/${m} = <b>${gx(expU / m)}</b> times what an AR step reads, for ${b} times the pairs.`;
       out.innerHTML = `<span class="ar">AR step</span>: ${a.cells} scored pairs${sparse ? ' on the selected tokens' : ''}, ${a.cols} tokens' keys and values read. <span class="td">TD pass</span>: ${t.cells} pairs, ${t.cols} tokens read.<br>${law}`;
     }
     draw(); onTheme(draw); watchWidth(pic, draw);
@@ -795,7 +797,7 @@
       const IAR = f(C) / qAR(C), ITD = (b * f(C)) / qTD(C, b), om = W0.S + 1, tpf = b / om, P = Pi(C, b);
       const gain = Math.min(ITD, Is) / (om * Math.min(IAR, Is));
       out.innerHTML = `At <b>C = ${kctx(C)}</b>, a canvas of ${b} queries reads <i>U</i><sub>C,m</sub>(${b}) = ${kctx(Un(C, b))} selected tokens where one query reads ${kctx(Math.min(C, m))}: ${hsub('Π', 'sel')} = ${gx(Psel(C, b))}, and with the index cache <b>${hsub('Π', 'attn')} = ${gx(P)}</b>.<br>`
-        + `Attention intensities: ${hsub('I', 'AR')} = ${fmt(IAR)}, ${hsub('I', 'TD')} = <i>b</i> ${hsub('I', 'AR')}/${hsub('Π', 'attn')} = ${fmt(ITD)} (<span class="td">TD ${ITD >= Is ? 'compute' : 'memory'}-bound</span> on an H200, <i>I</i>* = ${fmt(Is)}). If attention dominated both decoders, Proposition 1 would give Γ = ${ITD >= Is ? `<i>I</i>*/(ω ${hsub('I', 'AR')})` : `TPF/${hsub('Π', 'attn')} = ${fmt(tpf)}/${gx(P)}`} = <b>${gx(gain)}</b>.`;
+        + `Attention intensities: ${hsub('I', 'AR')} = ${fmt(IAR)}, ${hsub('I', 'TD')} = <i>b</i> ${hsub('I', 'AR')}/${hsub('Π', 'attn')} = ${fmt(ITD)} (<span class="td">TD ${ITD >= Is ? 'compute' : 'memory'}-bound</span> on an H200, ${HIS} = ${fmt(Is)}). If attention dominated both decoders, Proposition 1 would give Γ = ${ITD >= Is ? `${HIS}/(ω ${hsub('I', 'AR')})` : `TPF/${hsub('Π', 'attn')} = ${fmt(tpf)}/${gx(P)}`} = <b>${gx(gain)}</b>.`;
     }
     draw(); onTheme(draw); watchWidth(pic, draw);
   }
@@ -886,7 +888,7 @@
         g.addEventListener('keydown', (ev) => { if (ev.key === 'Enter' || ev.key === ' ') { choose(); ev.preventDefault(); } });
       });
       const r = rows.find((x) => x.id === st.id);
-      out.innerHTML = `<b>${r.h.label}</b>, <i>I</i>* = ${fmt(r.Is)}: a <span class="td">TD pass</span> is compute-bound from batch <b>${gx(r.bTD)}</b> (◆, the best batch), TD stays ahead up to the parity batch ${hsub('B', '×')} = <b>${fmt(r.bX)}</b> (end of the orange bar), and an <span class="ar">AR step</span> is compute-bound from batch <b>${fmt(r.bAR)}</b> (blue dot${r.bAR > 4096 ? ', beyond the axis' : ''}).`;
+      out.innerHTML = `<b>${r.h.label}</b>, ${HIS} = ${fmt(r.Is)}: a <span class="td">TD pass</span> is compute-bound from batch <b>${gx(r.bTD)}</b> (◆, the best batch), TD stays ahead up to the parity batch ${hsub('B', '×')} = <b>${fmt(r.bX)}</b> (end of the orange bar), and an <span class="ar">AR step</span> is compute-bound from batch <b>${fmt(r.bAR)}</b> (blue dot${r.bAR > 4096 ? ', beyond the axis' : ''}).`;
     }
     draw(); onTheme(draw); watchWidth(pic, draw);
   }
@@ -913,9 +915,9 @@
       const c = colors(), W = widthOf(pic), narrow = W < 520, rh = narrow ? 36 : 27;
       const m = { l: narrow ? 8 : 172, r: 56, t: 44, b: 40 }, H = m.t + rows.length * rh + m.b;
       const xs = scale(0.2, 20, m.l, W - m.r), bottom = H - m.b;
-      let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Exact gain of each model at batch 1, at batch 64 and at 1M context, models ordered by their penalty at batch 1">`;
+      let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Exact roofline bound Γ of each model at batch 1, at batch 64 and at 1M context, models ordered by their penalty at batch 1">`;
       for (const v of [0.25, 0.5, 1, 2, 4, 8, 16]) s += `<line x1="${xs(v)}" x2="${xs(v)}" y1="${m.t - 6}" y2="${bottom}" stroke="${v === 1 ? c.muted : c.rule}"${v === 1 ? ' stroke-width="1.5"' : ''}/><text x="${xs(v)}" y="${bottom + 15}" text-anchor="middle">${v}</text>`;
-      s += `<text x="${(m.l + W - m.r) / 2}" y="${H - 6}" text-anchor="middle" class="ink">exact gain Γ (log scale)</text>`;
+      s += `<text x="${(m.l + W - m.r) / 2}" y="${H - 6}" text-anchor="middle" class="ink">exact roofline bound Γ (log scale)</text>`;
       s += `<text x="${xs(1) - 6}" y="${m.t - 12}" text-anchor="end" class="ar">AR ahead</text><text x="${xs(1) + 6}" y="${m.t - 12}" class="td">TD ahead</text>`;
       s += `<text x="${W - m.r + 30}" y="${m.t - 12}" text-anchor="middle" class="ink">Π(1)</text>`;
       // legend, drawn with the markers themselves
@@ -941,7 +943,7 @@
         g.addEventListener('keydown', (ev) => { if (ev.key === 'Enter' || ev.key === ' ') { choose(); ev.preventDefault(); } });
       });
       const r = rows.find((x) => x.id === st.id);
-      out.innerHTML = `<b>${r.label}</b> (${r.dense ? 'dense' : 'MoE'}, Π(1) = ${r.Pi.toFixed(1)}): ${r.pts.map((p, i) => `<b>Γ = ${g2(p.g)}</b> at ${POINTS[i][2]}${p.fit ? '' : ' (does not fit in 141 GB)'}`).join(', ')}. At batch 1, where an AR step has intensity 1 in BF16, Corollary 1 gives about min(TPF/Π(1), <i>I</i>*/ω) = min(${fmt(W0.b / OM / r.Pi)}, ${fmt(ridge(hw) / OM)}).`;
+      out.innerHTML = `<b>${r.label}</b> (${r.dense ? 'dense' : 'MoE'}, Π(1) = ${r.Pi.toFixed(1)}): ${r.pts.map((p, i) => `<b>Γ = ${g2(p.g)}</b> at ${POINTS[i][2]}${p.fit ? '' : ' (does not fit in 141 GB)'}`).join(', ')}. At batch 1, where an AR step has intensity 1 in BF16, Corollary 1 gives about min(TPF/Π(1), ${HIS}/ω) = min(${fmt(W0.b / OM / r.Pi)}, ${fmt(ridge(hw) / OM)}).`;
     }
     draw(); onTheme(draw); watchWidth(pic, draw);
   }

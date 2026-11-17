@@ -48,7 +48,7 @@ S
   scope: T
 
 r
-  what: cost of a denoising pass, as a fraction of a forward pass (1)
+  what: cost of a denoising pass relative to a forward pass (1)
   in: Part 1
   match: (^|[^\\A-Za-z_])r(?![A-Za-z])
   rank: 510
@@ -71,7 +71,7 @@ P,\ G
   in: Part 4
 
 \lambda
-  what: logit-sized reads and writes of HBM per output position (5 for TD, 2 for AR); 0 means chunked logits
+  what: logit-sized reads and writes of HBM per output position (5 for TD, 2 for AR); 0 means the logits stay on-chip
   in: Part 4
 
 == Accelerator and precision
@@ -98,19 +98,19 @@ I^\star = \pi/\beta
 
 s_w
   what: bytes per weight (2 in BF16, 16-bit floats; 1 in FP8, 8-bit floats)
-  in: Part 1
+  in: Definition 1
   match: s_w
   rank: 280
 
 s_{kv}
   what: bytes per element of the KV cache (2)
-  in: Part 1
+  in: Definition 1
   match: s_\{kv\}
   rank: 514
 
 \kappa^c
-  what: cached tensors per KV head on the global layers (2: keys and values stored separately)
-  in: Part 1
+  what: K/V tensors that a layer caches per KV head and per token (2: keys and values stored separately; 1 for a global layer whose \(K = V\) is stored once)
+  in: Definition 1
   match: \\kappa
   rank: 430
 
@@ -134,32 +134,32 @@ V
 
 \mathcal G,\ \mathcal W,\ \mathcal S
   what: sets of the global-attention, sliding-window and sparse layers (5, 25 and none in DiffusionGemma)
-  in: Part 1
+  in: Definition 1
   match: \\mathcal ?\{?[GWS]
   rank: 516
   scope: T
 
 w
   what: window of a sliding-window layer, which sees at most \(w\) earlier tokens (1,023)
-  in: Part 1
+  in: Definition 1
   match: (^|[^\\A-Za-z_])w(?![A-Za-z])
   rank: 390
 
 n_q,\ n_{kv,\ell}
   what: query heads and KV heads of a layer (16 query heads; 2 KV heads on the global layers, 8 on the window layers)
-  in: Part 1
+  in: Definition 1
   match: n_q|n_\{kv
   rank: 670
 
 h_\ell
   what: head dimension of layer \(\ell\) (512 on the global layers, 256 on the window layers)
-  in: Part 1
+  in: Definition 1
   match: h_\\ell
   rank: 515
 
 g
   what: query heads per KV head on the global layers, \(n_q/n_{kv,\ell}\) (8)
-  in: Part 1
+  in: Definition 1
   match: (^|[^\\A-Za-z_])g(?![A-Za-z_])
   rank: 513
   scope: T
@@ -209,7 +209,7 @@ W_{\mathrm{tot}}
 
 m
   what: cached tokens each query selects in a sparse layer (2048 in the sparse variant)
-  in: Part 1
+  in: Definition 1
   match: (^|[^\\A-Za-z_])m(?![A-Za-z])
   rank: 380
 
@@ -226,6 +226,14 @@ h_{I,\ell},\ s_I
   match: [hs]_\{?I
   rank: 518
   scope: T
+
+\mathcal M_i
+  what: tokens that query \(i\) selects in a sparse layer
+  in: Remark 1
+
+z_{i,j},\ \gamma_{i,a}
+  what: the indexer's score of cached token \(j\) for query \(i\), and the query-dependent weight of indexer head \(a\)
+  in: Remark 1
 
 == Costs and intensities
 
@@ -321,7 +329,7 @@ I_{\mathrm{idx}}
 
 \theta
   what: share of the bytes of a pass carried by one of its parts
-  in: Proposition 2
+  in: Definition 4
   match: \\theta(?!_E)
   rank: 240
 
@@ -342,6 +350,30 @@ C_F
   in: Proposition 6
   match: C_F
   rank: 400
+
+F_c,\ Q_c
+  what: FLOPs and bytes of one kernel class (component) \(c\) of a pass
+  in: Part 1
+
+T_{AR},\ T_{TD}
+  what: time per generated token of AR and of TD, in the proof of Proposition 1
+  in: Proposition 1
+
+N
+  what: positions that share a selected resource in one pass (\(B\) or \(Bb\) for the experts, 1 or \(b\) for the cached tokens of a sparse layer)
+  in: Definition 4
+
+x
+  what: share of an AR step's bytes spent on one part (weights in Proposition 4, cache in Proposition 6)
+  in: Proposition 4
+
+I_n
+  what: intensity of a pass that routes \(n\) positions per sequence (\(I_1 = I_{AR}\), \(I_b = I_{TD}\))
+  in: Proposition 8
+
+W_n
+  what: weights that such a pass reads (\(W_1 = W_{AR}\), \(W_b = W_{TD}\))
+  in: Proposition 8
 
 == Penalties
 
@@ -437,12 +469,20 @@ B^\star_n(C),\ D_n(C)
   match: \\hat\{?\\beta
   rank: 560
 
-\tau_X,\ \tau_c
-  what: empirical roofline time: \(\max(F/\hat\pi,\ Q/\hat\beta)\), of a component \(c\) or of a whole step \(X\)
+\tau_c
+  what: empirical roofline time of a component \(c\): \(\max(F_c/\hat\pi_c,\ Q_c/\hat\beta)\)
+  in: Definition 5
+  match: \\tau_c
+  rank: 540
+  scope: P
+
+\tau_X
+  what: empirical roofline time of a step of decoder \(X\) (\(\tau_{AR}\), \(\tau_{TD}\)): the sum \(\sum_c \tau_c\) over its components
   in: Definition 5
   key: \tau
-  match: \\tau
-  rank: 540
+  match: \\tau(?!_c)
+  rank: 541
+  scope: P
 
 t_X,\ t_c
   what: measured time of a step (\(t_{AR}\), \(t_{TD}\)) or of a component (\(t_c\))
@@ -540,4 +580,20 @@ h
 
 p_{i,e}
   what: routing weight of expert \(e\) for token \(i\)
+  in: Part 8
+
+\delta
+  what: scale shared by a block of FP8 values, which stores \(x\) as \(\mathrm{round}(x/\delta)\)
+  in: Part 8
+
+a_{i,e}
+  what: activation of token \(i\) in expert \(e\)
+  in: Part 8
+
+W_g,\ W_u
+  what: gate and up matrices of an expert
+  in: Part 8
+
+W_d
+  what: down matrix of an expert
   in: Part 8

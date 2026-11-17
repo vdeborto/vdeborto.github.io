@@ -63,8 +63,8 @@ BASE = f"/notes/{SLUG}/"
 TITLE = "Block Diffusion Rooflines"
 # (page slug, part number, title, source element id, one-line description); "" is the first page.
 CHAPTERS = [
-    ("", "0", "Introduction", "intro", "what is already measured, the question, the measurement setting, how the book is organised and how to read it."),
-    ("summary", "", "Summary", "tldr", "the headline numbers, four takeaways, the three regimes that occur, and what moves the gain."),
+    ("", "0", "Introduction", "intro", "why the question matters, the mental model, rooflines and gains, how the blogpost is organised and the measurement setting."),
+    ("summary", "", "Summary", "tldr", "the main formula, four takeaways, the three possible regimes, and the hyperparameters that move the gain."),
     ("setup", "1", "Setup and the gain", "setup", "notation, costs, intensities and penalties; Proposition 1, what the formulas leave out, which side wins, and the split of each intensity into a linear part and an attention part."),
     ("linear", "2", "The linear part", "linear", "the expert and linear penalties, when the linear layers dominate, and the gain in that regime."),
     ("attention", "3", "The attention part", "attention", "dense, windowed and sparse attention; the selection penalty as the twin of the expert penalty; when attention dominates, and the gain there."),
@@ -73,9 +73,8 @@ CHAPTERS = [
     ("effective", "6", "Empirical rooflines", "effective", "the ceilings one H200 sustains, the experts each decoder actually touches, and the bound they give."),
     ("stack", "7", "The measurement stack", "stack", "how every kernel of a step is timed and attributed, three defects of the stock engine and one of the harness, and where the stock kernels stand."),
     ("kernels", "8", "Kernels", "kernelwork", "two rewrites, of the experts and of global attention, and what they change in efficiency, throughput and quality."),
-    ("conclusion", "9", "Conclusion", "conclusion", "the bound against the measurement, what the roofline gets right, limitations, code and data, related work, open problems."),
-    ("appendix", "A", "Appendix", "appendix", "where the cost model lives, and sources."),
-    ("symbols", "B", "Symbols", "symbols", "every symbol, its meaning and where it is defined."),  # made by add_symbols
+    ("conclusion", "9", "Conclusion", "conclusion", "the bound against the measurement, what the roofline gets right, limitations, code and data, sources, related work, open problems."),
+    ("symbols", "A", "Symbols", "symbols", "every symbol, its meaning and where it is defined."),  # made by add_symbols
 ]
 # Citation, and the comment threads (ids from https://giscus.app for the repository and category).
 CITATION = True  # the BibTeX citation at the end of the first page
@@ -363,7 +362,7 @@ def main():
     body = add_cards(body)
     body = add_gists(body)
     body = add_symbols(body)
-    body = sub_once(body, '  <div class="tiles hero-tiles">', '  <p class="math-key">In the equations, <span class="q-ar">AR quantities are in blue</span> and <span class="q-td">TD quantities in orange</span>, as in the figures.</p>\n  <div class="tiles hero-tiles">', "math key anchor")
+    body = sub_once(body, '  <div class="takeaways">', '  <p class="math-key">In the equations, <span class="q-ar">AR quantities are in blue</span> and <span class="q-td">TD quantities in orange</span>, as in the figures.</p>\n  <div class="takeaways">', "math key anchor")
     body = color_math(body)
     body = rename_class_attr(rename_tokens(body))
 
@@ -459,13 +458,13 @@ def url_of(slug):
 LEGACY_CLAIMS = {
     16: "As the context grows, the batch at which a pass turns compute-bound falls for a canvas of 256 and rises for AR (Proposition 8).",
     # Figure 18 has four tabs, each with its own claim; figures.js shows the title of the selected tab.
-    18: ('<span data-tab-title="m-gain">At context 1k AR catches up with TD at batch 110, and at a larger batch as the context grows, beyond 1,024 from 64k tokens on.</span>'
+    18: ('<span data-tab-title="m-gain">In the roofline bound, AR catches up with TD at batch 110 at context 1k, and at a larger batch as the context grows, beyond 1,024 from 64k tokens on.</span>'
          '<span data-tab-title="m-ar" hidden>An AR step never reaches the ridge, and at long context its intensity tends to 8 whatever the batch.</span>'
          '<span data-tab-title="m-td" hidden>A TD canvas crosses the ridge at a batch that falls as the context grows, from 5 at 1k to 1 at 256k, and its intensity tends to 2,048.</span>'
-         '<span data-tab-title="m-sparse" hidden>With sparse global layers, AR catches up with TD near batch 90–110 at every context up to 1M tokens.</span>'),
-    19: "With a 32-token canvas, TD is faster than AR only between batch 9 and batch 110 at context 1k.",
-    20: "For a dense model, the gain at context 1k is about 13 at batch 1 and falls like 1/B, to parity at batch 15.",
-    21: "On an H20, whose ridge point is 37, TD is faster than AR only up to batch 4 at short context.",
+         '<span data-tab-title="m-sparse" hidden>With sparse global layers, the roofline bound has AR catch up with TD near batch 90–110 at every context up to 1M tokens.</span>'),
+    19: "With a 32-token canvas, the roofline bound puts TD ahead of AR only between batch 9 and batch 110 at context 1k.",
+    20: "For a dense model, the roofline bound at context 1k is about 13 at batch 1 and falls like 1/B, to parity at batch 15.",
+    21: "On an H20, whose ridge point is 37, the roofline bound puts TD ahead of AR only up to batch 4 at short context.",
 }
 
 
@@ -485,7 +484,7 @@ def card_legacy_figures(body):
     body = "".join(out) + body[pos:]
     tabs = '<div class="fig-k">Figure 18 · interactive</div>'
     if tabs in body:
-        body = body.replace(tabs, f'{tabs}\n  <p class="fig-title tabs-title">{LEGACY_CLAIMS[20]}</p>', 1)
+        body = body.replace(tabs, f'{tabs}\n  <p class="fig-title tabs-title">{LEGACY_CLAIMS[18]}</p>', 1)
     else:
         problems.append("Figure 18 kicker not found")
     if k != 4:
@@ -727,7 +726,7 @@ def split_book(body):
         # one line for the book, one for the previous chapter, one for the next
         links = "".join(f'<span class="bl-row">{w}: <a href="{url_of(c[0])}" rel="{r}">{label_of(c)}</a></span>' for c, r, w in ((prev, "prev", "Previous"), (nxt, "next", "Next")) if c)
         if slug:
-            part = f"Part {num} of" if num.isdigit() else {"A": "The appendix of", "B": "The symbols of"}.get(num, "The summary of")
+            part = f"Part {num} of" if num.isdigit() else {"A": "The symbols of"}.get(num, "The summary of")
             head = f'<p class="book-part">{part} <a href="{BASE}">{TITLE}</a><span class="book-links">{links}</span></p>\n'
             desc = ""
         else:
@@ -779,7 +778,7 @@ sitemap: false
 ---
 <!doctype html><html><head><meta charset="utf-8"><meta name="robots" content="noindex, nofollow"><link rel="canonical" href="{BASE}"><meta http-equiv="refresh" content="0; url={BASE}"></head><body><a href="{BASE}">{TITLE}</a></body></html>
 """
-    for old, to in (("gain", url_of("setup") + "#gain"), ("whole", url_of("calculator"))):  # pages merged into others
+    for old, to in (("gain", url_of("setup") + "#gain"), ("whole", url_of("calculator")), ("appendix", url_of("conclusion") + "#conc-sources")):  # pages merged into others
         pages[old] = f"""---
 layout: null
 permalink: {url_of(old)}

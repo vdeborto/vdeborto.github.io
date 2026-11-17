@@ -23,13 +23,11 @@ At short context, a pass reads mostly weights. The batch shares these weights, h
 At long context, a pass reads mostly the KV cache. Every sequence brings its own cache, hence a larger batch no longer raises the intensity of either decoder. On the other hand, a canvas still does: its \(b\) queries share one read of the cache. In this chapter, we give the costs of dense, sliding-window and sparse attention layers. We show that the selection penalty of a sparse layer is the expert penalty \(\Pi_E\) at batch 1, with the cached tokens in the role of the experts. Finally, we derive the gain when attention dominates.
 <!-- intro:calculator -->
 Parts 2 and 3 treat the two extremes: a pass that reads only weights, and one that reads only KV cache. In this chapter, we cover every context in between. First, we state when TD wins (Proposition 7) and the batch each decoder needs to saturate compute (Proposition 8), and we sort the cases into regimes. We then drop the simplifications of the propositions: the exact maps show the gain over batch and context, and the calculator computes it for any accelerator, model and decoding setup. The chapter closes with the exact accounting behind both.
-<!-- intro:appendix -->
-This appendix says where the cost model lives and lists the sources of the model shapes and accelerator specifications. The exact accounting behind the maps, the headline numbers and the calculator is at the end of Part 4.
 <!-- intro:introduction -->
 
   <h3 id="intro-why">Why do we even care?</h3>
 
-Text Diffusion (TD) is one of the popular alternatives to traditional Autoregressive (AR) decoding when it comes to generative AI. The field mostly develops around the promise that one can design better algorithms more suited to the hardware at hand, making heavy use of parallel compute. It is fair to say that diffusion Language Models (dLMs) are still mostly in their infancy and that many research questions are still open. We broadly classify them in two categories:
+Text Diffusion (TD) is one of the popular alternatives to traditional Autoregressive (AR) decoding when it comes to generative AI. The field mostly develops around the promise that one can design better algorithms more suited to the hardware at hand, making heavy use of parallel compute. It is fair to say that diffusion Language Models (dLMs), the models that TD decodes, are still mostly in their infancy and that many research questions are still open. We broadly classify them into two categories:
 * **Capabilities:** Can dLMs deliver intelligent models on par with (or better than) their AR counterparts? Improving the capabilities of native dLMs is an active field of research. It is still unclear which diffusion model approach and representation will yield the best results: continuous/discrete modeling, vocabulary embedding or one-hot token representation, etc. 
 * **Serving speed:** How much faster can a dLM be compared with AR? This discussion is the topic of this blogpost. We will see that it requires a good understanding of rooflines, hardware specifications but also kernel engineering and serving software. 
 
@@ -40,8 +38,14 @@ Therefore, in the rest of this blogpost, *we do not concern ourselves with discu
   Opus 5.5 was used extensively during the writing of this blogpost. 
   Most of the roofline theory was derived and verified using generative AI.
   Similarly, all of the code for the measurement stack was written using AI models.
-  However, all the writing is done by hand. I take responsibility for any mistakes or imprecisions in the text.
+  Finally, Opus 5.5 was used to polish the text of the blogpost. I take responsibility for any mistakes or imprecisions in the text.
   Do not hesitate to contact me or leave a comment if you have any questions. 
+
+    <h3 id="for-who">Who is this blogpost for?</h3>
+
+  The aim of this blogpost is entirely **pedagogical**. I do not claim any significant theoretical or practical novelty. 
+  The blogpost is intended for researchers and engineers who are curious about the differences between TD and AR when it comes to serving.
+  I am not an expert on these topics myself, and I hope that this blogpost serves as a gentle introduction for the curious reader.
 
 <!-- intro:effective -->
 Proposition 1 takes two kinds of input that Parts 1–5 do not measure: the rates of the accelerator, which we take from its datasheet, and the experts each pass touches, which we take from the assumption that tokens route independently (A5). In this chapter, we measure both on one H200, for DiffusionGemma and Gemma 4. We will see that the measured ceilings lower the bound at every point, while routing moves it by the largest factors, upward at small batch and downward at large batch.

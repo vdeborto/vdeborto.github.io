@@ -87,22 +87,37 @@
     ol.appendChild(li);
   }
   // The current chapter lists its sections, and the one being read is highlighted.
-  const heads = [...page.querySelectorAll('section h3[id]')].filter((h) => h.textContent.trim() && !h.closest('.book-comments, .book-cite'));
+  // Subsections (h4 in the running text, not inside a box, a figure, a card, a fold or the calculator)
+  // are listed one level down, under their section.
+  const NOT_SUB = '.box, .bdr-fig, .pfig, .bdr-card, .card-more, details, .calc, .book-comments, .book-cite';
+  const heads = [...page.querySelectorAll('section h3[id], section h4')].filter((h) => h.textContent.trim() && !h.closest('.book-comments, .book-cite, .footnotes') && (h.tagName === 'H3' || !h.closest(NOT_SUB)));
+  const used = new Set([...document.querySelectorAll('[id]')].map((e) => e.id));
+  const slugOf = (s) => s.toLowerCase().normalize('NFKD').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 60) || 'sub';
   let subLinks = [];
-  if (here && heads.length > 1) {
+  if (here && heads.filter((h) => h.tagName === 'H3').length > 1) {
     const sub = el('<ol class="rail-sub"></ol>');
+    let parent = null, inner = null;
     for (const h of heads) {
       const t = h.cloneNode(true); t.querySelectorAll('mjx-assistive-mml, .anchor').forEach((x) => x.remove());
-      const a = el(`<li><a href="#${h.id}"></a></li>`);
-      a.firstChild.textContent = t.textContent.replace(/\s+/g, ' ').trim();
-      sub.appendChild(a); subLinks.push([h, a.firstChild]);
+      const text = t.textContent.replace(/\s+/g, ' ').trim();
+      if (!h.id) { let id = slugOf(text), k = 2; while (used.has(id)) id = `${slugOf(text)}-${k++}`; h.id = id; used.add(id); }
+      const li = el(`<li><a href="#${h.id}"></a></li>`);
+      li.firstChild.textContent = text;
+      if (h.tagName === 'H3' || !parent) {
+        sub.appendChild(li); parent = li; inner = null;
+        subLinks.push([h, li.firstChild, null]);
+      } else {
+        if (!inner) { inner = el('<ol class="rail-sub rail-sub2"></ol>'); parent.appendChild(inner); }
+        inner.appendChild(li);
+        subLinks.push([h, li.firstChild, parent.firstChild]);
+      }
     }
     ol.querySelector('li.current').appendChild(sub);
   }
   function spy() {
     let cur = null;
-    for (const [h, a] of subLinks) if (h.getBoundingClientRect().top < 140) cur = a;
-    for (const [, a] of subLinks) a.classList.toggle('on', a === cur);
+    for (const s of subLinks) if (s[0].getBoundingClientRect().top < 140) cur = s;
+    for (const [, a] of subLinks) a.classList.toggle('on', !!cur && (a === cur[1] || a === cur[2]));
   }
   // A chapter page without the rail's switch on narrow screens still gets one under its title.
   const partLine = page.querySelector('.book-part');

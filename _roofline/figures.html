@@ -11,8 +11,10 @@
 <!-- fig:reuse -->
   <div class="bdr-fig" id="fig-reuse">
     <div class="fig-k">Figure 5 · interactive</div>
-    <p class="fig-title">AR and TD generation</p>
+    <p class="fig-title">In the \(\omega = S + 1\) passes of one canvas, AR commits \(\omega\) tokens and TD commits \(b\).</p>
+    <p class="fig-lede">Press Play or Step to run the passes one at a time; change the canvas length and the number of denoising passes.</p>
     <div data-fig="reuse"></div>
+    <p class="fig-cap">Top row: the forward passes in time order, each of which reads the weights once; the last one is the commit pass. Blue: the tokens AR has committed, one per pass. Orange: TD's canvas of \(b\) positions, refined by each of the \(S\) denoising passes and committed by the last pass, all \(b\) at once. A dense model with \(r = 1\), so a canvas costs \(\omega = S + 1\) passes; the default is the running example, \(b = 256\) and \(S = 14\). The readout gives \(\mathrm{TPF} = b/\omega\), which is the roofline bound \(\Gamma\) when both passes are memory-bound.</p>
   </div>
 <!-- fig:roofline -->
   <div class="bdr-fig wide" id="fig-roofline">
@@ -41,7 +43,7 @@
 <!-- fig:accel -->
   <div class="bdr-fig wide" id="fig-accel">
     <div class="fig-k">Figure 7 · interactive</div>
-    <p class="fig-title">The gain depends on the accelerator only through its ridge point.</p>
+    <p class="fig-title">The roofline bound \(\Gamma\) depends on the accelerator only through its ridge point.</p>
     <p class="fig-lede">The curve is the gain for a chip of ridge point \(I^\star = \pi/\beta\); each dot is an accelerator. Drag the marker along the axis, select a dot, or switch to long context.</p>
     <div data-fig="accel"></div>
     <p class="fig-cap">Exact roofline bounds, DiffusionGemma, BF16, \(b = 256\), \(S = 14\). Multiplying the peak \(\pi\) and the bandwidth \(\beta\) by the same factor divides the time of every pass by the same factor, so \(\Gamma\) depends on the accelerator only through \(I^\star\), and the accelerators lie on the curve. Over this range a higher ridge point never lowers the gain, at short or at long context. Short context: \(C = 1{,}024\), at the batch that maximises \(\Gamma\); on the flat stretch near \(I^\star = 60\), batch 1 is best and both decoders are memory-bound, so the gain is \(\mathrm{TPF}/\Pi\) whatever the ridge. Long context: \(C = 2^{20}\) at batch 1; the dashed line is the limit \(I^\star/(\omega I_{\mathrm{attn}})\) as \(C \to \infty\), linear in \(I^\star\). Over this range the curve lies above the line, because at batch 1 the weights are still about a quarter of an AR step's bytes; above \(I^\star \approx 620\) a TD pass at batch 1 is itself memory-bound at this context, and the curve is flat. The curve assumes unlimited memory; a hollow dot marks an accelerator in which the model and its KV cache do not fit. Both axes are logarithmic.</p>
@@ -60,7 +62,7 @@
     <p class="fig-title">The weights that every token reads dilute the expert penalty.</p>
     <p class="fig-lede">Each bar is what one pass reads of the weights: first the part that every token uses, then the experts that its tokens touch. Move the batch or shorten the canvas.</p>
     <div data-fig="weights"></div>
-    <p class="fig-cap">Weight bytes read by one pass, \(s_wW_X(B)\) with \(W_X = W_{\mathrm{ne}} + L\,U\,W^e\) (Definition 1), for DiffusionGemma in BF16 without the vocabulary, under independent routing (A5): \(U = U_{E,k}(B)\) for an AR step and \(U_{E,k}(Bb)\) for a TD pass. The grey part \(s_wW_{\mathrm{ne}}\) is common to both passes, so the ratio of the two bars is \(\Pi_{\mathrm{lin}} = 1 + \theta_E(\Pi_E - 1)\) (Proposition 3): 7.9 at batch 1, where the experts alone differ by 16, and 1.04 at batch 48. Dashed: all 24.5B parameters.</p>
+    <p class="fig-cap">Weight bytes read by one pass, \(s_wW_X(B)\) with \(W_X = W_{\mathrm{ne}} + L\,U\,W^e\) (Definition 2), for DiffusionGemma in BF16 without the vocabulary, under independent routing (A5): \(U = U_{E,k}(B)\) for an AR step and \(U_{E,k}(Bb)\) for a TD pass. The grey part \(s_wW_{\mathrm{ne}}\) is common to both passes, so the ratio of the two bars is \(\Pi_{\mathrm{lin}} = 1 + \theta_E(\Pi_E - 1)\) (Proposition 3): 7.9 at batch 1, where the experts alone differ by 16, and 1.04 at batch 48. Dashed: all 24.5B parameters.</p>
   </div>
 <!-- fig:linmap -->
   <div class="bdr-fig wide" id="fig-linmap">
@@ -76,7 +78,7 @@
     <p class="fig-title">A canvas reads the cache once for all its queries, except for the tokens that a sparse layer selects.</p>
     <p class="fig-lede">Columns are the cached tokens of one sequence and rows the queries of a pass. A filled cell is a pair (query, cached token) that the layer scores; the bar under each block marks the tokens whose keys and values the pass reads. Choose the kind of layer and the number of queries.</p>
     <div data-fig="attnread"></div>
-    <p class="fig-cap">A toy cache of \(C = 40\) tokens, with a window of \(w = 10\) and \(m = 5\) selected tokens per query; DiffusionGemma has \(w = 1{,}023\) and a canvas of \(b = 256\) queries, and the sparse variant of this chapter \(m = 2{,}048\). The FLOPs of a pass are proportional to its full cells, plus its pale cells at the indexer's smaller cost \(\alpha_I\) each, and its bytes to its filled bars, which is the content of Table 3. In a dense or windowed layer the bar is the same for one query and for \(b\), so a canvas has \(b\) times the intensity of an AR step. In a sparse layer each query selects its own tokens, independently and uniformly here, as tokens select experts under (A5), and the bar is the union of the selections, of expected size \(U_{C,m}(b)\); the pale cells are the indexer's scan, whose index keys are read once. The canvas's own positions, which its queries also attend to, are not drawn.</p>
+    <p class="fig-cap">A toy cache of \(C = 40\) tokens, with a window of \(w = 10\) and \(m = 5\) selected tokens per query; DiffusionGemma has \(w = 1{,}023\) and a canvas of \(b = 256\) queries, and the sparse variant of this chapter \(m = 2{,}048\). The FLOPs of a pass are proportional to its full cells, plus, in a sparse layer, every cell of its rows, full or pale, at the indexer's smaller cost \(\alpha_I\) each; its bytes are proportional to its filled bars. This is the content of Table 3. In a dense or windowed layer the bar is the same for one query and for \(b\), so a canvas has \(b\) times the intensity of an AR step. In a sparse layer each query selects its own tokens, independently and uniformly here, as tokens select experts under (A5), and the bar is the union of the selections, of expected size \(U_{C,m}(b)\); the indexer scores every cached token, selected or not, and its index keys are read once for the whole canvas. The canvas's own positions, which its queries also attend to, are not drawn.</p>
   </div>
 <!-- fig:sparse -->
   <div class="bdr-fig wide" id="fig-sparse">

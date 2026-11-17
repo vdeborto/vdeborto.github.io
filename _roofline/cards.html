@@ -8,7 +8,7 @@
 <!-- card:Canvas length, -->
 <div class="card-more" hidden>
   <div class="eq">\[ \begin{gathered} \mathrm{TPF} = \frac{b}{\omega},\qquad I_{TD} = \frac{b}{\Pi}\,I_{AR},\\[4pt] B^\star_{TD} \approx \frac{I^\star s_wW_{TD}}{2b\,N_{\mathrm{act}}}. \end{gathered} \]</div>
-  <p>While a TD pass is memory-bound, i.e., \(I_{TD} \leq I^\star\), we have that \(\Gamma = \mathrm{TPF}/\Pi\) and therefore the gain grows linearly with \(b\). Once it is compute-bound, \(\Gamma = I^\star/(\omega I_{AR})\) no longer depends on \(b\). Additionally, a longer canvas reaches that regime at a smaller batch[^canvas-quality].</p>
+  <p>While a TD pass is memory-bound, i.e., \(I_{TD} \leq I^\star\), we have that \(\Gamma = \mathrm{TPF}/\Pi\). Hence, the gain grows (almost) linearly with \(b\): TPF is linear in \(b\), and the penalty \(\Pi\) grows with \(b\) only until a canvas touches every expert. Once it is compute-bound, \(\Gamma = I^\star/(\omega I_{AR})\) no longer depends on \(b\). Additionally, a longer canvas reaches that regime at a smaller batch[^canvas-quality].</p>
 
 [^canvas-quality]: One trade-off that we deliberately leave out of the analysis is that the longer the canvas, the harder it is for TD to reach the quality of AR.
 </div>
@@ -25,7 +25,7 @@
 <!-- card:Batch, -->
 <div class="card-more" hidden>
   <div class="eq">\[ Q^{X}(B, C) = \underbrace{\frac{s_wW_X(B)}{B}}_{\text{weights}} + \underbrace{Q^{X}_{\mathrm{attn}}(C)}_{\text{cache}}. \]</div>
-  <p>For \(X \in \{AR, TD\}\), the weights are shared by the batch and each sequence has its own cache. A larger batch divides the weight bytes per sequence and leaves the cache bytes unchanged. So raising the batch size raises the intensity of both AR and TD. At first it helps TD more, due to the linear MoE penalty. But once TD is compute-bound, it only raises \(I_{AR}\), and \(\Gamma = I^\star/(\omega I_{AR})\) falls.</p>
+  <p>For \(X \in \{AR, TD\}\), the weights are shared by the batch and each sequence has its own cache. A larger batch divides the weight bytes per sequence and leaves the cache bytes unchanged. At first it helps TD more, due to the linear penalty \(\Pi_{\mathrm{lin}}\). But once TD is compute-bound, it only raises \(I_{AR}\), and \(\Gamma = I^\star/(\omega I_{AR})\) falls.</p>
 </div>
 <!-- card:Context, -->
 <div class="card-more" hidden>

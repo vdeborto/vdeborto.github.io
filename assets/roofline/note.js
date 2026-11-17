@@ -75,7 +75,8 @@
   // Measured routing (Part 6): m.routing = { td: [[B, Neff], ...], ar: [[B, Neff], ...] }, the independent
   // tokens N_eff that would touch as many experts as a pass of that decoder did at batch B (canvas 256).
   // Between measured batches N_eff is interpolated log-log, beyond them extrapolated with the last slope;
-  // a canvas of b positions is taken to touch what b/256 of a 256-position canvas would.
+  // a canvas of b positions is taken to touch what b/256 of a 256-position canvas would. Nothing was measured
+  // for prefill, so a prefill pass (canvas = false) routes its B·n tokens independently (A5).
   function neffAt(tab, B) {
     const L = (x) => Math.log(x);
     let i = tab.findIndex(([b]) => b >= B);
@@ -84,7 +85,7 @@
     const [b0, n0] = tab[i - 1], [b1, n1] = tab[i];
     return Math.exp(L(n0) + ((L(n1) - L(n0)) * (L(B) - L(b0))) / (L(b1) - L(b0)));
   }
-  const experts = (m, B, n) => (m.routing
+  const experts = (m, B, n, canvas = n > 1) => (m.routing && (n === 1 || canvas)
     ? distinctExperts(m, n > 1 ? neffAt(m.routing.td, B) * (n / 256) : neffAt(m.routing.ar, B))
     : distinctExperts(m, B * n));
 
@@ -132,7 +133,7 @@
   // o: { bw, bwOther, bkv, ba, bl, kvOnce, rkv, honourWindow }
   function pass(m, p, o) {
     const N = p.B * p.n;
-    const U = experts(m, p.B, p.n);
+    const U = experts(m, p.B, p.n, !p.prefill);
     const r = { flin: 0, fatt: 0, fhead: 0, fsc: 0, qw: 0, qkvr: 0, qkvw: 0, qact: 0, qio: 0, U };
     // Kernel classes: dense linear layers, experts, global attention, windowed attention, vocabulary head.
     // Each class carries its own FLOPs and bytes, so a pass can be timed kernel by kernel.
@@ -205,26 +206,27 @@
   // ------------------------------------------------------------ pass schedules
 
   const passes = {
-    arPrefill: (w) => ({ B: w.B, n: w.P, C: 0, mask: 'causal', logits: 1, softEmb: false, scMlp: false, kvWrite: w.P, lambda: w.lambdaAR }),
+    arPrefill: (w) => ({ B: w.B, n: w.P, C: 0, mask: 'causal', logits: 1, softEmb: false, scMlp: false, kvWrite: w.P, lambda: w.lambdaAR, prefill: true }),
     arDecode: (w, C) => ({ B: w.B, n: 1, C, mask: 'causal', logits: 1, softEmb: false, scMlp: false, kvWrite: 1, lambda: w.lambdaAR }),
-    tdPrefill: (w) => ({ B: w.B, n: w.P, C: 0, mask: 'causal', logits: 0, softEmb: false, scMlp: false, kvWrite: w.P, lambda: 0 }),
+    tdPrefill: (w) => ({ B: w.B, n: w.P, C: 0, mask: 'causal', logits: 0, softEmb: false, scMlp: false, kvWrite: w.P, lambda: 0, prefill: true }),
     tdDenoise: (w, C, j) => ({ B: w.B, n: w.b, C, mask: 'bidir', logits: w.b, softEmb: j > 0, scMlp: true, kvWrite: 0, lambda: w.lambdaTD, depth: w.r ?? 1 }),
     tdCommit: (w, C) => ({ B: w.B, n: w.b, C, mask: 'causal', logits: 0, softEmb: false, scMlp: false, kvWrite: w.b, lambda: 0 }),
   };
 
-  // Roofline time of one pass; FP8 linear layers run at peakFp8.
+  // Roofline time of one pass; FP8 linear layers run at peakFp8, and attention at peakAttn when one is given.
   // hw.kernels = 'whole' (default) times the pass as one kernel, max(F/pi, Q/beta);
   // 'sum' times each kernel class on its own and adds them up.
   const CLASSES = ['dense', 'expert', 'attnG', 'attnW', 'attnS', 'index', 'head'];
+  const ATTN = ['attnG', 'attnW', 'attnS', 'index'];
   function passTime(r, hw) {
-    const fFast = hw.fp8 ? r.flin : 0;
-    const tc = fFast / hw.peakFp8 + (r.F - fFast) / hw.peak;
+    const fFast = hw.fp8 ? r.flin : 0, pA = hw.peakAttn || hw.peak;
+    const tc = fFast / hw.peakFp8 + r.fatt / pA + (r.F - fFast - r.fatt) / hw.peak;
     const tm = r.Q / hw.bw;
     const tWhole = Math.max(tc, tm);
     const cls = {};
     let tSum = 0;
     for (const c of CLASSES) {
-      const k = r.cls[c], peak = hw.fp8 && (c === 'dense' || c === 'expert') ? hw.peakFp8 : hw.peak;
+      const k = r.cls[c], peak = hw.fp8 && (c === 'dense' || c === 'expert') ? hw.peakFp8 : ATTN.includes(c) ? pA : hw.peak;
       const ctc = k.F / peak, ctm = k.Q / hw.bw, t = Math.max(ctc, ctm);
       cls[c] = { t, tc: ctc, tm: ctm, bound: k.F > 0 || k.Q > 0 ? (ctc >= ctm ? 'compute' : 'memory') : 'none' };
       tSum += t;
@@ -270,11 +272,11 @@
     return res;
   }
 
-  // KV-cache bytes held for one sequence of `len` positions (sliding layers keep one window).
+  // KV-cache bytes held for one sequence of `len` positions (sliding layers keep one window when o.honourWindow).
   function kvBytesPerSeq(m, len, o) {
     let s = 0;
     for (const l of m.layers) {
-      s += (l.attn === 'sliding' ? Math.min(len, m.window) : len) * cacheTensors(l, o) * l.nkv * l.h * o.bkv;
+      s += (l.attn === 'sliding' && o.honourWindow ? Math.min(len, m.window) : len) * cacheTensors(l, o) * l.nkv * l.h * o.bkv;
       if (l.attn === 'sparse') s += len * m.sparse.hI * m.sparse.sI;
     }
     return s;
@@ -437,15 +439,18 @@
   const model = M.gemma4_26b();
 
   // Dense BF16 matrix-multiplication peak (FP32 accumulate), memory bandwidth, memory capacity.
-  // "≈": derived from vendor material or disputed between sources.
+  // "≈": derived from vendor material or disputed between sources. The FP8 peak defaults to twice BF16;
+  // chips without an FP8 matrix rate above BF16's (A100, TPU v5e, v5p, v6e) dequantise FP8 weights, so tflops8 = tflops.
+  // Memory in GB (10^9 bytes): Google lists TPU HBM in GiB (16, 95, 32, 192), converted here.
+  // tflopsAttn: the attention ceiling (Part 6, Table 8), used in place of the BF16 peak for attention kernels.
   const HW = [
     { group: 'NVIDIA data centre' },
-    { id: 'a100', label: 'A100 SXM 80 GB', tflops: 312, tbps: 2.039, gb: 80 },
+    { id: 'a100', label: 'A100 SXM 80 GB', tflops: 312, tflops8: 312, tbps: 2.039, gb: 80 },
     { id: 'h100pcie', label: 'H100 PCIe', tflops: 756, tbps: 2.0, gb: 80 },
     { id: 'h100', label: 'H100 SXM', tflops: 989, tbps: 3.35, gb: 80 },
     { id: 'h20', label: 'H20', tflops: 148, tbps: 4.0, gb: 96 },
     { id: 'h200', label: 'H200 SXM', tflops: 989, tbps: 4.8, gb: 141 },
-    { id: 'h200meas', label: 'H200 SXM, measured ceilings (Part 6)', tflops: 781, tflops8: 1468, tbps: 4.32, gb: 141, prec: 'fp8' },
+    { id: 'h200meas', label: 'H200 SXM, measured ceilings (Part 6)', tflops: 781, tflops8: 1468, tflopsAttn: 638, tbps: 4.32, gb: 141, prec: 'fp8' },
     { id: 'b200', label: 'B200 (HGX)', tflops: 2250, tbps: 8.0, gb: 180 },
     { id: 'gb200', label: 'GB200, per GPU', tflops: 2500, tbps: 8.0, gb: 186 },
     { id: 'b300', label: 'B300 / GB300, per GPU (≈)', tflops: 2500, tbps: 8.0, gb: 288 },
@@ -459,9 +464,9 @@
     { id: 'mi325x', label: 'Instinct MI325X', tflops: 1307, tbps: 6.0, gb: 256 },
     { id: 'mi355x', label: 'Instinct MI355X (≈)', tflops: 2516, tbps: 8.0, gb: 288 },
     { group: 'Google TPU' },
-    { id: 'v5e', label: 'TPU v5e', tflops: 197, tbps: 0.819, gb: 16 },
-    { id: 'v5p', label: 'TPU v5p', tflops: 459, tbps: 2.765, gb: 95 },
-    { id: 'v6e', label: 'TPU v6e (Trillium)', tflops: 918, tbps: 1.638, gb: 34.4 },
+    { id: 'v5e', label: 'TPU v5e', tflops: 197, tflops8: 197, tbps: 0.819, gb: 17.2 },
+    { id: 'v5p', label: 'TPU v5p', tflops: 459, tflops8: 459, tbps: 2.765, gb: 102 },
+    { id: 'v6e', label: 'TPU v6e (Trillium)', tflops: 918, tflops8: 918, tbps: 1.638, gb: 34.4 },
     { id: 'v7', label: 'TPU7x (Ironwood)', tflops: 2307, tbps: 7.37, gb: 206 },
   ];
   const HWBYID = Object.fromEntries(HW.filter((h) => h.id).map((h) => [h.id, h]));
@@ -712,9 +717,9 @@
     s += draw(ridge, 'halo-l') + draw(ridge, 'ridge');
     if (ridge.length) {
       const top = ridge.reduce((a, sg) => (Math.min(sg[0][1], sg[1][1]) < Math.min(a[0][1], a[1][1]) ? sg : a));
-      s += `<text class="clbl" x="${(top[0][0] + 6).toFixed(1)}" y="${(Math.min(top[0][1], top[1][1]) - 8).toFixed(1)}">ridge I* = ${Math.round(Is)}: compute-bound beyond</text>`;
+      s += `<text class="clbl" x="${(top[0][0] + 6).toFixed(1)}" y="${(Math.min(top[0][1], top[1][1]) - 8).toFixed(1)}">ridge I<tspan baseline-shift="super" font-size="70%">⋆</tspan> = ${Math.round(Is)}: compute-bound beyond</text>`;
     } else {
-      s += `<text class="clbl" x="${W - mg.r - 8}" y="${mg.t + 16}" text-anchor="end">never reaches the ridge I* = ${Math.round(Is)} in this range</text>`;
+      s += `<text class="clbl" x="${W - mg.r - 8}" y="${mg.t + 16}" text-anchor="end">never reaches the ridge I<tspan baseline-shift="super" font-size="70%">⋆</tspan> = ${Math.round(Is)} in this range</text>`;
     }
     s += '</svg><div class="tip" hidden></div>';
     el.innerHTML = s + memNote(hw, anyOver, which === 'ar' ? 'AR' : 'TD');
@@ -812,11 +817,14 @@
     return { m0, c: M.compact(m0, st.w, { ...st.o, ba: 0, bl: 0 }, st.hw) };
   }
 
-  // Proposition 1 at (B, C), vocabulary excluded.
-  function prop1(c, w, B, C) {
+  // Proposition 1 at (B, C), vocabulary excluded. With hw, each decoder takes max(F_lin/pi_lin + F_attn/pi_attn, Q/beta)
+  // (FP8 linear layers at the FP8 peak, attention at its own ceiling), i.e. Proposition 1 with the ridge
+  // I* = phi / (beta·(2 N_act/pi_lin + (phi − 2 N_act)/pi_attn)) of this FLOP mix; without hw, I* = pi/beta.
+  function prop1(c, w, B, C, hw) {
     const IAR = c.phi(C) / (c.WAR(B) / B + c.qkv(C));
     const ITD = (w.b * c.phi(C)) / (c.WTD(B) / B + c.qkvTD(C));  // TD's cache bytes, with the selection penalty
-    return { IAR, ITD, gain: Math.min(ITD, c.Istar) / (omega(w) * Math.min(IAR, c.Istar)) };
+    const Is = hw ? c.phi(C) / (hw.bw * ((2 * c.Nact) / (hw.fp8 ? hw.peakFp8 : hw.peak) + (c.phi(C) - 2 * c.Nact) / (hw.peakAttn || hw.peak))) : c.Istar;
+    return { IAR, ITD, Istar: Is, gain: Math.min(ITD, Is) / (omega(w) * Math.min(IAR, Is)) };
   }
 
   // Log-spaced scan of a function of the batch; returns sampled points.
@@ -1239,7 +1247,7 @@
     const peak = Math.max(1, v('c-peak') || 1) * 1e12, peak8 = Math.max(1, v('c-peak8') || 2 * v('c-peak') || 2) * 1e12;
     return {
       m: routeApply(sparseApply(modelFromSpecs())),
-      hw: { peak, peakFp8: peak8, bw: Math.max(0.01, v('c-bw') || 0.01) * 1e12, mem: Math.max(1, v('c-mem') || 1) * 1e9, fp8, kernels: $('c-kern').value },
+      hw: { peak, peakFp8: peak8, peakAttn: (HWBYID[$('c-hw').value] || {}).tflopsAttn * 1e12 || undefined, bw: Math.max(0.01, v('c-bw') || 0.01) * 1e12, mem: Math.max(1, v('c-mem') || 1) * 1e9, fp8, kernels: $('c-kern').value },
       o: { bw: fp8 ? 1 : 2, bwOther: 2, bkv: 2, ba: $('c-actl2').checked ? 0 : 2, bl: v('c-bl'), kvOnce: $('c-kvonce').checked, rkv: Math.max(1, v('c-rho') || 1), honourWindow: $('c-win').checked },
       w: { B: Math.max(1, Math.round(v('c-B')) || 1), P: Math.max(1, Math.round(v('c-P')) || 1), G, b, S: Math.max(1, Math.round(v('c-S')) || 1), r: Math.max(0.01, v('c-r') || 1), lambdaAR: v('c-la') || 0, lambdaTD: v('c-lt') || 0 },
     };
@@ -1272,11 +1280,11 @@
 
   const REGIMES = {
     R1: ['short context', 'both memory-bound', 'Γ = TPF / Π(B)', 'TD shares each weight read over TPF tokens but streams more experts.'],
-    R2: ['short context', 'AR memory-bound, TD compute-bound', 'Γ = I* / (ω · I_lin(B))', 'TD spends compute AR leaves idle; the gain falls as the batch raises AR\'s intensity.'],
+    R2: ['short context', 'AR memory-bound, TD compute-bound', 'Γ = I<sup>⋆</sup> / (ω · I<sub>lin</sub>(B))', 'TD spends compute AR leaves idle; the gain falls as the batch raises AR\'s intensity.'],
     R3: ['short context', 'AR compute-bound, TD memory-bound', 'Γ ≤ 1/ω', 'Not reached: it needs a penalty above the canvas length, and Π ≤ b under (A2) and (A5) (Proposition 3(4)).'],
     R4: ['short context', 'both compute-bound', 'Γ = 1/ω', 'Both run at peak, and TD does ω times the work.'],
     R5: ['long context', 'both memory-bound', 'Γ = TPF', 'Both read the KV cache; TD shares each read over TPF tokens.'],
-    R6: ['long context', 'AR memory-bound, TD compute-bound', 'Γ = I* / (ω · I_attn)', 'TD spends the compute AR leaves idle while it streams the KV cache.'],
+    R6: ['long context', 'AR memory-bound, TD compute-bound', 'Γ = I<sup>⋆</sup> / (ω · I<sub>attn</sub>)', 'TD spends the compute AR leaves idle while it streams the KV cache.'],
     R7: ['long context', 'AR compute-bound, TD memory-bound', 'Γ ≤ 1/ω', 'Impossible: it needs a canvas shorter than one token.'],
     R8: ['long context', 'both compute-bound', 'Γ = 1/ω', 'Both run at peak, and TD does ω times the work.'],
   };
@@ -1287,15 +1295,18 @@
     const e = M.steady(m, w, o, hw, Cm);
     const long = e.arKVshare >= 0.5;
     const id = `R${(long ? 4 : 0) + (e.arCompute ? 2 : 0) + (e.tdCompute ? 1 : 0) + 1}`;
-    const [ctx, bound, formula, why] = REGIMES[id];
+    const [ctx, bound, f0, why] = REGIMES[id];
+    // Sparse attention: an AR step tends to the indexer's intensity I_idx, so the long-context limit is I*/(ω·I_idx) (Part 3).
+    const formula = id === 'R6' && m.sparse ? f0.replace('I<sub>attn</sub>', 'I<sub>idx</sub>') : f0;
     const { c } = bare({ ...st, w }, m);
-    const p = prop1(c, w, w.B, Cm);
+    const p = prop1(c, w, w.B, Cm, hw);
+    const mix = [hw.fp8 ? 'linear layers at the FP8 peak' : '', hw.peakAttn ? `attention at ${fmt(hw.peakAttn / 1e12)} TFLOP/s` : ''].filter(Boolean).join(' and ');
     const g = r.gainDecode;
     const head = (g >= 1 ? `TD is <b>${g.toFixed(2)}×</b> faster than AR` : `AR is <b>${(1 / g).toFixed(2)}×</b> faster than TD`) + ' (exact roofline bound)';
     $('c-verdict').className = `verdict ${g >= 1 ? 'win' : 'lose'}`;
     $('c-verdict').innerHTML = `<div class="big">${head}</div>
       <div class="chips"><span class="chip strong">${id}</span><span class="chip">${ctx}</span><span class="chip">${bound}</span></div>
-      <p>${why} Regime formula: <span class="mono">${formula}</span>. At the mean context of ${kTok(Cm)} tokens, Proposition 1 predicts <b>${p.gain.toFixed(2)}×</b> without vocabulary (I<sub>AR</sub> = ${fmt(p.IAR)}, I<sub>TD</sub> = ${fmt(p.ITD)}, I* = ${fmt(c.Istar)}).</p>`;
+      <p>${why} Regime formula: <span class="mono">${formula}</span>. At the mean context of ${kTok(Cm)} tokens, Proposition 1 predicts <b>${p.gain.toFixed(2)}×</b> without vocabulary (I<sub>AR</sub> = ${fmt(p.IAR)}, I<sub>TD</sub> = ${fmt(p.ITD)}, I<sup>⋆</sup> = ${fmt(p.Istar)}${mix ? `, the ridge point at this context with ${mix}` : ''}).</p>`;
   }
 
   // Bytes, FLOPs, roofline time and utilisation per generated token, at context C, for an AR step and a TD canvas.
@@ -1343,7 +1354,7 @@
     let match = null;
     if (hiRes.thrDecode >= r.td.thrDecode) {
       while (lo < hi) { const mid = (lo + hi) >> 1; const x = arAt(mid); if (x.thrDecode >= r.td.thrDecode) { hi = mid; hiRes = x; } else lo = mid + 1; }
-      match = { B: hi, res: arAt(hi) };
+      match = { B: hi, res: arAt(hi), fits: M.footprint(m, { ...w, B: hi }, o, 'ar').total <= hw.mem };
     }
 
     verdict(st, r);
@@ -1353,7 +1364,7 @@
       tile('<span class="swatch" style="background:var(--bdr-td)"></span>TD decode throughput', `${comma(r.td.thrDecode)} tok/s`, `${Math.round((100 * r.td.dec.computeBoundTime) / r.td.dec.t)}% of time compute-bound`),
       tile('<span class="swatch" style="background:var(--bdr-ar)"></span>AR decode throughput', `${comma(r.ar.thrDecode)} tok/s`, `${Math.round((100 * r.ar.dec.computeBoundTime) / r.ar.dec.t)}% of time compute-bound`),
       tile('Latency, TD / AR', `${time(r.td.latency)} / ${time(r.ar.latency)}`, `first token ${time(r.td.ttft)} / ${time(r.ar.ttft)}`),
-      tile('AR at equal throughput', match ? `batch ${match.B}` : 'not reachable', match ? `latency ${time(match.res.latency)}, ${fmt(match.res.latency / r.td.latency)}× TD's` : 'up to batch 8192'),
+      tile('AR at equal throughput', match ? `batch ${match.B}${match.fits ? '' : `, <span class="oom">does not fit in ${fmt(hw.mem / 1e9)} GB</span>`}` : 'not reachable', match ? `latency ${time(match.res.latency)}, ${fmt(match.res.latency / r.td.latency)}× TD's` : 'up to batch 8192'),
       tile('Tokens per forward pass, linear penalty', `${(w.b / omega(w)).toFixed(1)}, ${bare(st, m).c.Pi(w.B).toFixed(2)}`, `TPF = b/ω, and Π_lin(B) at batch ${w.B} (Definition 4)`),
       tile('Memory needed, TD / AR', `${fmt(memT / 1e9)} / ${fmt(memA / 1e9)} GB`, memT > hw.mem || memA > hw.mem ? `<span class="oom">exceeds ${fmt(hw.mem / 1e9)} GB</span>` : `fits in ${fmt(hw.mem / 1e9)} GB`),
     ].join('');
@@ -1402,9 +1413,10 @@
     writeState();
 
     const pc = M.paramCounts(m);
-    const cc = M.compact(m, w, o, hw), nG = m.layers.filter((l) => l.attn !== 'sliding').length;
-    $('c-mspec').textContent = `${fmt(pc.total / 1e9, 3)}B parameters, ${fmt(pc.active / 1e9, 3)}B active (no vocabulary). ${nG} global, ${m.layers.length - nG} window layers. I_attn = ${fmt(cc.Ikv, 3)}; KV ${fmt((cc.nuG + cc.nuS) / 1e3, 3)} kB per cached token (window layers stop growing once their window is full).`;
-    $('c-note').textContent = `${(M.MODELS[$('c-model').value] || { label: 'Custom model' }).label}: ${fmt(pc.total / 1e9, 3)}B parameters, ${fmt(pc.active / 1e9, 3)}B active per token without the vocabulary${m.selfCond ? '; TD uses self-conditioning' : '; its TD twin shares the backbone, with no self-conditioning'}. Generated tokens rounded to ${w.G} (a multiple of the canvas). ω = Sr + 1 = ${fmt(omega(w), 4)}, TPF = b/ω = ${(w.b / omega(w)).toFixed(2)}. Ridge point I* = ${fmt(hw.peak / hw.bw)} FLOP/byte${hw.fp8 ? ' for BF16; FP8 linear layers run at the FP8 peak' : ''}.`;
+    const cc = M.compact(m, w, o, hw), nG = m.layers.filter((l) => l.attn === 'global').length, nSp = m.layers.filter((l) => l.attn === 'sparse').length;
+    // Stored KV (all layers, the index cache included) per cached token, whatever the number of reads per pass.
+    $('c-mspec').innerHTML = `${fmt(pc.total / 1e9, 3)}B parameters, ${fmt(pc.active / 1e9, 3)}B active (no vocabulary). ${nSp ? `${nSp} sparse, ` : ''}${nG ? `${nG} global, ` : ''}${m.layers.length - nG - nSp} window layers. ${m.sparse ? `I<sub>idx</sub> = ${fmt(cc.aI / cc.nuI, 3)}` : `I<sub>attn</sub> = ${fmt(cc.Ikv, 3)}`}; KV ${fmt(M.kvBytesPerSeq(m, 1, o) / 1e3, 3)} kB per cached token${o.honourWindow && m.layers.length > nG + nSp ? ' (window layers stop growing once their window is full)' : ''}.`;
+    $('c-note').innerHTML = `${(M.MODELS[$('c-model').value] || { label: 'Custom model' }).label}: ${fmt(pc.total / 1e9, 3)}B parameters, ${fmt(pc.active / 1e9, 3)}B active per token without the vocabulary${m.selfCond ? '; TD uses self-conditioning' : '; its TD twin shares the backbone, with no self-conditioning'}. Generated tokens rounded to ${w.G} (a multiple of the canvas). ω = Sr + 1 = ${fmt(omega(w), 4)}, TPF = b/ω = ${(w.b / omega(w)).toFixed(2)}. Ridge point I<sup>⋆</sup> = ${fmt(hw.peak / hw.bw)} FLOP/byte${hw.fp8 ? ' for BF16; FP8 linear layers run at the FP8 peak' : ''}${hw.peakAttn ? `; attention runs at its own ceiling, ${fmt(hw.peakAttn / 1e12)} TFLOP/s` : ''}.`;
   }
 
   // ---------------------------------------------------------------- calculator state in the page address
@@ -1447,7 +1459,7 @@
     $('c-peak8').value = h.tflops8 || 2 * h.tflops;
     $('c-bw').value = h.tbps;
     $('c-mem').value = h.gb;
-    if (h.prec) $('c-prec').value = h.prec;
+    $('c-prec').value = h.prec || 'bf16';
   }
 
   // ---------------------------------------------------------------- navigation: tabs and contents rail

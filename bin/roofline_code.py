@@ -147,7 +147,9 @@ modal run cloud/modal_c2.py::runs --spec specs/c4.json
 modal run cloud/modal_c2.py::fetch --tag c4
 python3 -m roofscope.analyze2 results/c2/c4 results/c2/c4
 python3 pages/campaign3/data3.py c4
-# writes this book's practice-data.json
+# share of measured canvases that look like text
+python3 pages/book/textq.py c4
+# writes the blogpost's practice-data.json
 python3 pages/book/export.py"""
 
 
