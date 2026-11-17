@@ -591,3 +591,18 @@ html { scroll-behavior: smooth; }
 .bdr .readout .ro-p { margin: 3px 0 0; line-height: 1.5; }
 .bdr .chip-steps { display: inline-flex; gap: 6px; flex-wrap: wrap; }
 .bdr .fig-controls .ctl[hidden] { display: none; }
+
+/* ---------------------------------------------------------------- running-text headings
+   The site's custom.css gives h3 and h4 the same 1.1rem; in the book an h3 is a section and an h4
+   a subsection. Headings inside boxes, figures and the footnotes keep their own, more specific rules. */
+.bdr section h3 { font-size: 1.3125rem; margin-top: 2.5rem; margin-bottom: .6rem; }
+.bdr section h4 { font-size: 1.125rem; margin-top: 1.75rem; margin-bottom: .5rem; }
+
+/* "What the formulas leave out": impact stars and the assumption each item breaks */
+.bdr .lo-tag { font: 16px/1 var(--bdr-font-ui); color: var(--accent); letter-spacing: .08em; white-space: nowrap; }
+.bdr table.lo { font-size: 15px; line-height: 1.5; }
+.bdr table.lo td { vertical-align: top; padding-top: 8px; padding-bottom: 8px; }
+.bdr table.lo .lo-item { font-weight: 600; width: 22%; }
+.bdr table.lo .lo-ass { font: 500 12px var(--bdr-font-ui); color: var(--bdr-ink-2); width: 15%; }
+.bdr table.lo td:nth-child(2) { white-space: nowrap; }
+.bdr table.lo td:last-child { min-width: 14em; }
