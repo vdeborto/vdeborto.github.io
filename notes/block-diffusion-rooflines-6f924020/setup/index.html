@@ -669,7 +669,7 @@ However, we can also look at it in terms of hardware choice. In particular, unde
 <td class="l lo-item">Vocabulary and self-conditioning</td>
 <td class="l"><span class="lo-tag">★★★</span></td>
 <td class="l lo-ass">(A2)</td>
-<td class="l">Self-conditioning feeds each denoising pass the distribution predicted by the previous one, through the embedding matrix, so per token TD runs \(2S-1\) vocabulary-sized matrix multiplications. The effect is mostly seen at small context. At batch 1 and context 1k, the embedding adds 1.5 GB to an AR step's 6.4 GB. A TD denoising pass adds 1.5 GB for the head, 1.3 GB of logits and, in the 13 passes that feed back probabilities, 1.5 GB for the soft embedding. The gain therefore rises from 2.22 to 2.53 (<a class="xref" href="/notes/block-diffusion-rooflines-6f924020/linear/#table-1">Table 1</a>); at larger batches TD pays these terms in FLOPs and they lower it.</td>
+<td class="l">Self-conditioning feeds each denoising pass the distribution predicted by the previous one, through the embedding matrix, so per token TD runs \(2S-1\) vocabulary-sized matrix multiplications. The effect is mostly seen at small context. At batch 1 and context 1k, the embedding adds 1.5 GB to an AR step's 6.4 GB. A TD denoising pass adds 1.5 GB for the head, 1.3 GB of logits and, in the 13 passes that feed back probabilities, 1.5 GB for the soft embedding. The gain therefore rises from 2.22 to 2.53; at larger batches TD pays these terms in FLOPs and they lower it.</td>
 </tr>
         <tr>
 <td class="l lo-item">Adaptive step counts</td>
