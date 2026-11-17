@@ -95,9 +95,9 @@
   }
   // Drag a vertical marker along a log axis (pointer, touch, arrow keys). The handlers sit on the
   // container, which survives redraws; the SVG and its .drag group are rebuilt on every move.
-  function draggable(box, getXs, values, getIndex, setIndex) {
+  function draggable(box, getXs, values, getIndex, setIndex, axis = 'x') {
     let on = false;
-    const move = (ev) => { const p = svgPoint(box.querySelector('svg'), ev); setIndex(nearestIndex(values, getXs().inv(p.x))); };
+    const move = (ev) => { const p = svgPoint(box.querySelector('svg'), ev); setIndex(nearestIndex(values, getXs().inv(p[axis]))); };
     box.addEventListener('pointerdown', (ev) => { if (!ev.target.closest('.drag')) return; on = true; box.setPointerCapture(ev.pointerId); move(ev); });
     box.addEventListener('pointermove', (ev) => { if (on) move(ev); });
     box.addEventListener('pointerup', () => { on = false; });
@@ -142,7 +142,7 @@
   const rerenders = [];
   const onTheme = (f) => rerenders.push(f);
 
-  // The accelerator is shared by Figures 6, 10, 14 and 7: choosing one in a figure sets it in all.
+  // The accelerator is shared by Figures 6, 13 and 7: choosing one in a figure sets it in all.
   const ACCEL = ['h20', 'rtx5090', 'a100', 'h200', 'v5e', 'b200', 'mi355x', 'h100pcie', 'spark', 'v6e'];
   const SHORT = { h20: 'H20', rtx5090: 'RTX 5090', a100: 'A100', h200: 'H200', v5e: 'TPU v5e', b200: 'B200', mi355x: 'MI355X', h100pcie: 'H100 PCIe', spark: 'DGX Spark', v6e: 'TPU v6e' };
   // labels of Figure 7's dots on narrow screens
@@ -176,8 +176,8 @@
   function figAccounting(root) {
     const hw = hwOf('h200');
     const rows = [
-      { name: 'Proposition 1', what: 'closed form of Part 1: no vocabulary, context fixed at 1k (at zero context, as in the closed forms of Part 2, TD is ahead up to batch 109)', used: 'Figures 6 and 14 and Table 1', g: (B) => prop1(DG, hw, B, 1024).gain },
-      { name: 'Exact, fixed context', what: 'every FLOP and byte of the exact accounting below, vocabulary included, context fixed at 1k', used: 'Figures 7 and 10 and the maps', g: (B) => steady(DG, hw, B, 1024).gain },
+      { name: 'Proposition 1', what: 'closed form of Part 1: no vocabulary, context fixed at 1k (at zero context, as in the closed forms of Part 2, TD is ahead up to batch 109)', used: 'Figures 6 and 13', g: (B) => prop1(DG, hw, B, 1024).gain },
+      { name: 'Exact, fixed context', what: 'every FLOP and byte of the exact accounting below, vocabulary included, context fixed at 1k', used: 'Figure 7 and the maps', g: (B) => steady(DG, hw, B, 1024).gain },
       { name: 'Exact, whole generation', what: 'the same accounting summed over a 1k prompt and 8k generated tokens: the context grows from 1k to 9k', used: 'the headline tiles of the Summary and the calculator above', g: (B) => M.generate(DG, { ...W0, B }, O0, hw).gainDecode, slow: true },
     ];
     // short rows of numbers, then what each accounting is, as a list
@@ -311,7 +311,7 @@
     watchWidth(pic, draw);
   }
 
-  // ---------------------------------------------------------------- Figure 10: find the best batch (exact, fixed context)
+  // ---------------------------------------------------------------- best-batch figure (no longer placed in the text)
   const BSCAN = [...new Set([...Array.from({ length: 40 }, (_, i) => i + 1), ...Array.from({ length: 60 }, (_, i) => Math.round(40 * 1.056 ** (i + 1))), 64, 128, 256, 512, 1024])].filter((B) => B <= 1024).sort((a, b) => a - b);
   const curveCache = new Map();
   function gainCurve(hwId, rule) {
@@ -404,7 +404,7 @@
     watchWidth(pic, draw);
   }
 
-  // ---------------------------------------------------------------- Figure 14: both intensities become independent of the batch (Proposition 1)
+  // ---------------------------------------------------------------- Figure 13: both intensities become independent of the batch (Proposition 1)
   const CSCAN = Array.from({ length: 41 }, (_, i) => Math.round(1024 * 2 ** (i / 4)));
   const CBATCH = [1, 4, 16, 64];
   function figContext(root) {
@@ -659,30 +659,33 @@
     const pic = el('<div></div>'), out = el('<div class="readout" aria-live="polite"></div>');
     root.append(pic, out);
     const ar = (B, x) => clin(C0.WAR(B) / B, x), td = (B, x) => clin(C0.WTD(B) / B, x);
-    draggable(pic, () => st.xs, BMARK, () => st.i, (i) => { st.i = i; draw(); });
+    // Context on the horizontal axis, as in the maps of Part 4; the batch marker is dragged vertically.
+    draggable(pic, () => st.ys, BMARK, () => st.i, (i) => { st.i = i; draw(); }, 'y');
     function draw() {
       const c = colors(), W = widthOf(pic), H = 354, m = { l: 50, r: 16, t: 28, b: 42 }, B = BMARK[st.i];
-      const xs = scale(1, 256, m.l, W - m.r), ylo = 1024, yhi = 2 ** 22, ys = scale(ylo, yhi, H - m.b, m.t);
-      const yc = (v) => ys(Math.max(ylo, Math.min(yhi, v)));
-      const path = (f) => BS.map((b2) => `${xs(b2)},${yc(f(b2))}`).join(' ');
-      const area = (f) => `${xs(1)},${ys(ylo)} ${path(f)} ${xs(256)},${ys(ylo)}`;
-      let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Context up to which the weights are at least 90% and 50% of a pass's bytes, against batch">`;
+      const clo = 1024, chi = 2 ** 22, xs = scale(clo, chi, m.l, W - m.r), ys = scale(1, 256, H - m.b, m.t);
+      const xc = (v) => xs(Math.max(clo, Math.min(chi, v)));
+      const path = (f) => BS.map((b2) => `${xc(f(b2))},${ys(b2)}`).join(' ');
+      const area = (f) => `${xs(clo)},${ys(1)} ${path(f)} ${xs(clo)},${ys(256)}`;
+      let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Context up to which the weights are at least 90% and 50% of a pass's bytes, for each batch">`;
       s += `<polygon points="${area((b2) => ar(b2, 0.5))}" fill="${c.ar}" fill-opacity="0.13"/><polygon points="${area((b2) => ar(b2, 0.9))}" fill="${c.ar}" fill-opacity="0.2"/>`;
-      for (const v of [1024, 4096, 16384, 65536, 262144, 1 << 20, 1 << 22]) s += `<line x1="${m.l}" x2="${W - m.r}" y1="${ys(v)}" y2="${ys(v)}" stroke="${c.rule}"/><text x="${m.l - 6}" y="${ys(v) + 4}" text-anchor="end">${kctx(v)}</text>`;
-      for (const v of BMARK) s += `<text x="${xs(v)}" y="${H - m.b + 15}" text-anchor="middle">${v}</text>`;
-      s += `<text x="${(m.l + W - m.r) / 2}" y="${H - 6}" text-anchor="middle" class="ink">batch B (log scale)</text>`;
-      s += `<text x="4" y="13" class="ink">context C, tokens (log scale)</text>`;
+      for (const v of [1024, 4096, 16384, 65536, 262144, 1 << 20, 1 << 22]) s += `<line x1="${xs(v)}" x2="${xs(v)}" y1="${m.t}" y2="${H - m.b}" stroke="${c.rule}"/><text x="${xs(v)}" y="${H - m.b + 15}" text-anchor="middle">${kctx(v)}</text>`;
+      for (const v of BMARK) s += `<text x="${m.l - 6}" y="${ys(v) + 4}" text-anchor="end">${v}</text>`;
+      s += `<text x="${(m.l + W - m.r) / 2}" y="${H - 6}" text-anchor="middle" class="ink">context C, tokens (log scale)</text>`;
+      s += `<text x="4" y="13" class="ink">batch B (log scale)</text>`;
       s += `<polyline fill="none" stroke="${c.td}" stroke-width="2" stroke-dasharray="6 4" points="${path((b2) => td(b2, 0.5))}"/>`;
       s += `<polyline fill="none" stroke="${c.ar}" stroke-width="2.2" points="${path((b2) => ar(b2, 0.5))}"/><polyline fill="none" stroke="${c.ar}" stroke-width="1.4" points="${path((b2) => ar(b2, 0.9))}"/>`;
       const small = W < 480;
-      s += `<text class="ink halo" x="${xs(small ? 1.15 : 1.3)}" y="${ys(1700)}">weights ≥ 90%${small ? '' : " of an AR step's bytes"}</text>`;
-      s += `<text class="ink halo" x="${xs(small ? 1.15 : 1.3)}" y="${ys(60000)}">weights ≥ 50%</text>`;
-      s += `<text class="ink halo" x="${W - m.r - 6}" y="${ys(400000)}" text-anchor="end">${small ? 'KV cache > 50% of AR bytes' : "the KV cache is most of an AR step's bytes"}</text>`;
-      s += `<text class="td halo" x="${xs(1.3)}" y="${yc(td(1.3, 0.5)) - 8}">TD pass: weights ≥ 50% below this line</text>`;
-      s += `<g class="drag" tabindex="0" role="slider" aria-label="Batch" aria-valuemin="1" aria-valuemax="256" aria-valuenow="${B}" aria-valuetext="batch ${B}"><rect x="${m.l}" y="${m.t}" width="${W - m.r - m.l}" height="${H - m.b - m.t}" fill="transparent"/>${marker(xs, B, m.t, H - m.b, c)}`;
-      for (const [f, col] of [[ar(B, 0.9), c.ar], [ar(B, 0.5), c.ar], [td(B, 0.5), c.td]]) if (f >= ylo && f <= yhi) s += `<circle cx="${xs(B)}" cy="${ys(f)}" r="4.5" fill="${col}" stroke="${c.bg}" stroke-width="1.5"/>`;
+      s += `<text class="ink halo" x="${xs(1150)}" y="${ys(1.55)}">weights ≥ 90%</text>`;
+      s += `<text class="ink halo" x="${xs(small ? 1150 : 26000)}" y="${ys(small ? 3.2 : 1.55)}">weights ≥ 50%</text>`;
+      s += `<text class="ink halo" x="${W - m.r - 6}" y="${ys(180)}" text-anchor="end">${small ? 'KV cache > 50% of AR bytes' : "the KV cache is most of an AR step's bytes"}</text>`;
+      s += `<text class="td halo" x="${xc(td(16, 0.5)) + 8}" y="${ys(16) + 4}">${small ? 'TD, 50%' : 'TD pass: weights ≥ 50%'}</text>`;
+      const y = ys(B);
+      s += `<g class="drag" tabindex="0" role="slider" aria-orientation="vertical" aria-label="Batch" aria-valuemin="1" aria-valuemax="256" aria-valuenow="${B}" aria-valuetext="batch ${B}"><rect x="${m.l}" y="${m.t}" width="${W - m.r - m.l}" height="${H - m.b - m.t}" fill="transparent"/>`;
+      s += `<line x1="${m.l}" x2="${W - m.r}" y1="${y}" y2="${y}" stroke="${c.hi}" stroke-width="2"/><path d="M${m.l},${y - 7} l11,7 l-11,7 z" fill="${c.hi}"/>`;
+      for (const [f, col] of [[ar(B, 0.9), c.ar], [ar(B, 0.5), c.ar], [td(B, 0.5), c.td]]) if (f >= clo && f <= chi) s += `<circle cx="${xs(f)}" cy="${y}" r="4.5" fill="${col}" stroke="${c.bg}" stroke-width="1.5"/>`;
       pic.innerHTML = `${s}</g></svg>`;
-      st.xs = xs;
+      st.ys = ys;
       // "up to C = ..." or, when the cache of a sequence with full windows already exceeds the complementary share, no such context
       const upTo = (v, rest) => (v <= C0.r ? `at no context with full windows (for <i>C</i> ≥ <i>w</i> the cache already exceeds ${rest}% of the bytes)` : `up to <b>C = ${comma(v)}</b> tokens`);
       out.innerHTML = `At <b>batch ${B}</b>, the weights are at least 90% of an <span class="ar">AR step</span>'s bytes ${upTo(ar(B, 0.9), 10)} and at least half ${upTo(ar(B, 0.5), 50)}. A <span class="td">TD pass</span> reads ${hsub('Π', 'lin')}(${B}) = ${gx(C0.Pi(B))} times the weights of an AR step, and they are at least half of its bytes ${upTo(td(B, 0.5), 50)}.`;
@@ -690,7 +693,7 @@
     draw(); onTheme(draw); watchWidth(pic, draw);
   }
 
-  // ---------------------------------------------------------------- what a pass reads of one sequence's cache (Table 2)
+  // ---------------------------------------------------------------- what a pass reads of one sequence's cache (Table 1)
   // A toy cache: columns are the cached tokens of one sequence, rows are the queries of a pass. A filled cell
   // is a (query, key) pair that the layer scores, so FLOPs count cells; bytes count the columns that hold one.
   function figAttnRead(root) {
@@ -745,7 +748,7 @@
       const law = kind === 'dense'
         ? `In a dense layer every query scores every cached token. The canvas scores ${b} times as many pairs and reads the same ${C} tokens, once: ${hsub('Π', 'attn')} = 1, and its intensity is <b>${b} times</b> that of an AR step (<i>b</i> times in general).`
         : kind === 'window'
-          ? `In a sliding-window layer every query scores the last <i>w</i> = ${w} cached tokens. The canvas reads the same ${w} tokens, once: ${hsub('Π', 'attn')} = 1, and its intensity is <b>${b} times</b> that of an AR step. (Drawn as Table 2 counts it: the window of a later canvas position starts later and ends inside the canvas, and reads no other cached token.)`
+          ? `In a sliding-window layer every query scores the last <i>w</i> = ${w} cached tokens. The canvas reads the same ${w} tokens, once: ${hsub('Π', 'attn')} = 1, and its intensity is <b>${b} times</b> that of an AR step. (Drawn as Table 1 counts it: the window of a later canvas position starts later and ends inside the canvas, and reads no other cached token.)`
           : `In a sparse layer every query first scores the index keys of all ${C} cached tokens, selected or not (every cell of its row, pale or full; the index is read once for the whole canvas), and then attends to its own <i>m</i> = ${m} selected tokens (full cells). The canvas reads the union of its ${b} selections, ${t.cols} tokens in this draw and <i>U</i><sub>C,m</sub>(${b}) = ${expU.toFixed(2)} in expectation, so on the selected tokens it reads ${hsub('Π', 'sel')} = ${expU.toFixed(2)}/${m} = <b>${gx(expU / m)}</b> times what an AR step reads, for ${b} times the pairs.`;
       out.innerHTML = `<span class="ar">AR step</span>: ${a.cells} scored pairs${sparse ? ' on the selected tokens' : ''}, ${a.cols} tokens' keys and values read. <span class="td">TD pass</span>: ${t.cells} pairs, ${t.cols} tokens read.<br>${law}`;
     }
@@ -753,7 +756,7 @@
   }
 
   // ---------------------------------------------------------------- the penalty of a sparse layer (Proposition 5)
-  // A model whose attention is one sparse layer type, as in Table 4: constants of DiffusionGemma's global layers.
+  // A model whose attention is one sparse layer type, as in Table 3: constants of DiffusionGemma's global layers.
   const SP = bare(M.MODELS.dgemma_sparse.build());
   const CSP = Array.from({ length: 73 }, (_, i) => Math.round(1024 * 2 ** (i / 4))); // 1k to 268M
   function figSparse(root) {
@@ -974,7 +977,7 @@
   }
   initCards();
 
-  // Figure 16 has one title per tab (bin/build-roofline.py writes all of them): show the selected tab's.
+  // Figure 15 has one title per tab (bin/build-roofline.py writes all of them): show the selected tab's.
   document.querySelectorAll('.bdr .tabs-title').forEach((title) => {
     const spans = title.querySelectorAll('[data-tab-title]'), tabs = title.nextElementSibling;
     if (!spans.length || !tabs || !tabs.classList.contains('tabs')) return;

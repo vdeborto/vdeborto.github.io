@@ -442,7 +442,7 @@
   // "≈": derived from vendor material or disputed between sources. The FP8 peak defaults to twice BF16;
   // chips without an FP8 matrix rate above BF16's (A100, TPU v5e, v5p, v6e) dequantise FP8 weights, so tflops8 = tflops.
   // Memory in GB (10^9 bytes): Google lists TPU HBM in GiB (16, 95, 32, 192), converted here.
-  // tflopsAttn: the attention ceiling (Part 6, Table 6), used in place of the BF16 peak for attention kernels.
+  // tflopsAttn: the attention ceiling (Part 6, Table 5), used in place of the BF16 peak for attention kernels.
   const HW = [
     { group: 'NVIDIA data centre' },
     { id: 'a100', label: 'A100 SXM 80 GB', tflops: 312, tflops8: 312, tbps: 2.039, gb: 80 },
@@ -499,14 +499,6 @@
   }
 
 
-  function boeTable(hw, o, w) {
-    const x = boe(hw, o, w), oa = { ...o, ba: 0 }, C = 1024;
-    $('t-boe').innerHTML = [1, 4, 8, 16, 64].map((B) => {
-      const exBare = M.steady(x.bare, { ...w, B }, { ...oa, bl: 0 }, hw, C).gain;
-      const exFull = M.steady(model, { ...w, B }, oa, hw, C).gain;
-      return `<tr><td class="num">${B}</td><td class="num">${fmt(x.IAR(B, C))}</td><td class="num">${fmt(x.ITD(B, C))}</td><td class="num">${x.gain(B, C).toFixed(2)}</td><td class="num">${exBare.toFixed(2)}</td><td class="num">${exFull.toFixed(2)}</td></tr>`;
-    }).join('');
-  }
 
 
   function rooflineIntuition(el, hw, o, w) {
@@ -1164,7 +1156,6 @@
 
   // ---------------------------------------------------------------- static figures (reference setting)
   function staticFigures() {
-    boeTable(REF.hw, REF.o, REF.w);
     regimeMap($('map-sparse'), $('map-sparse-legend'), { ...REF, m: SPARSE_REF() });
     bstarChart($('bstar'), $('bstar-legend'), REF);
     attnTable(REF);

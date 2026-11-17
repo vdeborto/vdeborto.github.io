@@ -369,7 +369,7 @@ def main():
     # Each figure of _roofline/figures.html goes where the text has its <!-- figure:NAME --> line.
     body = place_figures(body, figs)
     body = link_takeaways(body)
-    body = sub_once(body, "<figcaption>Figure 3. Smallest compute-bound batch", "<figcaption>Figure 15. Smallest compute-bound batch", "Figure 15 caption")
+    body = sub_once(body, "<figcaption>Figure 3. Smallest compute-bound batch", "<figcaption>Figure 14. Smallest compute-bound batch", "Figure 14 caption")
     body = card_legacy_figures(body)
     body = add_practice(body)
     body = add_code(body)
@@ -469,15 +469,15 @@ def url_of(slug):
 # of figures.js: a kicker with the number, a title that states the figure's claim, and the
 # original caption as a subtitle.
 LEGACY_CLAIMS = {
-    15: "As the context grows, the batch at which a pass turns compute-bound falls for a canvas of 256 and rises for AR (Proposition 7).",
-    # Figure 16 has four tabs, each with its own claim; figures.js shows the title of the selected tab.
-    16: ('<span data-tab-title="m-gain">In the roofline bound, AR catches up with TD at batch 110 at context 1k, and at a larger batch as the context grows, beyond 1,024 from 64k tokens on.</span>'
+    14: "As the context grows, the batch at which a pass turns compute-bound falls for a canvas of 256 and rises for AR (Proposition 7).",
+    # Figure 15 has four tabs, each with its own claim; figures.js shows the title of the selected tab.
+    15: ('<span data-tab-title="m-gain">In the roofline bound, AR catches up with TD at batch 110 at context 1k, and at a larger batch as the context grows, beyond 1,024 from 64k tokens on.</span>'
          '<span data-tab-title="m-ar" hidden>An AR step never reaches the ridge, and at long context its intensity tends to 8 whatever the batch.</span>'
          '<span data-tab-title="m-td" hidden>A TD canvas crosses the ridge at a batch that falls as the context grows, from 5 at 1k to 1 at 256k, and its intensity tends to 2,048.</span>'
          '<span data-tab-title="m-sparse" hidden>With sparse global layers, the roofline bound has AR catch up with TD near batch 90–110 at every context up to 1M tokens.</span>'),
-    17: "With a 32-token canvas, the roofline bound puts TD ahead of AR only between batch 9 and batch 110 at context 1k.",
-    18: "For a dense model, the roofline bound at context 1k is about 13 at batch 1 and falls like 1/B, to parity at batch 15.",
-    19: "On an H20, whose ridge point is 37, the roofline bound puts TD ahead of AR only up to batch 4 at short context.",
+    16: "With a 32-token canvas, the roofline bound puts TD ahead of AR only between batch 9 and batch 110 at context 1k.",
+    17: "For a dense model, the roofline bound at context 1k is about 13 at batch 1 and falls like 1/B, to parity at batch 15.",
+    18: "On an H20, whose ridge point is 37, the roofline bound puts TD ahead of AR only up to batch 4 at short context.",
 }
 
 
@@ -495,11 +495,11 @@ def card_legacy_figures(body):
     for mm in re.finditer(r'<div class="bdr-card">.*?</figure>', body, re.S):
         out.append(body[pos:mm.end()] + "\n  </div>"); pos = mm.end()
     body = "".join(out) + body[pos:]
-    tabs = '<div class="fig-k">Figure 16 · interactive</div>'
+    tabs = '<div class="fig-k">Figure 15 · interactive</div>'
     if tabs in body:
-        body = body.replace(tabs, f'{tabs}\n  <p class="fig-title tabs-title">{LEGACY_CLAIMS[16]}</p>', 1)
+        body = body.replace(tabs, f'{tabs}\n  <p class="fig-title tabs-title">{LEGACY_CLAIMS[15]}</p>', 1)
     else:
-        problems.append("Figure 16 kicker not found")
+        problems.append("Figure 15 kicker not found")
     if k != 4:
         problems.append(f"legacy figures carded: {k}, expected 4")
     return body
@@ -577,7 +577,7 @@ def link_references(pages):
                 word = m.group(1)
                 kind = next(k for k in ("Figure", "Table", "Proposition", "Definition", "Corollary", "Remark", "Part") if word.startswith(k))
                 nums = num.findall(m.group(2))
-                if len(nums) == 1:  # "Figure 23": the whole reference is the link
+                if len(nums) == 1:  # "Figure 22": the whole reference is the link
                     h = href_of(kind, int(nums[0]))
                     return f'<a class="xref" href="{h}">{m.group(0)}</a>' if h else m.group(0)
                 def one(mm):
