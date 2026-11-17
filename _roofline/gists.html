@@ -36,7 +36,7 @@ The empirical ceiling of a rate is the highest value measured on this GPU (for a
 <!-- gist:rem-neff -->
 Measured routing enters Proposition 1 only through the expert weights each pass reads: the expert penalty becomes \(U^{\mathrm{meas}}_{TD}/U^{\mathrm{meas}}_{AR}\), and AR's intensity changes with them.
 <!-- gist:def7 -->
-A component's efficiency is its empirical roofline over its measured time; its recoverable time is what remains above the time of the best kernel available at its shape.
+A component's efficiency is its empirical roofline over its measured time; its recoverable time is what remains above the time of the best kernel available, timed at one representative shape.
 <!-- gist:prop9 -->
 The measured gain over the bound equals TD's step efficiency over AR's, so the bound is conservative exactly when TD runs closer to its roofline.
 
