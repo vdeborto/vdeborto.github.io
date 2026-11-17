@@ -1301,24 +1301,6 @@
     };
   }
   const pad = (x, n) => String(x).padStart(n);
-  function envelope(m, w, o, hw) {
-    const C = Math.round(w.P + w.G / 2), e = perToken(m, w, o, hw, C);
-    const gbs = (x) => (x >= 1e9 ? `${fmt(x / 1e9, 2)} GB` : `${fmt(x / 1e6, 2)} MB`);
-    const gf = (x) => (x >= 1e12 ? `${fmt(x / 1e12, 2)} TFLOP` : `${fmt(x / 1e9, 2)} GFLOP`);
-    const tf = (x) => `${fmt(x / 1e12, 3)} TFLOP/s`;
-    const peak = tf(hw.peak);
-    const col = (d, head) => {
-      const bound = hw.bw / d.bytes, cAtRate = bound * d.flop;
-      const share = Math.min(1, cAtRate / hw.peak);
-      return [head, `bytes per token      ${gbs(d.bytes)}  (${gbs(d.weights)} weights, ${gbs(d.cache)} cache)`,
-        `bandwidth bound      ${gbs(hw.bw)}/s / ${gbs(d.bytes)} = ${comma(bound)} tok/s`,
-        `compute at that rate ${comma(bound)} × ${gf(d.flop)} = ${tf(cAtRate)}`,
-        `share of peak        ${tf(cAtRate)} / ${peak} = ${(100 * share).toFixed(share < 0.01 ? 2 : 1)} %${cAtRate > hw.peak ? '  → compute-bound: ' + comma(hw.peak / d.flop) + ' tok/s' : ''}`,
-        `throughput (${hw.kernels === 'sum' ? 'kernel by kernel' : 'whole pass'})  ${comma(1 / d.t)} tok/s`];
-    };
-    const a = col(e.ar, `AR step, batch ${w.B}, context ${kTok(C)}`), b = col(e.td, `TD canvas, ω = ${fmt(omega(w), 4)} passes, b = ${w.b}`);
-    return a.join('\n') + '\n\n' + b.join('\n');
-  }
 
   function render(withMaps = true) {
     const st = settings();
@@ -1337,7 +1319,6 @@
     }
 
     verdict(st, r);
-    $('c-env').textContent = envelope(m, w, o, hw);
     const tile = (k, v, s) => `<div class="tile"><div class="k">${k}</div><div class="v">${v}</div><div class="s">${s}</div></div>`;
     $('c-tiles').innerHTML = [
       tile('<span class="swatch" style="background:var(--bdr-td)"></span>TD decode throughput', `${comma(r.td.thrDecode)} tok/s`, `${Math.round((100 * r.td.dec.computeBoundTime) / r.td.dec.t)}% of time compute-bound`),
