@@ -340,16 +340,16 @@ Of course, this formula is <em>idealized</em>, as it holds under some critical a
 
   <h3 id="s-the-three-possible-regimes">The three possible regimes</h3>
 
-<p>The formula above involves the ratio of two minima, which leads to four possible scenarios. Since, under reasonable assumptions, \(\class{mj-td}{I^{\mathrm{TD}}} \geq \class{mj-ar}{I^{\mathrm{AR}}}\) (<a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/#cor1">Corollary 1</a>), only three regimes occur.</p>
+<p>The formula above involves the ratio of two minima, which leads to four possible scenarios. Since, under reasonable assumptions, \(\class{mj-td}{I^{\mathrm{TD}}} \geq \class{mj-ar}{I^{\mathrm{AR}}}\) (<a class="xref" href="/notes/block-diffusion-rooflines-6f924020/linear/#prop3">Proposition 3</a>(4): \(\Pi \le b\)), only three regimes occur.</p>
   <div class="cards three">
     <div class="bdr-card regime lose">
 <div class="card-k">AR compute-bound</div>
 <div class="card-v">\(\Gamma = 1/\omega\)</div>
 <p>TD is then compute-bound as well. Both run at peak, and TD does \(\omega\) times the work. In that scenario, using TD is strictly worse. However, this scenario is extremely rare, as we will see.</p>
 <div class="card-more" hidden>
-  <p>Both passes run at the peak, so time is FLOPs, and a canvas spends \(\omega\) times AR's FLOPs per token: \(\Gamma \le 1/\omega\), equal to it under <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/#prop1">Proposition 1</a>. We claim that this setting is unrealistic, but just how unrealistic is it? AR becomes compute-bound at</p>
+  <p>Both passes run at the peak, so time is FLOPs, and a canvas spends \(\omega\) times AR's FLOPs per token: \(\Gamma \le 1/\omega\), equal to it under <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/#prop1">Proposition 1</a>. We claim that this setting is unrealistic, but just how unrealistic is it? With \(W_{\mathrm{tot}} = 24.5\)B the parameters of all layers without the vocabulary (<a class="xref" href="/notes/block-diffusion-rooflines-6f924020/linear/">Part 2</a>), AR becomes compute-bound at</p>
   <div class="eq">\[ \begin{gathered} \class{mj-ar}{B^{\mathrm{AR}}_\star} = \frac{I^\star s_wW_{\mathrm{tot}}}{2N_{\mathrm{act}}}\\[4pt] = \frac{206 \times 2 \times 24.5\text{B}}{2 \times 3.08\text{B}} \approx 1{,}640. \end{gathered} \]</div>
-  <p>This is with zero context \(C\)! The batch that AR needs grows with the context, and there is usually even a point beyond which no batch size renders AR compute-bound. For instance, by <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/attention/#prop7">Proposition 7</a>, beyond about 135 tokens of context no batch makes an AR step compute-bound.</p>
+  <p>This is with zero context \(C\)! The batch that AR needs grows with the context, and there is usually even a point beyond which no batch size renders AR compute-bound. For instance, beyond about 135 tokens of context no batch makes an AR step compute-bound: there, a sequence's FLOPs no longer cover what its own cache reads need at the ridge, \(D_1(C) \le 0\) in <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/attention/#prop7">Proposition 7</a>, whose inequality holds at every context.</p>
 </div>
 </div>
     <div class="bdr-card regime mem">
@@ -426,7 +426,7 @@ Of course, this formula is <em>idealized</em>, as it holds under some critical a
 </div>
     <div class="bdr-card">
 <div class="card-k">Context, \(C\)</div>
-<p>As the context grows, the arithmetic intensity of the model tends to that of the attention. This generally favours TD, whose attention intensity is \(b\) times that of AR.</p>
+<p>As the context grows, the arithmetic intensity of the model tends to that of the attention. This generally favours TD, whose attention intensity is \(b\) times that of AR without sparse layers.</p>
 <div class="card-more" hidden>
   <div class="eq">\[ \begin{gathered} I^X = \theta^X_{\mathrm{lin}}\,I^X_{\mathrm{lin}} + \theta^X_{\mathrm{attn}}\,I^X_{\mathrm{attn}},\\[4pt] \theta^X_{\mathrm{attn}} = \frac{Q^X_{\mathrm{attn}}}{Q^X}. \end{gathered} \]</div>
   <p>Each intensity (TD or AR) is the weighted average of its two parts, linear and attention (<a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/#prop2">Proposition 2</a>). As \(C\) grows, the attention share \(\theta^X_{\mathrm{attn}}\) goes to 1 and the intensity of the model is roughly the intensity of the attention. Without sparse layers, the arithmetic intensity of the attention of TD is \(b\) times that of AR, and therefore long contexts favour TD.</p>
@@ -435,7 +435,7 @@ Of course, this formula is <em>idealized</em>, as it holds under some critical a
   </div>
 
   <h4>Some limitations</h4>
-  <p>The gains above are roofline bounds under the assumptions (A1)–(A3) of <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/#prop1">Proposition 1</a>. What these assumptions leave out (the vocabulary, kernel-by-kernel timing, kernel efficiency, correlated routing and a few smaller effects) is listed in <a href="/notes/block-diffusion-rooflines-6f924020/setup/#gain-leave-out">Part 1</a>.</p>
+  <p>The gains above are roofline bounds under the assumptions (A1)–(A3) of <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/#prop1">Proposition 1</a>. What these assumptions leave out (kernel efficiency, uneven and correlated routing, keys equal to values on the global layers, kernel-by-kernel timing, the vocabulary and self-conditioning, adaptive step counts, and a few smaller effects) is listed in <a href="/notes/block-diffusion-rooflines-6f924020/setup/#gain-leave-out">Part 1</a>.</p>
 <section class="footnotes" aria-label="Notes"><h3 id="s-notes">Notes</h3>
 <ol><li id="fn-canvas-quality">One trade-off that we deliberately leave out of the analysis is that the longer the canvas, the harder it is for TD to reach the quality of AR. <a href="#fnref-canvas-quality" class="fn-back" aria-label="Back to the text">↩</a>
 </li></ol></section>

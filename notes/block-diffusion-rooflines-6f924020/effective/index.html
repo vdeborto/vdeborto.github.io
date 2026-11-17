@@ -414,7 +414,7 @@
     <p>A pass holds \(N\) tokens: \(N = B\) for an AR step and \(N = Bb\) for a TD pass. For a decoder at batch \(B\) and context \(C\):</p>
     <ul>
       <li>\(U_{\mathrm{meas}}\) is the number of distinct experts a pass touches in one MoE layer, averaged over the 30 layers and the timed passes; across the three repeats of a point, its median.</li>
-      <li>\(\rho_e\) is the probability that a token selects expert \(e\), estimated per layer from all passes of a run, and \(U_{\mathrm{freq}} = \sum_{e=1}^{E} \bigl[1 - (1 - \rho_e)^N\bigr]\) is the count that \(N\) independent tokens with these frequencies would touch.<sup class="fn-ref" id="fnref-binomial-estimator"><a href="#fn-binomial-estimator" title="The term \((1 - \rho_e)^N\) is estimated from the run's counts by a ratio of binomial coefficients, which is unbiased if the run's tokens choose independently.">5</a></sup>
+      <li>\(\rho_e\) is the probability that a token selects expert \(e\), estimated per layer from all passes of a run, and \(U_{\mathrm{freq}} = \sum_{e=1}^{E} \bigl[1 - (1 - \rho_e)^N\bigr]\) is the count that \(N\) independent tokens with these frequencies would touch.<sup class="fn-ref" id="fnref-binomial-estimator"><a href="#fn-binomial-estimator">5</a></sup>
 </li>
       <li>\(N_{\mathrm{eff}}\), the effective number of independent tokens, solves \(U_{E,k}(N_{\mathrm{eff}}) = U_{\mathrm{meas}}\): the number of tokens that, routed independently and uniformly, would touch as many experts as the pass does.</li>
     </ul>

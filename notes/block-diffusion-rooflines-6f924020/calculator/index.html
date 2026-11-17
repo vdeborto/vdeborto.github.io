@@ -398,8 +398,8 @@
         <label for="c-B"><span>Batch \(B\)</span><input id="c-B" type="number" min="1" step="1" value="1"></label>
         <details class="more">
           <summary>More settings</summary>
-          <label for="c-lt"><span>Logit reads and writes per position, TD (\(\lambda\))</span><input id="c-lt" type="number" min="0" step="1" value="5"></label>
-          <label for="c-la"><span>Logit reads and writes per position, AR (\(\lambda\))</span><input id="c-la" type="number" min="0" step="1" value="2"></label>
+          <label for="c-lt"><span>Logit reads and writes per position, TD (\(\class{mj-td}{\lambda^{\mathrm{TD}}}\))</span><input id="c-lt" type="number" min="0" step="1" value="5"></label>
+          <label for="c-la"><span>Logit reads and writes per position, AR (\(\class{mj-ar}{\lambda^{\mathrm{AR}}}\))</span><input id="c-la" type="number" min="0" step="1" value="2"></label>
           <p class="hint">\(\lambda\) counts the logit-sized reads and writes of HBM per output position (exact accounting, below); 0 means the logits stay on-chip.</p>
           <label for="c-bl"><span>Logit bytes</span><select id="c-bl"><option value="4">4 (FP32)</option>
 <option value="2">2 (BF16)</option></select></label>
@@ -475,7 +475,7 @@
 <th>weights GB</th>
 <th>KV GB</th>
 <th>act. GB</th>
-<th>vocab GB</th>
+<th title="embedding rows, head inputs and logits">I/O GB</th>
 <th>Q GB</th>
 <th>\(I\)</th>
 <th>bound</th>
@@ -519,15 +519,15 @@
         <li>the vocabulary matrix once per use;</li>
         <li>KV reads and writes, including the index cache of sparse layers;</li>
         <li>activations under a fused kernel schedule, or none when they stay on-chip;</li>
-        <li>logits and probabilities, \(\lambda\) times per output position, with \(\lambda\) the calculator's logit reads and writes per position.</li>
+        <li>logits and probabilities, \(\lambda\) times per output position, with \(\lambda\) the calculator's logit reads and writes per position: by default \(\class{mj-td}{\lambda^{\mathrm{TD}}} = 5\) and \(\class{mj-ar}{\lambda^{\mathrm{AR}}} = 2\), and \(\class{mj-td}{\lambda^{\mathrm{TD}}} = 2\) for a TD twin without self-conditioning.</li>
       </ul>
 </li>
     <li>
 <b>Denoising-pass cost:</b> a denoising pass multiplies every per-layer term (FLOPs, weights, KV reads, activations) by \(r\), while its vocabulary and self-conditioning terms are unchanged. For \(r \gt 1\), the memory footprint adds \((r-1)L\) layers of weights.</li>
     <li>
-<b>Time:</b> the per-pass roofline, \(\max(F/\pi, Q/\beta)\). Under the calculator's kernel-by-kernel rule, it is instead the sum of that roofline over the kernel classes (dense layers, experts, global, window and sparse attention, indexer, vocabulary head). The FLOPs and bytes of the classes add up exactly to those of the pass.</li>
+<b>Time:</b> the per-pass roofline, \(\max(F/\pi, Q/\beta)\), where \(F/\pi\) adds each kind of FLOP at its own peak: the linear layers at the FP8 peak when the weights are in FP8, and attention at the attention ceiling when the accelerator has one. Under the calculator's kernel-by-kernel rule, it is instead the sum of that roofline over the kernel classes (dense layers, experts, global, window and sparse attention, indexer, vocabulary head). The FLOPs and bytes of the classes add up exactly to those of the pass.</li>
   </ul>
-  <p>The closed forms for masked key counts match brute-force counting. In addition, <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/#prop1">Proposition 1</a> matches this accounting to within 1.32% without vocabulary.</p>
+  <p>The closed forms for masked key counts match brute-force counting. In addition, without the vocabulary, <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/#prop1">Proposition 1</a> matches this accounting to within 1.32% at contexts of at least 1k, and to within 2.2% over the whole grid of the maps, whose shortest contexts are about 560 tokens.</p>
   <p>Model shapes come from each checkpoint's <code>config.json</code>. For DiffusionGemma, they also come from its safetensors headers, which give 25.25B text parameters, 3.08B active per token plus a 0.74B head.</p>
 </section>
 <nav class="book-nav" aria-label="Chapters"><a class="prev" href="/notes/block-diffusion-rooflines-6f924020/attention/"><span>Previous</span>3 · The attention part</a><a class="next" href="/notes/block-diffusion-rooflines-6f924020/examples/"><span>Next</span>5 · Exercises</a></nav>
