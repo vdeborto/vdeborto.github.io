@@ -309,10 +309,31 @@
 <noscript><p>This page needs JavaScript for its equations, figures and calculator.</p></noscript>
 <p class="book-part">Part 2 of <a href="/notes/block-diffusion-rooflines-6f924020/">Block Diffusion Rooflines</a><span class="book-links"><span class="bl-row">Previous: <a href="/notes/block-diffusion-rooflines-6f924020/setup/" rel="prev">1 · Setup and the gain</a></span><span class="bl-row">Next: <a href="/notes/block-diffusion-rooflines-6f924020/calculator/" rel="next">3 · Maps and calculator</a></span></span></p>
 <section class="bdr-col" id="linear">
-  <p class="chapter-intro">A pass reads two things: the weights, which the batch shares, and the KV cache, which each sequence brings. In this chapter, we treat each in turn. At short context the weights dominate, and the batch \(B\) sets both intensities: we compute the linear penalty \(\Pi_{\mathrm{lin}}\), the ratio of the weight bytes a TD pass reads to those an AR step reads (7.9 at batch 1 for DiffusionGemma, falling to 1 as the batch grows), state up to which context the linear layers dominate, and derive the gain there, whose best batch is the one at which a TD pass just becomes compute-bound. At long context the cache dominates: a larger batch no longer raises either intensity, but a canvas still does, since its \(b\) queries share one read of the cache. We give the costs of dense, sliding-window and sparse attention, show that the selection penalty of a sparse layer is the expert penalty \(\Pi_E\) at batch 1 with the cached tokens in the role of the experts, and derive the gain when attention dominates. Finally, we follow, across every context, the batch at which each decoder saturates compute: the canvas does for the KV cache what the batch does for the weights.</p>
-  <p>We start with short contexts, where the attention terms are negligible. Hence, the bytes of a pass are those of the weights it reads: \(s_w\class{mj-ar}{W^{\mathrm{AR}}}(B)\) for an AR step and \(s_w\class{mj-td}{W^{\mathrm{TD}}}(B)\) for a TD pass. The TD pass computes \(b\) times as many positions while reading \(\Pi_{\mathrm{lin}}(B)\) times the weight bytes, so its linear intensity is \(b/\Pi_{\mathrm{lin}}(B)\) times AR's (<a class="xref" href="#prop3">Proposition 3</a> below).</p>
+ <p class="chapter-intro">In this section, we go into the details of the results of <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/#prop1">Proposition 1</a>. In fact, we are going to analyse two specific regimes:</p>
 
-  <h3 id="lin-penalty">The expert and linear penalties</h3>
+<ul>
+<li>At <em>short context</em>, the network can be approximated by its linear layers only. </li>
+<li>At <em>large context</em>, the network can be approximated by its attention layers only.</li>
+</ul>
+
+<p>Investigating those different regimes also highlight the roles of the different quantities that dictate the throughput gains of TD over AR.
+For instance, one of our main conclusion will be that the canvas size \(b\) is for the attention layers what the batch size \(B\) is for the linear layers, i.e., the critical hyperparameter which maximises the arithmetic intensity of that specific operation.</p>
+
+<p>Finally, by looking at each operation independently we can better understand what drives the limitations and the gains of each kernel. 
+This is especially useful as some operations might be memory bound while other might be compute bound.</p>
+
+<p>Each section is split into the following categories:</p>
+
+<ul>
+<li>What are the sparsity penalty and main quantities in that regime (linear or attention)? </li>
+<li>When does the regime dominates?</li>
+<li>What is the throughput gain in that regime limit?</li>
+</ul>
+
+
+    <h3 id="lin-penalty">Linear layers</h3>
+
+  <h4 id="lin-penalty">The expert and linear penalties</h4>
   <div class="box prop" id="prop3">
     <div class="bdr-title">
 <span class="tag">Proposition 3</span>The expert penalty and the linear penalty</div>
@@ -337,7 +358,7 @@
 
 
 
-  <h3 id="lin-dominate">When the linear layers dominate</h3>
+  <h4 id="lin-dominate">When are we in the linear layer regime?</h4>
   <div class="box prop" id="prop4">
     <div class="bdr-title">
 <span class="tag">Proposition 4</span>When the linear layers dominate</div>
@@ -360,7 +381,7 @@
     <div data-fig="linmap"></div>
   </div>
 
-  <h3 id="lin-gain">The gain when the linear layers dominate</h3>
+  <h4 id="lin-gain">The gain when the linear layers dominate</h4>
   <p>When the weights are most of the bytes of both passes, the two terms of <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/#cor1">Corollary 1</a> depend only on the batch, and their crossing gives the best batch in closed form (<a class="xref" href="#cor2">Corollary 2</a>).</p>
   <div class="box prop" id="cor2">
     <div class="bdr-title">
@@ -396,7 +417,10 @@
 
 
   <p id="attention">We now turn to long contexts, where the attention terms dominate: a pass costs what it reads of each sequence's KV cache. Three kinds of attention layer appear in current models: dense, sliding-window, and sparse in the style of DeepSeek Sparse Attention (DSA; <a href="https://arxiv.org/abs/2512.02556" rel="external nofollow noopener" target="_blank">DeepSeek-AI, 2025</a>). We summarise how DSA works in <a class="xref" href="#dsa">Remark 1</a> below. <a class="xref" href="#table-1">Table 1</a> gives, per sequence, what one query costs on each kind of layer and what an AR step and a TD pass of \(b\) queries read. As a sparse example we use the sparse variant of DiffusionGemma: its five global layers become DSA layers with \(m = 2{,}048\) and an indexer of \(n_I = 8\) heads of dimension \(h_I = 128\) in FP8. Then \(\nu_S = \nu_G = 20\) KiB and \(\nu_I = 640\) bytes per token, so \(\nu_I = \nu_S/32\).</p>
-  <h3 id="attn-kinds">Dense, windowed and sparse attention</h3>
+
+    <h3 id="lin-penalty">Attention layers</h3>
+
+  <h4 id="attn-kinds">Dense, windowed and sparse attention</h4>
   <details class="box remark" id="dsa">
     <summary><span class="tag">Remark 1</span>How DSA works</summary>
     <p>For a query at position \(i\), with hidden state \(x_i\) and \(C\) cached tokens \(j\), a DSA layer does three things.</p>
@@ -460,7 +484,7 @@
 </tr>
     </tbody>
   </table></div>
-  <h3 id="attn-penalty">The penalty of a sparse layer</h3>
+  <h4 id="attn-penalty">Sparse attention penalties</h4>
   <p>Dense and windowed layers behave alike: the canvas reads the cache once, and every query uses it. In a sparse layer, the scan behaves the same way. On the other hand, the selected tokens do not. Each query attends to its own \(m\) tokens, hence the canvas reads the union of \(b\) selections, which lies between \(m\) and the whole cache, while the FLOPs stay at \(m\) per query.</p>
 
   <div class="bdr-fig" id="fig-attnread">
@@ -493,7 +517,7 @@
     <p class="fig-lede">Drag the marker along the context axis, and change the canvas length.</p>
     <div data-fig="sparse"></div>
   </div>
-  <h3 id="attn-dominate">When attention dominates</h3>
+  <h4 id="attn-dominate">When are we in the attention layer regime?</h4>
   <div class="box prop" id="prop6">
     <div class="bdr-title">
 <span class="tag">Proposition 6</span>When attention dominates</div>
@@ -538,7 +562,7 @@
   </table></div>
   </details>
 
-  <h3 id="attn-gain">The gain when attention dominates</h3>
+  <h4 id="attn-gain">The gain when attention layers dominate</h4>
   <p>When attention carries most of the bytes and FLOPs of both passes, the batch drops out of <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/#cor1">Corollary 1</a>: a cache belongs to one sequence, so both of its terms depend only on the context (<a class="xref" href="#cor3">Corollary 3</a>).</p>
   <div class="box prop" id="cor3">
     <div class="bdr-title">
@@ -621,7 +645,7 @@
 
 
 
-  <h3 id="saturate">The batch needed to saturate compute</h3>
+  <h4 id="saturate">Optimal batch size</h4>
   <p>The sections above treat the two extremes, short and long context. The last proposition of this chapter follows, across every context, the batch at which each decoder saturates compute.</p>
   <div class="box prop" id="prop7">
     <div class="bdr-title">
@@ -714,7 +738,7 @@
 
   
   
-    Last updated: November 17, 2026.
+    Last updated: November 19, 2026.
   
 
     </div>

@@ -310,12 +310,12 @@
 <noscript><p>This page needs JavaScript for its equations, figures and calculator.</p></noscript>
 <p class="book-part">Part 7 of <a href="/notes/block-diffusion-rooflines-6f924020/">Block Diffusion Rooflines</a><span class="book-links"><span class="bl-row">Previous: <a href="/notes/block-diffusion-rooflines-6f924020/stack/" rel="prev">6 · The measurement stack</a></span><span class="bl-row">Next: <a href="/notes/block-diffusion-rooflines-6f924020/conclusion/" rel="next">8 · Conclusion</a></span></span></p>
 <section class="bdr-col" id="kernelwork">
-  <p class="chapter-intro">Even with the engine fixed, two components of TD's step remain far below their rooflines: the routed experts, and global attention at head dimension 512. In this chapter, we explain why each loses time, rewrite both, and measure what the rewrites change in efficiency, throughput and quality. Along the way, we define the hardware terms that we add to those of <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/stack/">Part 6</a>.</p>
+  <p class="chapter-intro">With the engine fixed, two components of TD's step remain far below their rooflines: the routed experts, and global attention at head dimension 512. This chapter explains why each loses time, rewrites both, and measures what the rewrites change in efficiency, throughput and quality. It adds a few hardware terms to those of <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/stack/">Part 6</a>.</p>
   <h3 id="kern-terms">Terms</h3>
-  <p>Rewriting a kernel requires a closer look at the hardware. The H200 is a Hopper GPU, and we use the following terms throughout this chapter.</p>
+  <p>Rewriting a kernel needs a closer look at the hardware. The H200 is a Hopper GPU; this chapter uses the following terms.</p>
   <ul>
     <li>
-<b>SM (streaming multiprocessor):</b> one of the 132 independent processors of the chip, each with its own tensor cores (the matrix-multiply units), registers and shared memory.</li>
+<b>SM (streaming multiprocessor):</b> one of the 132 independent processors of the chip, each with its own tensor cores, registers and shared memory.</li>
     <li>
 <b>CTA (cooperative thread array, or thread block):</b> a group of threads that runs on one SM and shares its shared memory; a kernel launch is a grid of CTAs. A <b>cluster</b> is a group of CTAs, here two, that run at the same time on different SMs and can read and write each other's shared memory.</li>
     <li>
@@ -334,7 +334,7 @@
 <b>Atomic addition:</b> an addition to a memory location that is safe when several CTAs add to it at once.</li>
   </ul>
 
-  <p>Before going into the two rewrites, <a class="xref" href="#figure-29">Figure 29</a> shows the H200 schematically and what each rewrite changes on it: where the expert path keeps its intermediate tensors, and how splitting each attention head across two SMs frees room in shared memory.</p>
+  <p><a class="xref" href="#figure-29">Figure 29</a> shows the H200 schematically and what each rewrite changes on it.</p>
   <div class="bdr-fig pfig" id="fig-chip">
     <div class="fig-k" id="figure-29">Figure 29 · interactive</div>
     <p class="fig-title">Both rewrites keep data close to the processors: the experts' intermediate tensors stay on the chip, and splitting each attention head across two SMs frees room in shared memory.</p>
@@ -348,7 +348,7 @@
   <div class="eq eq-wide">\[ a_{i,e} = \mathrm{gelu}\bigl(x_i W_{g,e}^{\top}\bigr) \odot \bigl(x_i W_{u,e}^{\top}\bigr), \qquad y_i = \sum_{e} p_{i,e}\, a_{i,e} W_{d,e}^{\top}: \]</div>
   <div class="eq eq-narrow">\[ \begin{gathered} a_{i,e} = \mathrm{gelu}\bigl(x_i W_{g,e}^{\top}\bigr) \odot \bigl(x_i W_{u,e}^{\top}\bigr),\\[4pt] y_i = \sum_{e} p_{i,e}\, a_{i,e} W_{d,e}^{\top}: \end{gathered} \]</div>
   <p>a first GEMM with the gate and up matrices \(W_g, W_u\) and a second with the down matrix \(W_d\). Consider \(N\) tokens touching \(U\) experts, with \(\mu = Nk/U\) rows per touched expert on average. The layer does \(F = 6Nk\,d f_E\) FLOPs and reads \(Q = 3U d f_E\) bytes of FP8 weights, so its intensity is \(F/Q = 2\mu\). Since the empirical ridge point is 340 FLOP/byte, the layer is compute-bound above about 170 rows per expert. At the measured routing, TD reaches this point from batch 16 on, and at batch 8 at context 64k.</p>
-  <p>vLLM's two expert GEMMs are not slow: profiled at batch 32, they take the same time as those of our expert kernel below. Instead, the time is lost between them, in passes that write intermediate tensors to memory and read them back.</p>
+  <p>Profiled at batch 32, vLLM's two expert GEMMs take the same time as those of our expert kernel below; the time is lost between them, in passes that write intermediate tensors to memory and read them back.</p>
   <div class="bdr-fig pfig" id="fig-moe">
     <div class="fig-k" id="figure-30">Figure 30</div>
     <p class="fig-title">The new expert path runs six kernels where vLLM's runs nine.</p>
@@ -360,7 +360,7 @@
     <li>
 <b>Weights rewritten once.</b> The gate and up matrices are padded with zero rows from 704 to 768 and interleaved in blocks of 128, and \(W_d\) is padded to 768 columns. The padding is exact: a padded column has gate and up equal to 0, so \(a = \mathrm{gelu}(0)\cdot 0 = 0\), which meets a zero column of \(W_d\). A tile of the first GEMM then holds 128 gate columns next to their 128 up columns, so the activation can be applied in registers.</li>
     <li>
-<b>First GEMM with the activation.</b> Each CTA takes 128 rows of one expert (64 at batch 1–2, where a layer holds at most 4,096 rows), gathers the corresponding rows of \(x\), which one light kernel has quantised to FP8 with one scale per token beforehand, and applies the activation in registers.</li>
+<b>First GEMM with the activation.</b> Each CTA takes 128 rows of one expert (64 at batch 1–2, where a layer holds at most 4,096 rows), gathers the corresponding rows of \(x\), which one light kernel has quantised to FP8 with one scale per token beforehand.</li>
     <li>
 <b>One pass to quantise \(a\).</b> The FP8 scale of a row of \(a\) needs its maximum over all 768 columns, which no single tile sees, so a light kernel converts \(a\) to FP8 with one scale per row.</li>
     <li>
@@ -411,8 +411,8 @@
 </tbody>
   </table></div>
   </details>
-  <p>With these changes, the expert path takes 19–28% less time per pass, and the TD step 4–8% less (<a class="xref" href="#table-9">Table 9</a>). We use the expert kernel for TD only: an AR step sends 1–64 tokens through a layer, and in the engine, at batch 32 and context 1k, it was 9% slower. GSM8K on 250 problems is 96.8% with and without it.</p>
-  <p>Of course, our kernel is not the best one can do. The best kernel available at the same shape is cuBLAS on one large GEMM with all \(Nk\) rows stacked, which needs no padding per expert. At batch 32, it runs the first GEMM at 0.93 of the empirical FP8 ceiling, and the second, with the width padded to 768, at 0.64 counting only its real FLOPs. Weighted by their FLOPs (two thirds and one third), the two GEMMs together run at 0.81 of the empirical roofline. This reference sets the experts' target efficiency in <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/stack/#def7">Definition 7</a> (<a class="xref" href="/notes/block-diffusion-rooflines-6f924020/stack/">Part 6</a>).</p>
+  <p>The expert path takes 19–28% less time per pass, and the TD step 4–8% less (<a class="xref" href="#table-9">Table 9</a>). We use the expert kernel for TD only: an AR step sends 1–64 tokens through a layer, and in the engine, at batch 32 and context 1k, it was 9% slower. GSM8K on 250 problems is 96.8% with and without it.</p>
+  <p>The best kernel available at the same shape is cuBLAS on one large GEMM with all \(Nk\) rows stacked, which needs no padding per expert. At batch 32, it runs the first GEMM at 0.93 of the empirical FP8 ceiling, and the second, with the width padded to 768, at 0.64 counting only its real FLOPs. Weighted by their FLOPs (two thirds and one third), the two GEMMs together run at 0.81 of the empirical roofline, the experts' target efficiency in <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/stack/#def7">Definition 7</a> (<a class="xref" href="/notes/block-diffusion-rooflines-6f924020/stack/">Part 6</a>).</p>
   <p>Nsight Compute, NVIDIA's kernel profiler, locates the rest of the gap inside the two Triton GEMMs:</p>
 
 <ul>
@@ -428,7 +428,7 @@
   <p>Five of the 30 layers attend globally, with \(n_q = 16\) query heads, \(n_{\mathrm{kv}} = 2\) key/value heads and head dimension \(h = 512\). In a denoising pass, the \(b = 256\) canvas queries of a sequence attend to its \(C + b\) keys, so</p>
   <div class="eq eq-wide">\[ F = 4\,b\,(C + b)\, h\, n_q, \qquad Q \approx \kappa^c s_{\mathrm{kv}}\,(C + b)\, h\, n_{\mathrm{kv}}, \qquad \frac{F}{Q} = \frac{4\,b\,n_q}{\kappa^c s_{\mathrm{kv}}\,n_{\mathrm{kv}}} = b\,I_{\mathrm{attn}} = 2048 \ \text{FLOP/byte}. \]</div>
   <div class="eq eq-narrow">\[ \begin{gathered} F = 4\,b\,(C + b)\, h\, n_q, \qquad Q \approx \kappa^c s_{\mathrm{kv}}\,(C + b)\, h\, n_{\mathrm{kv}},\\[4pt] \frac{F}{Q} = \frac{4\,b\,n_q}{\kappa^c s_{\mathrm{kv}}\,n_{\mathrm{kv}}} = b\,I_{\mathrm{attn}} = 2048 \ \text{FLOP/byte}. \end{gathered} \]</div>
-  <p>This intensity is 14 times the ridge point of the attention ceiling, \(\hat\pi_{\mathrm{attn}}/\hat\beta \approx 148\). Hence, the kernel should run at the attention ceiling. In practice, FlashAttention 4 runs at 296–357 TFLOP/s here, against 700–729 at head dimension 256 on the same rows. The cause is the head dimension. Indeed, a CTA keeps its output rows in registers in FP32, \(4M_qh\) bytes for \(M_q\) rows, i.e., 128 KB at \(M_q = 64\), half of the register file. In addition, in shared memory the query tile and one stage of keys and values take</p>
+  <p>This intensity is 14 times the ridge point of the attention ceiling, \(\hat\pi_{\mathrm{attn}}/\hat\beta \approx 148\), so the kernel should run at the attention ceiling. However, FlashAttention 4 runs at 296–357 TFLOP/s here, against 700–729 at head dimension 256 on the same rows, because of the head dimension: a CTA keeps its output rows in registers in FP32, \(4M_qh\) bytes for \(M_q\) rows, i.e., 128 KB at \(M_q = 64\), half of the register file, and in shared memory the query tile and one stage of keys and values take</p>
   <div class="eq eq-wide">\[ \underbrace{64 \cdot 512 \cdot 2}_{\text{queries}} + \underbrace{64 \cdot 512 \cdot 2}_{\text{keys}} + \underbrace{64 \cdot 512 \cdot 2}_{\text{values}} + \underbrace{64 \cdot 64 \cdot 2}_{\text{scores}} \ \text{bytes} = 200\ \text{KB}, \]</div>
   <div class="eq eq-narrow">\[ \begin{gathered} \underbrace{3 \times 64 \cdot 512 \cdot 2}_{\text{queries, keys, values}} + \underbrace{64 \cdot 64 \cdot 2}_{\text{scores}}\\[4pt] = 200\ \text{KB}, \end{gathered} \]</div>
   <p>so a second stage does not fit in 227 KB. Hence, loading cannot overlap compute, and Nsight Compute finds the tensor cores busy 36% of the time.</p>
@@ -447,7 +447,7 @@
     <div class="pfig-scroll"><svg viewbox="0 0 660 142" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Shared memory per thread block: FA4 at head dimension 512 fits one pipeline stage; the pair kernel fits two stages and its exchange buffers" class="pfig-svg pfig-wide" style="max-width:660px"><text x="142" y="41" text-anchor="end" style="font-size:12px;fill:var(--ink)">FA4, hd 512</text><rect x="150" y="22" width="122.8" height="28" rx="3" fill="var(--bdr-ink-2)" fill-opacity="0.8"></rect><text x="211.4" y="40" text-anchor="middle" style="fill:var(--bdr-bg);font-size:12px">Q</text><rect x="274.8" y="22" width="122.8" height="28" rx="3" fill="var(--bdr-s3)" fill-opacity="0.8"></rect><text x="336.2" y="40" text-anchor="middle" style="fill:var(--bdr-bg);font-size:12px">K</text><rect x="399.6" y="22" width="122.8" height="28" rx="3" fill="var(--bdr-s4)" fill-opacity="0.8"></rect><text x="461.0" y="40" text-anchor="middle" style="fill:var(--bdr-bg);font-size:12px">V</text><rect x="524.4" y="22" width="13.6" height="28" rx="3" fill="var(--bdr-muted)" fill-opacity="0.8"></rect><line x1="531.1999999999999" y1="21" x2="531.1999999999999" y2="18" stroke="var(--ink)"></line><text x="531.1999999999999" y="16" text-anchor="middle" style="font-size:12px;fill:var(--ink)">P</text><text x="600.65" y="41" style="font-size:12px;fill:var(--ink)">200 KB</text><text x="142" y="87" text-anchor="end" style="font-size:12px;fill:var(--ink)">pair, per block</text><rect x="150" y="68" width="122.8" height="28" rx="3" fill="var(--bdr-ink-2)" fill-opacity="0.8"></rect><text x="211.4" y="86" text-anchor="middle" style="fill:var(--bdr-bg);font-size:12px">Q half</text><rect x="274.8" y="68" width="60.4" height="28" rx="3" fill="var(--bdr-s3)" fill-opacity="0.8"></rect><text x="305.0" y="86" text-anchor="middle" style="fill:var(--bdr-bg);font-size:12px">K st.1</text><rect x="337.2" y="68" width="60.4" height="28" rx="3" fill="var(--bdr-s3)" fill-opacity="0.8"></rect><text x="367.4" y="86" text-anchor="middle" style="fill:var(--bdr-bg);font-size:12px">K st.2</text><rect x="399.59999999999997" y="68" width="60.4" height="28" rx="3" fill="var(--bdr-s4)" fill-opacity="0.8"></rect><text x="429.79999999999995" y="86" text-anchor="middle" style="fill:var(--bdr-bg);font-size:12px">V st.1</text><rect x="461.99999999999994" y="68" width="60.4" height="28" rx="3" fill="var(--bdr-s4)" fill-opacity="0.8"></rect><text x="492.19999999999993" y="86" text-anchor="middle" style="fill:var(--bdr-bg);font-size:12px">V st.2</text><rect x="524.4" y="68" width="60.4" height="28" rx="3" fill="var(--bdr-muted)" fill-opacity="0.8"></rect><text x="554.6" y="86" text-anchor="middle" style="fill:var(--bdr-bg);font-size:12px">Z ×2</text><text x="600.65" y="87" style="font-size:12px;fill:var(--ink)">224 KB</text><line x1="592.65" y1="14" x2="592.65" y2="114" stroke="var(--bdr-critical)" stroke-dasharray="5 4"></line><text x="592.65" y="132" text-anchor="middle" style="font-size:12px;fill:var(--bdr-critical)">227 KB per SM</text></svg></div>
     <p class="fig-cap">Shared memory per thread block, in KB, against the 227 KB of one SM. FA4 at head dimension 512 holds full-width tiles and fits one stage; a block of the pair holds half-width tiles and fits two stages of 64 keys plus two exchange buffers. With 80-token KV pages the fastest configuration uses the room differently, for one stage of 80-key tiles loaded by TMA (<a class="xref" href="#table-10">Table 10</a>).</p>
   </div>
-  <p>Each CTA thus solves a head-dimension-256 problem, which is small enough for two stages or for larger tiles of keys. This comes at the cost of one exchange per tile of keys: each CTA sends its partial scores into the partner's shared memory and waits for the partner's. Per tile of \(M_q\) query rows and \(M_k\) keys, a CTA does \(4M_qM_k\,(h/2)\) FLOPs and sends \(M_qM_k\) FP16 scores, i.e., 512 FLOPs per byte crossing between the SMs. Without the exchange<sup class="fn-ref" id="fnref-no-exchange"><a href="#fn-no-exchange" title="A diagnostic build that skips the exchange, and hence computes wrong scores, gives this upper limit.">1</a></sup>, the pair would run at 711–723 TFLOP/s. With it, in the configuration with 64-key tiles and two stages, each tile waits about 0.5 µs for synchronisation and 0.67 µs for the transfer, against 1.5 µs of tensor work. The fastest exchange uses 16-byte asynchronous stores into two alternating buffers<sup class="fn-ref" id="fnref-exchange-variants"><a href="#fn-exchange-variants" title="We tried fifteen variants of the exchange; the code card below shows the one the engine runs (mode 9).">2</a></sup>.</p>
+  <p>Each CTA thus solves a head-dimension-256 problem, which is small enough for two stages or for larger tiles of keys. The split requires one exchange of partial scores per tile of keys (<a class="xref" href="#figure-32">Figure 32</a>). Per tile of \(M_q\) query rows and \(M_k\) keys, a CTA does \(4M_qM_k\,(h/2)\) FLOPs and sends \(M_qM_k\) FP16 scores, i.e., 512 FLOPs per byte crossing between the SMs. Without the exchange<sup class="fn-ref" id="fnref-no-exchange"><a href="#fn-no-exchange" title="A diagnostic build that skips the exchange, and hence computes wrong scores, gives this upper limit.">1</a></sup>, the pair would run at 711–723 TFLOP/s; with it, in the configuration with 64-key tiles and two stages, each tile waits about 0.5 µs for synchronisation and 0.67 µs for the transfer, against 1.5 µs of tensor work. The fastest exchange uses 16-byte asynchronous stores into two alternating buffers<sup class="fn-ref" id="fnref-exchange-variants"><a href="#fn-exchange-variants" title="We tried fifteen variants of the exchange; the code card below shows the one the engine runs (mode 9).">2</a></sup>.</p>
 
 
 
@@ -494,10 +494,10 @@
 </tbody>
   </table></div>
   </details>
-  <p>The KV cache is stored in pages of a fixed number of tokens. When the page size equals the kernel's tile of keys, keys and values can be loaded by TMA. Hence, TD uses pages of 80 tokens with the pair kernel, whose fastest configuration has one stage of 80-key tiles. In dedicated engine runs outside the grid of <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/effective/">Parts 5</a>–<a class="xref" href="/notes/block-diffusion-rooflines-6f924020/conclusion/">8</a> (<a class="xref" href="#table-10">Table 10</a>), global attention then runs 1.36–1.37 times faster than FlashAttention 4 at its best page size. Timed alone on the engine's layout, the pair kernel reaches 0.71–0.74 of the attention ceiling (0.73 on average at the three shapes of <a class="xref" href="#table-10">Table 10</a>), so the engine loses little beyond the kernel itself. Note that at batch 1, where a pass holds fewer than 512 queries, the pair kernel is slower than FlashAttention 4, which keeps those calls.</p>
+  <p>The KV cache is stored in pages of a fixed number of tokens, and keys and values can be loaded by TMA when the page size equals the kernel's tile of keys. Hence, TD uses pages of 80 tokens with the pair kernel, whose fastest configuration has one stage of 80-key tiles. In dedicated engine runs outside the grid of <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/effective/">Parts 5</a>–<a class="xref" href="/notes/block-diffusion-rooflines-6f924020/conclusion/">8</a> (<a class="xref" href="#table-10">Table 10</a>), global attention then runs 1.36–1.37 times faster than FlashAttention 4 at its best page size. Timed alone on the engine's layout, the pair kernel reaches 0.71–0.74 of the attention ceiling, so the engine loses little beyond the kernel itself. At batch 1, where a pass holds fewer than 512 queries, the pair kernel is slower than FlashAttention 4, which keeps those calls.</p>
 
   <h3 id="kern-consequences">What the two kernels change</h3>
-  <p>Both kernels raise their components' efficiency without reaching their targets of <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/stack/#def7">Definition 7</a> (<a class="xref" href="/notes/block-diffusion-rooflines-6f924020/stack/">Part 6</a>). At batch 8 and above:</p>
+  <p>Both kernels raise their components' efficiency, and neither reaches its target of <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/stack/#def7">Definition 7</a> (<a class="xref" href="/notes/block-diffusion-rooflines-6f924020/stack/">Part 6</a>). At batch 8 and above:</p>
 
 <ul>
 <li>
@@ -612,7 +612,7 @@
 <strong>Context 64k:</strong> 36.0 ms are saved: 5.6 in the experts and 32.5 in global attention, less 2.1 ms elsewhere, mostly the 1.8 ms that the other components lose.</li>
 </ul>
 
-  <p>Overall, TD's throughput rises by 4–11% at batch 1 and by 5–22% from batch 2 on, most at long context. These ratios compare the median of three repeats with one stock run on the first repeat's prompts, so they also contain differences in routing and idle time: at batch 1 and 64k the two arms touch 28 and 58 experts per layer, and at batch 2 and 16k idle time makes up about half of the 22%. With both kernels, GSM8K is 96.4% against 96.8%, and IFEval 60.8% strict and 78.4% loose against 60.0% and 78.0%, on 250 items each<sup class="fn-ref" id="fnref-eval-noise"><a href="#fn-eval-noise" title="In these evaluations, TD samples with its own temperature schedule. On 250 items one item is 0.4 points, so each difference with both kernels is one or two items, and the check with the attention kernel alone differs by up to four (IFEval loose, 76.4% against 78.0%), all within one standard error (about 1.2 points at 96% accuracy and 3 points at 60%).">3</a></sup>. This check ran the pair kernel in an earlier configuration, two stages of 64-key tiles on the default pages. The configuration of the measured runs, one stage of 80-key tiles on 80-token pages, was checked with the attention kernel alone: GSM8K 96.4%, IFEval 60.0% strict and 76.4% loose.</p>
+  <p>TD's throughput rises by 4–11% at batch 1 and by 5–22% from batch 2 on. These ratios (<a class="xref" href="#figure-36">Figure 36</a>) also contain differences in routing and idle time: at batch 1 and 64k the two arms touch 28 and 58 experts per layer, and at batch 2 and 16k idle time makes up about half of the 22%. With both kernels, GSM8K is 96.4% against 96.8%, and IFEval 60.8% strict and 78.4% loose against 60.0% and 78.0%<sup class="fn-ref" id="fnref-eval-noise"><a href="#fn-eval-noise" title="In these evaluations, TD samples with its own temperature schedule. On 250 items one item is 0.4 points, so each difference with both kernels is one or two items, and the check with the attention kernel alone differs by up to four, all within one standard error (about 1.2 points at 96% accuracy and 3 points at 60%).">3</a></sup>. This check ran the pair kernel in an earlier configuration, two stages of 64-key tiles on the default pages. The configuration of the measured runs, one stage of 80-key tiles on 80-token pages, was checked with the attention kernel alone: GSM8K 96.4%, IFEval 60.0% strict and 76.4% loose.</p>
 
 
 
@@ -671,16 +671,7 @@
 </tbody>
   </table></div>
   </details>
-  <p>Which component keeps the most recoverable time depends on the batch:</p>
-
-<ul>
-<li>
-<strong>Batch 1:</strong> The dense GEMMs lead at contexts 1k–16k, just ahead of the experts. At 64k, global attention, which still runs on FlashAttention 4 there, leads.</li>
-<li>
-<strong>Batch 2–8:</strong> The experts keep the most recoverable time.</li>
-<li>
-<strong>From batch 16 on:</strong> Time outside the model comes first: norms, rotary embeddings, residual additions and activation quantisation, which no roofline covers.</li>
-</ul>
+  <p>At batch 1 (<a class="xref" href="#figure-37">Figure 37</a>), the dense GEMMs keep the most recoverable time at contexts 1k–16k, just ahead of the experts, and global attention, which still runs on FlashAttention 4 there, at 64k.</p>
 
 <section class="footnotes" aria-label="Notes"><h3 id="s-notes">Notes</h3>
 <ol>
@@ -688,7 +679,7 @@
 </li>
 <li id="fn-exchange-variants">We tried fifteen variants of the exchange; the code card below shows the one the engine runs (mode 9). <a href="#fnref-exchange-variants" class="fn-back" aria-label="Back to the text">↩</a>
 </li>
-<li id="fn-eval-noise">In these evaluations, TD samples with its own temperature schedule. On 250 items one item is 0.4 points, so each difference with both kernels is one or two items, and the check with the attention kernel alone differs by up to four (IFEval loose, 76.4% against 78.0%), all within one standard error (about 1.2 points at 96% accuracy and 3 points at 60%). <a href="#fnref-eval-noise" class="fn-back" aria-label="Back to the text">↩</a>
+<li id="fn-eval-noise">In these evaluations, TD samples with its own temperature schedule. On 250 items one item is 0.4 points, so each difference with both kernels is one or two items, and the check with the attention kernel alone differs by up to four, all within one standard error (about 1.2 points at 96% accuracy and 3 points at 60%). <a href="#fnref-eval-noise" class="fn-back" aria-label="Back to the text">↩</a>
 </li>
 </ol></section>
 </section>
@@ -731,7 +722,7 @@
 
   
   
-    Last updated: November 17, 2026.
+    Last updated: November 19, 2026.
   
 
     </div>
