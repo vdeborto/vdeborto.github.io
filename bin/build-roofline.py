@@ -467,7 +467,7 @@ def url_of(slug):
 # of figures.js: a kicker with the number, a title that states the figure's claim, and the
 # original caption as a subtitle.
 LEGACY_CLAIMS = {
-    14: "As the context grows, the batch at which a pass turns compute-bound falls for a canvas of 256 and rises for AR (Proposition 7).",
+    14: "As the context grows, the batch at which a pass turns compute-bound falls for a canvas of 256 and rises for AR (Proposition 8).",
     # Figure 15 has four tabs, each with its own claim; figures.js shows the title of the selected tab.
     15: ('<span data-tab-title="m-gain">In the roofline bound, AR catches up with TD at batch 110 at context 1k, and at a larger batch as the context grows, beyond 1,024 from 64k tokens on.</span>'
          '<span data-tab-title="m-ar" hidden>An AR step never reaches the ridge, and at long context its intensity tends to 8 whatever the batch.</span>'

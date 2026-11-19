@@ -553,7 +553,7 @@
     draw(); onTheme(draw); watchWidth(pic, draw);
   }
 
-  // ---------------------------------------------------------------- where the weights dominate (Proposition 4)
+  // ---------------------------------------------------------------- where the weights dominate (Proposition 5)
   // C_lin(B, x): the context up to which the weights are at least a share x of a pass's bytes.
   const clin = (WB, x) => (((1 - x) / x) * WB - C0.nuS * C0.r) / C0.nuG;
   const BS = Array.from({ length: 65 }, (_, i) => 2 ** (i / 8)); // batch 1 to 256
@@ -659,7 +659,7 @@
     draw(); onTheme(draw); watchWidth(pic, draw);
   }
 
-  // ---------------------------------------------------------------- the penalty of a sparse layer (Proposition 5)
+  // ---------------------------------------------------------------- the penalty of a sparse layer (Proposition 6)
   // A model whose attention is one sparse layer type, as in Table 3: constants of DiffusionGemma's global layers.
   const SP = bare(M.MODELS.dgemma_sparse.build());
   const CSP = Array.from({ length: 73 }, (_, i) => Math.round(1024 * 2 ** (i / 4))); // 1k to 268M
@@ -703,7 +703,7 @@
     draw(); onTheme(draw); watchWidth(pic, draw);
   }
 
-  // ---------------------------------------------------------------- attention's share of bytes and of FLOPs (Proposition 6)
+  // ---------------------------------------------------------------- attention's share of bytes and of FLOPs (Proposition 7)
   const CSH = Array.from({ length: 41 }, (_, i) => Math.round(1024 * 2 ** (i / 4))); // 1k to 1M
   const SHB = [1, 16, 64, 256];
   function figShare(root) {

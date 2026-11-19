@@ -208,7 +208,7 @@
     draw(); watch(pic, draw);
   }
 
-  // ---------------------------------------------------------------- Proposition 8: the two efficiencies
+  // ---------------------------------------------------------------- Proposition 9: the two efficiencies
   function mEff(root) {
     const st = { C: Cs[0] };
     const { ctl, pic, out } = frame(root);

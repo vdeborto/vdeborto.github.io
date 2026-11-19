@@ -3,7 +3,7 @@
 #   - the symbol key (a click on a formula lists the symbols it uses), for the entries with "match".
 # An entry is the symbol in TeX on its own line, then indented fields:
 #   what:   the meaning; math goes in \( \)
-#   in:     where the symbol is introduced ("Part 2", "Definition 2", "Proposition 7"); the build links it
+#   in:     where the symbol is introduced ("Part 2", "Definition 2", "Proposition 8"); the build links it
 #           and checks that a formula there uses the symbol
 #   match:  JavaScript regular expression on a formula's TeX (the symbol key)
 #   rank:   order in the symbol key, which keeps the 14 lowest ranks of a formula
@@ -218,7 +218,7 @@ N_{\mathrm{act}}
 
 W_{\mathrm{tot}}
   what: all parameters, \(W_{\mathrm{ne}} + LEW^e\) (24.5B, without the vocabulary)
-  in: Part 2
+  in: Proposition 4
   match: W_\{\\mathrm\{tot\}\}
   rank: 180
 
@@ -360,13 +360,13 @@ I_{\mathrm{idx}}
 
 \sigma
   what: window layers' FLOPs per query over the linear FLOPs, \(\alpha_W w/(2N_{\mathrm{act}})\) (6.8%)
-  in: Proposition 6
+  in: Proposition 7
   match: \\sigma
   rank: 410
 
 C_F
   what: context at which global attention alone matches the linear FLOPs (37.6k)
-  in: Proposition 6
+  in: Proposition 7
   match: C_F
   rank: 400
 
@@ -383,16 +383,16 @@ N
   in: Definition 4
 
 x
-  what: share of an AR step's bytes spent on one part (weights in Proposition 4, cache in Proposition 6); elsewhere a hidden state (Remark 1) or a layer input (Part 7)
-  in: Proposition 4
+  what: share of an AR step's bytes spent on one part (weights in Proposition 5, cache in Proposition 7); elsewhere a hidden state (Remark 1) or a layer input (Part 7)
+  in: Proposition 5
 
 I_n
   what: intensity of a pass that routes \(n\) positions per sequence (\(I_1 = I^{\mathrm{AR}}\), \(I_b = I^{\mathrm{TD}}\))
-  in: Proposition 7
+  in: Proposition 8
 
 W_n
   what: weights that such a pass reads (\(W_1 = W^{\mathrm{AR}}\), \(W_b = W^{\mathrm{TD}}\))
-  in: Proposition 7
+  in: Proposition 8
 
 == Penalties
 
@@ -454,7 +454,7 @@ B_\times
 
 b_c
   what: critical canvas length \(I^\star/I_{\mathrm{attn}}\): above it a longer context helps TD reach the ridge
-  in: Proposition 7
+  in: Proposition 8
   match: b_c
   rank: 440
 
@@ -464,11 +464,11 @@ plain A1–A3
 
 C_{\mathrm{lin}}(B, x)
   what: context below which the weights are at least a share \(x\) of an AR step's bytes
-  in: Proposition 4
+  in: Proposition 5
 
 B^\star_n(C),\ D_n(C)
   what: smallest compute-bound batch for \(n\) queries per sequence at context \(C\), and the FLOPs per sequence left for the weights
-  in: Proposition 7
+  in: Proposition 8
 
 == Measurements
 
@@ -515,7 +515,7 @@ t^X,\ t_c
 
 n^X
   what: tokens a step commits: \(B\) for AR, \(Bb/\omega\) for TD
-  in: Proposition 8
+  in: Proposition 9
   key: n
   match: (^|[^\\A-Za-z_])n\^\{?(X|\\mathrm\{(AR|TD))
   rank: 590
@@ -523,13 +523,13 @@ n^X
 
 \Gamma_{\mathrm{meas}}
   what: measured gain: TD tokens per second over AR tokens per second
-  in: Proposition 8
+  in: Proposition 9
   match: \\Gamma_\{\\mathrm\{meas\}\}
   rank: 520
 
 \Gamma_{\mathrm{roof}}
   what: roofline bound at the measured ceilings and routing
-  in: Proposition 8
+  in: Proposition 9
   match: \\Gamma_\{\\mathrm\{roof\}\}
   rank: 530
 

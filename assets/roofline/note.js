@@ -1166,7 +1166,7 @@
   const REGIMES = {
     R1: ['short context', 'both memory-bound', 'Γ = TPF / Π(B)', 'TD shares each weight read over TPF tokens but streams more experts.'],
     R2: ['short context', 'AR memory-bound, TD compute-bound', 'Γ = I<sup>⋆</sup> / (ω · I<sub>lin</sub>(B))', 'TD spends compute AR leaves idle; the gain falls as the batch raises AR\'s intensity.'],
-    R3: ['short context', 'AR compute-bound, TD memory-bound', 'Γ ≤ 1/ω', 'Not reached: it needs a penalty above the canvas length, and Π ≤ b under (A2) and (A3) (Proposition 3(4)).'],
+    R3: ['short context', 'AR compute-bound, TD memory-bound', 'Γ ≤ 1/ω', 'Not reached: it needs a penalty above the canvas length, and Π ≤ b under (A2) and (A3) (Propositions 2, 3 and 6).'],
     R4: ['short context', 'both compute-bound', 'Γ = 1/ω', 'Both run at peak, and TD does ω times the work.'],
     R5: ['long context', 'both memory-bound', 'Γ = TPF', 'Both read the KV cache; TD shares each read over TPF tokens.'],
     R6: ['long context', 'AR memory-bound, TD compute-bound', 'Γ = I<sup>⋆</sup> / (ω · I<sub>attn</sub>)', 'TD spends the compute AR leaves idle while it streams the KV cache.'],
