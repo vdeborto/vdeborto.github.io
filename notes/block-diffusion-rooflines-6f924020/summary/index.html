@@ -340,7 +340,7 @@ Of course, this formula is <em>idealized</em>, as it holds under some critical a
 
   <h3 id="s-the-three-possible-regimes">The three possible regimes</h3>
 
-<p>The formula above involves the ratio of two minima, which leads to four possible scenarios. Since, under reasonable assumptions, \(\class{mj-td}{I^{\mathrm{TD}}} \geq \class{mj-ar}{I^{\mathrm{AR}}}\) (<a class="xref" href="/notes/block-diffusion-rooflines-6f924020/linear/#prop3">Proposition 3</a>(4): \(\Pi \le b\)), only three regimes occur.</p>
+<p>The formula above involves the ratio of two minima, which leads to four possible scenarios. Since, under reasonable assumptions, \(\class{mj-td}{I^{\mathrm{TD}}} \geq \class{mj-ar}{I^{\mathrm{AR}}}\) (\(\Pi \le b\) by <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/#prop2">Propositions 2</a>, <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/linear/#prop3">3</a> and <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/linear/#prop5">6</a>), only three regimes occur.</p>
   <div class="cards three">
     <div class="bdr-card regime lose">
 <div class="card-k">AR compute-bound</div>
@@ -349,7 +349,7 @@ Of course, this formula is <em>idealized</em>, as it holds under some critical a
 <div class="card-more" hidden>
   <p>Both passes run at the peak, so time is FLOPs, and a canvas spends \(\omega\) times AR's FLOPs per token: \(\Gamma \le 1/\omega\), equal to it under <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/#prop1">Proposition 1</a>. We claim that this setting is unrealistic, but just how unrealistic is it? With \(W_{\mathrm{tot}} = 24.5\)B the parameters of all layers without the vocabulary (<a class="xref" href="/notes/block-diffusion-rooflines-6f924020/linear/">Part 2</a>), AR becomes compute-bound at</p>
   <div class="eq">\[ \begin{gathered} \class{mj-ar}{B^{\mathrm{AR}}_\star} = \frac{I^\star s_wW_{\mathrm{tot}}}{2N_{\mathrm{act}}}\\[4pt] = \frac{206 \times 2 \times 24.5\text{B}}{2 \times 3.08\text{B}} \approx 1{,}640. \end{gathered} \]</div>
-  <p>This is with zero context \(C\)! The batch that AR needs grows with the context, and there is usually even a point beyond which no batch size renders AR compute-bound. For instance, beyond about 135 tokens of context no batch makes an AR step compute-bound: there, a sequence's FLOPs no longer cover what its own cache reads need at the ridge, \(D_1(C) \le 0\) in <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/linear/#prop7">Proposition 7</a>, whose inequality holds at every context.</p>
+  <p>This is with zero context \(C\)! The batch that AR needs grows with the context, and there is usually even a point beyond which no batch size renders AR compute-bound. For instance, beyond about 135 tokens of context no batch makes an AR step compute-bound: there, a sequence's FLOPs no longer cover what its own cache reads need at the ridge, \(D_1(C) \le 0\) in <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/linear/#prop7">Proposition 8</a>, whose inequality holds at every context.</p>
 </div>
 </div>
     <div class="bdr-card regime mem">

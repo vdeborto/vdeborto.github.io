@@ -511,7 +511,7 @@
       <tr>
 <td>\(W_{\mathrm{tot}}\)</td>
 <td class="l">all parameters, \(W_{\mathrm{ne}} + LEW^e\) (24.5B, without the vocabulary)</td>
-<td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/linear/">Part 2</a></td>
+<td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/linear/#prop-lin-limits">Proposition 4</a></td>
 </tr>
       <tr>
 <td>\(m\)</td>
@@ -641,12 +641,12 @@
       <tr>
 <td>\(\sigma\)</td>
 <td class="l">window layers' FLOPs per query over the linear FLOPs, \(\alpha_W w/(2N_{\mathrm{act}})\) (6.8%)</td>
-<td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/linear/#prop6">Proposition 6</a></td>
+<td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/linear/#prop6">Proposition 7</a></td>
 </tr>
       <tr>
 <td>\(C_F\)</td>
 <td class="l">context at which global attention alone matches the linear FLOPs (37.6k)</td>
-<td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/linear/#prop6">Proposition 6</a></td>
+<td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/linear/#prop6">Proposition 7</a></td>
 </tr>
       <tr>
 <td>\(F_c,\ Q_c\)</td>
@@ -666,18 +666,18 @@
 </tr>
       <tr>
 <td>\(x\)</td>
-<td class="l">share of an AR step's bytes spent on one part (weights in <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/linear/#prop4">Proposition 4</a>, cache in <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/linear/#prop6">Proposition 6</a>); elsewhere a hidden state (<a class="xref" href="/notes/block-diffusion-rooflines-6f924020/linear/#dsa">Remark 1</a>) or a layer input (<a class="xref" href="/notes/block-diffusion-rooflines-6f924020/kernels/">Part 7</a>)</td>
-<td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/linear/#prop4">Proposition 4</a></td>
+<td class="l">share of an AR step's bytes spent on one part (weights in <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/linear/#prop4">Proposition 5</a>, cache in <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/linear/#prop6">Proposition 7</a>); elsewhere a hidden state (<a class="xref" href="/notes/block-diffusion-rooflines-6f924020/linear/#dsa">Remark 1</a>) or a layer input (<a class="xref" href="/notes/block-diffusion-rooflines-6f924020/kernels/">Part 7</a>)</td>
+<td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/linear/#prop4">Proposition 5</a></td>
 </tr>
       <tr>
 <td>\(I_n\)</td>
 <td class="l">intensity of a pass that routes \(n\) positions per sequence (\(I_1 = \class{mj-ar}{I^{\mathrm{AR}}}\), \(I_b = \class{mj-td}{I^{\mathrm{TD}}}\))</td>
-<td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/linear/#prop7">Proposition 7</a></td>
+<td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/linear/#prop7">Proposition 8</a></td>
 </tr>
       <tr>
 <td>\(W_n\)</td>
 <td class="l">weights that such a pass reads (\(W_1 = \class{mj-ar}{W^{\mathrm{AR}}}\), \(W_b = \class{mj-td}{W^{\mathrm{TD}}}\))</td>
-<td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/linear/#prop7">Proposition 7</a></td>
+<td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/linear/#prop7">Proposition 8</a></td>
 </tr>
     </tbody>
   </table></div>
@@ -747,7 +747,7 @@
       <tr>
 <td>\(b_c\)</td>
 <td class="l">critical canvas length \(I^\star/I_{\mathrm{attn}}\): above it a longer context helps TD reach the ridge</td>
-<td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/linear/#prop7">Proposition 7</a></td>
+<td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/linear/#prop7">Proposition 8</a></td>
 </tr>
       <tr>
 <td>A1–A3</td>
@@ -758,12 +758,12 @@
       <tr>
 <td>\(C_{\mathrm{lin}}(B, x)\)</td>
 <td class="l">context below which the weights are at least a share \(x\) of an AR step's bytes</td>
-<td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/linear/#prop4">Proposition 4</a></td>
+<td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/linear/#prop4">Proposition 5</a></td>
 </tr>
       <tr>
 <td>\(B^\star_n(C),\ D_n(C)\)</td>
 <td class="l">smallest compute-bound batch for \(n\) queries per sequence at context \(C\), and the FLOPs per sequence left for the weights</td>
-<td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/linear/#prop7">Proposition 7</a></td>
+<td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/linear/#prop7">Proposition 8</a></td>
 </tr>
     </tbody>
   </table></div>
@@ -808,17 +808,17 @@
       <tr>
 <td>\(n^X\)</td>
 <td class="l">tokens a step commits: \(B\) for AR, \(Bb/\omega\) for TD</td>
-<td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/conclusion/#prop8">Proposition 8</a></td>
+<td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/conclusion/#prop8">Proposition 9</a></td>
 </tr>
       <tr>
 <td>\(\Gamma_{\mathrm{meas}}\)</td>
 <td class="l">measured gain: TD tokens per second over AR tokens per second</td>
-<td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/conclusion/#prop8">Proposition 8</a></td>
+<td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/conclusion/#prop8">Proposition 9</a></td>
 </tr>
       <tr>
 <td>\(\Gamma_{\mathrm{roof}}\)</td>
 <td class="l">roofline bound at the measured ceilings and routing</td>
-<td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/conclusion/#prop8">Proposition 8</a></td>
+<td class="l sym-in"><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/conclusion/#prop8">Proposition 9</a></td>
 </tr>
       <tr>
 <td>\(U_{\mathrm{meas}}\)</td>
