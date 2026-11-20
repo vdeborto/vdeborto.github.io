@@ -475,9 +475,9 @@ def fig_map_narrow(base=BOOK_URL):
 # The book map: one box per part, every box a link to its chapter.
 MAP_TOP = [  # (x, width, [(slug, part label, title, lines)]); two entries are stacked in one column
     (10, 150, [("setup", "PART 1", "Setup and the gain", ["Costs, penalties,", "main result"])]),
-    (174, 140, [("linear", "PART 2", "Weights and cache", ["Linear part,", "attention part"])]),
-    (328, 156, [("calculator", "PART 3", "Maps and calculator", ["Model × Hardware"])]),
-    (498, 152, [("examples", "PART 4", "Exercises", ["Canvas, model,", "accelerator"])]),
+    (172, 140, [("linear", "PART 2", "Weights and cache", ["Linear part,", "attention part"])]),
+    (324, 170, [("calculator", "PART 3", "Throughput calculator", ["Model × Hardware"])]),
+    (506, 144, [("examples", "PART 4", "Exercises", ["Canvas, model,", "accelerator"])]),
 ]
 MAP_BOT = [("effective", "PART 5", "Empirical rooflines", ["Measured ceilings", ""]),
            ("stack", "PART 6", "Measurement stack", ["Time per component"]),
@@ -778,7 +778,7 @@ def t_ceilings(d):
             ["BF16 GEMM (TFLOP/s)", "989", f"{ce['pi_bf16'] / 1e12:,.0f}", f"{ce['pi_bf16'] / 989e12:.2f}", "\\(8192^3\\), short burst"],
             ["attention (TFLOP/s)", "989", f"{ce['pi_attn'] / 1e12:,.0f}", f"{ce['pi_attn'] / 989e12:.2f}", "FlashAttention 3, head dim. 128, 2 × 16k tokens, sustained"],
             ["HBM bandwidth (TB/s)", "4.80", f"{ce['beta'] / 1e12:.2f}", f"{ce['beta'] / 4.8e12:.2f}", "read of a 4 GB buffer, sustained"]]
-    return table("Table 5. Datasheet and empirical ceilings of one H200 SXM. The empirical ceiling is the highest rate any measurement reached on random data, except for attention, whose ceiling is FlashAttention 3's sustained rate; the ridge point for FP8 linear layers moves from 412 to "
+    return table("Table 4. Datasheet and empirical ceilings of one H200 SXM. The empirical ceiling is the highest rate any measurement reached on random data, except for attention, whose ceiling is FlashAttention 3's sustained rate; the ridge point for FP8 linear layers moves from 412 to "
                  f"{ce['pi_fp8'] / ce['beta']:.0f} FLOP/byte.", ["rate", "datasheet", "empirical", "ratio", "measured on"], rows, fold="Figure 19")
 
 
@@ -793,7 +793,7 @@ def t_neff(d):
                 neff = v and (v.get("neff") or (v.get("meas") and math.log(1 - v["meas"] / 128) / math.log(1 - 8 / 128)))  # U_{E,k}(N) = meas, E = 128, k = 8
                 r.append(f"{neff:.1f}" if neff else "–")
         rows.append(r)
-    return table("Table 6. Effective number of independent tokens per pass, \\(N_{\\mathrm{eff}}\\), the number of uniformly routed independent tokens that would touch the measured \\(U\\) (Definition 6). A TD pass holds \\(256B\\) positions, an AR step \\(B\\).",
+    return table("Table 5. Effective number of independent tokens per pass, \\(N_{\\mathrm{eff}}\\), the number of uniformly routed independent tokens that would touch the measured \\(U\\) (Definition 6). A TD pass holds \\(256B\\) positions, an AR step \\(B\\).",
                  ["", "TD, 1k", "TD, 64k", "AR, 1k", "AR, 64k"], rows, fold="Figure 20")
 
 
@@ -807,7 +807,7 @@ def t_prop1(d):
             continue
         x = p[k]
         rows.append([f"B = {B}", f"{x['Pi_ind']:.2f}", f"{x['Pi_meas']:.2f}", f"{x['gain_ind']:.2f}", f"{x['gain_meas']:.2f}", f"{g[k]['measured']:.2f}"])
-    return table("Table 7. Proposition 1 at independent and at measured routing, against the measured gain; DiffusionGemma against Gemma 4 26B-A4B on one H200, FP8 weights, empirical ceilings, context 1k. Proposition 1 leaves out the vocabulary head, activations and kernel efficiency.",
+    return table("Table 6. Proposition 1 at independent and at measured routing, against the measured gain; DiffusionGemma against Gemma 4 26B-A4B on one H200, FP8 weights, empirical ceilings, context 1k. Proposition 1 leaves out the vocabulary head, activations and kernel efficiency.",
                  ["", "\\(\\Pi_{\\mathrm{lin}}\\), independent", "\\(\\Pi_{\\mathrm{lin}}\\), measured", "\\(\\Gamma\\), Prop. 1, independent", "\\(\\Gamma\\), Prop. 1, measured routing", "\\(\\Gamma\\), measured"], rows, fold="Figure 21")
 
 
@@ -827,7 +827,7 @@ def t_eta(d):
         rows.append(r)
     rows.append(["whole step", rng([v["step"] for k, v in d["eta2"]["td"].items() if big(k)]), rng([v["step"] for k, v in d["eta3"]["td"].items() if big(k)]),
                  rng([v["step"] for k, v in d["eta3"]["ar"].items() if big(k)])])
-    return table(f"Table 11. Efficiency against the empirical roofline, \\(\\eta_c = \\tau_c/t_c\\), over the {sum(1 for k in d['eta3']['td'] if big(k))} measured points with batch 8 and above. Stock kernels: the three engine fixes of Part 6 with vLLM's kernels; new kernels: the same with the two kernels of this Part, in the same campaign; the new kernels are the median of three repeats, each on its own prompts, against one stock run on the first repeat's prompts. AR runs vLLM's kernels throughout.",
+    return table(f"Table 10. Efficiency against the empirical roofline, \\(\\eta_c = \\tau_c/t_c\\), over the {sum(1 for k in d['eta3']['td'] if big(k))} measured points with batch 8 and above. Stock kernels: the three engine fixes of Part 6 with vLLM's kernels; new kernels: the same with the two kernels of this Part, in the same campaign; the new kernels are the median of three repeats, each on its own prompts, against one stock run on the first repeat's prompts. AR runs vLLM's kernels throughout.",
                  ["component", "TD, stock kernels", "TD, new kernels", "AR"], rows, fold="Figure 35")
 
 
@@ -835,7 +835,7 @@ def t_stock(d):
     rows = []
     for c, name in COMP:
         rows.append([name] + [rng([v.get(c) for k, v in d["eta2"]["td"].items() if int(k.split(",")[0]) in Bset]) for Bset in ((1, 2, 4), (8, 16, 32, 64))])
-    return table("Table 8. TD with the three engine fixes and vLLM's own kernels: efficiency of each component against its empirical roofline, at batch 1–4 and at batch 8–64, over all contexts: the 27 points of this run, which also fitted \\((32, 64\\text{k})\\) and \\((64, 16\\text{k})\\); Table 11 keeps the points measured with both sets of kernels.",
+    return table("Table 7. TD with the three engine fixes and vLLM's own kernels: efficiency of each component against its empirical roofline, at batch 1–4 and at batch 8–64, over all contexts: the 27 points of this run, which also fitted \\((32, 64\\text{k})\\) and \\((64, 16\\text{k})\\); Table 10 keeps the points measured with both sets of kernels.",
                  ["component", "B = 1–4", "B = 8–64"], rows, fold="Figure 28")
 
 
@@ -845,7 +845,7 @@ def t_vs2(d):
         xs = [x["ratio"] for k, x in v[m].items() if Bp(int(k.split(",")[0])) and int(k.split(",")[1]) == C]
         return rng(xs)
     rows = [[kc(C), r("td", lambda b: b == 1, C), r("td", lambda b: b >= 2, C)] for C in d["Cs"]]
-    return table("Table 12. TD's throughput with the new kernels over its throughput with vLLM's kernels, at the same points and in the same campaign: the median of three repeats, each on its own prompts, against one run on the first repeat's prompts.",
+    return table("Table 11. TD's throughput with the new kernels over its throughput with vLLM's kernels, at the same points and in the same campaign: the median of three repeats, each on its own prompts, against one run on the first repeat's prompts.",
                  ["context", "B = 1", "B = 2–64"], rows, fold="Figure 36")
 
 
@@ -886,7 +886,7 @@ def fig_attn_eff():
 
 
 def t_moe():
-    return table("Table 9. The expert path per denoising pass in the engine, vLLM's kernel against the new one, and its efficiency against the empirical roofline at the measured routing. These are dedicated runs of the expert kernel (three per arm), separate from the grid of Parts 5–8, so their efficiencies differ slightly from Table 11's.",
+    return table("Table 8. The expert path per denoising pass in the engine, vLLM's kernel against the new one, and its efficiency against the empirical roofline at the measured routing. These are dedicated runs of the expert kernel (three per arm), separate from the grid of Parts 5–8, so their efficiencies differ slightly from Table 10's.",
                  ["TD point (B, C)", "expert path per pass (ms)", "fraction of empirical roofline", "TD step (ms)"],
                  [["(8, 1k)", "15.03 → 12.23 (−19%)", "0.27 → 0.33", "43.56 → 40.07 (−8.0%)"],
                   ["(32, 1k)", "46.60 → 34.26 (−26%)", "0.34 → 0.47", "158.75 → 147.81 (−6.9%)"],
@@ -895,7 +895,7 @@ def t_moe():
 
 
 def t_attn():
-    return table("Table 10. Global attention in the engine, TFLOP/s and fraction of the 638 TFLOP/s attention ceiling, one run each; the last column is the TD step with FA4 at 64-token pages against the pair kernel at 80-token pages. At (32, 16k), the pair kernel's step, 208.24 ms, is 12 ms above the sum of its kernel times (196.2 ms), which suggests host-side noise in that run; a run with 96-key tiles measured 199.48 ms.",
+    return table("Table 9. Global attention in the engine, TFLOP/s and fraction of the 638 TFLOP/s attention ceiling, one run each; the last column is the TD step with FA4 at 64-token pages against the pair kernel at 80-token pages. At (32, 16k), the pair kernel's step, 208.24 ms, is 12 ms above the sum of its kernel times (196.2 ms), which suggests host-side noise in that run; a run with 96-key tiles measured 199.48 ms.",
                  ["TD point (B, C)", "FA4, page 64: TFLOP/s (fraction of ceiling)", "pair kernel, page 80: TFLOP/s (fraction of ceiling)", "TD step (ms)"],
                  [["(8, 16k)", "335 (0.52)", "455 (0.71)", "58.05 → 53.27 (−8.2%)"],
                   ["(32, 16k)", "320 (0.50)", "436 (0.68)", "222.37 → 208.24 (−6.4%)"],
@@ -916,13 +916,13 @@ def t_recover(d):
             top = sorted(x.items(), key=lambda kv: -kv[1])[:2]
             r.append("; ".join(f"{names[c]} {100 * v:.1f}%" for c, v in top))
         rows.append(r)
-    return table("Table 13. The two largest recoverable shares of TD's step after the kernel work: measured time minus the time of the target kernel (\\(\\tau_c/\\eta^\\star_c\\) of Definition 7: the best standalone kernel where one was timed, else a kernel at 0.8 of the empirical roofline), as a share of the step. Time outside the model and idle time count in full.",
+    return table("Table 12. The two largest recoverable shares of TD's step after the kernel work: measured time minus the time of the target kernel (\\(\\tau_c/\\eta^\\star_c\\) of Definition 7: the best standalone kernel where one was timed, else a kernel at 0.8 of the empirical roofline), as a share of the step. Time outside the model and idle time count in full.",
                  ["", "context 1k", "context 64k"], rows, fold="Figure 37")
 
 
 # ---------------------------------------------------------------- figures that show what the tables list
 def fig_prop1(d, C=1024):
-    """Proposition 1 at independent and at measured routing against the measured gain, by batch (Table 7)."""
+    """Proposition 1 at independent and at measured routing against the measured gain, by batch (Table 6)."""
     p, g, Bs = d["prop1"]["fp8_empirical"]["pts"], d["gains"], [B for B in d["Bs"] if f"{B},{C}" in d["prop1"]["fp8_empirical"]["pts"]]
     W, H, ml, mr, mt, mb = 600, 300, 46, 182, 16, 44
     X = lambda i: ml + i * (W - ml - mr) / (len(Bs) - 1)
@@ -977,7 +977,7 @@ RECOVER_ROWS = [("experts", "experts"), ("dense", "dense GEMMs and router"), ("a
 
 
 def fig_recover(d, C):
-    """Recoverable share of TD's step by component and batch, at one context (Table 13 lists the two largest)."""
+    """Recoverable share of TD's step by component and batch, at one context (Table 12 lists the two largest)."""
     rec = d["recoverable"]["td"]
     cols = [(B, f"B = {B}" if B == d["Bs"][0] else str(B)) for B in d["Bs"]]
     return cell_grid(RECOVER_ROWS, cols, lambda c, B: (rec.get(f"{B},{C}") or {}).get(c), lambda v: f"{100 * v:.0f}%", 0.2, label_w=190,
@@ -985,7 +985,7 @@ def fig_recover(d, C):
 
 
 def fig_vs2(d):
-    """TD's throughput with the new kernels over its throughput with vLLM's kernels (Table 12 gives the ranges)."""
+    """TD's throughput with the new kernels over its throughput with vLLM's kernels (Table 11 gives the ranges)."""
     v = d["vs2"]["td"]
     g = {k: {"v": x["ratio"]} for k, x in v.items()}
     return heat({"gains": g, "Bs": d["Bs"], "Cs": d["Cs"]}, lambda r: r["v"], "new kernels / vLLM's kernels", 1,
@@ -1012,13 +1012,13 @@ def blocks():
                       '<div data-mfig="ladder" data-series="a,b,c,d"></div>',
                       "DiffusionGemma (TD) against Gemma 4 26B-A4B (AR) on one H200 with FP8 weights and BF16 KV cache. (a) is the roofline bound of the exact accounting with datasheet rates and independent routing (A3); (b) uses the ceilings measured on this H200; (c) also uses the expert counts measured in the same runs; (d), in magenta, is the gain measured in vLLM. The batch axis is logarithmic: the measured sizes 1, 2, 4, …, 64 are equally spaced."),
         "roofline": fig("fig-eff-roofline", "Figure 19", "The measured roofline sits below the datasheet's, more in compute than in bandwidth.", "", fig_eff_roofline(d),
-                        "Attainable throughput \\(\\min(\\pi, I\\beta)\\) against arithmetic intensity, log–log, for FP8 linear layers. Grey, dashed: datasheet (1,979 TFLOP/s, 4.8 TB/s). Magenta, solid: the empirical ceilings of Table 5. Black, dotted: the attention ceiling, which replaces the FP8 compute ceiling for attention kernels. The ridge point, where a kernel turns compute-bound, moves from 412 to 340 FLOP/byte."),
+                        "Attainable throughput \\(\\min(\\pi, I\\beta)\\) against arithmetic intensity, log–log, for FP8 linear layers. Grey, dashed: datasheet (1,979 TFLOP/s, 4.8 TB/s). Magenta, solid: the empirical ceilings of Table 4. Black, dotted: the attention ceiling, which replaces the FP8 compute ceiling for attention kernels. The ridge point, where a kernel turns compute-bound, moves from 412 to 340 FLOP/byte."),
         "routing": fig("fig-eff-routing", "Figure 20 · interactive", "Both decoders touch fewer experts than independent routing predicts, for different reasons.", "Choose the decoder and the context; hover over or tap a batch to read the counts.",
                        '<div data-mfig="routing"></div>',
                        "Distinct experts per MoE layer and forward pass \\(U\\), averaged over the 30 layers and the timed passes, against batch size: the median of three repeats with different prompts, and the band spanning them. Dotted: independent tokens with uniform routing (A3), \\(U_{E,k}(N)\\) of Definition 1. Dashed: independent tokens with each expert's measured popularity (Definition 6). Solid: the measured count, in the decoder's colour. AR follows the dashed curve; TD lies below it. The batch axis is logarithmic: the measured sizes 1, 2, 4, …, 64 are equally spaced."),
         "maps_abc": fig("fig-eff-maps", "Figure 22 · interactive", "Measured routing raises the bound at batch 1–2 and lowers it from batch 8 on.", "Choose a context; hover over or tap a batch to read the three bounds.",
                         '<div data-mfig="ladder" data-series="a,b,c"></div>',
-                        "Roofline bound on \\(\\Gamma\\) against batch, with FP8 weights, at the measured points; each curve changes one input of the previous one. (a) the blogpost's exact accounting with datasheet rates and independent routing (A3); (b) the empirical ceilings of Table 5; (c) the expert counts measured in the same runs. The measured ceilings lower the bound at every point, by 0.08–0.53; the measured routing then raises it at batch 1–2, changes it by at most 0.06 at batch 4, and lowers it from batch 8 on. Below the parity line AR is faster. Missing points were not measured: the grid keeps \\(BC \\le 2^{21}\\) tokens, and TD's batches at \\((32, 64\\text{k})\\) and \\((64, 16\\text{k})\\) did not fit in memory. The batch axis is logarithmic: the measured sizes 1, 2, 4, …, 64 are equally spaced."),
+                        "Roofline bound on \\(\\Gamma\\) against batch, with FP8 weights, at the measured points; each curve changes one input of the previous one. (a) the blogpost's exact accounting with datasheet rates and independent routing (A3); (b) the empirical ceilings of Table 4; (c) the expert counts measured in the same runs. The measured ceilings lower the bound at every point, by 0.08–0.53; the measured routing then raises it at batch 1–2, changes it by at most 0.06 at batch 4, and lowers it from batch 8 on. Below the parity line AR is faster. Missing points were not measured: the grid keeps \\(BC \\le 2^{21}\\) tokens, and TD's batches at \\((32, 64\\text{k})\\) and \\((64, 16\\text{k})\\) did not fit in memory. The batch axis is logarithmic: the measured sizes 1, 2, 4, …, 64 are equally spaced."),
         "eager": fig("fig-eager", "Figure 23", "In eager mode the GPU waits for each launch; a CUDA graph runs the kernels of a pass back to back.", "", fig_eager(),
                      "Four kernels of one forward pass, as in Part 5's small GEMMs: launching a kernel costs the CPU a few µs, and with 64 tokens or fewer a projection runs for 5–13 µs, so in eager mode the GPU waits a large share of the time. A CUDA graph replays the recorded sequence of kernels with one launch."),
         "stack": fig("fig-stack", "Figure 24", "Each term of a component's efficiency is read at a different level of the serving stack.", "", fig_stack(),
@@ -1038,34 +1038,34 @@ def blocks():
         "pair": fig("fig-pair", "Figure 32", "The two thread blocks of the pair exchange only their partial score tiles.", "", fig_pair(),
                     "Each thread block holds half of the head dimension. Both blocks process the same 128 query rows. The crossing arrows are the exchange: each block writes its \\(M_q \\times M_k\\) partial scores into the partner's shared memory and waits for the partner's before the softmax."),
         "smem": fig("fig-smem", "Figure 33", "Splitting the head dimension leaves room for a second pipeline stage.", "", fig_smem(),
-                    "Shared memory per thread block, in KB, against the 227 KB of one SM. FA4 at head dimension 512 holds full-width tiles and fits one stage; a block of the pair holds half-width tiles and fits two stages of 64 keys plus two exchange buffers. With 80-token KV pages the fastest configuration uses the room differently, for one stage of 80-key tiles loaded by TMA (Table 10)."),
+                    "Shared memory per thread block, in KB, against the 227 KB of one SM. FA4 at head dimension 512 holds full-width tiles and fits one stage; a block of the pair holds half-width tiles and fits two stages of 64 keys plus two exchange buffers. With 80-token KV pages the fastest configuration uses the room differently, for one stage of 80-key tiles loaded by TMA (Table 9)."),
         "maps_cd": fig("fig-conc-maps", "Figure 38 · interactive", "The measured gain exceeds the bound up to batch 8 and falls below it from batch 16 on.", "Choose a context; hover over or tap a batch to read both.",
                        '<div data-mfig="ladder" data-series="c,d"></div>',
-                       "The bound (c) of Figure 22, in black, and the measured gain (d), in magenta: TD's tokens per second over AR's at equal \\(B\\) and \\(C\\), medians of three repeats. Proposition 9 says why the two differ. The batch axis is logarithmic: the measured sizes 1, 2, 4, …, 64 are equally spaced."),
+                       "The bound (c) of Figure 22, in black, and the measured gain (d), in magenta: TD's tokens per second over AR's at equal \\(B\\) and \\(C\\), medians of three repeats. Proposition 10 says why the two differ. The batch axis is logarithmic: the measured sizes 1, 2, 4, …, 64 are equally spaced."),
         "dev": fig("fig-conc-dev", "Figure 39 · interactive", "The bound is conservative while TD runs closer to its roofline than AR, up to batch 8, and optimistic from batch 16 on.", "Choose a context; hover over or tap a batch to read the two efficiencies and their ratio.",
                    '<div data-mfig="eff"></div>',
-                   "Step efficiency \\(\\eta^X = \\tau^X/t^X\\) of each decoder, its empirical roofline time over its measured step time, medians of three repeats. By Proposition 9 the measured gain over the bound is \\(\\eta^{\\mathrm{TD}}/\\eta^{\\mathrm{AR}}\\): the band between the curves is orange where the measured gain exceeds the bound and blue where it falls short. From batch 1 to the largest measured batch, AR's efficiency rises from 0.27–0.32 to 0.62–0.69, while TD's stays between 0.42 and 0.61. The batch axis is logarithmic: the measured sizes 1, 2, 4, …, 64 are equally spaced."),
+                   "Step efficiency \\(\\eta^X = \\tau^X/t^X\\) of each decoder, its empirical roofline time over its measured step time, medians of three repeats. By Proposition 10 the measured gain over the bound is \\(\\eta^{\\mathrm{TD}}/\\eta^{\\mathrm{AR}}\\): the band between the curves is orange where the measured gain exceeds the bound and blue where it falls short. From batch 1 to the largest measured batch, AR's efficiency rises from 0.27–0.32 to 0.62–0.69, while TD's stays between 0.42 and 0.61. The batch axis is logarithmic: the measured sizes 1, 2, 4, …, 64 are equally spaced."),
         "eta_maps": fig("fig-eta-maps", "Figure 35 · interactive", "After the kernel work, every component of TD's step runs at half its roofline or more from batch 8 on, the experts aside.", "Choose the decoder, highlight a component and choose a context; hover over or tap a batch to read every component.",
                         '<div data-mfig="comp" data-src="eta3"></div>',
                         "Efficiency \\(\\eta_c = \\tau_c/t_c\\) of each component, its empirical roofline time over its measured kernel time, medians of three repeats (one run for TD with vLLM kernels); dashed, the whole step \\(\\eta^X = \\tau^X/t^X\\), which also counts time outside the model and idle time. The highlighted component is drawn in its decoder's colour, and the dotted line is its target efficiency \\(\\eta^\\star_c\\) of Definition 7. The choice TD with vLLM kernels repeats Figure 28 for comparison. The batch axis is logarithmic: the measured sizes 1, 2, 4, …, 64 are equally spaced."),
         "prop1": fig("fig-prop1", "Figure 21 · interactive", "At contexts 1k–4k, Proposition 1 underestimates the measured gain at batch 1–2 and overestimates it from batch 4 on, at either routing.", "Choose a context; hover over or tap a batch to read the penalties and gains.",
                      '<div data-mfig="prop1"></div>',
-                     "Gain against batch with FP8 weights and the empirical ceilings: the values of Table 7 at context 1k. Grey, dashed: Proposition 1 under independent uniform routing (A3). Dark grey, dotted: Proposition 1 with the measured expert counts of both decoders. Magenta: the measured gain, median of three repeats. At small batch the measured routing raises the bound, since a canvas touches fewer experts than independent routing predicts, and at batch 1–2 the measurement is higher still (Part 8). From batch 8 on it lowers the bound, since AR's count falls further below the prediction of independent routing than TD's, and Proposition 1 still overestimates the measured gain, mainly because it leaves out the vocabulary head. The batch axis is logarithmic: the measured sizes 1, 2, 4, …, 64 are equally spaced."),
+                     "Gain against batch with FP8 weights and the empirical ceilings: the values of Table 6 at context 1k. Grey, dashed: Proposition 1 under independent uniform routing (A3). Dark grey, dotted: Proposition 1 with the measured expert counts of both decoders. Magenta: the measured gain, median of three repeats. At small batch the measured routing raises the bound, since a canvas touches fewer experts than independent routing predicts, and at batch 1–2 the measurement is higher still (Part 8). From batch 8 on it lowers the bound, since AR's count falls further below the prediction of independent routing than TD's, and Proposition 1 still overestimates the measured gain, mainly because it leaves out the vocabulary head. The batch axis is logarithmic: the measured sizes 1, 2, 4, …, 64 are equally spaced."),
         "eta_stock": fig("fig-eta-stock", "Figure 28 · interactive", "With vLLM's own kernels, the experts and global attention are the furthest from their rooflines from batch 8 on.", "Highlight a component and choose a context; hover over or tap a batch to read every component.",
                          '<div data-mfig="comp" data-src="eta2"></div>',
-                         "Efficiency \\(\\eta_c = \\tau_c/t_c\\) of each component of TD's step with the three engine fixes and vLLM's own kernels, one run per point; dashed, the whole step, \\(\\eta = \\tau/t\\), which also counts time outside the model and idle time. The highlighted component is drawn in TD's colour, and the dotted line is its target efficiency \\(\\eta^\\star_c\\) of Definition 7. Table 8 gives the ranges, and Figure 35 the same curves after the kernel work of Part 7. The batch axis is logarithmic: the measured sizes 1, 2, 4, …, 64 are equally spaced."),
+                         "Efficiency \\(\\eta_c = \\tau_c/t_c\\) of each component of TD's step with the three engine fixes and vLLM's own kernels, one run per point; dashed, the whole step, \\(\\eta = \\tau/t\\), which also counts time outside the model and idle time. The highlighted component is drawn in TD's colour, and the dotted line is its target efficiency \\(\\eta^\\star_c\\) of Definition 7. Table 7 gives the ranges, and Figure 35 the same curves after the kernel work of Part 7. The batch axis is logarithmic: the measured sizes 1, 2, 4, …, 64 are equally spaced."),
         "vs2": fig("fig-vs2", "Figure 36 · interactive", "The two kernels raise TD's throughput at every measured point, by 4% to 22%, most at long context.", "Hover over or tap a batch to read the four contexts.",
                    '<div data-mfig="vs2"></div>',
-                   "TD's tokens per second with the kernels of this chapter over its tokens per second with vLLM's kernels, at the same batch and context: the median of three repeats, each on its own prompts, over one run on the first repeat's prompts. Table 12 gives the ranges. The batch axis is logarithmic: the measured sizes 1, 2, 4, …, 64 are equally spaced."),
+                   "TD's tokens per second with the kernels of this chapter over its tokens per second with vLLM's kernels, at the same batch and context: the median of three repeats, each on its own prompts, over one run on the first repeat's prompts. Table 11 gives the ranges. The batch axis is logarithmic: the measured sizes 1, 2, 4, …, 64 are equally spaced."),
         "recover": fig("fig-recover", "Figure 37 · interactive", "After the kernel work, the largest recoverable share of TD's step is the experts' at batch 2–8 and the time outside the model from batch 16 on.", "Choose a context and a batch.",
                        '<div data-mfig="recover"></div>',
-                       "Each component's share of TD's step after the kernel work, split into the time its target kernel would keep and the recoverable rest (Definition 7); time outside the model and idle time count in full. Grey: the time the component would take at its target efficiency \\(\\eta^\\star_c\\); orange: the recoverable rest; the number is the recoverable share of the step. At batch 1 the dense layers lead at contexts 1k–16k, with 8–10% of the step, and global attention at 64k, with 17%. Table 13 lists the two largest entries at contexts 1k and 64k."),
+                       "Each component's share of TD's step after the kernel work, split into the time its target kernel would keep and the recoverable rest (Definition 7); time outside the model and idle time count in full. Grey: the time the component would take at its target efficiency \\(\\eta^\\star_c\\); orange: the recoverable rest; the number is the recoverable share of the step. At batch 1 the dense layers lead at contexts 1k–16k, with 8–10% of the step, and global attention at 64k, with 17%. Table 12 lists the two largest entries at contexts 1k and 64k."),
         "moe_eff": fig("fig-moe-eff", "Figure 31", "The new expert path raises the experts to 0.33–0.52 of their roofline at the four measured points, short of the 0.81 that cuBLAS reaches.", "",
                        fig_moe_eff(),
-                       "Efficiency of the expert path against its empirical roofline at the measured routing, in dedicated runs of the kernel, three per arm and separate from the grid of Parts 5–8; the label gives the change in time per pass. The dashed line is the stacked cuBLAS reference at batch 32, the target of Definition 7. Table 9 gives the times."),
+                       "Efficiency of the expert path against its empirical roofline at the measured routing, in dedicated runs of the kernel, three per arm and separate from the grid of Parts 5–8; the label gives the change in time per pass. The dashed line is the stacked cuBLAS reference at batch 32, the target of Definition 7. Table 8 gives the times."),
         "attn_eff": fig("fig-attn-eff", "Figure 34", "The pair kernel raises global attention from about half to about 0.7 of the attention ceiling.", "",
                         fig_attn_eff(),
-                        "Global attention in the engine at three points, one run each: FlashAttention 4 with 64-token pages against the pair kernel with 80-token pages; the label gives the change in TD's step time. The ceiling is FlashAttention 3's sustained rate (Table 5). Table 10 gives the numbers."),
+                        "Global attention in the engine at three points, one run each: FlashAttention 4 with 64-token pages against the pair kernel with 80-token pages; the label gives the change in TD's step time. The ceiling is FlashAttention 3's sustained rate (Table 4). Table 9 gives the numbers."),
         "t_ceil": t_ceilings(d), "t_neff": t_neff(d), "t_prop1": t_prop1(d), "t_stock": t_stock(d), "t_eta": t_eta(d), "t_vs2": t_vs2(d),
         "t_moe": t_moe(), "t_attn": t_attn(), "t_recover": t_recover(d),
     }

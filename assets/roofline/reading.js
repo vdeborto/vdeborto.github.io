@@ -275,6 +275,22 @@
     ev.preventDefault();
     n.classList.add('flash'); setTimeout(() => n.classList.remove('flash'), 1200);
   });
+  // a click on a footnote (in the Notes list or in the margin) goes back to where the text cites it
+  const flashRef = (ref) => { ref.scrollIntoView({ block: 'center', behavior: 'smooth' }); ref.classList.add('flash'); setTimeout(() => ref.classList.remove('flash'), 1400); };
+  page.addEventListener('click', (ev) => {
+    if (ev.target.closest('a')) return;
+    const li = ev.target.closest('section.footnotes li[id^="fn-"]');
+    if (!li) return;
+    const ref = document.getElementById(`fnref-${li.id.slice(3)}`);
+    if (ref) { ev.preventDefault(); flashRef(ref); }
+  });
+  document.addEventListener('click', (ev) => {
+    const n = ev.target.closest('.bdr-margin .sidenote');
+    if (!n || ev.target.closest('a')) return;
+    const i = sides.indexOf(n);
+    const refs = [...page.querySelectorAll('sup.fn-ref')].filter((r) => r.offsetParent && !r.closest('.footnotes'));
+    if (refs[i]) flashRef(refs[i]);
+  });
   let marginTick = 0;
   const relayout = () => { if (!marginTick) marginTick = requestAnimationFrame(() => { marginTick = 0; layoutMargin(); }); };
   addEventListener('resize', relayout);
@@ -374,6 +390,10 @@
     if (hash.startsWith('figure-')) {
       const host = t.parentElement, title = host && host.querySelector('.fig-title');
       return `<div class="xk">${t.textContent.trim()}</div>${title ? `<p class="xt">${title.innerHTML}</p>` : ''}`;
+    }
+    if (hash.startsWith('assume-')) {
+      const dt = t.querySelector('dt'), dd = t.querySelector('dd');
+      return dt && dd ? `<div class="xk">Assumption</div><p class="xt">${dt.textContent.trim()}</p><p>${dd.innerHTML}</p>` : null;
     }
     if (hash.startsWith('table-')) {
       const c = t.innerHTML.split(/(?<=\.)\s/).slice(0, 2).join(' ');

@@ -7,7 +7,7 @@
 // Their toy grids (experts of one layer, cached tokens of one sequence) show one random draw; the
 // readout next to each gives the expectation that the propositions use.
 //
-// Accountings (see the table built by figAccounting):
+// Accountings:
 //   - intensities are always those of Proposition 1 (Definition 3, no vocabulary): prop1();
 //   - gains labelled "exact" use the full accounting at a fixed context: steady();
 //   - regimes quoted next to an exact gain are stated as shares of the peak compute (util()),
@@ -56,7 +56,7 @@
   };
   const colors = () => ({
     ar: css('--bdr-ar'), td: css('--bdr-td'), ink: css('--ink'), muted: css('--bdr-muted'), rule: css('--rule'),
-    bg: css('--bdr-bg'), surface: css('--bdr-surface'), hi: css('--bdr-hi'), soft: css('--bdr-accent-soft'),
+    bg: css('--bdr-bg'), surface: css('--bdr-surface'), hi: css('--bdr-hi'), soft: css('--bdr-accent-soft'), bad: css('--bdr-critical'),
   });
   function scale(d0, d1, r0, r1, log = true) {
     const f = log ? Math.log10 : (v) => v, a = f(d0), b = f(d1);
@@ -173,29 +173,6 @@
   }
   const BATCHES = [1, 2, 3, 4, 5, 6, 8, 10, 12, 16, 24, 32, 48, 64, 96, 128, 192, 256, 384, 512, 768, 1024];
   const CONTEXTS = Array.from({ length: 11 }, (_, i) => 1024 * 2 ** i);
-
-  // ---------------------------------------------------------------- the three accountings
-  function figAccounting(root) {
-    const hw = hwOf('h200');
-    const rows = [
-      { name: 'Proposition 1', what: 'closed form of Part 1: no vocabulary, context fixed at 1k (at zero context, as in the closed forms of Part 2, TD is ahead up to batch 109)', used: 'Figures 6 and 13', g: (B) => prop1(DG, hw, B, 1024).gain },
-      { name: 'Exact, fixed context', what: 'every FLOP and byte of the exact accounting below, vocabulary included, at one context held fixed: 1k in this table, 1M in Figure 7, and each context of the grid in the maps', used: 'Figure 7 and the maps', g: (B) => steady(DG, hw, B, 1024).gain },
-      { name: 'Exact, whole generation', what: 'the same accounting summed over a 1k prompt and 8k generated tokens: the context grows from 1k to 9k', used: 'the calculator above', g: (B) => M.generate(DG, { ...W0, B }, O0, hw).gainDecode, slow: true },
-    ];
-    // short rows of numbers, then what each accounting is, as a list
-    const table = el(`<div class="table-wrap nofold"><table class="acct"><thead><tr><th class="l">Accounting</th><th>Γ, batch 1</th><th>Γ, batch 5</th><th>Γ, batch 64</th><th>TD ahead up to batch</th></tr></thead><tbody>${rows.map((r) => `<tr><td class="l"><b>${r.name}</b></td><td class="num">…</td><td class="num">…</td><td class="num">…</td><td class="num">…</td></tr>`).join('')}</tbody></table></div>`);
-    const list = el(`<ul class="acct-list">${rows.map((r) => `<li><b>${r.name}:</b> ${r.what}. Used by ${r.used}.</li>`).join('')}</ul>`);
-    root.append(table, list);
-    const tick = () => new Promise((res) => setTimeout(res, 0));
-    rows.forEach(async (r, k) => {
-      const cells = table.querySelectorAll('tbody tr')[k].querySelectorAll('td.num');
-      const g = async (B) => { if (r.slow) await tick(); return r.g(B); };
-      for (const [j, B] of [1, 5, 64].entries()) cells[j].textContent = g2(await g(B));
-      let lo = 64, hi = 512; // the gain decreases with the batch on this range
-      while (hi - lo > 1) { const mid = (lo + hi) >> 1; if ((await g(mid)) >= 1) lo = mid; else hi = mid; }
-      cells[3].textContent = String(lo);
-    });
-  }
 
   // ---------------------------------------------------------------- roofline renderer (Figure 6)
   // One accelerator's roofline with an AR dot and a TD dot at their intensities; the bracket on the
@@ -393,8 +370,7 @@
       const at = curves.map((pts) => pts[st.i]), ar = at.map((p) => p.IAR), td = at.map((p) => p.ITD);
       const gains = at.map((p) => Math.min(p.ITD, Is) / (OM * Math.min(p.IAR, Is)));
       const above = td.filter((v) => v >= Is).length, noFit = at.filter((p) => !ok(p)).map((p) => p.B);
-      out.innerHTML = `At <b>C = ${kctx(C)}</b>, across batches ${CBATCH.join(', ')}: ${hsub('I', 'AR')} = ${ar.map((v) => fmt(v)).join(', ')} (a factor ${fmt(Math.max(...ar) / Math.min(...ar))} apart); ${hsub('I', 'TD')} = ${td.map((v) => fmt(v)).join(', ')}, ${above === at.length ? 'all above the ridge' : above ? `${above} of ${at.length} above the ridge` : 'none above the ridge'}.<br>`
-        + `Proposition 1 then gives Γ = ${gains.map((g) => g2(g)).join(', ')}.${noFit.length ? ` Dashed: batch${noFit.length > 1 ? 'es' : ''} ${noFit.join(', ')} ${noFit.length > 1 ? 'do' : 'does'} not fit in ${HWBYID[shared.hw].gb} GB at this context.` : ''}`;
+
     }
     shared.subs.push(draw);
     draw();
@@ -653,57 +629,78 @@
         ? `In a dense layer every query scores every cached token. The canvas scores ${b} times as many pairs and reads the same ${C} tokens, once: ${hsub('Π', 'attn')} = 1, and its intensity is <b>${b} times</b> that of an AR step (<i>b</i> times in general).`
         : kind === 'window'
           ? `In a sliding-window layer every query scores the last <i>w</i> = ${w} cached tokens. The canvas reads the same ${w} tokens, once: ${hsub('Π', 'attn')} = 1, and its intensity is <b>${b} times</b> that of an AR step. (Drawn as Table 1 counts it: the window of a later canvas position starts later and ends inside the canvas, and reads no other cached token.)`
-          : `In a sparse layer every query first scores the index keys of all ${C} cached tokens, selected or not (every cell of its row, pale or full; the index is read once for the whole canvas), and then attends to its own <i>m</i> = ${m} selected tokens (full cells). The canvas reads the union of its ${b} selections, ${t.cols} tokens in this draw and <i>U</i><sub>C,m</sub>(${b}) = ${expU.toFixed(2)} in expectation, so on the selected tokens it reads ${hsub('Π', 'sel')} = ${expU.toFixed(2)}/${m} = <b>${gx(expU / m)}</b> times what an AR step reads, for ${b} times the pairs.`;
+          : `In a sparse layer every query scores the index keys of all ${C} cached tokens (pale cells) and attends to its own <i>m</i> = ${m} selected tokens (full cells). The canvas reads the index once but the union of its ${b} selections, ${t.cols} tokens in this draw and <i>U</i><sub>C,m</sub>(${b}) = ${expU.toFixed(2)} in expectation, where an AR step reads ${m}: ${hsub('Π', 'attn')} &gt; 1, and its intensity is <b>less than ${b} times</b> that of an AR step.`;
       out.innerHTML = `<span class="ar">AR step</span>: ${a.cells} scored pairs${sparse ? ' on the selected tokens' : ''}, ${a.cols} tokens' keys and values read. <span class="td">TD pass</span>: ${t.cells} pairs, ${t.cols} tokens read.<br>${law}`;
     }
     draw(); onTheme(draw); watchWidth(pic, draw);
   }
 
   // ---------------------------------------------------------------- the penalty of a sparse layer (Proposition 6)
-  // A model whose attention is one sparse layer type, as in Table 3: constants of DiffusionGemma's global layers.
+  // A model whose attention is one sparse layer type, as in Table 2: constants of DiffusionGemma's global layers.
+  // The shaded contexts are those where Corollary 3 (attention dominates both passes) gives a gain below 1.
   const SP = bare(M.MODELS.dgemma_sparse.build());
   const CSP = Array.from({ length: 73 }, (_, i) => Math.round(1024 * 2 ** (i / 4))); // 1k to 268M
+  const CFINE = Array.from({ length: 289 }, (_, i) => 1024 * 2 ** (i / 16)); // the same range, for the shading
+  const MSP = [256, 512, 1024, 2048, 4096, 8192, 16384], BSP = [8, 16, 32, 64, 128, 256, 512, 1024];
   function figSparse(root) {
-    const st = { i: CSP.indexOf(1 << 17), b: 256 };
+    const st = { i: CSP.indexOf(1 << 17) };
+    const sm = slider('selected tokens per query <i>m</i>', MSP, MSP.indexOf(SP.msel), comma);
+    const sb = slider('canvas length <i>b</i>', BSP, BSP.indexOf(256), comma);
+    sm.input.addEventListener('input', () => draw());
+    sb.input.addEventListener('input', () => draw());
     const ctl = el('<div class="fig-controls"></div>');
-    ctl.append(segLabel('canvas length <i>b</i>', seg([16, 64, 256].map((v) => [v, String(v)]), st.b, (v) => { st.b = v; draw(); })));
+    ctl.append(sm.lab, sb.lab);
     const pic = el('<div></div>'), out = el('<div class="readout" aria-live="polite"></div>');
     root.append(ctl, pic, out);
-    const m = SP.msel, Is = SP.Istar;
-    const Un = (C, b) => (C <= m ? C : C * (1 - (1 - m / C) ** b));
-    const qAR = (C) => SP.nuI * C + SP.nuSp * Math.min(C, m), qTD = (C, b) => SP.nuI * C + SP.nuSp * Un(C, b);
-    const f = (C) => SP.aI * C + SP.aSp * Math.min(C, m);
-    const Pi = (C, b) => qTD(C, b) / qAR(C), Psel = (C, b) => Un(C, b) / Math.min(C, m);
+    const Is = SP.Istar, om = OM;
     draggable(pic, () => st.xs, CSP, () => st.i, (i) => { st.i = i; draw(); });
     function draw() {
-      const c = colors(), W = widthOf(pic), H = 334, mg = { l: 46, r: 18, t: 30, b: 42 }, C = CSP[st.i], b = st.b;
-      const xs = scale(1024, 2 ** 28, mg.l, W - mg.r), ylo = 0.8, yhi = 400, ys = scale(ylo, yhi, H - mg.b, mg.t);
-      let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Penalty of a sparse layer against context, canvas of ${b}">`;
-      s += `<rect x="${xs(m)}" y="${mg.t}" width="${xs(b * m) - xs(m)}" height="${H - mg.b - mg.t}" fill="${c.soft}" opacity="0.6"/>`;
+      const m = sm.value, b = sb.value, tpf = b / om;
+      const Un = (C) => (C <= m ? C : C * (1 - (1 - m / C) ** b));
+      const qAR = (C) => SP.nuI * C + SP.nuSp * Math.min(C, m), qTD = (C) => SP.nuI * C + SP.nuSp * Un(C);
+      const IAR = (C) => (SP.aI * C + SP.aSp * Math.min(C, m)) / qAR(C);
+      const Pi = (C) => qTD(C) / qAR(C);
+      // Corollary 3: Γ = min(TPF/Π_attn, I*/(ω I^AR_attn))
+      const gain = (C) => Math.min(tpf / Pi(C), Is / (om * IAR(C)));
+      const c = colors(), W = widthOf(pic), H = 334, mg = { l: 46, r: 18, t: 30, b: 42 }, C = CSP[st.i];
+      const xs = scale(1024, 2 ** 28, mg.l, W - mg.r), ys = scale(0.4, 100, H - mg.b, mg.t);
+      let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Attention penalty of a sparse layer against context, m = ${m} selected tokens, canvas of ${b}; shaded where the gain is below 1">`;
+      // runs of contexts with Γ < 1, bounded half a grid step either side of the sampled points
+      const runs = [], half = 2 ** (1 / 32);
+      CFINE.forEach((x, k) => {
+        if (!(gain(x) < 1)) return;
+        const lo = k === 0 ? x : x / half, hi = k === CFINE.length - 1 ? x : x * half, last = runs[runs.length - 1];
+        if (last && last.k === k - 1) { last.hi = hi; last.k = k; } else runs.push({ lo, hi, k });
+      });
+      for (const r of runs) s += `<rect x="${xs(r.lo)}" y="${mg.t}" width="${xs(r.hi) - xs(r.lo)}" height="${H - mg.b - mg.t}" fill="${c.bad}" fill-opacity="0.12"/>`;
       for (const v of [1, 10, 100]) s += `<line x1="${mg.l}" x2="${W - mg.r}" y1="${ys(v)}" y2="${ys(v)}" stroke="${c.rule}"/><text x="${mg.l - 6}" y="${ys(v) + 4}" text-anchor="end">${v}</text>`;
       for (const v of [1 << 10, 1 << 14, 1 << 18, 1 << 22, 1 << 26]) s += `<text x="${xs(v)}" y="${H - mg.b + 15}" text-anchor="middle">${kctx(v)}</text>`;
       s += `<text x="${(mg.l + W - mg.r) / 2}" y="${H - 6}" text-anchor="middle" class="ink">${W < 480 ? 'context C, tokens (log scale)' : 'context C, tokens in the KV cache (log scale)'}</text>`;
-      s += `<text x="4" y="13" class="ink">penalty (log scale)</text>`;
-      for (const [v, t, anchor] of [[m, 'm', 'end'], [b * m, 'bm', 'start']]) s += `<line x1="${xs(v)}" x2="${xs(v)}" y1="${mg.t}" y2="${H - mg.b}" stroke="${c.muted}" stroke-dasharray="3 4"/><text x="${xs(v) + (anchor === 'end' ? -4 : 4)}" y="${mg.t + 11}" text-anchor="${anchor}" class="ink">C = ${t}</text>`;
-      s += `<line x1="${mg.l}" x2="${W - mg.r}" y1="${ys(b)}" y2="${ys(b)}" stroke="${c.muted}" stroke-dasharray="3 4"/><text x="${W - mg.r - 4}" y="${ys(b) - 5}" text-anchor="end">b = ${b}</text>`;
-      s += `<polyline fill="none" stroke="${c.ink}" stroke-width="1.6" stroke-dasharray="6 4" points="${CSP.map((x) => `${xs(x)},${ys(Psel(x, b))}`).join(' ')}"/>`;
-      s += `<polyline fill="none" stroke="${c.td}" stroke-width="2.4" points="${CSP.map((x) => `${xs(x)},${ys(Pi(x, b))}`).join(' ')}"/>`;
-      const peak = CSP.reduce((best, x) => (Pi(x, b) > Pi(best, b) ? x : best), CSP[0]);
-      s += `<text class="td halo" x="${xs(peak) + 10}" y="${ys(Pi(peak, b)) - 9}">${sub('Π', 'attn')}${W < 480 ? '' : ": with the scan's index cache"}</text>`;
-      s += `<text class="ink halo" x="${xs(2 ** 27)}" y="${ys(Psel(2 ** 27, b)) + 17}" text-anchor="end">${sub('Π', 'sel')}${W < 480 ? '' : ': selected tokens only'}</text>`;
+      s += `<text x="4" y="13" class="ink">attention penalty (log scale)</text>`;
+      for (const [v, t, anchor] of [[m, 'm', 'end'], [b * m, 'bm', 'start']]) s += `<line x1="${xs(v)}" x2="${xs(v)}" y1="${mg.t}" y2="${H - mg.b}" stroke="${c.muted}" stroke-dasharray="3 4"/><text class="ink halo" x="${xs(v) + (anchor === 'end' ? -4 : 4)}" y="${H - mg.b - 6}" text-anchor="${anchor}">C = ${t}</text>`;
+      if (tpf >= 0.4) s += `<line x1="${mg.l}" x2="${W - mg.r}" y1="${ys(tpf)}" y2="${ys(tpf)}" stroke="${c.muted}" stroke-dasharray="3 4"/><text class="halo" x="${W - mg.r - 4}" y="${ys(tpf) - 5}" text-anchor="end">TPF = b/ω = ${fmt(tpf)}</text>`;
+      if (runs.length) {
+        const wide = runs.reduce((a, r) => (xs(r.hi) - xs(r.lo) > xs(a.hi) - xs(a.lo) ? r : a));
+        const xm = Math.min(Math.max((xs(wide.lo) + xs(wide.hi)) / 2, mg.l + 24), W - mg.r - 24);
+        s += `<text class="halo" x="${xm}" y="${mg.t + 26}" text-anchor="middle" fill="${c.bad}" style="fill:${c.bad}">Γ &lt; 1</text>`;
+      }
+      s += `<polyline fill="none" stroke="${c.td}" stroke-width="2.4" points="${CSP.map((x) => `${xs(x)},${ys(Pi(x))}`).join(' ')}"/>`;
+      const peak = CSP.reduce((best, x) => (Pi(x) > Pi(best) ? x : best), CSP[0]);
+      const lx = Math.min(xs(peak) + 10, W - mg.r - (W < 480 ? 40 : 220));
+      s += `<text class="td halo" x="${lx}" y="${ys(Pi(peak)) - 9}">${sub('Π', 'attn')}${W < 480 ? '' : ": with the scan's index cache"}</text>`;
       s += `<g class="drag" tabindex="0" role="slider" aria-label="Context" aria-valuemin="1024" aria-valuemax="${2 ** 28}" aria-valuenow="${C}" aria-valuetext="context ${kctx(C)} tokens"><rect x="${mg.l}" y="${mg.t}" width="${W - mg.r - mg.l}" height="${H - mg.b - mg.t}" fill="transparent"/>${marker(xs, C, mg.t, H - mg.b, c)}`;
-      s += `<circle cx="${xs(C)}" cy="${ys(Pi(C, b))}" r="4.5" fill="${c.td}" stroke="${c.bg}" stroke-width="1.5"/><circle cx="${xs(C)}" cy="${ys(Psel(C, b))}" r="4" fill="${c.ink}" stroke="${c.bg}" stroke-width="1.5"/>`;
+      s += `<circle cx="${xs(C)}" cy="${ys(Pi(C))}" r="4.5" fill="${c.td}" stroke="${c.bg}" stroke-width="1.5"/>`;
       pic.innerHTML = `${s}</g></svg>`;
       st.xs = xs;
-      const IAR = f(C) / qAR(C), ITD = (b * f(C)) / qTD(C, b), om = W0.S + 1, tpf = b / om, P = Pi(C, b);
-      const gain = Math.min(ITD, Is) / (om * Math.min(IAR, Is));
-      out.innerHTML = `At <b>C = ${kctx(C)}</b>, a canvas of ${b} queries reads <i>U</i><sub>C,m</sub>(${b}) = ${kctx(Un(C, b))} selected tokens where one query reads ${kctx(Math.min(C, m))}: ${hsub('Π', 'sel')} = ${gx(Psel(C, b))}, and with the index cache <b>${hsub('Π', 'attn')} = ${gx(P)}</b>.<br>`
-        + `Attention intensities: ${IATT('AR')} = ${fmt(IAR)}, ${IATT('TD')} = <i>b</i> ${IATT('AR')}/${hsub('Π', 'attn')} = ${fmt(ITD)} (<span class="td">TD ${ITD >= Is ? 'compute' : 'memory'}-bound</span> on an H200, ${HIS} = ${fmt(Is)}). If attention dominated both decoders, Corollary 3 would give Γ = ${ITD >= Is ? `${HIS}/(ω ${IATT('AR')})` : `TPF/${hsub('Π', 'attn')} = ${fmt(tpf)}/${gx(P)}`} = <b>${gx(gain)}</b>.`;
+      const P = Pi(C), ia = IAR(C), mem = tpf / P <= Is / (om * ia), G = gain(C);
+      const tok = (x) => (x < 1024 ? comma(x) : kctx(x));
+      out.innerHTML = `At <b>C = ${kctx(C)}</b>, a canvas of ${comma(b)} queries reads <i>U</i><sub>C,m</sub>(${b}) = ${tok(Un(C))} selected tokens where one query reads ${tok(Math.min(C, m))}, and with the index cache <b>${hsub('Π', 'attn')} = ${gx(P)}</b>.<br>
+         If attention dominated both decoders, Corollary 3 gives Γ = ${mem ? `TPF/${hsub('Π', 'attn')} = ${fmt(tpf)}/${gx(P)}` : `${HIS}/(ω ${IATT('AR')}) = ${fmt(Is)}/(${om} × ${gx(ia)})`} = <b>${gx(G)}</b>${G < 1 ? ': TD is slower than AR at this context (shaded)' : ''}.`;
     }
     draw(); onTheme(draw); watchWidth(pic, draw);
   }
 
-  // ---------------------------------------------------------------- attention's share of bytes and of FLOPs (Proposition 7)
+  // ---------------------------------------------------------------- attention's share of bytes and of FLOPs (Proposition 8)
   const CSH = Array.from({ length: 41 }, (_, i) => Math.round(1024 * 2 ** (i / 4))); // 1k to 1M
   const SHB = [1, 16, 64, 256];
   function figShare(root) {
@@ -789,7 +786,7 @@
 
   // ---------------------------------------------------------------- mount
   const FIGS = {
-    accounting: figAccounting, reuse: figReuse, roofline: figRoofline, context: figContext, accel: figAccel,
+    reuse: figReuse, roofline: figRoofline, context: figContext, accel: figAccel,
     weights: figWeights, linmap: figLinMap, attnread: figAttnRead, sparse: figSparse, share: figShare,
   };
   document.querySelectorAll('[data-fig]').forEach((root) => {

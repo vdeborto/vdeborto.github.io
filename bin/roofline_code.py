@@ -21,7 +21,7 @@ from pygments.token import STANDARD_TYPES
 
 REPO = "vdeborto/roofscope"
 CLONE = Path.home() / "code/roofscope"
-SHA = "21e15d9728f8b053a2ca16e3342bd4ec7a6baac7"
+SHA = "8ef00402eb8bf26b7c825c89f108f5397a59a3eb"
 GH = f"https://github.com/{REPO}"
 # While the repository is private its GitHub links would 404 for readers: print the commit and
 # line numbers as plain text, and set PUBLIC = True (then rebuild) once it is public.

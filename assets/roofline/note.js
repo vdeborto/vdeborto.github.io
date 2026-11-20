@@ -442,7 +442,7 @@
   // "≈": derived from vendor material or disputed between sources. The FP8 peak defaults to twice BF16;
   // chips without an FP8 matrix rate above BF16's (A100, TPU v5e, v5p, v6e) dequantise FP8 weights, so tflops8 = tflops.
   // Memory in GB (10^9 bytes): Google lists TPU HBM in GiB (16, 95, 32, 192), converted here.
-  // tflopsAttn: the attention ceiling (Part 5, Table 5), used in place of the BF16 peak for attention kernels.
+  // tflopsAttn: the attention ceiling (Part 5, Table 4), used in place of the BF16 peak for attention kernels.
   const HW = [
     { group: 'NVIDIA data centre' },
     { id: 'a100', label: 'A100 SXM 80 GB', tflops: 312, tflops8: 312, tbps: 2.039, gb: 80 },
@@ -798,14 +798,6 @@
   };
 
   // ---------------------------------------------------------------- static tables
-  function attnTable(st) {
-    const { c } = bare(st);
-    const sigma = (c.aS * c.r) / (2 * c.Nact);
-    $('t-attn').innerHTML = `<tr><td>context C at least</td>${[0.1, 0.25, 0.5].map((x) => {
-      const C = c.CF * (x / (1 - x) - sigma);
-      return `<td class="num">${C <= c.r ? 'any (≥ 1k)' : kTok(C)}</td>`;
-    }).join('')}</tr>`;
-  }
 
   // Smallest batch at which AR's linear intensity reaches `target`, using the full W_AR(B).
   function solveLin(c, target) {
@@ -1026,47 +1018,10 @@
   }
 
   // ---------------------------------------------------------------- decoder ratio figure: exact gain against r
-  // ---------------------------------------------------------------- sparse attention figures
-  const SPARSE_REF = () => M.MODELS.dgemma_sparse.build();
-  function ctxChart(el, legendEl) {
-    if (!el.isConnected) return;
-    const ms = SPARSE_REF();
-    const Cs = []; for (let k = 10; k <= 20; k += 0.25) Cs.push(2 ** k);
-    const series = [
-      { color: '--bdr-td', label: 'sparse, batch 64', m: ms, B: 64 },
-      { color: '--bdr-s4', label: 'sparse, batch 1', m: ms, B: 1 },
-      { color: '--bdr-ar', label: 'dense, batch 64', m: model, B: 64, dash: '5 4' },
-      { color: '--bdr-hi', label: 'dense, batch 1', m: model, B: 1, dash: '5 4' },
-    ].map((sr) => ({ ...sr, ys: Cs.map((C) => M.steady(sr.m, { ...REF.w, B: sr.B }, REF.o, REF.hw, C).gain) }));
-    lineChart(el, series.map((sr) => ({ color: sr.color, label: '', dash: sr.dash, points: Cs.map((C, k) => ({ x: C, y: sr.ys[k] })) })), {
-      aria: 'Exact TD over AR gain against context for dense and sparse global layers', refY: 1, dots: false, xLabel: 'context C (tokens)', xFmt: (x) => (Math.round(Math.log2(x)) % 2 === 0 ? kTok(x) : ''), yFmt: (v) => `${v}×`,
-      tip: (i) => `<b>context ${kTok(Cs[i])}</b><br>` + series.map((sr) => `<span class="swatch" style="background:var(${sr.color})"></span>${sr.label}: ${sr.ys[i].toFixed(2)}×`).join('<br>'),
-    });
-    legendEl.innerHTML = series.map((sr) => `<span><span class="swatch" style="background:var(${sr.color})"></span>${sr.label}</span>`).join('') + '<span class="muted">dashed: dense (the main note)</span>';
-  }
-  function etaChart(el, legendEl) {
-    if (!el.isConnected) return;
-    const base = SPARSE_REF();
-    const etas = []; for (let k = -8; k <= 0; k += 0.5) etas.push(2 ** k);
-    const C = 2 ** 20;
-    const series = [
-      { color: '--bdr-td', label: 'batch 64', B: 64 },
-      { color: '--bdr-s4', label: 'batch 8', B: 8 },
-      { color: '--bdr-hi', label: 'batch 1', B: 1 },
-    ].map((sr) => ({ ...sr, ys: etas.map((eta) => M.steady({ ...base, sparse: { ...base.sparse, eta } }, { ...REF.w, B: sr.B }, REF.o, REF.hw, C).gain) }));
-    const ef = (e) => (e >= 1 ? '1' : `1/${Math.round(1 / e)}`);
-    lineChart(el, series.map((sr) => ({ color: sr.color, label: '', points: etas.map((e, k) => ({ x: e, y: sr.ys[k] })) })), {
-      aria: 'Exact TD over AR gain at 1M context against the selection overlap parameter', refY: 1, dots: false, xLabel: 'overlap ζ (1: independent selections)', xFmt: ef, yFmt: (v) => `${v}×`,
-      tip: (i) => `<b>ζ = ${ef(etas[i])}</b><br>` + series.map((sr) => `<span class="swatch" style="background:var(${sr.color})"></span>${sr.label}: ${sr.ys[i].toFixed(2)}×`).join('<br>'),
-    });
-    legendEl.innerHTML = series.map((sr) => `<span><span class="swatch" style="background:var(${sr.color})"></span>${sr.label}</span>`).join('');
-  }
   // Bytes per generated token by class, AR step and TD canvas, kB.
   // ---------------------------------------------------------------- static figures (reference setting)
   function staticFigures() {
-    regimeMap($('map-sparse'), $('map-sparse-legend'), { ...REF, m: SPARSE_REF() });
     bstarChart($('bstar'), $('bstar-legend'), REF);
-    attnTable(REF);
     regimeMap($('map-ref'), $('map-ref-legend'), REF);
     intensityMap($('imap-ar'), $('imap-ar-legend'), REF, 'ar');
     intensityMap($('imap-td'), $('imap-td-legend'), REF, 'td');
@@ -1112,16 +1067,7 @@
   function sparseApply(m) {
     if (!$('s-on').checked) return m;
     const v = (id, lo) => Math.max(lo, parseFloat($(id).value) || lo);
-    return M.sparsify(m, { m: Math.round(v('s-m', 1)), beta: Math.round(v('s-beta', 1)), eta: Math.min(1, v('s-eta', 0.001)), HI: Math.round(v('s-HI', 1)), hI: Math.round(v('s-hI', 1)), sI: +$('s-sI').value });
-  }
-
-  // Effective independent tokens per pass, measured on DiffusionGemma against Gemma 4 26B-A4B on one H200
-  // (Part 5): geometric mean over contexts 1k-16k at each batch (64k is left out: TD's text degrades there).
-  const MEASURED_ROUTING = {"td": [[1, 12.24], [2, 14.62], [4, 18.06], [8, 22.6], [16, 26.99], [32, 32.54], [64, 37.37]], "ar": [[1, 1.0], [2, 1.76], [4, 2.98], [8, 4.73], [16, 7.13], [32, 9.44], [64, 12.27]]};
-  function routeApply(m) {
-    const ok = MEASURED_ROUTING && m.E === 128 && m.k === 8 && /^dgemma/.test($('c-model').value);  // DiffusionGemma's own counts only
-    $('c-route').disabled = !MEASURED_ROUTING || !ok;
-    return $('c-route').checked && ok ? { ...m, routing: MEASURED_ROUTING } : m;
+    return M.sparsify(m, { m: Math.round(v('s-m', 1)), beta: Math.round(v('s-beta', 1)), eta: 1, HI: Math.round(v('s-HI', 1)), hI: Math.round(v('s-hI', 1)), sI: +$('s-sI').value });
   }
 
   function settings() {
@@ -1131,36 +1077,11 @@
     const G = Math.max(b, Math.round((v('c-G') || b) / b) * b);
     const peak = Math.max(1, v('c-peak') || 1) * 1e12, peak8 = Math.max(1, v('c-peak8') || 2 * v('c-peak') || 2) * 1e12;
     return {
-      m: routeApply(sparseApply(modelFromSpecs())),
+      m: sparseApply(modelFromSpecs()),
       hw: { peak, peakFp8: peak8, peakAttn: ((HWBYID[$('c-hw').value] || {}).tflopsAttn ?? ($('c-hw').value === 'custom' ? LAST_ATTN : undefined)) * 1e12 || undefined, bw: Math.max(0.01, v('c-bw') || 0.01) * 1e12, mem: Math.max(1, v('c-mem') || 1) * 1e9, fp8, kernels: $('c-kern').value },
-      o: { bw: fp8 ? 1 : 2, bwOther: 2, bkv: 2, ba: $('c-actl2').checked ? 0 : 2, bl: v('c-bl'), kvOnce: $('c-kvonce').checked, rkv: Math.max(1, v('c-rho') || 1), honourWindow: $('c-win').checked },
-      w: { B: Math.max(1, Math.round(v('c-B')) || 1), P: Math.max(1, Math.round(v('c-P')) || 1), G, b, S: Math.max(1, Math.round(v('c-S')) || 1), r: Math.max(0.01, v('c-r') || 1), lambdaAR: v('c-la') || 0, lambdaTD: v('c-lt') || 0 },
+      o: { bw: fp8 ? 1 : 2, bwOther: 2, bkv: 2, ba: 0, bl: 4, kvOnce: $('c-kvonce').checked, rkv: 1, honourWindow: true },
+      w: { B: Math.max(1, Math.round(v('c-B')) || 1), P: Math.max(1, Math.round(v('c-P')) || 1), G, b, S: Math.max(1, Math.round(v('c-S')) || 1), r: Math.max(0.01, v('c-r') || 1), lambdaAR: 2, lambdaTD: $('m-sc').checked ? 5 : 2 },
     };
-  }
-
-  function passRows(m, w, o, hw) {
-    const C = Math.round(w.P + w.G / 2);
-    $('c-pass-cap').textContent = `Each pass at the mean context, ${kTok(C)} tokens, for the chosen batch.`;
-    return [
-      ['AR decode step', M.passes.arDecode(w, C)],
-      ['TD denoising pass (j ≥ 1)', M.passes.tdDenoise(w, C, 1)],
-      ['TD first denoising pass', M.passes.tdDenoise(w, C, 0)],
-      ['TD commit pass', M.passes.tdCommit(w, C)],
-    ].map(([name, p]) => {
-      const r = M.pass(m, p, o), t = M.passTime(r, hw);
-      return `<tr><td class="l">${name}</td><td class="num">${fmt(r.F / 1e12)}</td><td class="num">${gb(r.qw)}</td><td class="num">${gb(r.qkvr + r.qkvw)}</td><td class="num">${gb(r.qact)}</td><td class="num">${gb(r.qio)}</td><td class="num">${gb(r.Q)}</td><td class="num">${fmt(r.AI)}</td><td>${t.compute ? 'compute' : 'memory'}</td><td class="num">${time(t.t)}</td></tr>`;
-    }).join('');
-  }
-
-  const CLASS_LABEL = { dense: 'dense linear', expert: 'experts', attnG: 'global attention', attnW: 'window attention', attnS: 'sparse core', index: 'indexer', head: 'vocabulary head' };
-  function kernelRows(m, w, o, hw) {
-    const C = Math.round(w.P + w.G / 2);
-    const ar = M.passTime(M.pass(m, M.passes.arDecode(w, C), o), hw), td = M.passTime(M.pass(m, M.passes.tdDenoise(w, C, 1), o), hw);
-    const ms = (t) => (t * 1e3).toFixed(2);
-    const cell = (x) => `<td class="num ${x.bound === 'compute' ? 'cb' : x.bound === 'memory' ? 'mb' : ''}">${x.bound === 'none' ? '–' : `${ms(x.tc)} / ${ms(x.tm)} ${x.bound === 'compute' ? 'C' : 'M'}`}</td>`;
-    return M.CLASSES.filter((k) => ar.cls[k].bound !== 'none' || td.cls[k].bound !== 'none').map((k) => `<tr><td class="l">${CLASS_LABEL[k]}</td>${cell(ar.cls[k])}${cell(td.cls[k])}</tr>`).join('')
-      + `<tr class="tot"><td class="l">whole pass</td><td class="num">${ms(ar.tWhole)}</td><td class="num">${ms(td.tWhole)}</td></tr>`
-      + `<tr class="tot"><td class="l">sum of kernels</td><td class="num">${ms(ar.tSum)}</td><td class="num">${ms(td.tSum)}</td></tr>`;
   }
 
   const REGIMES = {
@@ -1236,9 +1157,6 @@
       tile('Memory needed, TD / AR', `${fmt(memT / 1e9)} / ${fmt(memA / 1e9)} GB`, memT > hw.mem || memA > hw.mem ? `<span class="oom">exceeds ${fmt(hw.mem / 1e9)} GB</span>` : `fits in ${fmt(hw.mem / 1e9)} GB`),
     ].join('');
 
-    $('c-pass').innerHTML = passRows(m, w, o, hw);
-    $('c-kern-rows').innerHTML = kernelRows(m, w, o, hw);
-
     const Bs = [];
     for (let B = 1; B <= 8192; B *= 2) {
       Bs.push(B);
@@ -1276,7 +1194,7 @@
       intensityMap($('imap-ar-calc'), $('imap-ar-calc-legend'), st, 'ar');
       intensityMap($('imap-td-calc'), $('imap-td-calc-legend'), st, 'td');
     }
-    document.querySelectorAll('#calc .tabpanel').forEach((f) => f.classList.toggle('stale', !withMaps));
+    document.querySelectorAll('#calc .mapfig.tabpanel').forEach((f) => f.classList.toggle('stale', !withMaps));
     writeState();
 
     const pc = M.paramCounts(m);
@@ -1287,8 +1205,8 @@
   }
 
   // ---------------------------------------------------------------- calculator state in the page address
-  const STATE_IDS = ['c-hw', 'c-peak', 'c-peak8', 'c-bw', 'c-mem', 'c-prec', 'c-kern', 'c-model', 'c-route', 's-on', 's-m', 's-beta', 's-eta', 's-HI', 's-hI', 's-sI', 'c-P', 'c-G', 'c-b', 'c-S', 'c-r', 'c-B',
-    'c-lt', 'c-la', 'c-bl', 'c-rho', 'c-actl2', 'c-kvonce', 'c-win', ...SPEC_NUM.map((k) => `m-${k}`), 'm-fSC', 'm-kvs', 'm-sc', 'm-tied'];
+  const STATE_IDS = ['c-hw', 'c-peak', 'c-peak8', 'c-bw', 'c-mem', 'c-prec', 'c-kern', 'c-model', 's-on', 's-m', 's-beta', 's-HI', 's-hI', 's-sI', 'c-P', 'c-G', 'c-b', 'c-S', 'c-r', 'c-B',
+    'c-kvonce', ...SPEC_NUM.map((k) => `m-${k}`), 'm-fSC', 'm-kvs', 'm-sc', 'm-tied'];
   const HW_FIELDS = ['c-peak', 'c-peak8', 'c-bw', 'c-mem'];
   const keyOf = (id) => id.replace(/^c-/, '');
   const valOf = (el) => (el.type === 'checkbox' ? (el.checked ? '1' : '0') : el.value);
@@ -1306,7 +1224,7 @@
       if (HW_FIELDS.includes(id) && $('c-hw').value !== 'custom') continue;
       if (id.startsWith('m-') && $('c-model').value !== 'custom') continue;
       const v = valOf($(id));
-      const presetDependent = ['c-prec', 'c-lt', 'c-la'].includes(id) && (valOf($('c-hw')) !== DEFAULTS['c-hw'] || valOf($('c-model')) !== DEFAULTS['c-model']);
+      const presetDependent = id === 'c-prec' && (valOf($('c-hw')) !== DEFAULTS['c-hw'] || valOf($('c-model')) !== DEFAULTS['c-model']);
       if (v !== DEFAULTS[id] || presetDependent) q.set(keyOf(id), v);
     }
     const qs = q.toString();
@@ -1319,7 +1237,7 @@
     const set = (id) => { const k = keyOf(id); if (!q.has(k)) return; const el = $(id); if (el.type === 'checkbox') el.checked = q.get(k) === '1'; else el.value = q.get(k); };
     set('c-hw'); if ($('c-hw').value !== 'custom') applyPreset();
     else if (q.has('attn')) LAST_ATTN = parseFloat(q.get('attn')) || undefined;
-    set('c-model'); if (M.MODELS[$('c-model').value]) { const m = M.MODELS[$('c-model').value].build(); fillSpecs(m); $('c-lt').value = m.selfCond ? 5 : 2; }
+    set('c-model'); if (M.MODELS[$('c-model').value]) { const m = M.MODELS[$('c-model').value].build(); fillSpecs(m); }
     for (const id of STATE_IDS) if (id !== 'c-hw' && id !== 'c-model') set(id);
     syncScWidth();
   }
@@ -1452,12 +1370,10 @@
       const m = spec.build();
       fillSpecs(m);
       $('s-on').checked = !!m.sparse;
-      if (m.sparse) { $('s-m').value = m.sparse.m; $('s-beta').value = m.sparse.beta; $('s-eta').value = m.sparse.eta; $('s-HI').value = m.sparse.HI; $('s-hI').value = m.sparse.hI; $('s-sI').value = m.sparse.sI; }
-      $('c-lt').value = m.selfCond ? 5 : 2;
+      if (m.sparse) { $('s-m').value = m.sparse.m; $('s-beta').value = m.sparse.beta; $('s-HI').value = m.sparse.HI; $('s-hI').value = m.sparse.hI; $('s-sI').value = m.sparse.sI; }
       commit();
     });
     document.querySelectorAll('#c-mspecs input').forEach((el) => el.addEventListener('input', () => { $('c-model').value = 'custom'; }));
-    $('m-sc').addEventListener('change', () => { $('c-lt').value = $('m-sc').checked ? 5 : 2; });
     for (const id of ['c-peak', 'c-peak8', 'c-bw', 'c-mem']) $(id).addEventListener('input', () => { $('c-hw').value = 'custom'; });
     document.querySelectorAll('.calc input, .calc select').forEach((el) => { el.addEventListener('input', schedule); el.addEventListener('change', commit); });
     let lastHw = $('c-hw').value !== 'custom' ? $('c-hw').value : 'h200';
@@ -1470,7 +1386,7 @@
     $('c-hw').addEventListener('change', () => { if ($('c-hw').value !== 'custom') { lastHw = $('c-hw').value; resetLabels(); } });
     $('c-model').addEventListener('change', () => { if (M.MODELS[$('c-model').value]) { lastModel = $('c-model').value; resetLabels(); } });
     $('c-reset').addEventListener('click', () => { $('c-hw').value = lastHw; applyPreset(); render(); });
-    $('m-reset').addEventListener('click', () => { $('c-model').value = lastModel; const m = M.MODELS[lastModel].build(); fillSpecs(m); $('c-lt').value = m.selfCond ? 5 : 2; render(); });
+    $('m-reset').addEventListener('click', () => { $('c-model').value = lastModel; const m = M.MODELS[lastModel].build(); fillSpecs(m); render(); });
     $('m-sc').addEventListener('change', syncScWidth);
     $('c-share').addEventListener('click', async () => {
       writeState();

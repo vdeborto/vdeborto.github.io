@@ -208,7 +208,7 @@
     draw(); watch(pic, draw);
   }
 
-  // ---------------------------------------------------------------- Proposition 9: the two efficiencies
+  // ---------------------------------------------------------------- Proposition 10: the two efficiencies
   function mEff(root) {
     const st = { C: Cs[0] };
     const { ctl, pic, out } = frame(root);
@@ -356,7 +356,7 @@
         hover: (i) => {
           const r = R[key(Bs[i], st.C)], head = `${st.m.toUpperCase()}, B = ${Bs[i]}, C = ${kc(st.C)}`;
           if (!r) return ro(head, [['not measured', '']]);
-          // U_{E,k}(N) = U with E = 128, k = 8, solved for N where the export leaves it out (as Table 6 does)
+          // U_{E,k}(N) = U with E = 128, k = 8, solved for N where the export leaves it out (as Table 5 does)
           const neff = r.neff || (r.meas != null && r.meas < 128 ? Math.log(1 - r.meas / 128) / Math.log(1 - 8 / 128) : null);
           return ro(`${head}: ${Math.round(r.N)} tokens per pass`, [['measured U', `${r.meas.toFixed(1)} (repeats ${r.meas_lo.toFixed(0)}–${r.meas_hi.toFixed(0)})`, st.m],
             ['as many as', `${neff != null ? neff.toFixed(1) : '–'} independent uniform tokens`], ['independent, measured popularity', r.pop.toFixed(1)], ['independent, uniform', r.uni.toFixed(1)]]);
@@ -607,7 +607,7 @@
       }
       return st.ver === 'old'
         ? P('FlashAttention 4 at head dimension 512', 'An SM works on a tile of 64 queries against a tile of 64 keys and values. At head dimension 512, these tiles fill 200 KB of the 227 KB of shared memory, so there is no room for a second buffer: the SM cannot load the next keys while it uses the current ones. Loading and computing take turns, and the tensor cores are busy 36% of the time. It runs at 296–357 TFLOP/s, against 700–729 at head dimension 256.')
-        : P('The pair kernel (attn512): one head split across two SMs', 'Each of two SMs takes 256 of the 512 columns, so each tile takes half the room. The freed space holds either a second buffer, so that the next keys load during the work (two stages of 64 keys, as drawn), or larger tiles of 80 keys in one stage, the fastest configuration with the 80-token KV pages that TD uses.', 'The price is the exchange: the scores need all 512 columns, so after each tile of keys the two SMs swap their partial scores. In the engine, global attention then runs at 0.68–0.71 of the attention ceiling, 1.36–1.37 times faster than FlashAttention 4 (Table 10).');
+        : P('The pair kernel (attn512): one head split across two SMs', 'Each of two SMs takes 256 of the 512 columns, so each tile takes half the room. The freed space holds either a second buffer, so that the next keys load during the work (two stages of 64 keys, as drawn), or larger tiles of 80 keys in one stage, the fastest configuration with the 80-token KV pages that TD uses.', 'The price is the exchange: the scores need all 512 columns, so after each tile of keys the two SMs swap their partial scores. In the engine, global attention then runs at 0.68–0.71 of the attention ceiling, 1.36–1.37 times faster than FlashAttention 4 (Table 9).');
     }
     draw(); watch(pic, draw);
   }

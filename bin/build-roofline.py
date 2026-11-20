@@ -66,7 +66,7 @@ CHAPTERS = [
     ("summary", "", "Summary", "tldr", "the main formula, four takeaways, the three possible regimes, and the hyperparameters that move the gain."),
     ("setup", "1", "Setup and the gain", "setup", "notation, costs, intensities and penalties; Proposition 1, what the formulas leave out, which side wins and the best batch, and the split of each intensity into a linear part and an attention part."),
     ("linear", "2", "Weights and cache", "linear", "the expert and linear penalties and the gain when the linear layers dominate; dense, windowed and sparse attention, the selection penalty as the twin of the expert penalty, and the gain when attention dominates; the batch that saturates compute at any context."),
-    ("calculator", "3", "Maps and calculator", "whole", "the exact maps over batch and context, the calculator and the exact accounting."),
+    ("calculator", "3", "Throughput calculator", "whole", "the exact maps over batch and context, the calculator and the exact accounting."),
     ("examples", "4", "Exercises", "examples", "three exercises with folded solutions: a smaller canvas, a dense model, a low-ridge accelerator."),
     ("effective", "5", "Empirical rooflines", "effective", "the ceilings one H200 sustains, the experts each decoder actually touches, and the bound they give."),
     ("stack", "6", "The measurement stack", "stack", "how every kernel of a step is timed and attributed, three defects of the stock engine and one of the harness, and where the stock kernels stand."),
@@ -364,11 +364,10 @@ def main():
     body = sub_once(body, "The page is self-contained: the cost model is the <code>BDModel</code> script embedded in it (view the page source), and the site lives in the private GitHub repository <code>vdeborto/diffusion-roofline</code>, whose history is the changelog.",
                     "The cost model is the <code>BDModel</code> script in <code>/assets/roofline/note.js</code>, which every chapter loads.", "private repo sentence")
     # Interactive figures, in reading order. Figure numbers follow the page.
-    # How the numbers are counted: method, not a result, so it closes the Calculator chapter.
     # Each figure of _roofline/figures.html goes where the text has its <!-- figure:NAME --> line.
     body = place_figures(body, figs)
     body = link_takeaways(body)
-    body = sub_once(body, "<figcaption>Figure 3. Smallest compute-bound batch", "<figcaption>Figure 14. Smallest compute-bound batch", "Figure 14 caption")
+    body = sub_once(body, "<figcaption>Figure 3.", "<figcaption>Figure 14.", "Figure 14 caption")
     body = card_legacy_figures(body)
     body = add_practice(body)
     body = add_code(body)
@@ -393,7 +392,7 @@ def main():
     js = sub_once(js, "  const $ = (id) => document.getElementById(id);\n",
                   "  const GHOST = {}; // stand-ins for elements that live on another page of the book\n"
                   "  const $ = (id) => document.getElementById(id) || GHOST[id] || (GHOST[id] = document.createElement('div'));\n", "$ helper")
-    for fn in ("intensityMap", "lineChart", "regimeMap", "bstarChart", "ctxChart", "etaChart"):
+    for fn in ("intensityMap", "lineChart", "regimeMap", "bstarChart"):
         js, n = re.subn(r"(  function " + fn + r"\(el\b[^)]*\) \{\n)", r"\1    if (!el.isConnected) return;\n", js)
         if n != 1:
             problems.append(f"chart function {fn}: found {n}")
@@ -467,13 +466,13 @@ def url_of(slug):
 # of figures.js: a kicker with the number, a title that states the figure's claim, and the
 # original caption as a subtitle.
 LEGACY_CLAIMS = {
-    14: "As the context grows, the batch at which a pass turns compute-bound falls for a canvas of 256 and rises for AR (Proposition 8).",
+    14: "Smallest compute-bound batch as a function of context.",
     # Figure 15 has four tabs, each with its own claim; figures.js shows the title of the selected tab.
     15: ('<span data-tab-title="m-gain">In the roofline bound, AR catches up with TD at batch 110 at context 1k, and at a larger batch as the context grows, beyond 1,024 from 64k tokens on.</span>'
          '<span data-tab-title="m-ar" hidden>An AR step never reaches the ridge, and at long context its intensity tends to 8 whatever the batch.</span>'
          '<span data-tab-title="m-td" hidden>A TD canvas crosses the ridge at a batch that falls as the context grows, from 5 at 1k to 1 at 256k, and its intensity tends to 2,048.</span>'
          '<span data-tab-title="m-sparse" hidden>With sparse global layers, the roofline bound has AR catch up with TD near batch 90–110 at every context up to 1M tokens.</span>'),
-    16: "With a 32-token canvas, the roofline bound puts TD ahead of AR only between batch 9 and batch 110 at context 1k.",
+    16: "",
     17: "For a dense model, the roofline bound at context 1k is about 13 at batch 1 and falls like 1/B, to parity at batch 15.",
     18: "On an H20, whose ridge point is 37, the roofline bound puts TD ahead of AR only up to batch 4 at short context.",
 }
@@ -485,9 +484,10 @@ def card_legacy_figures(body):
         if n not in LEGACY_CLAIMS:
             problems.append(f"no claim for legacy Figure {n}")
             return m.group(0)
+        sub = f'\n    <p class="fig-sub">{rest}</p>' if rest.strip() else ''
         return (f'{m.group(1)}<div class="bdr-card">\n    <div class="fig-k">Figure {n}</div>\n    <p class="fig-title">{LEGACY_CLAIMS[n]}</p>\n'
-                f'  {m.group(2)}\n    <p class="fig-sub">{rest}</p>')
-    body, k = re.subn(r'( *)(<figure class="mapfig">)\n\s*<figcaption>Figure (\d+)\. (.*?)</figcaption>', one, body)
+                f'  {m.group(2)}{sub}')
+    body, k = re.subn(r'( *)(<figure class="mapfig">)\n\s*<figcaption>Figure (\d+)\.\s*(.*?)</figcaption>', one, body)
     # close the card after each converted figure
     out, pos = [], 0
     for mm in re.finditer(r'<div class="bdr-card">.*?</figure>', body, re.S):
@@ -517,6 +517,9 @@ def name_headings(html):
     return re.sub(r'<h3((?:\s+(?!id=)[\w-]+="[^"]*")*)>(.*?)</h3>', one, html)
 
 
+ASSUME = re.compile(r'\((\s*)A([123])\)')
+
+
 def link_references(pages):
     """Anchor every figure and table label (#figure-N, #table-N) and link each "Figure N" or
     "Table N" in the prose to it, on its own page or across pages. Text inside links, scripts,
@@ -533,6 +536,9 @@ def link_references(pages):
     for slug in pages:
         for m in re.finditer(r'id="([\w-]+)"[^>]*>\s*<(?:summary|div class="bdr-title"|div class="title")>\s*<span class="tag">(Proposition|Definition|Corollary|Remark) (\d+)</span>', pages[slug]):
             where[(m.group(2), int(m.group(3)))] = (slug, m.group(1))
+    for slug in pages:
+        for m in re.finditer(r'id="(assume-a(\d))"', pages[slug]):
+            where[("Assumption", int(m.group(2)))] = (slug, m.group(1))
     for ch in CHAPTERS:
         if ch[1].isdigit():
             where[("Part", int(ch[1]))] = (ch[0], None)
@@ -559,7 +565,7 @@ def link_references(pages):
                         stack.pop()
                 out.append(part)
                 continue
-            if stack or not ref.search(part):
+            if stack or not (ref.search(part) or ASSUME.search(part)):
                 out.append(part); continue
             def href_of(kind, n):
                 tgt = where.get((kind, n))
@@ -587,7 +593,13 @@ def link_references(pages):
                 head = m.group(1) + m.group(2)[:first.end()]
                 head = f'<a class="xref" href="{h0}">{head}</a>' if h0 else head
                 return head + num.sub(one, m.group(2)[first.end():])
-            out.append(ref.sub(link, part))
+            def alink(m):
+                tgt = where.get(("Assumption", int(m.group(2))))
+                if tgt is None:
+                    return m.group(0)
+                h = f"#{tgt[1]}" if tgt[0] == slug else f"{url_of(tgt[0])}#{tgt[1]}"
+                return f'({m.group(1)}<a class="xref" href="{h}">A{m.group(2)}</a>)'
+            out.append(ASSUME.sub(alink, ref.sub(link, part)))
         pages[slug] = "".join(out)
     return pages
 

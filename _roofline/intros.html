@@ -23,7 +23,10 @@ Similarly, we need to compute how many bytes are moved during a forward pass of 
 By doing so, we will be able to establish the arithmetic intensities of both models, i.e., to answer the question: "how many FLOPs are used for each byte that is moved by the model?".
 <!-- intro:linear -->
 <!-- intro:calculator -->
-Part 2 treats the two extremes: a pass that reads only weights, and one that reads only KV cache. In this chapter, we cover every context in between and drop the simplifications of the propositions: the exact maps show the gain over batch and context, and the calculator computes it for any accelerator, model and decoding setup. The chapter closes with the exact accounting behind both.
+In the previous section, we have given the setup to obtain a closed simplified formula for the throughput gains of TD over AR in Proposition 1.
+Then we have turned to two different regimes which arise at different context length for both AR and TD.
+In this final section, before diving into the practice of AR and TD inference engines, we provide here a calculator to illustrate the throughput gains of TD over AR.
+In particular, our calculator accounts not only for model choices but also for hardware specifications. 
 <!-- intro:introduction -->
 
   <h3 id="intro-why">Why do we even care?</h3>
