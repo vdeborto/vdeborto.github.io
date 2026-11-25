@@ -22,7 +22,7 @@ sitemap: false
 <noscript><p>This page needs JavaScript for its equations, figures and calculator.</p></noscript>
 <p class="book-part">Part 4 of <a href="/notes/block-diffusion-rooflines-6f924020/">Block Diffusion Rooflines</a><span class="book-links"><span class="bl-row">Previous: <a href="/notes/block-diffusion-rooflines-6f924020/calculator/" rel="prev">3 · Throughput calculator</a></span><span class="bl-row">Next: <a href="/notes/block-diffusion-rooflines-6f924020/effective/" rel="next">5 · Empirical rooflines</a></span></span></p>
 <section class="bdr-col" id="examples">
-  <p class="chapter-intro">Each exercise changes one input of <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/#prop1">Proposition 1</a>: the canvas (Exercise 1), the model (Exercises 2 and 6), the accelerator (Exercise 3), the number of denoising passes (Exercise 4) and the attention (Exercise 5). The solutions use only the round numbers of <a class="xref" href="#table-3">Table 3</a> and the rules below, and need no calculator; the maps show the exact accounting, which also counts the vocabulary.</p>
+  <p class="chapter-intro">Exercise 1 reads <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/#figure-6">Figure 6</a>; each of the others changes one input of <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/#prop1">Proposition 1</a>: the canvas (Exercise 2), the model (Exercises 3 and 7), the accelerator (Exercise 4), the number of denoising passes (Exercise 5), the attention (Exercise 6) and the number format (Exercise 8). The solutions use only the round numbers of <a class="xref" href="#table-3">Table 3</a> and the rules below, and need no calculator; the maps show the exact accounting, which also counts the vocabulary.</p>
   <h3 id="ex-data">Numbers and rules</h3>
   <div class="table-wrap"><table>
     <caption id="table-3">Table 3. Rounded numbers for the exercises. Weights are in BF16, 2 bytes per parameter; unless stated otherwise, \(b = 256\), \(S = 14\) and \(r = 1\), so that \(\omega = 15\).</caption>
@@ -38,13 +38,17 @@ sitemap: false
       <tr><td class="l">vocabulary \(V\), and the tied matrix \(Vd\)</td><td class="l">262k, 0.74B parameters</td></tr>
       <tr><td class="l">global attention: 5 layers, 16 query heads, 2 KV heads of dimension 512</td><td class="l">\(I_{\mathrm{attn}} = 8\), cache 20 kB per token</td></tr>
       <tr><td class="l">sliding-window attention: 25 layers, 16 query heads, 8 KV heads of dimension 256, window \(w = 1{,}024\)</td><td class="l">intensity 2, cache 200 kB per token, 0.2 GB per sequence once \(C \ge w\)</td></tr>
-      <tr><td class="l">sparse variant (Exercise 5): each global layer selects \(m = 2{,}048\) tokens, found by an indexer that scans the whole cache</td><td class="l">\(I_{\mathrm{idx}} = 16\), index cache 640 B per token</td></tr>
+      <tr><td class="l">sparse variant (Exercise 6): each global layer selects \(m = 2{,}048\) tokens, found by an indexer that scans the whole cache</td><td class="l">\(I_{\mathrm{idx}} = 16\), index cache 640 B per token</td></tr>
       <tr><td class="l" colspan="2"><b>Llama 3.1 8B</b></td></tr>
       <tr><td class="l">active parameters without the vocabulary; all weights</td><td class="l">7.0B (14 GB); 16 GB</td></tr>
       <tr><td class="l">cache: 32 layers, 8 KV heads of dimension 128, 32 query heads</td><td class="l">\(I_{\mathrm{attn}} = 4\), 131 kB per token</td></tr>
       <tr><td class="l" colspan="2"><b>Accelerators</b></td></tr>
-      <tr><td class="l">H200: 989 TFLOP/s in BF16, 4.8 TB/s, 141 GB</td><td class="l">\(I^\star = 206\)</td></tr>
+      <tr><td class="l">H200: 989 TFLOP/s in BF16, 1,979 in FP8, 4.8 TB/s, 141 GB</td><td class="l">\(I^\star = 206\) in BF16, 412 in FP8</td></tr>
       <tr><td class="l">H20: 148 TFLOP/s in BF16, 4.0 TB/s, 96 GB</td><td class="l">\(I^\star = 37\)</td></tr>
+      <tr><td class="l">B200: 2,250 TFLOP/s in BF16, 4,500 in FP8, 9,000 in FP4, 8 TB/s, 180 GB</td><td class="l">\(I^\star = 281\), 562, 1,125</td></tr>
+      <tr><td class="l" colspan="2"><b>Number formats</b> (Exercise 8)</td></tr>
+      <tr><td class="l">BF16, FP8</td><td class="l">2 bytes, 1 byte per value</td></tr>
+      <tr><td class="l">NVFP4: 4-bit values, one FP8 scale per block of 16; FP4 multiplications on Blackwell GPUs (B200) only</td><td class="l">4.5 bits, 0.56 bytes per value</td></tr>
     </tbody>
   </table></div>
   <p>Five rules turn these numbers into gains:</p>
@@ -55,10 +59,37 @@ sitemap: false
     <li><b>TD's intensity.</b> \(\class{mj-td}{I^{\mathrm{TD}}} = b\,\class{mj-ar}{I^{\mathrm{AR}}}/\Pi\) (<a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/#def4">Definition 4</a>).</li>
     <li><b>The gain.</b> \(\Gamma = \min(\class{mj-td}{I^{\mathrm{TD}}}, I^\star)/\bigl(\omega\min(\class{mj-ar}{I^{\mathrm{AR}}}, I^\star)\bigr)\) (<a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/#prop1">Proposition 1</a>): \(\mathrm{TPF}/\Pi\) when both decoders are memory-bound, and \(I^\star/(\omega \class{mj-ar}{I^{\mathrm{AR}}})\) when only TD is compute-bound.</li>
   </ul>
-  <h3 id="exercise">Exercise 1: a smaller canvas</h3>
+  <h3 id="ex-roofline">Exercise 1: reading the roofline</h3>
+  <p>We place DiffusionGemma's AR step and TD pass on the roofline of the H200, as in <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/#figure-6">Figure 6</a>, with \(b = 256\), \(S = 14\) and \(r = 1\). On the slope of the roofline, below the ridge, a pass runs at \(I\beta\) FLOP/s, so heights are proportional to intensities; above the ridge, it runs at the peak. <a class="xref" href="#figure-15">Figure 15</a> repeats <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/#figure-6">Figure 6</a>: set its batch and context to check each answer.</p>
+  <div class="bdr-fig wide" id="fig-roofline-ex">
+    <div class="fig-k" id="figure-15">Figure 15 · interactive</div>
+    <p class="fig-title">TD wins when its point is more than \(\omega\) times higher than AR's.</p>
+    <div data-fig="roofline"></div>
+    <p class="fig-cap">The roofline of <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/#figure-6">Figure 6</a>: the gain is TD's height over AR's, divided by \(\omega\).</p>
+  </div>
+  <ol class="exercise">
+    <li><p><b>Batch 1, 1k context.</b> Place both points, and read the gain off the plot.</p>
+      <details class="answer hint"><summary>Hint</summary><p>At 1k tokens the cache is small next to the weights. Then use \(\class{mj-td}{I^{\mathrm{TD}}} = b\,\class{mj-ar}{I^{\mathrm{AR}}}/\Pi\) and \(\Pi(1) \approx W_{\mathrm{tot}}/N_{\mathrm{act}}\).</p></details>
+      <details class="answer"><summary>Solution</summary>
+        <p>A sequence's cache is 0.2 GB of window cache and 0.02 GB of global cache, against 6.2 GB of weights, so \(\class{mj-ar}{I^{\mathrm{AR}}} \approx I_{\mathrm{lin}}(1) = 1\). TD's intensity is \(b/\Pi \approx 256/8 = 32\) times AR's. Both points are below the ridge at 206, on the slope, so TD's point is 32 times higher than AR's: TD runs its FLOPs 32 times faster. A canvas costs \(\omega = 15\) passes, so \(\Gamma \approx 32/15 \approx 2.1\). In general, TD wins exactly when its point is more than \(\omega = 15\) times higher than AR's, a vertical gap of \(\log_{10} 15 \approx 1.2\) decades on the plot.</p></details></li>
+    <li><p><b>The best batch.</b> As the batch grows, at which batch does TD's point reach the ridge, and how large is the gap there?</p>
+      <details class="answer hint"><summary>Hint</summary><p>From batch 2 on, a TD pass touches every expert. Write \(\class{mj-td}{I^{\mathrm{TD}}}\) with \(\class{mj-td}{W^{\mathrm{TD}}} = W_{\mathrm{tot}}\).</p></details>
+      <details class="answer"><summary>Solution</summary>
+        <p>With \(\class{mj-td}{W^{\mathrm{TD}}} = W_{\mathrm{tot}}\), \(\class{mj-td}{I^{\mathrm{TD}}} = bBN_{\mathrm{act}}/W_{\mathrm{tot}} \approx 256B/8 = 32B\), which reaches 206 at \(B \approx 6\): this is \(\class{mj-td}{B^{\mathrm{TD}}_\star}\) of <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/linear/#cor2">Corollary 2</a>. At batch 6, AR leaves \(2^{-0.56} \approx 0.68\) of the experts untouched, touches about 41 per layer and reads \(1.7 + 30 \times 41 \times 6\text{M} \approx 9\)B parameters, so \(\class{mj-ar}{I^{\mathrm{AR}}} \approx 6 \times 3.1/9 \approx 2\). The gap is \(206/2 \approx 100\), and \(\Gamma \approx 100/15 \approx 7\), the largest gain at 1k: below this batch TD's point climbs faster than AR's, and above it TD's point stays at the peak.</p></details></li>
+    <li><p><b>Parity.</b> Past the ridge, how do the points move, and at which batch is the gap down to 15?</p>
+      <details class="answer hint"><summary>Hint</summary><p>TD's height is fixed at the peak, so the gap is \(I^\star/\class{mj-ar}{I^{\mathrm{AR}}}\). Count the window cache in AR's bytes.</p></details>
+      <details class="answer"><summary>Solution</summary>
+        <p>TD's point stays at the peak while AR's climbs the slope, and the gap \(I^\star/\class{mj-ar}{I^{\mathrm{AR}}}\) is 15 when \(\class{mj-ar}{I^{\mathrm{AR}}} = 206/15 \approx 14\). Without a cache, \(\class{mj-ar}{I^{\mathrm{AR}}} \approx B/8\) once AR touches every expert, and parity would be at batch 110 (<a class="xref" href="/notes/block-diffusion-rooflines-6f924020/linear/#cor2">Corollary 2</a>). At 1k tokens, a sequence also reads 0.2 GB of window cache at intensity 2 and 0.02 GB of global cache at intensity 8, so its step costs \(6.2 + 0.4 + 0.16 \approx 6.8\) GFLOPs for \(49/B + 0.22\) GB. Setting the ratio to 14 gives \(49/B \approx 0.27\), so parity is at about <b>batch 180</b>: the window cache, which has a lower intensity than the weights at this batch, holds AR down.</p></details></li>
+    <li><p><b>Context at batch 1.</b> Move the context from 1k to 1M. Why does the gain first rise and then fall?</p>
+      <details class="answer hint"><summary>Hint</summary><p>Both decoders read the same cache. Compute \(\Pi\) and both intensities at 128k and at 1M tokens.</p></details>
+      <details class="answer"><summary>Solution</summary>
+        <p>At 128k tokens, a sequence's global cache is 2.6 GB and AR's step reads \(6.2 + 2.8 = 9\) GB for \(6.2 + 2.6 \times 8 + 0.2 \times 2 \approx 27\) GFLOPs, so \(\class{mj-ar}{I^{\mathrm{AR}}} \approx 3\). TD reads the same cache next to its 49 GB of weights, so \(\Pi \approx 52/9 \approx 5.8\): the cache dilutes the penalty. TD's intensity, \(256 \times 3/5.8 \approx 130\), is still below the ridge, so the gap is \(b/\Pi \approx 44\) and \(\Gamma \approx 2.9\), up from 2.1. At 1M tokens the cache is 21 GB, \(\class{mj-ar}{I^{\mathrm{AR}}} \approx (6.2 + 21 \times 8)/27 \approx 6.4\) and \(\Pi \approx 70/27 \approx 2.6\), so TD's intensity, \(256 \times 6.4/2.6 \approx 640\), is past the ridge. The gap is then \(206/6.4 \approx 32\), and \(\Gamma \approx 2.1\) again. The gain rises while the cache lowers \(\Pi\) and TD stays below the ridge, and falls once TD reaches the peak and AR keeps climbing towards \(I_{\mathrm{attn}} = 8\).</p></details></li>
+  </ol>
+
+  <h3 id="exercise">Exercise 2: a smaller canvas</h3>
   <p>We consider DiffusionGemma on the H200 with \(S = 14\) and \(r = 1\), so that \(\omega = 15\), but we shrink the canvas from 256 to <b>\(b = 32\)</b>.</p>
   <div class="bdr-card">
-    <div class="fig-k" id="figure-15">Figure 15</div>
+    <div class="fig-k" id="figure-16">Figure 16</div>
     <p class="fig-title"></p>
   <figure class="mapfig">
     <div class="maplegend" id="map-ex-legend"></div>
@@ -92,10 +123,10 @@ sitemap: false
         <p>\(b\,I_{\mathrm{attn}} = 128 \lt 206\): a TD pass stays memory-bound at every context, as AR does, and with dense attention \(\Gamma \to \mathrm{TPF} = 16/15 \approx 1.1\). At 1M tokens and batch 4, a TD pass still covers 64 tokens and touches nearly every expert, so \(\Pi \approx 1.35\) as at \(b = 32\), and \(\Gamma \approx 1.07/1.35 \approx 0.8\): AR wins at every batch that fits.</p></details></li>
   </ol>
 
-  <h3 id="ex-dense">Exercise 2: a dense model</h3>
+  <h3 id="ex-dense">Exercise 3: a dense model</h3>
   <p>We take a dense model, Llama 3.1 8B, on the same H200 with \(b = 256\), \(S = 14\) and \(r = 1\), and pair it with a TD twin that has no self-conditioning. A dense model has no expert penalty, \(\Pi_{\mathrm{lin}} = 1\), and in BF16 (\(s_w = 2\)) its linear intensity is the batch: \(\class{mj-ar}{I^{\mathrm{AR}}_{\mathrm{lin}}}(B) = 2BN_{\mathrm{act}}/(s_wN_{\mathrm{act}}) = B\).</p>
   <div class="bdr-card">
-    <div class="fig-k" id="figure-16">Figure 16</div>
+    <div class="fig-k" id="figure-17">Figure 17</div>
     <p class="fig-title">For a dense model, the roofline bound at context 1k is about 13 at batch 1 and falls like 1/B, to parity at batch 15.</p>
   <figure class="mapfig">
     <p class="fig-sub">Exact roofline bound \(\Gamma\) over batch and context for Llama 3.1 8B and its TD twin on an H200 in BF16, with \(b = 256\) and \(S = 14\). Both axes are logarithmic.</p>
@@ -122,10 +153,10 @@ sitemap: false
         <p>\(b\,I_{\mathrm{attn}} = 1024 \gt I^\star\), so at long context AR is memory-bound and TD compute-bound, with \(\Gamma \to 206/(15 \times 4) \approx 3.4\), twice DiffusionGemma's 1.7, because Llama has half as many query heads per KV head. Memory decides which of these contexts exist: the \(141 - 16 = 125\) GB next to the weights hold about \(125\,\text{GB}/131\,\text{kB} \approx 950\)k tokens for one sequence, and only 15k per sequence at batch 64. At batch 1 and 930k tokens, AR reads 14 GB of weights and 122 GB of cache, so the weights are still 10% of its bytes, \(\class{mj-ar}{I^{\mathrm{AR}}} \approx 0.9 \times 4 + 0.1 \times 1 \approx 3.7\), and \(\Gamma \approx 206/(15 \times 3.7) \approx 3.7\), slightly above the limit. On the map: the large grey region in the top right.</p></details></li>
   </ol>
 
-  <h3 id="ex-h20">Exercise 3: a low-ridge accelerator</h3>
+  <h3 id="ex-h20">Exercise 4: a low-ridge accelerator</h3>
   <p>We go back to DiffusionGemma with \(b = 256\) and \(S = 14\), and run it on an H20, whose ridge point is \(I^\star = 148/4.0 = 37\), against 206 on the H200.</p>
   <div class="bdr-card">
-    <div class="fig-k" id="figure-17">Figure 17</div>
+    <div class="fig-k" id="figure-18">Figure 18</div>
     <p class="fig-title">On an H20, whose ridge point is 37, the roofline bound puts TD ahead of AR only up to batch 4 at short context.</p>
   <figure class="mapfig">
     <p class="fig-sub">Exact roofline bound \(\Gamma\) over batch and context for DiffusionGemma on an H20 in BF16, with \(b = 256\) and \(S = 14\). Both axes are logarithmic.</p>
@@ -152,7 +183,7 @@ sitemap: false
         <p>\(I_{\mathrm{attn}} = 8 \lt 37 \lt b\,I_{\mathrm{attn}}\), so at long context TD is compute-bound and AR memory-bound, and \(\Gamma \to 37/(15 \times 8) \approx 0.31\): in the limit, AR wins at every batch. With such a low ridge, AR's attention runs at \(8/37\), about a fifth of peak, while TD runs at peak but does 15 times the work. The \(96 - 50 = 46\) GB next to the weights hold one sequence of about \(46\,\text{GB}/20\,\text{kB} \approx 2.2\)M tokens; there AR reads 6 GB of weights and 45 GB of cache, \(\class{mj-ar}{I^{\mathrm{AR}}} \approx 0.9 \times 8 \approx 7\), and \(\Gamma \approx 37/(15 \times 7) \approx 0.35\). At batch 1, TD keeps the lead while \(\class{mj-ar}{I^{\mathrm{AR}}} \lt 2.5\), that is, while the cache is at most a fifth of AR's bytes, about 1.5 GB of global cache, or 75k tokens. On the map: the right half is blue, except its bottom rows.</p></details></li>
   </ol>
 
-  <h3 id="ex-steps">Exercise 4: fewer denoising passes</h3>
+  <h3 id="ex-steps">Exercise 5: fewer denoising passes</h3>
   <p>We go back to the H200, with DiffusionGemma, dense attention and \(b = 256\), and vary the number of denoising passes \(S\), with \(r = 1\).</p>
   <ol class="exercise">
     <li><p><b>From \(S = 14\) to \(S = 7\).</b> How does the gain of <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/#prop1">Proposition 1</a> change?</p>
@@ -165,7 +196,7 @@ sitemap: false
         <p>\(b\,I_{\mathrm{attn}} = 2048 \gt 206\), so \(\Gamma \to I^\star/(\omega I_{\mathrm{attn}}) = 206/(8\omega)\), which is above 1 when \(\omega \lt 26\): <b>\(S \le 24\)</b>.</p></details></li>
   </ol>
 
-  <h3 id="ex-sparse">Exercise 5: sparse attention</h3>
+  <h3 id="ex-sparse">Exercise 6: sparse attention</h3>
   <p>We keep DiffusionGemma on the H200 with \(b = 256\), \(S = 14\) and \(r = 1\), but replace its five global layers with the sparse layers of <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/linear/#dsa">Remark 1</a> (<a class="xref" href="#table-3">Table 3</a>), as in <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/linear/#figure-11">Figure 11</a>.</p>
   <ol class="exercise">
     <li><p><b>Long context.</b> Does TD win in the limit?</p>
@@ -175,14 +206,14 @@ sitemap: false
     <li><p><b>The largest \(S\).</b> For which \(S\) does TD win in the limit?</p>
       <details class="answer hint"><summary>Hint</summary><p>Write the same limit as a function of \(\omega\).</p></details>
       <details class="answer"><summary>Solution</summary>
-        <p>\(206/(16\omega) \gt 1\) needs \(\omega \lt 13\): <b>\(S \le 11\)</b>, against \(S \le 24\) with dense attention (Exercise 4).</p></details></li>
+        <p>\(206/(16\omega) \gt 1\) needs \(\omega \lt 13\): <b>\(S \le 11\)</b>, against \(S \le 24\) with dense attention (Exercise 5).</p></details></li>
     <li><p><b>Batch 1, 4M tokens.</b> Who wins, and why does the limit not apply yet?</p>
       <details class="answer hint"><summary>Hint</summary><p>Compare the index cache of a 4M-token sequence with the weights an AR step reads at batch 1. For TD, count the distinct tokens its 256 queries select, \(U_{C,m}(b)\).</p></details>
       <details class="answer"><summary>Solution</summary>
         <p>The index cache holds 640 B per token, so 4M tokens are only 2.7 GB, against 6.2 GB of weights at batch 1 and 0.2 GB of window cache. Attention is therefore about 0.3 of AR's bytes, and \(\class{mj-ar}{I^{\mathrm{AR}}} \approx 0.7 \times 1 + 0.3 \times 16 \approx 5.5\). TD's 256 queries select \(U_{C,m}(b) \approx bm \approx 520\)k distinct tokens, since \(bm \ll C\), and read them from the global cache at 20 kB each, about 10.5 GB. TD reads about \(49 + 2.7 + 10.5 \approx 62\) GB against AR's 9 GB, so \(\Pi \approx 7\) and \(\mathrm{TPF}/\Pi \approx 2.4\); its intensity, \(256 \times 5.5/7 \approx 200\), puts it at the ridge, so both terms of <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/#prop1">Proposition 1</a> give \(\Gamma \approx 2.5\): <b>TD wins</b>. The limit needs the index cache to outweigh the weights, which happens only beyond \(6.2\,\text{GB}/640\,\text{B} \approx 10\)M tokens.</p></details></li>
   </ol>
 
-  <h3 id="ex-moe">Exercise 6: other MoE models</h3>
+  <h3 id="ex-moe">Exercise 7: other MoE models</h3>
   <p>We compare four MoE models, each paired with a TD twin, on the H200 with \(b = 256\), \(S = 14\) and \(r = 1\). None of the three below has a dense FFN, and none shares K and V:</p>
   <ul>
     <li><b>Qwen3-30B-A3B:</b> \(E = 128\), \(k = 8\), \(f_E = 768\); 32 query heads and 4 KV heads of dimension 128.</li>
@@ -198,9 +229,35 @@ sitemap: false
           <li><b>Qwen3-30B-A3B:</b> experts \(8 \times 3 \times 768 \approx 18\)k, attention \(128 \times 72 \approx 9\)k, so \(\theta_E \approx 2/3\) and \(\Pi \approx 1 + \tfrac23 \times 15 = 11\).</li>
           <li><b>gpt-oss-120b:</b> experts \(4 \times 3 \times 2{,}880 \approx 35\)k, attention \(64 \times 144 \approx 9\)k, so \(\theta_E \approx 0.8\) and \(\Pi \approx 1 + 0.8 \times 31 \approx 25\).</li>
           <li><b>Mixtral 8x7B:</b> experts \(2 \times 3 \times 14{,}336 \approx 86\)k, attention \(128 \times 80 \approx 10\)k, so \(\theta_E \approx 0.9\) and \(\Pi \approx 1 + 0.9 \times 3 \approx 3.7\).</li>
-          <li><b>DiffusionGemma:</b> \(\theta_E \approx 1/2\) (Exercise 1) and \(\Pi \approx W_{\mathrm{tot}}/N_{\mathrm{act}} \approx 8\).</li>
+          <li><b>DiffusionGemma:</b> \(\theta_E \approx 1/2\) (Exercise 2) and \(\Pi \approx W_{\mathrm{tot}}/N_{\mathrm{act}} \approx 8\).</li>
         </ul>
         <p>TD's intensity is \(256/\Pi\), at most 70, so both decoders are memory-bound and \(\Gamma = \mathrm{TPF}/\Pi \approx 17/\Pi\): about 4.6 for Mixtral, 2.1 for DiffusionGemma, 1.5 for Qwen3 and 0.7 for gpt-oss-120b, the only one where <b>AR wins</b>. Many fine-grained experts (a large \(E/k\)) and a large expert share make a long canvas expensive at batch 1; Mixtral's few large experts make it cheap.</p></details></li>
+  </ol>
+
+  <h3 id="ex-precision">Exercise 8: number formats</h3>
+  <p>We keep DiffusionGemma on the H200 with \(b = 256\), \(S = 14\), \(r = 1\) and a 1k context, and change the format of the weights, of the KV cache and of the matrix multiplications. A format of \(s\) bytes per value multiplies the intensity of what it stores by \(2/s\): \(s_w\) acts on \(I_{\mathrm{lin}}\) and \(s_{\mathrm{kv}}\) on \(I_{\mathrm{attn}} = 4g/(\kappa^c s_{\mathrm{kv}})\) (<a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/#def2">Definitions 2</a> and <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/#def3">3</a>). The format of a multiplication sets the peak, and hence the ridge, at which its FLOPs run. The questions follow the roofline chapter of <a href="https://jax-ml.github.io/scaling-book/roofline/">How to Scale Your Model</a>, which compares int8 weights with BF16 and with int8 multiplications.</p>
+  <ol class="exercise">
+    <li><p><b>FP8 everywhere.</b> Weights and cache are in FP8, and every multiplication, attention included, runs at the FP8 peak. How do the points of <a class="xref" href="#figure-15">Figure 15</a> move, and what happens to \(\Gamma\)?</p>
+      <details class="answer hint"><summary>Hint</summary><p>Multiply \(\class{mj-ar}{I^{\mathrm{AR}}}\), \(\class{mj-td}{I^{\mathrm{TD}}}\) and \(I^\star\) by the same factor in <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/#prop1">Proposition 1</a>.</p></details>
+      <details class="answer"><summary>Solution</summary>
+        <p>Every byte count halves, so every intensity doubles, and the ridge doubles to \(1{,}979/4.8 \approx 412\). Each point moves right by a factor 2 and the roof moves up by 2, so each decoder runs twice as fast wherever it is. Both terms of \(\Gamma = \min(\class{mj-td}{I^{\mathrm{TD}}}, I^\star)/\bigl(\omega\min(\class{mj-ar}{I^{\mathrm{AR}}}, I^\star)\bigr)\) are multiplied by 2, so <b>\(\Gamma\) does not change</b> at any batch or context: 2.1 at batch 1, 7 at batch 6, parity at batch 180. A format changes \(\Gamma\) only when it speeds up the bytes and the FLOPs by different factors.</p></details></li>
+    <li><p><b>FP8 weights, BF16 multiplications.</b> The weights are stored in FP8 and converted to BF16 inside the kernel, as on an A100, which has no FP8 rate; the cache stays in BF16. Give \(\Gamma\) at batch 1, the best batch and the gain there, and the parity batch.</p>
+      <details class="answer hint"><summary>Hint</summary><p>Only \(I_{\mathrm{lin}}\) doubles; the ridge stays at 206. Redo Questions 1–3 of Exercise 1 with \(I_{\mathrm{lin}}(B) = 2BN_{\mathrm{act}}/\class{mj-ar}{W^{\mathrm{AR}}}(B)\).</p></details>
+      <details class="answer"><summary>Solution</summary>
+        <p>At batch 1, \(\class{mj-ar}{I^{\mathrm{AR}}} \approx 2\) and \(\class{mj-td}{I^{\mathrm{TD}}} \approx 64\), both below the ridge: each decoder runs twice as fast, and \(\Gamma = \mathrm{TPF}/\Pi \approx 2.1\) as in BF16. TD's intensity, \(64B\), reaches 206 at <b>batch 3</b>, half the batch of BF16: storing the weights in fewer bytes halves the batch at which a matrix multiplication becomes compute-bound, as in How to Scale Your Model. At batch 3, AR leaves \(2^{-1.5 \times 3/16} \approx 0.82\) of the experts untouched, so it touches 23 per layer and reads \(1.7 + 30 \times 23 \times 6\text{M} \approx 5.8\)B parameters, and \(\class{mj-ar}{I^{\mathrm{AR}}} \approx 2 \times 3 \times 3.1/5.8 \approx 3.2\). The best gain is \(\Gamma \approx 206/(15 \times 3.2) \approx 4.3\), against 7 in BF16. At parity, \(\class{mj-ar}{I^{\mathrm{AR}}} = 14\) with 6.8 GFLOPs for \(24.5/B + 0.22\) GB, so \(24.5/B \approx 0.27\) and parity is at about <b>batch 90</b>, half of 180. Halving the weight bytes alone thus acts on the linear layers as halving the ridge: the H200 with FP8 weights behaves like a BF16 accelerator with \(I^\star \approx 103\), and, as on the H20 (Exercise 4), TD loses its advantage at a smaller batch.</p></details></li>
+    <li><p><b>NVFP4.</b> NVFP4 stores 4-bit values with one FP8 scale per block of 16 (<a class="xref" href="#table-3">Table 3</a>). The H200 has no FP4 multiplication and converts the weights to BF16; the B200 multiplies them at its FP4 peak. For each, give the BF16 ridge it is equivalent to, the best batch and the gain there; attention is negligible at 1k tokens.</p>
+      <details class="answer hint"><summary>Hint</summary><p>Count the bytes per weight, scale included, and use the equivalence of Question 2: the ridge divided by \(2/s_w\).</p></details>
+      <details class="answer"><summary>Solution</summary>
+        <p>A weight costs \(4 + 8/16 = 4.5\) bits, so \(s_w \approx 0.56\) and \(I_{\mathrm{lin}}\) is multiplied by \(2/0.56 \approx 3.6\).</p>
+        <ul>
+          <li><b>H200:</b> the ridge stays at 206, which is equivalent to \(206/3.6 \approx 57\) in BF16, between the H20 and the H200. TD's intensity, \(32 \times 3.6\,B \approx 115B\), reaches the ridge at <b>batch 2</b>. There AR leaves \(2^{-1.5 \times 2/16} \approx 0.88\) of the experts untouched, touches 15 per layer and reads \(1.7 + 30 \times 15 \times 6\text{M} \approx 4.4\)B parameters, so \(\class{mj-ar}{I^{\mathrm{AR}}} \approx 3.6 \times 2 \times 3.1/4.4 \approx 5\) and \(\Gamma \approx 206/(15 \times 5) \approx 2.7\). Parity, with 14 GB of weights, is at \(14/B \approx 0.27\): about batch 50.</li>
+          <li><b>B200:</b> the FP4 ridge is \(9{,}000/8 \approx 1{,}125\), equivalent to \(1{,}125/3.6 \approx 310\) in BF16. TD reaches it at \(B \approx 310/32 \approx\) <b>10</b>, where AR leaves \(2^{-0.94} \approx 0.52\) of the experts untouched, touches 61 per layer and reads \(1.7 + 30 \times 61 \times 6\text{M} \approx 12.7\)B parameters, so the BF16 intensity is \(10 \times 3.1/12.7 \approx 2.4\) and \(\Gamma \approx 310/(15 \times 2.4) \approx 9\). In BF16 on the same B200, the ridge is 281 and the same steps give \(\Gamma \approx 8\) at batch 9.</li>
+        </ul>
+        <p>A format therefore enters \(\Gamma\) only through the ratio \(\rho\) of the speed-up of the multiplications to the reduction of the weight bytes, which multiplies the effective ridge: \(\rho = 1\) for FP8 everywhere, \(1/2\) for FP8 weights alone, \(1/3.6\) for NVFP4 on the H200 and \(4/3.6 \approx 1.1\) for NVFP4 on the B200. At batch 1 both decoders stay memory-bound and \(\Gamma \approx 2.1\) in every case.</p></details></li>
+    <li><p><b>FP8 cache, long context.</b> The weights are back in BF16, the cache is in FP8 and attention runs at the BF16 peak. Does TD win in the limit of long context? What changes if attention runs at the FP8 peak?</p>
+      <details class="answer hint"><summary>Hint</summary><p>Compute \(I_{\mathrm{attn}}\) with \(s_{\mathrm{kv}} = 1\), and use the limit \(I^\star/(\omega I_{\mathrm{attn}})\) of <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/linear/#cor3">Corollary 3</a>.</p></details>
+      <details class="answer"><summary>Solution</summary>
+        <p>With \(s_{\mathrm{kv}} = 1\), \(I_{\mathrm{attn}} = 16\), and the limit is \(206/(15 \times 16) \approx 0.86\): <b>AR wins</b>, as with the index scan of Exercise 6, whose intensity is also 16. The FP8 cache halves AR's attention bytes and leaves TD's attention FLOPs, which already run at the peak, unchanged. If attention also runs at the FP8 peak, its ridge doubles to 412, and the limit is \(412/(15 \times 16) \approx 1.7\), the BF16 value: by Question 1, the cache and the attention change by the same factor. In both cases a sequence's cache is half as large, so twice the context fits in the same memory.</p></details></li>
   </ol>
 
 </section>

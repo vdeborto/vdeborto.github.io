@@ -472,9 +472,9 @@ LEGACY_CLAIMS = {
          '<span data-tab-title="m-ar" hidden>An AR step never reaches the ridge, and at long context its intensity tends to 8 whatever the batch.</span>'
          '<span data-tab-title="m-td" hidden>A TD canvas crosses the ridge at a batch that falls as the context grows, from 5 at 1k to 1 at 256k, and its intensity tends to 2,048.</span>'
          '<span data-tab-title="m-sparse" hidden>With sparse global layers, the roofline bound has AR catch up with TD near batch 90–110 at every context up to 1M tokens.</span>'),
-    15: "",
-    16: "For a dense model, the roofline bound at context 1k is about 13 at batch 1 and falls like 1/B, to parity at batch 15.",
-    17: "On an H20, whose ridge point is 37, the roofline bound puts TD ahead of AR only up to batch 4 at short context.",
+    16: "",
+    17: "For a dense model, the roofline bound at context 1k is about 13 at batch 1 and falls like 1/B, to parity at batch 15.",
+    18: "On an H20, whose ridge point is 37, the roofline bound puts TD ahead of AR only up to batch 4 at short context.",
 }
 
 
@@ -581,7 +581,7 @@ def link_references(pages):
                 word = m.group(1)
                 kind = next(k for k in ("Figure", "Table", "Proposition", "Definition", "Corollary", "Remark", "Part") if word.startswith(k))
                 nums = num.findall(m.group(2))
-                if len(nums) == 1:  # "Figure 21": the whole reference is the link
+                if len(nums) == 1:  # "Figure 22": the whole reference is the link
                     h = href_of(kind, int(nums[0]))
                     return f'<a class="xref" href="{h}">{m.group(0)}</a>' if h else m.group(0)
                 def one(mm):
