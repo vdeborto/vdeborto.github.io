@@ -782,73 +782,6 @@
     return { IAR, ITD, Istar: Is, gain: Math.min(ITD, Is) / (omega(w) * Math.min(IAR, Is)) };
   }
 
-  // Log-spaced scan of a function of the batch; returns sampled points.
-  const scanB = (f, lo = 1, hi = 1024, step = 1.04) => { const pts = []; for (let B = lo; B <= hi * 1.0001; B *= step) pts.push([B, f(B)]); return pts; };
-  // Batches where g(B) - 1 changes sign (log-linear interpolation).
-  const crossings = (pts, level = 1) => {
-    const out = [];
-    for (let i = 1; i < pts.length; i++) {
-      const [b0, g0] = pts[i - 1], [b1, g1] = pts[i];
-      if ((g0 - level) * (g1 - level) < 0) {
-        const t = Math.log(level / g0) / Math.log(g1 / g0);
-        out.push(Math.exp(Math.log(b0) + t * (Math.log(b1) - Math.log(b0))));
-      }
-    }
-    return out;
-  };
-
-  // ---------------------------------------------------------------- static tables
-
-  // Smallest batch at which AR's linear intensity reaches `target`, using the full W_AR(B).
-  function solveLin(c, target) {
-    const Ilin = (B) => (2 * B * c.Nact) / c.WAR(B);
-    if (Ilin(1) >= target) return 1;
-    let lo = 1, hi = 2;
-    while (Ilin(hi) < target && hi < 1e8) { lo = hi; hi *= 2; }
-    for (let k = 0; k < 60; k++) { const mid = (lo + hi) / 2; if (Ilin(mid) >= target) hi = mid; else lo = mid; }
-    return hi;
-  }
-
-  // Worked example: predictions from the propositions against the exact accounting, b = 32.
-  function exerciseTable() {
-    const st = { ...REF, w: { ...REF.w, b: 32 } };
-    const w = st.w, S1 = omega(w), TPF = w.b / S1;
-    const { c } = bare(st);
-    // Predictions
-    const r1 = TPF / c.Pi(1);
-    let lo = 1, hi = 1024;
-    for (let i = 0; i < 60; i++) { const mid = Math.sqrt(lo * hi); if (TPF / c.Pi(mid) < 1) lo = mid; else hi = mid; }
-    const parityLow = hi;
-    const BTD = (c.Istar * c.WTD(64)) / (2 * w.b * c.Nact);
-    const peak = TPF / c.Pi(BTD);
-    const Bx = solveLin(c, c.Istar / S1);
-    const long32 = w.b * c.Ikv > c.Istar ? c.Istar / (S1 * c.Ikv) : TPF;
-    // Proposition 1 at one point (B, C), for a canvas of bb positions.
-    const p1At = (cc, bb, B, C) => { const IAR = cc.phi(C) / (cc.WAR(B) / B + cc.qkv(C)), ITD = (bb * cc.phi(C)) / (cc.WTD(B) / B + cc.qkvTD(C)); return Math.min(ITD, cc.Istar) / (S1 * Math.min(IAR, cc.Istar)); };
-    const long16 = 16 * c.Ikv > c.Istar ? c.Istar / (S1 * c.Ikv) : 16 / S1;
-    // Exact
-    const ex = (B, C, ww = w) => M.steady(model, { ...ww, B }, st.o, st.hw, C);
-    const pts = scanB((B) => ex(B, 1024).gain);
-    const cr = crossings(pts);
-    const tdFirst = pts.map(([B]) => B).find((B) => ex(B, 1024).tdCompute);
-    const coarse = pts.reduce((a, p) => (p[1] > a[1] ? p : a));
-    let exPeak = coarse;
-    for (let k = -50; k <= 50; k++) { const B = coarse[0] * 1.06 ** (k / 50); const g = ex(B, 1024).gain; if (g > exPeak[1]) exPeak = [B, g]; }
-    // report the best integer batch, as the text does
-    exPeak = [Math.floor(exPeak[0]), Math.ceil(exPeak[0])].map((B) => [Math.max(1, B), ex(Math.max(1, B), 1024).gain]).reduce((a, p) => (p[1] > a[1] ? p : a));
-    const rows = [
-      ['Γ at batch 1, short context', r1.toFixed(2), ex(1, 1024).gain.toFixed(2)],
-      ['TD overtakes AR at batch', fmt(parityLow, 2), cr[0] ? fmt(cr[0], 2) : '–'],
-      ['TD compute-bound from batch', fmt(BTD, 2), tdFirst ? fmt(tdFirst, 2) : '–'],
-      ['Best gain', `${peak.toFixed(2)} at batch ${fmt(BTD, 2)}`, `${exPeak[1].toFixed(2)} at batch ${fmt(exPeak[0], 2)}`],
-      ['AR catches up at batch', fmt(Bx, 3), cr[1] ? fmt(cr[1], 3) : '–'],
-      ['Gain at 1M context and batch 4, the largest that fits', p1At(c, w.b, 4, 1048576).toFixed(2), ex(4, 1048576).gain.toFixed(2)],
-      ['Same, with b = 16', p1At(bare({ ...st, w: { ...w, b: 16 } }).c, 16, 4, 1048576).toFixed(2), ex(4, 1048576, { ...w, b: 16 }).gain.toFixed(2)],
-      ['Limit as C → ∞, not reached in memory (b = 32; b = 16)', `${long32.toFixed(2)}; ${long16.toFixed(2)}`, '–'],
-    ];
-    $('t-ex').innerHTML = rows.map((r) => `<tr><td class="l">${r[0]}</td><td class="num">${r[1]}</td><td class="num">${r[2]}</td></tr>`).join('');
-  }
-
   // ---------------------------------------------------------------- exact gain map with exact contours
   function regimeMap(el, legendEl, st) {
     if (!el.isConnected) return;
@@ -1029,7 +962,6 @@
     regimeMap($('map-ex2'), $('map-ex2-legend'), { ...REF, m: M.MODELS.llama31_8b.build(), w: { ...REF.w, lambdaTD: 2 } });
     const h20 = HWBYID.h20;
     regimeMap($('map-ex3'), $('map-ex3-legend'), { ...REF, hw: { peak: h20.tflops * 1e12, peakFp8: 2 * h20.tflops * 1e12, bw: h20.tbps * 1e12, mem: h20.gb * 1e9, fp8: false } });
-    exerciseTable();
   }
 
   // ---------------------------------------------------------------- calculator

@@ -1,7 +1,7 @@
 // Interactive figures for the Block Diffusion Rooflines page. Every number comes from the note's own
 // cost model (window.BDModel) and helpers (window.BDR, exposed by note.js).
 //
-// The figures of Part 2 on weights, the KV cache and attention shares (figWeights ... figShare)
+// The figures of Part 2 on weights, the KV cache and sparse attention (figWeights ... figSparse)
 // use the model as the propositions do: no vocabulary, independent uniform routing (A3) and
 // independent uniform selections in sparse layers.
 // Their toy grids (experts of one layer, cached tokens of one sequence) show one random draw; the
@@ -144,7 +144,7 @@
   const rerenders = [];
   const onTheme = (f) => rerenders.push(f);
 
-  // The accelerator is shared by Figures 6, 13 and 7: choosing one in a figure sets it in all.
+  // The accelerator is shared by Figures 6, 12 and 7: choosing one in a figure sets it in all.
   const ACCEL = ['h20', 'rtx5090', 'a100', 'h200', 'v5e', 'b200', 'mi355x', 'h100pcie', 'spark', 'v6e'];
   const SHORT = { h20: 'H20', rtx5090: 'RTX 5090', a100: 'A100', h200: 'H200', v5e: 'TPU v5e', b200: 'B200', mi355x: 'MI355X', h100pcie: 'H100 PCIe', spark: 'DGX Spark', v6e: 'TPU v6e' };
   // labels of Figure 7's dots on narrow screens
@@ -319,7 +319,7 @@
     if (url === '#calc') return url;
     return `${url}?${new URLSearchParams({ hw: hwId, kern: rule, B: String(B) })}#calc`;
   }
-  // ---------------------------------------------------------------- Figure 13: both intensities become independent of the batch (Proposition 1)
+  // ---------------------------------------------------------------- Figure 12: both intensities become independent of the batch (Proposition 1)
   const CSCAN = Array.from({ length: 41 }, (_, i) => Math.round(1024 * 2 ** (i / 4)));
   const CBATCH = [1, 4, 16, 64];
   function figContext(root) {
@@ -700,46 +700,6 @@
     draw(); onTheme(draw); watchWidth(pic, draw);
   }
 
-  // ---------------------------------------------------------------- attention's share of bytes and of FLOPs (Proposition 8)
-  const CSH = Array.from({ length: 41 }, (_, i) => Math.round(1024 * 2 ** (i / 4))); // 1k to 1M
-  const SHB = [1, 16, 64, 256];
-  function figShare(root) {
-    const st = { i: CSH.indexOf(1 << 14) };
-    const pic = el('<div></div>'), out = el('<div class="readout" aria-live="polite"></div>');
-    root.append(pic, out);
-    const bytes = (B, C) => C0.qkv(C) / (C0.WAR(B) / B + C0.qkv(C));
-    const flops = (C) => (C0.phi(C) - 2 * C0.Nact) / C0.phi(C);
-    draggable(pic, () => st.xs, CSH, () => st.i, (i) => { st.i = i; draw(); });
-    function draw() {
-      const c = colors(), W = widthOf(pic), H = 344, m = { l: 46, r: 18, t: 30, b: 42 }, C = CSH[st.i];
-      const xs = scale(1024, 1 << 20, m.l, W - m.r), ys = scale(0, 1, H - m.b, m.t, false);
-      let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Share of attention in the bytes of an AR step, for batches ${SHB.join(', ')}, and in the FLOPs of a position, against context">`;
-      for (const v of [0, 0.25, 0.5, 0.75, 1]) s += `<line x1="${m.l}" x2="${W - m.r}" y1="${ys(v)}" y2="${ys(v)}" stroke="${v === 0.5 ? c.muted : c.rule}"${v === 0.5 ? ' stroke-dasharray="3 4"' : ''}/><text x="${m.l - 6}" y="${ys(v) + 4}" text-anchor="end">${v * 100}%</text>`;
-      for (const v of [1024, 4096, 16384, 65536, 262144, 1 << 20]) s += `<text x="${xs(v)}" y="${H - m.b + 15}" text-anchor="middle">${v >= 1 << 20 ? '1M' : `${v / 1024}k`}</text>`;
-      s += `<text x="${(m.l + W - m.r) / 2}" y="${H - 6}" text-anchor="middle" class="ink">${W < 480 ? 'context C, tokens (log scale)' : 'context C, tokens in the KV cache (log scale)'}</text>`;
-      s += `<text x="4" y="13" class="ink">share taken by attention</text>`;
-      const op = [1, 0.75, 0.55, 0.38];
-      SHB.forEach((B, k) => {
-        s += `<polyline fill="none" stroke="${c.ar}" stroke-opacity="${op[k]}" stroke-width="2.2" points="${CSH.map((x) => `${xs(x)},${ys(bytes(B, x))}`).join(' ')}"/>`;
-        // label each curve where it crosses 62%, to the left of it
-        const at = CSH.find((x) => bytes(B, x) >= 0.62) || CSH[CSH.length - 1];
-        s += `<text class="ar halo" x="${xs(at) - 6}" y="${ys(bytes(B, at)) - 5}" text-anchor="end" style="opacity:${0.55 + 0.45 * op[k]}">${W < 480 && B < 256 ? B : `B = ${B}`}</text>`;
-      });
-      s += `<polyline fill="none" stroke="${c.ink}" stroke-width="2.4" points="${CSH.map((x) => `${xs(x)},${ys(flops(x))}`).join(' ')}"/>`;
-      s += `<text class="ar halo" x="${m.l + 8}" y="${ys(1) + 14}">blue: bytes of an AR step, by batch</text>`;
-      s += `<text class="ink halo" x="${m.l + 8}" y="${ys(1) + 29}">black: FLOPs of a position, any batch</text>`;
-      s += `<g class="drag" tabindex="0" role="slider" aria-label="Context" aria-valuemin="1024" aria-valuemax="${1 << 20}" aria-valuenow="${C}" aria-valuetext="context ${kctx(C)} tokens"><rect x="${m.l}" y="${m.t}" width="${W - m.r - m.l}" height="${H - m.b - m.t}" fill="transparent"/>${marker(xs, C, m.t, H - m.b, c)}`;
-      SHB.forEach((B, k) => { s += `<circle cx="${xs(C)}" cy="${ys(bytes(B, C))}" r="4" fill="${c.ar}" fill-opacity="${op[k]}" stroke="${c.bg}" stroke-width="1.5"/>`; });
-      s += `<circle cx="${xs(C)}" cy="${ys(flops(C))}" r="4.5" fill="${c.ink}" stroke="${c.bg}" stroke-width="1.5"/>`;
-      pic.innerHTML = `${s}</g></svg>`;
-      st.xs = xs;
-      const sh = SHB.map((B) => bytes(B, C)), fl = flops(C), first = SHB.find((B, k) => sh[k] > 0.5 && fl < 0.5);
-      out.innerHTML = `At <b>C = ${kctx(C)}</b>, attention is ${SHB.map((B, k) => `${pct(sh[k])}`).join(', ')} of an <span class="ar">AR step</span>'s bytes at batches ${SHB.join(', ')}, and <b>${pct(fl)}</b> of a position's FLOPs at every batch.`
-        + (first ? ` At batch ${first}${first === SHB[SHB.length - 1] ? '' : ' and the larger batches shown'}, the cache is already most of the bytes while the linear layers still do most of the FLOPs: the attention-dominated gain does not apply yet.` : fl >= 0.5 ? ' Attention does most of the FLOPs here.' : ' The weights are still most of the bytes at every batch shown.');
-    }
-    draw(); onTheme(draw); watchWidth(pic, draw);
-  }
-
   // ---------------------------------------------------------------- expandable TL;DR cards
   // Each card with a .card-more panel opens in place, across the full row.
   function initCards() {
@@ -772,7 +732,7 @@
   }
   initCards();
 
-  // Figure 15 has one title per tab (bin/build-roofline.py writes all of them): show the selected tab's.
+  // Figure 14 has one title per tab (bin/build-roofline.py writes all of them): show the selected tab's.
   document.querySelectorAll('.bdr .tabs-title').forEach((title) => {
     const spans = title.querySelectorAll('[data-tab-title]'), tabs = title.nextElementSibling;
     if (!spans.length || !tabs || !tabs.classList.contains('tabs')) return;
@@ -787,7 +747,7 @@
   // ---------------------------------------------------------------- mount
   const FIGS = {
     reuse: figReuse, roofline: figRoofline, context: figContext, accel: figAccel,
-    weights: figWeights, linmap: figLinMap, attnread: figAttnRead, sparse: figSparse, share: figShare,
+    weights: figWeights, linmap: figLinMap, attnread: figAttnRead, sparse: figSparse,
   };
   document.querySelectorAll('[data-fig]').forEach((root) => {
     try { FIGS[root.dataset.fig](root); } catch (e) { root.textContent = 'This figure failed to load.'; console.error(e); }

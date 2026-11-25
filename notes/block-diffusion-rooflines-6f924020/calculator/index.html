@@ -28,7 +28,7 @@ In this final section, before diving into the practice of AR and TD inference en
 In particular, our calculator accounts not only for model choices but also for hardware specifications.</p>
   <h3 id="maps">The exact maps</h3>
   <p>We now drop the propositions' simplifications. The maps use the exact accounting described at the end of this chapter, vocabulary included, over batch × context. Every line is a contour of the computed grid. Faded cells do not fit in the accelerator's memory, which must hold the weights, the KV cache and one pass's logits, \(b\) times larger for a TD canvas than for an AR step. On the gain maps, faded colour marks where TD does not fit, and hatching where AR does not fit either. Hover or tap a cell for its values.</p>
-  <div class="fig-k" id="figure-15">Figure 15 · interactive</div>
+  <div class="fig-k" id="figure-14">Figure 14 · interactive</div>
   <p class="fig-title tabs-title"><span data-tab-title="m-gain">In the roofline bound, AR catches up with TD at batch 110 at context 1k, and at a larger batch as the context grows, beyond 1,024 from 64k tokens on.</span><span data-tab-title="m-ar" hidden>An AR step never reaches the ridge, and at long context its intensity tends to 8 whatever the batch.</span><span data-tab-title="m-td" hidden>A TD canvas crosses the ridge at a batch that falls as the context grows, from 5 at 1k to 1 at 256k, and its intensity tends to 2,048.</span><span data-tab-title="m-sparse" hidden>With sparse global layers, the roofline bound has AR catch up with TD near batch 90–110 at every context up to 1M tokens.</span></p>
   <div class="tabs" role="tablist" aria-label="Exact maps">
     <button role="tab" aria-selected="true" data-tab="m-gain">TD/AR bound</button>
