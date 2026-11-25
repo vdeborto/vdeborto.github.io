@@ -335,7 +335,7 @@ This is especially useful as some operations might be memory bound while other m
 
   <h4 id="lin-penalty">The expert and linear penalties</h4>
 
-  <p>The main result of this section is to compare the arithmetic intensity of TD against the one of AR in <a class="xref" href="#prop3">Proposition 3</a>. In particular, we show that \(\frac{b\,\class{mj-ar}{I^{\mathrm{AR}}_{\mathrm{lin}}}}{\Pi_{\mathrm{lin}}(B)}\).
+  <p>The main result of this section is to compare the arithmetic intensity of TD against the one of AR in <a class="xref" href="#prop3">Proposition 3</a>, in the case where the model can be approximated by its linear layers only. In particular, we show that \(\class{mj-td}{I^{\mathrm{TD}}_{\mathrm{lin}}} = \frac{b\,\class{mj-ar}{I^{\mathrm{AR}}_{\mathrm{lin}}}}{\Pi_{\mathrm{lin}}(B)}\).
   This means that, looking only at the linear layers, if \(b/\Pi_{\mathrm{lin}}(B) &gt; 1\) a forward pass of TD is more efficient than one of AR.
 However, for this to happen we need \(\Pi_{\mathrm{lin}}(B) \leq b \). For this to happen, we need to control the <em>sparsity penalty</em> that is due to the MoE in linear layers. This is the purpose of <a class="xref" href="#prop-lin-limits">Proposition 4</a>, in which we show that the penalty disappears as \(B\) grows since then both AR and TD pay the price of loading most of the experts. 
 Another specific setting in which the penalty disappears is for dense models where there is no sparsity.</p>
@@ -549,14 +549,6 @@ Recall that in <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/s
   </div>
 
 
-
-  <div class="bdr-fig wide" id="fig-share">
-    <div class="fig-k" id="figure-12">Figure 12 · interactive</div>
-    <p class="fig-title">From batch 64 on, attention is most of an AR step's bytes at contexts where the linear layers still do most of its FLOPs.</p>
-    <p class="fig-lede">Drag the marker along the context axis.</p>
-    <div data-fig="share"></div>
-  </div>
-
   <h4 id="attn-gain">The gain when attention layers dominate</h4>
   <p>When attention carries most of the bytes and FLOPs of both passes, the batch drops out of <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/#cor1">Corollary 1</a>: a cache belongs to one sequence, so both of its terms depend only on the context (<a class="xref" href="#cor3">Corollary 3</a>).</p>
   <div class="box prop" id="cor3">
@@ -576,14 +568,14 @@ Recall that in <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/s
 
   <p><a class="xref" href="#cor3">Corollary 3</a> asks attention to carry most of the FLOPs as well as most of the bytes. By <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/#prop2">Proposition 2</a>, \(I^X = \theta^X_{\mathrm{lin}} I^X_{\mathrm{lin}} + \theta^X_{\mathrm{attn}} I^X_{\mathrm{attn}}\): the byte shares are only the weights of the average, and \(\class{mj-ar}{I^{\mathrm{AR}}_{\mathrm{lin}}}\) grows with the batch while \(\class{mj-ar}{I^{\mathrm{AR}}_{\mathrm{attn}}}\) stays at \(I_{\mathrm{attn}} = 8\). Hence \(I^X \approx I^X_{\mathrm{attn}}\) needs \(\theta^X_{\mathrm{lin}} I^X_{\mathrm{lin}} \ll \theta^X_{\mathrm{attn}} I^X_{\mathrm{attn}}\), i.e., attention must also carry most of the FLOPs. This matters only when TD is compute-bound, where the gain \(I^\star/(\omega \class{mj-ar}{I^{\mathrm{AR}}})\) depends on \(\class{mj-ar}{I^{\mathrm{AR}}}\); when TD is memory-bound, \(\Gamma = \mathrm{TPF}/\Pi\) and the bytes suffice. With dense attention and full windows, attention carries at least a share \(x\) of a position's FLOPs, for AR and TD alike, exactly when</p>
   <div class="eq">\[ C \ge C_F\Bigl(\frac{x}{1-x} - \sigma\Bigr),\qquad C_F = \frac{2N_{\mathrm{act}}}{\alpha_G},\qquad \sigma = \frac{\alpha_Ww}{2N_{\mathrm{act}}}. \]</div>
-  <p>For DiffusionGemma, \(C_F = 37.6\)k and \(\sigma = 6.8\%\), so attention carries half of the FLOPs from 35k, while at batch 64 it carries half of an AR step's bytes from 27k (<a class="xref" href="#figure-12">Figure 12</a>). For instance, at batch 96 and context 16k, attention carries 52% of an AR step's bytes but 33% of its FLOPs, and <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/#prop1">Proposition 1</a> gives 1.56 where <a class="xref" href="#cor3">Corollary 3</a> gives 2.41.</p>
+  <p>For DiffusionGemma, \(C_F = 37.6\)k and \(\sigma = 6.8\%\), so attention carries half of the FLOPs from 35k, while at batch 64 it carries half of an AR step's bytes from 27k. For instance, at batch 96 and context 16k, attention carries 52% of an AR step's bytes but 33% of its FLOPs, and <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/#prop1">Proposition 1</a> gives 1.56 where <a class="xref" href="#cor3">Corollary 3</a> gives 2.41.</p>
 
   <p><a class="xref" href="#table-2">Table 2</a> gives \(\class{mj-ar}{I^{\mathrm{AR}}_{\mathrm{attn}}}\), \(\class{mj-td}{I^{\mathrm{TD}}_{\mathrm{attn}}}\), \(\Pi_{\mathrm{attn}}\) and the gain of <a class="xref" href="#cor3">Corollary 3</a> for each kind of layer.</p>
 
-  <p>Finally, in <a class="xref" href="#figure-13">Figure 13</a> we highlight that as the context grows the arithmetic intensity becomes independent of the batch size.</p>
+  <p>Finally, in <a class="xref" href="#figure-12">Figure 12</a> we highlight that as the context grows the arithmetic intensity becomes independent of the batch size.</p>
 
   <div class="bdr-fig wide" id="fig-context">
-    <div class="fig-k" id="figure-13">Figure 13 · interactive</div>
+    <div class="fig-k" id="figure-12">Figure 12 · interactive</div>
     <p class="fig-title">Arithmetic intensities at large context</p>
     <div data-fig="context"></div>
   </div>
@@ -639,7 +631,7 @@ Recall that in <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/s
 
 
   <div class="bdr-card">
-    <div class="fig-k" id="figure-14">Figure 14</div>
+    <div class="fig-k" id="figure-13">Figure 13</div>
     <p class="fig-title">Smallest compute-bound batch as a function of context.</p>
   <figure class="mapfig">
     <div class="legend" id="bstar-legend"></div>
@@ -699,7 +691,7 @@ Recall that in <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/s
 
   
   
-    Last updated: November 20, 2026.
+    Last updated: November 25, 2026.
   
 
     </div>
