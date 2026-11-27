@@ -284,7 +284,7 @@ def add_symbols(body):
     outputs[ASSETS / "symbols.js"] = roofline_symbols.key_js(entries, color_math)
     sections = {m.group(1): m.group(0) for m in re.finditer(r'<section class="[^"]*" id="([\w-]+)">.*?\n</section>', body, re.S)}
     parts = {c[1]: sections.get(c[3], "") for c in CHAPTERS}
-    tags = [(m.start(), m.group(1)) for m in re.finditer(r'<span class="tag">((?:Proposition|Definition|Corollary|Remark) \d+)</span>', body)]
+    tags = [(m.start(), m.group(1)) for m in re.finditer(r'<span class="tag">((?:Proposition|Definition|Corollary|Remark|Lemma) \d+)</span>', body)]
     spans = {m.group(1): (m.start(), m.end()) for m in re.finditer(r'<section class="[^"]*" id="([\w-]+)">.*?\n</section>', body, re.S)}
 
     def region(k):  # the statement tags[k] and the text up to the next statement or the section's end
@@ -534,7 +534,7 @@ def link_references(pages):
             pages[slug] = rx.sub(put, pages[slug])
     # numbered statements: the box that carries the tag, wherever it is
     for slug in pages:
-        for m in re.finditer(r'id="([\w-]+)"[^>]*>\s*<(?:summary|div class="bdr-title"|div class="title")>\s*<span class="tag">(Proposition|Definition|Corollary|Remark) (\d+)</span>', pages[slug]):
+        for m in re.finditer(r'id="([\w-]+)"[^>]*>\s*<(?:summary|div class="bdr-title"|div class="title")>\s*<span class="tag">(Proposition|Definition|Corollary|Remark|Lemma) (\d+)</span>', pages[slug]):
             where[(m.group(2), int(m.group(3)))] = (slug, m.group(1))
     for slug in pages:
         for m in re.finditer(r'id="(assume-a(\d))"', pages[slug]):
@@ -542,7 +542,7 @@ def link_references(pages):
     for ch in CHAPTERS:
         if ch[1].isdigit():
             where[("Part", int(ch[1]))] = (ch[0], None)
-    ref = re.compile(r'\b(Figures?|Tables?|Propositions?|Definitions?|Corollary|Remarks?|Parts?)((?:\s|&nbsp;)\d+(?:(?:\s*(?:–|,|and|or)\s*)\d+)*)')
+    ref = re.compile(r'\b(Figures?|Tables?|Propositions?|Definitions?|Corollary|Remarks?|Lemmas?|Parts?)((?:\s|&nbsp;)\d+(?:(?:\s*(?:–|,|and|or)\s*)\d+)*)')
     num = re.compile(r'\d+')
     skip_open = re.compile(r'<(a|script|svg|style|caption|button|summary|title|h1|h2|nav|pre)\b', re.I)
     for slug, html in pages.items():
@@ -579,7 +579,7 @@ def link_references(pages):
                 return f"#{kind.lower()}-{n}" if tgt == slug else f"{url_of(tgt)}#{kind.lower()}-{n}"
             def link(m):
                 word = m.group(1)
-                kind = next(k for k in ("Figure", "Table", "Proposition", "Definition", "Corollary", "Remark", "Part") if word.startswith(k))
+                kind = next(k for k in ("Figure", "Table", "Proposition", "Definition", "Corollary", "Remark", "Lemma", "Part") if word.startswith(k))
                 nums = num.findall(m.group(2))
                 if len(nums) == 1:  # "Figure 22": the whole reference is the link
                     h = href_of(kind, int(nums[0]))

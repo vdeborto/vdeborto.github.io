@@ -150,6 +150,18 @@ By doing so, we will be able to establish the arithmetic intensities of both mod
     </table></div>
   </div>
 
+  <div class="box prop" id="lemma1">
+    <div class="bdr-title"><span class="tag">Lemma 1</span>Intensities grow with the batch and the canvas</div>
+    <p>For the FLOPs and bytes of <a class="xref" href="#def2">Definition 2</a>, fix the context \(C\) and let \(X \in \{\mathrm{AR}, \mathrm{TD}\}\). Then:</p>
+    <ol>
+      <li>\(I^X_{\mathrm{lin}}(B)\) and \(I^X(B, C)\) are non-decreasing in the batch \(B\);</li>
+      <li>at a fixed batch, \(\class{mj-td}{I^{\mathrm{TD}}_{\mathrm{lin}}}(B)\) and \(\class{mj-td}{I^{\mathrm{TD}}}(B, C)\) are non-decreasing in the canvas size \(b\).</li>
+    </ol>
+    <details class="proof"><summary>Proof</summary><p>Write \(n = 1\) for AR and \(n = b\) for TD. By <a class="xref" href="#def2">Definition 2</a>, a pass costs \(n\,(\class{mj-ar}{F^{\mathrm{AR}}_{\mathrm{lin}}} + \class{mj-ar}{F^{\mathrm{AR}}_{\mathrm{attn}}}(C))\) FLOPs per sequence, so dividing its FLOPs and its bytes by \(n\) gives</p>
+      <div class="eq">\[ I^X(B, C) = \frac{\class{mj-ar}{F^{\mathrm{AR}}_{\mathrm{lin}}} + \class{mj-ar}{F^{\mathrm{AR}}_{\mathrm{attn}}}(C)}{s_w\,\dfrac{W^X(B)}{nB} + \dfrac{Q^X_{\mathrm{attn}}(C)}{n}}, \]</div>
+      <p>whose numerator depends on neither \(B\) nor \(b\). For \(0 \lt x \lt y\), a concave function \(U\) with \(U(0) = 0\) satisfies \(U(x) \ge (x/y)\,U(y)\), so \(U(x)/x\) is non-increasing. Applied to \(U_{E,k}\), with \(W^X(B) = W_{\mathrm{ne}} + L\,U_{E,k}(nB)\,W^e\), this makes \(W^X(B)/(nB)\) non-increasing in \(nB\), hence in \(B\) and in \(b\), and decreasing when \(W_{\mathrm{ne}} \gt 0\). The attention bytes \(\class{mj-ar}{Q^{\mathrm{AR}}_{\mathrm{attn}}}(C)\) depend on neither, and \(\class{mj-td}{Q^{\mathrm{TD}}_{\mathrm{attn}}}(C)/b\) is the sum of \((\nu_G C + \nu_W\min(C,w) + \nu_I C)/b\) and \(\nu_S\,U_{C,m}(b)/b\), both non-increasing in \(b\) by the same argument applied to \(U_{C,m}\). The denominator is therefore non-increasing in \(B\) and, for TD, in \(b\), and decreasing when \(W_{\mathrm{ne}} \gt 0\). The linear intensities are the same ratio without the attention terms. \(\blacksquare\)</p></details>
+  </div>
+
   <div class="box def widebox" id="def4">
     <div class="bdr-title"><span class="tag">Definition 4</span>Selected resources and the sparsity penalties</div>
     <div class="table-wrap"><table class="defs ints">
@@ -268,7 +280,7 @@ However, we can also look at it in terms of hardware choice. In particular, unde
 
 
 
-    <details class="proof"><summary>Proof</summary><p>(1) If \(\class{mj-ar}{I^{\mathrm{AR}}} \ge I^\star\), the denominator of <a class="xref" href="#prop1">Proposition 1</a> is \(I^\star\) and the numerator is at most \(I^\star\), so \(\Gamma \le 1/\omega\). Otherwise the denominator is \(\class{mj-ar}{I^{\mathrm{AR}}}\), and \(\min(b\class{mj-ar}{I^{\mathrm{AR}}}/\Pi,\,I^\star)/\class{mj-ar}{I^{\mathrm{AR}}} = \min(b/\Pi,\,I^\star/\class{mj-ar}{I^{\mathrm{AR}}})\); dividing by \(\omega\) gives the formula. (2) Since \(\class{mj-ar}{W^{\mathrm{AR}}}(B)/B\) is non-increasing (proof of <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/linear/#prop4">Proposition 5</a>), \(\class{mj-ar}{I^{\mathrm{AR}}}(\cdot, C)\) is non-decreasing in \(B\). Hence, in \(\Gamma = \min(\mathrm{TPF}/\Pi,\ I^\star/(\omega \class{mj-ar}{I^{\mathrm{AR}}}))\), the first term is non-decreasing in \(B\) and the second is non-increasing, and the minimum is maximal where they cross, i.e., where \(\class{mj-td}{I^{\mathrm{TD}}} = b\,\class{mj-ar}{I^{\mathrm{AR}}}/\Pi = I^\star\) (c). If the first term is already the larger at \(B = 1\), the maximum is at \(B = 1\) (a); if it is the smaller at every batch, \(\Gamma\) is the first term, which is non-decreasing (b). \(\blacksquare\)</p></details>
+    <details class="proof"><summary>Proof</summary><p>(1) If \(\class{mj-ar}{I^{\mathrm{AR}}} \ge I^\star\), the denominator of <a class="xref" href="#prop1">Proposition 1</a> is \(I^\star\) and the numerator is at most \(I^\star\), so \(\Gamma \le 1/\omega\). Otherwise the denominator is \(\class{mj-ar}{I^{\mathrm{AR}}}\), and \(\min(b\class{mj-ar}{I^{\mathrm{AR}}}/\Pi,\,I^\star)/\class{mj-ar}{I^{\mathrm{AR}}} = \min(b/\Pi,\,I^\star/\class{mj-ar}{I^{\mathrm{AR}}})\); dividing by \(\omega\) gives the formula. (2) By <a class="xref" href="#lemma1">Lemma 1</a>, \(\class{mj-ar}{I^{\mathrm{AR}}}(\cdot, C)\) is non-decreasing in \(B\). Hence, in \(\Gamma = \min(\mathrm{TPF}/\Pi,\ I^\star/(\omega \class{mj-ar}{I^{\mathrm{AR}}}))\), the first term is non-decreasing in \(B\) and the second is non-increasing, and the minimum is maximal where they cross, i.e., where \(\class{mj-td}{I^{\mathrm{TD}}} = b\,\class{mj-ar}{I^{\mathrm{AR}}}/\Pi = I^\star\) (c). If the first term is already the larger at \(B = 1\), the maximum is at \(B = 1\) (a); if it is the smaller at every batch, \(\Gamma\) is the first term, which is non-decreasing (b). \(\blacksquare\)</p></details>
   </div>
 
 
