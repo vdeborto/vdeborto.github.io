@@ -960,8 +960,6 @@
     intensityMap($('imap-td'), $('imap-td-legend'), REF, 'td');
     regimeMap($('map-ex'), $('map-ex-legend'), { ...REF, w: { ...REF.w, b: 32 }, noNote: true });
     regimeMap($('map-ex2'), $('map-ex2-legend'), { ...REF, m: M.MODELS.llama31_8b.build(), w: { ...REF.w, lambdaTD: 2 } });
-    const h20 = HWBYID.h20;
-    regimeMap($('map-ex3'), $('map-ex3-legend'), { ...REF, hw: { peak: h20.tflops * 1e12, peakFp8: 2 * h20.tflops * 1e12, bw: h20.tbps * 1e12, mem: h20.gb * 1e9, fp8: false } });
   }
 
   // ---------------------------------------------------------------- calculator

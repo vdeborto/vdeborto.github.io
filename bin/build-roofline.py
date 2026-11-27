@@ -473,8 +473,7 @@ LEGACY_CLAIMS = {
          '<span data-tab-title="m-td" hidden>A TD canvas crosses the ridge at a batch that falls as the context grows, from 5 at 1k to 1 at 256k, and its intensity tends to 2,048.</span>'
          '<span data-tab-title="m-sparse" hidden>With sparse global layers, the roofline bound has AR catch up with TD near batch 90–110 at every context up to 1M tokens.</span>'),
     16: "",
-    17: "For a dense model, the roofline bound at context 1k is about 13 at batch 1 and falls like 1/B, to parity at batch 15.",
-    18: "On an H20, whose ridge point is 37, the roofline bound puts TD ahead of AR only up to batch 4 at short context.",
+    17: "Roofline for a dense model",
 }
 
 
@@ -498,8 +497,8 @@ def card_legacy_figures(body):
         body = body.replace(tabs, f'{tabs}\n  <p class="fig-title tabs-title">{LEGACY_CLAIMS[14]}</p>', 1)
     else:
         problems.append("Figure 14 kicker not found")
-    if k != 4:
-        problems.append(f"legacy figures carded: {k}, expected 4")
+    if k != 3:
+        problems.append(f"legacy figures carded: {k}, expected 3")
     return body
 
 

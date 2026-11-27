@@ -368,14 +368,14 @@
 
   // ---------------------------------------------------------------- the chip, and what the two kernels of Part 7 change
   // Written for readers who do not write kernels. Every number is stated in Part 7 (or, for the chip,
-  // elsewhere in the text): the bytes each expert kernel writes per MoE layer at TD batch 32 (Figure 30),
-  // shared memory per thread block (Figure 33), the busy share of FlashAttention 4's tensor cores, and
-  // the per-tile timings of the pair kernel's exchange. Totals only add the sizes of Figure 30.
+  // elsewhere in the text): the bytes each expert kernel writes per MoE layer at TD batch 32 (Figure 29),
+  // shared memory per thread block (Figure 32), the busy share of FlashAttention 4's tensor cores, and
+  // the per-tile timings of the pair kernel's exchange. Totals only add the sizes of Figure 29.
   // rows: [kernel, how many kernels, MB written to HBM (null: no size given; 'L2': summed on the chip), what it does]
   const CHIP = {
     experts: {
       old: { name: "vLLM's kernels", short: 'vLLM', rows: [
-        ['quantise x', 2, null, 'Convert the layer input <i>x</i> to 8-bit numbers (FP8), the format the matrix multiplications read. vLLM does this in two kernels; Figure 30 gives no size for their output.'],
+        ['quantise x', 2, null, 'Convert the layer input <i>x</i> to 8-bit numbers (FP8), the format the matrix multiplications read. vLLM does this in two kernels; Figure 29 gives no size for their output.'],
         ['sort rows by expert', 1, null, 'Each token goes to 8 of the 128 experts. This kernel sorts the (token, expert) pairs by expert, so that the rows of one expert sit together.'],
         ['GEMM 1 (gate, up)', 1, 184, 'First matrix multiplication (GEMM): each row times its expert\'s gate and up matrices. The result leaves the chip: 184 MB written to HBM.'],
         ['act_and_mul', 1, 92, 'A separate kernel reads that result back from HBM, applies the activation gelu(gate) · up, and writes it to HBM again: 92 MB.'],
@@ -602,7 +602,7 @@
         if (h && h[0] === 'r') { const r = rows[+h.slice(1)]; return P(`${+h.slice(1) + 1}. ${r[0]}`, r[3]); }
         if (st.step != null) { const r = rows[st.step]; return P(`Kernel ${st.step + 1} of ${rows.length}: ${r[0]}`, r[3]); }
         return st.ver === 'old'
-          ? P("vLLM's expert path: 9 kernels", 'Between two kernels, an intermediate tensor goes through HBM: one kernel writes it, and the next reads it back. vLLM\'s path splits one MoE layer into 9 kernels, so its intermediate tensors make round trips through the slowest memory: 737 MB written per layer at TD batch 32 (the sum of the sizes in Figure 30). Half of it is the 369 MB of rows that the second GEMM writes and moe_sum reads back only to add them up.', 'Press ▶ to go through the kernels one at a time.')
+          ? P("vLLM's expert path: 9 kernels", 'Between two kernels, an intermediate tensor goes through HBM: one kernel writes it, and the next reads it back. vLLM\'s path splits one MoE layer into 9 kernels, so its intermediate tensors make round trips through the slowest memory: 737 MB written per layer at TD batch 32 (the sum of the sizes in Figure 29). Half of it is the 369 MB of rows that the second GEMM writes and moe_sum reads back only to add them up.', 'Press ▶ to go through the kernels one at a time.')
           : P('The rewrite (moe_ws): 6 kernels', 'The two matrix multiplications are as fast as vLLM\'s; the rewrite removes the traffic between them. The activation is applied in registers inside the first GEMM, and the second GEMM adds its rows straight into the output, where a token\'s 8 rows meet in the L2 cache. One MoE layer writes 173 MB instead of 737. The expert path takes 19–28% less time per pass, and the TD step 4–8% less.', 'Press ▶ to go through the kernels one at a time.');
       }
       return st.ver === 'old'
