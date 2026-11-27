@@ -852,7 +852,7 @@
     if (gSegs.length) { const p = mid(pick(gSegs, (sg) => mid(sg)[0])); s += label(p[0] + 4, p[1] - 8, 'Γ = 1'); }
     if (kvSegs.length) { const yT = Y(24); const p = mid(pick(kvSegs, (sg) => Math.abs(mid(sg)[1] - yT))); s += label(Math.min(p[0] + 10, W - mg.r - 4), p[1] + 4, 'AR: KV bytes &gt; weight bytes →', p[0] > W - 230 ? 'end' : 'start'); }
     s += '</svg><div class="tip" hidden></div>';
-    el.innerHTML = s + memNoteBoth(hw, anyOver, anyBoth);
+    el.innerHTML = s + (st.noNote ? '' : memNoteBoth(hw, anyOver, anyBoth));  // noNote: a map shown without the note under it (Figure 16)
     mapLegend(legendEl);
 
     const svg = el.querySelector('svg'), tip = el.querySelector('.tip');
@@ -958,7 +958,7 @@
     regimeMap($('map-ref'), $('map-ref-legend'), REF);
     intensityMap($('imap-ar'), $('imap-ar-legend'), REF, 'ar');
     intensityMap($('imap-td'), $('imap-td-legend'), REF, 'td');
-    regimeMap($('map-ex'), $('map-ex-legend'), { ...REF, w: { ...REF.w, b: 32 } });
+    regimeMap($('map-ex'), $('map-ex-legend'), { ...REF, w: { ...REF.w, b: 32 }, noNote: true });
     regimeMap($('map-ex2'), $('map-ex2-legend'), { ...REF, m: M.MODELS.llama31_8b.build(), w: { ...REF.w, lambdaTD: 2 } });
     const h20 = HWBYID.h20;
     regimeMap($('map-ex3'), $('map-ex3-legend'), { ...REF, hw: { peak: h20.tflops * 1e12, peakFp8: 2 * h20.tflops * 1e12, bw: h20.tbps * 1e12, mem: h20.gb * 1e9, fp8: false } });
