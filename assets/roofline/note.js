@@ -520,7 +520,7 @@
   }
   const memNote = (hw, any, who = 'the decoder') => (any ? `<div class="note">Faded cells, past the thin dashed line: ${who}'s weights, the batch's KV cache and one pass's logits exceed ${fmt(hw.mem / 1e9)} GB.</div>` : '');
   // Gain maps: grey where TD does not fit, hatched where neither decoder does.
-  const memNoteBoth = (hw, anyTD, anyBoth) => (anyTD ? `<div class="note">Faded cells, past the dashed line: TD's weights, KV cache and one canvas's logits (<i>b</i>·<i>V</i> per sequence) exceed ${fmt(hw.mem / 1e9)} GB, so the gain there compares TD at a batch it cannot run.${anyBoth ? ' Hatched cells, past the dotted line: AR does not fit either.' : ''} With chunked logits (λ<sup>TD</sup> = 0) the two limits coincide.</div>` : '');
+  const memNoteBoth = (hw, anyTD, anyBoth) => (anyTD ? `` : '');
   const HATCH = '<defs><pattern id="oomHatch" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="6" stroke="currentColor" stroke-opacity="0.35" stroke-width="1.6"/></pattern></defs>';
 
 
