@@ -312,13 +312,13 @@
 <section class="bdr-col" id="conclusion">
   <p class="chapter-intro">With the bound of <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/effective/">Part 5</a> and the measurements of <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/stack/">Parts 6</a> and <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/kernels/">7</a>, we compare the measured gain with the bound at measured inputs: their ratio is the ratio of the two decoders' efficiencies. We then state what the roofline model gets right, what it needs, and what remains open.</p>
   <h3 id="conc-bound">The bound against the measurement</h3>
-  <p><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/effective/">Part 5</a> gave the bound at measured ceilings and routing, bound (c) of <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/effective/#figure-22">Figure 22</a>. <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/stack/">Parts 6</a> and <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/kernels/">7</a> measured both decoders, attributing all but at most 0.7% of kernel time, and rewrote the kernels of the two components furthest from their rooflines.</p>
+  <p><a class="xref" href="/notes/block-diffusion-rooflines-6f924020/effective/">Part 5</a> gave the bound at measured ceilings and routing, bound (c) of <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/effective/#figure-21">Figure 21</a>. <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/stack/">Parts 6</a> and <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/kernels/">7</a> measured both decoders, attributing all but at most 0.7% of kernel time, and rewrote the kernels of the two components furthest from their rooflines.</p>
   <div class="bdr-fig pfig" id="fig-conc-maps">
-    <div class="fig-k" id="figure-38">Figure 38 · interactive</div>
+    <div class="fig-k" id="figure-37">Figure 37 · interactive</div>
     <p class="fig-title">The measured gain exceeds the bound up to batch 8 and falls below it from batch 16 on.</p>
     <p class="fig-lede">Choose a context; hover over or tap a batch to read both.</p>
     <div data-mfig="ladder" data-series="c,d"></div>
-    <p class="fig-cap">The bound (c) of <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/effective/#figure-22">Figure 22</a>, in black, and the measured gain (d), in magenta: TD's tokens per second over AR's at equal \(B\) and \(C\), medians of three repeats. <a class="xref" href="#prop8">Proposition 10</a> says why the two differ. The batch axis is logarithmic: the measured sizes 1, 2, 4, …, 64 are equally spaced.</p>
+    <p class="fig-cap">The bound (c) of <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/effective/#figure-21">Figure 21</a>, in black, and the measured gain (d), in magenta: TD's tokens per second over AR's at equal \(B\) and \(C\), medians of three repeats. <a class="xref" href="#prop8">Proposition 10</a> says why the two differ. The batch axis is logarithmic: the measured sizes 1, 2, 4, …, 64 are equally spaced.</p>
   </div>
   <div class="box prop" id="prop8">
     <div class="bdr-title">
@@ -329,7 +329,7 @@
     <details class="proof"><summary>Proof</summary><p>The tokens per step cancel: \(\Gamma_{\mathrm{meas}}/\Gamma_{\mathrm{roof}} = (\class{mj-td}{\tau^{\mathrm{TD}}}/\class{mj-td}{t^{\mathrm{TD}}})\,/\,(\class{mj-ar}{\tau^{\mathrm{AR}}}/\class{mj-ar}{t^{\mathrm{AR}}})\). \(\blacksquare\)</p></details>
   </div>
   <div class="bdr-fig pfig" id="fig-conc-dev">
-    <div class="fig-k" id="figure-39">Figure 39 · interactive</div>
+    <div class="fig-k" id="figure-38">Figure 38 · interactive</div>
     <p class="fig-title">The bound is conservative while TD runs closer to its roofline than AR, up to batch 8, and optimistic from batch 16 on.</p>
     <p class="fig-lede">Choose a context; hover over or tap a batch to read the two efficiencies and their ratio.</p>
     <div data-mfig="eff"></div>
@@ -425,6 +425,14 @@
   </ul>
 
   <h3 id="conc-open">Open problems</h3>
+
+<p>The role of hardware. 
+In this blogpost, we have discussed the advantages of Text Diffusion over Autoregressive models from an inference perspective.
+In that case, the hardware is assumed to be given with peak FLOPs/s and memory bandwidth completely fixed. 
+However, there is a current significant push towards designing better chip which would also answer the bandwidth issue that AR faces at inference.</p>
+
+<p>CITE FRACTILE AND OTHER IN AN ITEMISED LIST AND THEIR DIFFERENT APPROACHES</p>
+
   <ul>
     <li>
 <b>A grouped expert GEMM of cuBLAS quality</b>, with producer and consumer warps and the fused epilogues of <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/kernels/">Part 7</a>: the largest recoverable time of TD at batch 2–8.</li>

@@ -377,10 +377,6 @@ Here, the idea is to perform some napkin math so the answers to those exercises 
 <td class="l">\(I^\star = 206\) in BF16, 412 in FP8</td>
 </tr>
       <tr>
-<td class="l">H20: 148 TFLOP/s in BF16, 4.0 TB/s, 96 GB</td>
-<td class="l">\(I^\star = 37\)</td>
-</tr>
-      <tr>
 <td class="l">B200: 2,250 TFLOP/s in BF16, 4,500 in FP8, 9,000 in FP4, 8 TB/s, 180 GB</td>
 <td class="l">\(I^\star = 281\), 562, 1,125</td>
 </tr>
@@ -510,24 +506,38 @@ While TD is memory bound, we have that the throughput gain is given by \(\Gamma 
 </details>
 </li>
     <li>
-<p><b>The best batch.</b> At batch size is the gain maximal?</p>
+<p><b>The best batch.</b> At which batch size is the gain maximal?</p>
       <details class="answer"><summary>Solution</summary>
-        <p>We recall from Exercise 1 that, when the penalty is non-increasing in the batch, \(\Gamma\) is largest at the batch \(\class{mj-td}{B^{\mathrm{TD}}_\star}\) at which TD reaches the ridge (<a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/#cor1">Corollary 1</a> (2)). At short context, the network can be approximated by its linear layers. Hence, the intensity of a TD pass is</p>
-        <div class="eq">\[ \class{mj-td}{I^{\mathrm{TD}}} \approx \frac{2bBN_{\mathrm{act}}}{2\class{mj-td}{W^{\mathrm{TD}}}(B)} = \frac{bBN_{\mathrm{act}}}{\class{mj-td}{W^{\mathrm{TD}}}(B)}. \]</div>
-        <p>From batch 2 on, a TD pass touches all the experts, i.e., \(\class{mj-td}{W^{\mathrm{TD}}}(B) \approx W_{\mathrm{tot}}\). Hence, we have that</p>
-        <div class="eq">\[ \class{mj-td}{I^{\mathrm{TD}}} \approx \frac{32 \cdot 3.1}{24.5}\, B \approx 4B. \]</div>
-        <p>Therefore, TD reaches the ridge when \(4B \approx 206\), i.e., at</p>
-        <div class="eq">\[ \class{mj-td}{B^{\mathrm{TD}}_\star} \approx 51. \]</div>
-        <p>This is eight times the best batch of Exercise 1, since \(\class{mj-td}{B^{\mathrm{TD}}_\star} \propto 1/b\) (<a class="xref" href="/notes/block-diffusion-rooflines-6f924020/linear/#cor2">Corollary 2</a>). Now, at this batch, the fraction of the experts that AR leaves untouched is</p>
-        <div class="eq">\[ \left(1 - \frac{k}{E}\right)^{B} \approx 2^{-\frac{1.5\, kB}{E}} \approx 2^{-\frac{1.5 \cdot 51}{16}} \approx 2^{-5} \approx 3\%. \]</div>
-        <p>Hence, AR also reads nearly all the weights, \(\Pi \approx 1\), and we get that</p>
-        <div class="eq">\[ \Gamma \approx \mathrm{TPF} = \frac{32}{15} \approx 2.1. \]</div>
-        <p>The best gain is therefore about 3 times smaller than in Exercise 1, not 8 times. Indeed, at \(b = 256\), the best batch is 6, and there AR reads \(1.7 + 22.8 \cdot (1 - (15/16)^6) \approx 9\)B parameters, so that the penalty is still</p>
-        <div class="eq">\[ \Pi \approx \frac{W_{\mathrm{tot}}}{\class{mj-ar}{W^{\mathrm{AR}}}(6)} \approx \frac{24.5}{9} \approx 2.7. \]</div>
-        <p>On the other hand, a short canvas reaches the ridge only at a batch at which AR touches nearly every expert, where the penalty vanishes.</p>
-        <p>At a 1k context, a sequence also reads 0.2 GB of window cache at intensity 2 and 0.02 GB of global cache at intensity 8. Hence, a position costs \(6.2 + 0.4 + 0.16 \approx 6.8\) GFLOPs, and a TD pass costs, per sequence,</p>
-        <div class="eq">\[ \class{mj-td}{F^{\mathrm{TD}}} \approx 32 \cdot 6.8 \approx 216 \text{ GFLOPs}, \qquad \class{mj-td}{Q^{\mathrm{TD}}} \approx \frac{49}{B} + 0.22 \text{ GB}. \]</div>
-        <p>Setting \(\class{mj-td}{F^{\mathrm{TD}}}/\class{mj-td}{Q^{\mathrm{TD}}} = 206\) moves the ridge to about batch 60. On the map, the darkest orange lies below the solid line labelled \"TD compute-bound above\", and the peak is lower, about 1.8, because of the vocabulary matrix (Exercise 4).</p></details>
+
+        <p>We know from ??? that the multiplicative throughput gain \(\Gamma\) is maximal when TD is just compute bound.
+        In practice, we have that, recalling that we operate in bf16 precision and that at batch size 1, we already have that the canvas touches all the experts,</p>
+
+        <p>\[ \class{mj-td}{I^{TD}} \approx \frac{2 N_{act}bB}{2 W_{tot}} =\approx bB \frac{W_{ne} + L k W^e}{W_{ne} + L E W^e} \]</p>
+
+        <p>This can be simplified in</p>
+
+        <p>\[\class{mj-td}{I^{TD}} \approx \frac{bBk}{E} \frac{1 + \frac{W_{ne}}{L k W^e}}{1 + \frac{W_{ne}}{L E W^e}} .\]</p>
+
+        <p>Now, a lower bound on \(\class{mj-td}{I^{TD}}\) would be given by \(\frac{bBk}{E}\) but this is conservative.
+        Instead, we have using that \(W_{ne} / W^e \approx 300\) and \(L=30\) that</p>
+
+        <p>\[ \frac{W_{ne}}{L k W^e} \approx \frac{10}{8} \approx 1 ,\]</p>
+
+        <p>and</p>
+
+        <p>\[ \frac{W_{ne}}{L E W^e} \approx \frac{1}{16}\]</p>
+
+        <p>Hence, we have</p>
+
+        <p>\[ \class{mj-td}{I^{TD}} \approx \frac{2kbB}{E} . \]</p>
+
+        <p>We solve for \(\class{mj-td}{I^{TD}} = I^\star \) and we have that</p>
+
+        <p>\[ B \approx \frac{200 \cdot 128}{2 \cdot 8 \cdot 32} \approx 50 . \]</p>
+
+        <p>On the graph, we have that TD becomes compute bound around \(B \approx 41\), hence our result is a reasonable approximation.</p>
+
+        </details>
 </li>
     <li>
 <p><b>TD loses again.</b> At which batch does AR catch up? Predict whether this batch depends on \(b\).</p>
@@ -536,42 +546,47 @@ While TD is memory bound, we have that the throughput gain is given by \(\Gamma 
         <div class="eq">\[ \Gamma = \frac{I^\star}{\omega \class{mj-ar}{I^{\mathrm{AR}}}}. \]</div>
         <p>Therefore, \(\Gamma = 1\) when</p>
         <div class="eq">\[ \class{mj-ar}{I^{\mathrm{AR}}} = \frac{I^\star}{\omega} \approx \frac{206}{15} \approx 14. \]</div>
-        <p>In particular, \(b\) does not appear: parity is at the same batch for every canvas long enough to reach the ridge before it.</p>
-        <p>Without the cache, AR reads all the weights at these batches, and its intensity is</p>
-        <div class="eq">\[ \class{mj-ar}{I^{\mathrm{AR}}} \approx \frac{2BN_{\mathrm{act}}}{2W_{\mathrm{tot}}} \approx \frac{3.1}{24.5}\, B \approx \frac{B}{8}. \]</div>
-        <p>Hence, parity would be at batch \(8 \cdot 14 \approx 110\) (<a class="xref" href="/notes/block-diffusion-rooflines-6f924020/linear/#cor2">Corollary 2</a>). Now, at a 1k context, a sequence also reads 0.2 GB of window cache at intensity 2 and 0.02 GB of global cache at intensity 8. Hence, an AR step costs, per sequence,</p>
-        <div class="eq">\[ \class{mj-ar}{F^{\mathrm{AR}}} \approx 6.2 + 0.4 + 0.16 \approx 6.8 \text{ GFLOPs}, \qquad \class{mj-ar}{Q^{\mathrm{AR}}} \approx \frac{49}{B} + 0.22 \text{ GB}. \]</div>
-        <p>Setting \(\class{mj-ar}{F^{\mathrm{AR}}}/\class{mj-ar}{Q^{\mathrm{AR}}} = 14\), we get that</p>
-        <div class="eq">\[ \frac{49}{B} + 0.22 \approx \frac{6.8}{14} \approx 0.49 \quad\Longrightarrow\quad B \approx 180. \]</div>
-        <p>The window cache has intensity 2, below AR's linear intensity at these batches. Hence, it lowers AR's average intensity (<a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/#prop2">Proposition 2</a>) and delays parity. On the map, the upper branch of the thick dashed line sits near batch 110 rather than 180, because of the vocabulary matrix (Exercise 4); its agreement with the estimate without the cache is a coincidence.</p></details>
+        <p>In particular, \(b\) does not appear.</p>
+<p>Now, from the previous question we have</p>
+
+<p>\[ \class{mj-ar}{I^{AR}} \approx \frac{kB}{E} \frac{1 + \frac{W_{ne}}{LkW^e}}{1 + \frac{W_{ne}}{EkW^e}} \approx 2 \frac{kB}{E} .\]</p>
+
+<p>Hence, solving for \(B\), we obtain that</p>
+
+<p>\[ B \approx \frac{14 \cdot 128}{2 \cdot 8} \approx 100 .\]</p>
+
+<p>On the graph, we have that AR wins again in terms of throughput when \(B \approx 100\) as well. Hence our approximation is reasonable.</p>
+        </details>
 </li>
   </ol>
 
   <h3 id="ex-dense">Exercise 3: a dense model</h3>
-  <p>We take a dense model, Llama 3.1 8B, on the H200, and pair it with a TD twin that has no self-conditioning. A dense model has no expert penalty, \(\Pi_{\mathrm{lin}} = 1\), and in BF16 its linear intensity is the batch: \(\class{mj-ar}{I^{\mathrm{AR}}_{\mathrm{lin}}}(B) = 2BN_{\mathrm{act}}/(2N_{\mathrm{act}}) = B\).</p>
+  <p>We take a dense model, Llama 3.1 8B, on the H200, with \(b = 256\) and \(S = 14\), and pair it with a TD twin that has no self-conditioning. A dense model has no expert penalty, \(\Pi_{\mathrm{lin}} = 1\), and in BF16 its linear intensity is the batch: \(\class{mj-ar}{I^{\mathrm{AR}}_{\mathrm{lin}}}(B) = 2BN_{\mathrm{act}}/(2N_{\mathrm{act}}) = B\).</p>
   <div class="bdr-card">
     <div class="fig-k" id="figure-17">Figure 17</div>
-    <p class="fig-title">For a dense model, the roofline bound at context 1k is about 13 at batch 1 and falls like 1/B, to parity at batch 15.</p>
+    <p class="fig-title">Roofline for a dense model</p>
   <figure class="mapfig">
-    <p class="fig-sub">Exact roofline bound \(\Gamma\) over batch and context for Llama 3.1 8B and its TD twin on an H200 in BF16, with \(b = 256\) and \(S = 14\). Both axes are logarithmic.</p>
     <div class="maplegend" id="map-ex2-legend"></div>
     <div class="chart" id="map-ex2"></div>
   </figure>
   </div>
   <ol class="exercise">
     <li>
-<p><b>No penalty.</b> With \(\Pi = 1\), a colleague expects \(\Gamma = \mathrm{TPF} \approx 17\) at batch 1 and short context. Find the flaw, give \(\Gamma\), and give the parity batch.</p>
+<p><b>No penalty.</b> With \(\Pi = 1\), one can expect \(\Gamma = \mathrm{TPF} \approx 17\) at batch 1 and short context. Find the flaw, give \(\Gamma\), and give the parity batch.</p>
       <details class="answer"><summary>Solution</summary>
-        <p>The colleague uses \(\Gamma = \mathrm{TPF}/\Pi\). We recall from Exercise 1 that this holds only while TD is memory-bound. With a dense model, \(\Pi = 1\), so that \(\class{mj-td}{I^{\mathrm{TD}}} = b\,\class{mj-ar}{I^{\mathrm{AR}}}\). At batch 1 and short context, \(\class{mj-ar}{I^{\mathrm{AR}}} \approx \class{mj-ar}{I^{\mathrm{AR}}_{\mathrm{lin}}}(1) = 1\). Hence, we have that</p>
-        <div class="eq">\[ \class{mj-td}{I^{\mathrm{TD}}} \approx 256 \gt I^\star = 206. \]</div>
-        <p>Therefore, TD is already compute-bound at batch 1, and according to <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/#cor1">Corollary 1</a> we have that</p>
-        <div class="eq">\[ \Gamma = \frac{I^\star}{\omega \class{mj-ar}{I^{\mathrm{AR}}}} \approx \frac{206}{15} \approx 14. \]</div>
-        <p>This is the largest batch-1 gain of these exercises. Since \(\class{mj-td}{I^{\mathrm{TD}}}\) is non-decreasing in \(B\) (<a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/#lemma1">Lemma 1</a>), TD stays compute-bound, and \(\Gamma = I^\star/(\omega B)\) decreases with the batch. Hence, the best batch is batch 1 (<a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/#cor1">Corollary 1</a> (2a)), and parity is at</p>
-        <div class="eq">\[ B = \frac{I^\star}{\omega} \approx 14. \]</div>
-        <p>Compared with Exercise 2, there is no losing phase: TD wins from batch 1, and its best batch is batch 1. On the map, the bottom row is dark orange, and the thick dashed line \(\Gamma = 1\) lies near batch 14.</p></details>
+        <p>First, at batch 1 and short context, AR's intensity is \(\class{mj-ar}{I^{\mathrm{AR}}} = 1\), far below \(I^\star = 206\), so AR is memory bound. Hence, we recall that according to <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/#cor1">Corollary 1</a> (1) we have that</p>
+        <div class="eq">\[ \Gamma = \min \left( \frac{\mathrm{TPF}}{\Pi}, \frac{I^\star}{\omega \class{mj-ar}{I^{\mathrm{AR}}}}\right) =  \min \left( \mathrm{TPF}, \frac{I^\star}{\omega \class{mj-ar}{I^{\mathrm{AR}}}}\right) . \]</div>
+        <p>Hence, \(\Gamma = \mathrm{TPF}\) if and only if \(\mathrm{TPF} \leq \frac{I^\star}{\omega \class{mj-ar}{I^{\mathrm{AR}}}}\), i.e., if and only if TD is memory bound. The main flaw in the reasoning is to assume that TD is memory bound. While it was true in Exercise 2, it is no longer true for a dense model which is more favorable to TD. Indeed, since there is no penalty, and since we are considering the bf16 precision model, we have that</p>
+        <div class="eq">\[ \class{mj-td}{I^{\mathrm{TD}}} = \frac{2 b B N_{\mathrm{act}}}{2 W_{\mathrm{tot}}} = bB, \]</div>
+        <p>since \(N_{\mathrm{act}} = W_{\mathrm{tot}}\) for a dense model. Hence, at batch size \(B=1\) we already have \(\class{mj-td}{I^{\mathrm{TD}}} = 256 \geq I^\star = 206\). Therefore, TD is compute bound and, with \(\class{mj-ar}{I^{\mathrm{AR}}}(1) = 1\), we have that</p>
+        <div class="eq">\[ \Gamma = \frac{I^\star}{\omega \class{mj-ar}{I^{\mathrm{AR}}}(1)} = \frac{206}{15 \cdot 1} \approx 14 . \]</div>
+        <p>This is slightly lower than \(\mathrm{TPF} \approx 17\). Indeed, per committed token, TD reads 256 times fewer bytes than AR, but only up to the ridge, 206, of this can be turned into speed, hence the factor \(206/256 \approx 0.8\).</p>
+        <p>Next, since \(\class{mj-td}{I^{\mathrm{TD}}} = 256B\) is non-decreasing in \(B\) (<a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/#lemma1">Lemma 1</a>), TD stays compute bound at every batch. Hence, recalling that \(\class{mj-ar}{I^{\mathrm{AR}}} = B\), we have \(\Gamma = \frac{I^\star}{\omega B}\), which decreases with the batch, so that the best batch is batch 1 (<a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/#cor1">Corollary 1</a> (2a)). To find the parity batch, we solve for</p>
+        <div class="eq">\[ B = \frac{I^\star}{\omega} = \frac{206}{15} \approx 14 . \]</div>
+        <p>On the map, which also counts the 1k cache, \(\Gamma \approx 13\) at batch 1 and parity is at batch 15. Indeed, the cache, at intensity 4, raises AR's intensity at batch 1 and lowers it near batch 14.</p></details>
 </li>
     <li>
-<p><b>The cache and the ridge.</b> At a 1k context, can any batch make AR compute-bound?</p>
+<p><b>Large batch.</b> At a 1k context, can any batch make AR compute-bound?</p>
       <details class="answer"><summary>Solution</summary>
         <p>The weights are shared by the batch, so their bytes per sequence vanish as \(B \to \infty\). On the other hand, the cache belongs to one sequence and stays. At 1k tokens, a sequence reads \(1\text{k} \cdot 131\,\text{kB} \approx 0.13\) GB of cache, which carries \(4 \cdot 0.13 \approx 0.5\) GFLOPs. Hence, an AR step costs, per sequence,</p>
         <div class="eq">\[ \class{mj-ar}{F^{\mathrm{AR}}} \approx 2N_{\mathrm{act}} + 0.5 \approx 14.5 \text{ GFLOPs}, \qquad \class{mj-ar}{Q^{\mathrm{AR}}} \approx \frac{14}{B} + 0.13 \text{ GB}. \]</div>
@@ -587,35 +602,47 @@ While TD is memory bound, we have that the throughput gain is given by \(\Gamma 
 </li>
   </ol>
 
-  <h3 id="ex-h20">Exercise 4: a low ridge and the vocabulary</h3>
-  <p>We go back to DiffusionGemma, on an H20, whose ridge point is about a fifth of the H200's (<a class="xref" href="#table-3">Table 3</a>).</p>
-  <div class="bdr-card">
-    <div class="fig-k" id="figure-18">Figure 18</div>
-    <p class="fig-title">On an H20, whose ridge point is 37, the roofline bound puts TD ahead of AR only up to batch 4 at short context.</p>
-  <figure class="mapfig">
-    <p class="fig-sub">Exact roofline bound \(\Gamma\) over batch and context for DiffusionGemma on an H20 in BF16, with \(b = 256\) and \(S = 14\). Both axes are logarithmic.</p>
-    <div class="maplegend" id="map-ex3-legend"></div>
-    <div class="chart" id="map-ex3"></div>
-  </figure>
-  </div>
+  <h3 id="ex-vocab">Exercise 4: the vocabulary matrix</h3>
+  <p>We go back to DiffusionGemma on the H200, with \(b = 256\) and a 1k context. <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/#prop1">Proposition 1</a> ignores the vocabulary matrix (<a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/">Part 1</a>, What the formulas leave out). AR applies it once per committed token, as its head. TD applies it as the head of every denoising pass and, for self-conditioning, as a soft embedding in all but the first. The maps of this chapter count it.</p>
   <ol class="exercise">
     <li>
-<p><b>What <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/#prop1">Proposition 1</a> leaves out.</b> <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/#prop1">Proposition 1</a> ignores the vocabulary matrix, which DiffusionGemma's TD applies as the head of every denoising pass and, for self-conditioning, as a soft embedding in all but the first (<a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/">Part 1</a>, What the formulas leave out). At which batches does this omission overstate \(\Gamma\), on the H20 and on the H200, and by how much? What does it do to parity on the H20?</p>
+<p><b>The cost of the matrix.</b> How many FLOPs and bytes does the matrix add to a TD position and to an AR token? Which decoder does it slow down, and when?</p>
       <details class="answer"><summary>Solution</summary>
-        <p>Applying the vocabulary matrix to one position costs \(2Vd \approx 1.5\) GFLOPs, i.e., 24% of the \(2N_{\mathrm{act}} \approx 6.2\) GFLOPs of the rest of the network. A TD position goes through \(\omega = 15\) passes, but it meets the matrix \(2S - 1 = 27\) times: as the head of the 14 denoising passes, and as the soft embedding of self-conditioning in 13 of them. Hence, once TD is compute-bound, its FLOPs, and hence its time, grow by a factor</p>
+        <p>Applying the matrix to one position costs</p>
+        <div class="eq">\[ 2Vd \approx 1.5 \text{ GFLOPs}, \]</div>
+        <p>i.e., 24% of the \(2N_{\mathrm{act}} \approx 6.2\) GFLOPs of the rest of the network. A TD position goes through \(\omega = 15\) passes, but it meets the matrix \(2S - 1 = 27\) times: as the head of the 14 denoising passes, and as the soft embedding of self-conditioning in 13 of them. Hence, the FLOPs of a TD position grow by a factor</p>
         <div class="eq">\[ 1 + \frac{27 \cdot 0.24}{15} \approx 1.43. \]</div>
-        <p>Now, AR is memory-bound, and the matrix adds 0.74B parameters to the \(\class{mj-ar}{W^{\mathrm{AR}}}(B)\) its step reads. Hence, its time grows by a factor \(1 + 0.74/\class{mj-ar}{W^{\mathrm{AR}}}(B)\), with \(\class{mj-ar}{W^{\mathrm{AR}}}\) in billions. Therefore, where TD is compute-bound, the omission overstates \(\Gamma\) by</p>
-        <div class="eq">\[ \frac{1.43}{1 + 0.74/\class{mj-ar}{W^{\mathrm{AR}}}(B)}, \]</div>
-        <p>which is about 1.3 at a few sequences, and 1.4 once AR reads all 24.5B parameters. On the H20, this holds from a few sequences on, since TD's batch-1 intensity, about 32, is already near the ridge, 37, and the matrix's FLOPs push it over. On the H200, it holds only above \(\class{mj-td}{B^{\mathrm{TD}}_\star} \approx 6\), and it moves the parity of Exercise 2 from about 180 to about 110. Below that batch, the matrix's bytes raise \(\Gamma\) slightly, since they weigh more in AR's bytes than in TD's.</p>
-        <p>Let us now find parity on the H20. Without the matrix, parity is at</p>
-        <div class="eq">\[ \class{mj-ar}{I^{\mathrm{AR}}_{\mathrm{lin}}}(B) = \frac{I^\star}{\omega} \approx \frac{37}{15} \approx 2.5. \]</div>
-        <p>At batch 10, AR leaves \((15/16)^{10} \approx 2^{-0.9} \approx 1/2\) of the experts untouched. Hence, it touches 64 experts per layer, reads \(1.7 + 30 \cdot 64 \cdot 6\text{M} \approx 13\)B parameters, and</p>
-        <div class="eq">\[ \class{mj-ar}{I^{\mathrm{AR}}_{\mathrm{lin}}}(10) \approx \frac{10 \cdot 3.1}{13} \approx 2.4. \]</div>
-        <p>Hence, parity is near batch 10. With the matrix, \(\Gamma\) is divided by about 1.3, so parity needs</p>
-        <div class="eq">\[ \class{mj-ar}{I^{\mathrm{AR}}_{\mathrm{lin}}}(B) \approx \frac{2.5}{1.3} \approx 1.9. \]</div>
-        <p>At batch 5, AR leaves \(2^{-0.5} \approx 0.7\) of the experts untouched. Hence, it touches 38 experts per layer, reads \(1.7 + 30 \cdot 38 \cdot 6\text{M} \approx 8.5\)B parameters, and</p>
-        <div class="eq">\[ \class{mj-ar}{I^{\mathrm{AR}}_{\mathrm{lin}}}(5) \approx \frac{5 \cdot 3.1}{8.5} \approx 1.8. \]</div>
-        <p>Therefore, parity moves to about batch 5. In particular, a low ridge puts TD's whole winning range in the compute-bound regime, where every FLOP that <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/#prop1">Proposition 1</a> omits costs gain. On the map, which counts the matrix, the thick dashed line \(\Gamma = 1\) crosses the 1k column near batch 5.</p></details>
+        <p>On the other hand, the matrix holds \(Vd \approx 0.74\)B parameters, i.e., 1.5 GB, read once per pass and shared by the batch. A TD pass already reads about 49 GB, so its bytes barely change. An AR step reads \(\class{mj-ar}{W^{\mathrm{AR}}}(B)\) parameters, so its bytes grow by a factor</p>
+        <div class="eq">\[ 1 + \frac{0.74}{\class{mj-ar}{W^{\mathrm{AR}}}(B)}, \]</div>
+        <p>with \(\class{mj-ar}{W^{\mathrm{AR}}}\) in billions. Therefore, the matrix slows TD only where TD is compute-bound, by about 1.43, and it slows AR, which is memory-bound, at every batch, by a factor between 1.2 at batch 1 and 1.03 once AR reads all 24.5B parameters.</p></details>
+</li>
+    <li>
+<p><b>Where <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/#prop1">Proposition 1</a> overstates the gain.</b> By how much does <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/#prop1">Proposition 1</a> overstate \(\Gamma\) above the best batch, and what happens below it? How do the best batch and the best gain of Exercise 1 change?</p>
+      <details class="answer"><summary>Solution</summary>
+        <p>Above \(\class{mj-td}{B^{\mathrm{TD}}_\star}\), TD is compute-bound and AR memory-bound. Hence, TD's time grows by 1.43 and AR's by \(1 + 0.74/\class{mj-ar}{W^{\mathrm{AR}}}(B)\), and <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/#prop1">Proposition 1</a> overstates \(\Gamma\) by</p>
+        <div class="eq">\[ \frac{1.43}{1 + 0.74/\class{mj-ar}{W^{\mathrm{AR}}}(B)}. \]</div>
+        <p>At batch 6, AR reads about 9B parameters, so the factor is \(1.43/1.08 \approx 1.3\). Once AR reads all 24.5B parameters, it is \(1.43/1.03 \approx 1.4\). The cost model gives 1.29 at batch 6 and 1.36 at batch 110.</p>
+        <p>Below \(\class{mj-td}{B^{\mathrm{TD}}_\star}\), both passes are memory-bound and \(\Gamma = \mathrm{TPF}/\Pi\). Now, the matrix adds the same 0.74B parameters to the bytes of both passes, so it lowers the penalty. For instance, at batch 1, we have that</p>
+        <div class="eq">\[ \Pi \approx \frac{24.5}{3.1} \approx 7.9 \quad\longrightarrow\quad \Pi \approx \frac{24.5 + 0.74}{3.1 + 0.74} \approx 6.6. \]</div>
+        <p>Hence, at batch 1 the omission understates \(\Gamma\), by a factor \(7.9/6.6 \approx 1.2\). The cost model gives 1.14, since the cache also adds bytes to both passes.</p>
+        <p>Finally, the matrix raises TD's FLOPs by 1.43 and its bytes by 3%, so TD's intensity grows by about 1.4, and TD reaches the ridge about 1.4 times earlier. Hence, the best batch moves from about 6 to about 5. There, AR reads \(1.7 + 22.8 \cdot (1 - (15/16)^5) \approx 8\)B parameters, so that</p>
+        <div class="eq">\[ \Gamma \approx \frac{\mathrm{TPF}}{\Pi} \approx \frac{17}{(24.5 + 0.74)/(8 + 0.74)} \approx \frac{17}{2.9} \approx 6. \]</div>
+        <p>The cost model, which also counts the cache, moves the best gain from 6.4 to 5.3.</p></details>
+</li>
+    <li>
+<p><b>Parity.</b> Without the cache and the matrix, parity is near batch 110 (Exercise 2, Question 4). Add the 1k cache, then the matrix: where is parity each time?</p>
+      <details class="answer"><summary>Solution</summary>
+        <p>At parity, AR commits \(b\) tokens in the time of one TD canvas. TD is compute-bound, so per sequence its canvas takes \(b\,F/\pi\), with \(F\) the FLOPs of one position over its 15 passes. AR is memory-bound, so per sequence its \(b\) steps take \(b\,\class{mj-ar}{Q^{\mathrm{AR}}}/\beta\), with \(\class{mj-ar}{Q^{\mathrm{AR}}}\) the bytes of one step. Hence, parity holds when</p>
+        <div class="eq">\[ \class{mj-ar}{Q^{\mathrm{AR}}} = \frac{F}{I^\star}, \]</div>
+        <p>and \(b\) cancels, as in Exercise 2. Now, at a 1k context, a sequence also reads 0.2 GB of window cache at intensity 2 and 0.02 GB of global cache at intensity 8. Hence, a pass costs \(6.2 + 0.4 + 0.16 \approx 6.8\) GFLOPs per position, and with the cache alone we have that</p>
+        <div class="eq">\[ F \approx 15 \cdot 6.8 \approx 102 \text{ GFLOPs}, \qquad \class{mj-ar}{Q^{\mathrm{AR}}} \approx \frac{49}{B} + 0.22 \text{ GB}. \]</div>
+        <p>Therefore, we get that</p>
+        <div class="eq">\[ \frac{49}{B} + 0.22 \approx \frac{102}{206} \approx 0.49 \quad\Longrightarrow\quad B \approx 180. \]</div>
+        <p>The window cache has intensity 2, below AR's linear intensity at these batches, so it lowers AR's average intensity (<a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/#prop2">Proposition 2</a>) and delays parity. Now, the matrix adds 27 applications of 1.5 GFLOPs to a TD position, and 1.5 GB to the bytes of an AR step. Hence, we have that</p>
+        <div class="eq">\[ F \approx 102 + 27 \cdot 1.5 \approx 143 \text{ GFLOPs}, \qquad \class{mj-ar}{Q^{\mathrm{AR}}} \approx \frac{50.5}{B} + 0.22 \text{ GB}, \]</div>
+        <p>and therefore</p>
+        <div class="eq">\[ \frac{50.5}{B} + 0.22 \approx \frac{143}{206} \approx 0.69 \quad\Longrightarrow\quad B \approx 107. \]</div>
+        <p>The cost model gives 181 with the cache alone and 110 with both. Hence, the cache and the matrix shift parity in opposite directions by similar amounts, and the agreement of Exercise 2, Question 4, with the map is a coincidence.</p></details>
 </li>
   </ol>
 
