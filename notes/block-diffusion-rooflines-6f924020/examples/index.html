@@ -588,22 +588,35 @@ While TD is memory bound, we have that the throughput gain is given by \(\Gamma 
     <li>
 <p><b>Large batch.</b> At a 1k context, can any batch make AR compute-bound?</p>
       <details class="answer"><summary>Solution</summary>
-        <p>The weights are shared by the batch, so their bytes per sequence vanish as \(B \to \infty\). On the other hand, the cache belongs to one sequence and stays. At 1k tokens, a sequence reads \(1\text{k} \cdot 131\,\text{kB} \approx 0.13\) GB of cache, which carries \(4 \cdot 0.13 \approx 0.5\) GFLOPs. Hence, an AR step costs, per sequence,</p>
-        <div class="eq">\[ \class{mj-ar}{F^{\mathrm{AR}}} \approx 2N_{\mathrm{act}} + 0.5 \approx 14.5 \text{ GFLOPs}, \qquad \class{mj-ar}{Q^{\mathrm{AR}}} \approx \frac{14}{B} + 0.13 \text{ GB}. \]</div>
-        <p>Hence, as \(B \to \infty\), we have that</p>
-        <div class="eq">\[ \class{mj-ar}{I^{\mathrm{AR}}} \to \frac{14.5}{0.13} \approx 110 \lt I^\star = 206. \]</div>
-        <p>Therefore, no batch makes AR compute-bound at this context (<a class="xref" href="/notes/block-diffusion-rooflines-6f924020/linear/#prop7">Proposition 9</a>). Since TD is compute-bound (Question 1), \(\Gamma = I^\star/(\omega \class{mj-ar}{I^{\mathrm{AR}}})\) keeps falling with the batch towards</p>
-        <div class="eq">\[ \Gamma \to \frac{206}{15 \cdot 110} \approx 0.12, \]</div>
-        <p>which is above the \(1/\omega \approx 0.07\) that a compute-bound AR would give (<a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/#cor1">Corollary 1</a> (1)). For instance, at batch 256, a sequence reads \(14/256 \approx 0.055\) GB of weights and 0.13 GB of cache for 14.5 GFLOPs. Hence, we get that</p>
-        <div class="eq">\[ \class{mj-ar}{I^{\mathrm{AR}}} \approx \frac{14.5}{0.185} \approx 78, \qquad \Gamma \approx \frac{206}{15 \cdot 78} \approx 0.18. \]</div>
-        <p>Finally, for a cache of \(Q_c\) bytes, AR can reach the ridge only if</p>
-        <div class="eq">\[ \frac{14 \text{ GFLOPs}}{Q_c} + 4 \gt 206 \quad\Longleftrightarrow\quad Q_c \lt 70 \text{ MB}, \]</div>
-        <p>that is, a context of about 530 tokens. On the map, the 1k column stays blue above batch 15.</p></details>
+
+      <p>First, we recall that for AR, we have that \(\class{mj-ar}{F^{AR}} = 2 B N_{act}\), since a step performs 2 FLOPs per active parameter and per token.
+      Regarding the bytes that need to be transferred, we have that for large batch \(\class{mj-ar}{Q^{AR}} \approx 2 \cdot 2 \cdot B C L h n_{kv} \).
+      The first 2 comes from the fact that we are storing both the keys and the values and the second 2 comes from the bf16 precision. 
+      We have that</p>
+
+      <p>\[ C L h n_{kv} \approx 1000 \cdot 32 \cdot 128 \cdot 8 \approx 3.3 \times 10^{7} ,\]</p>
+
+      <p>so that a sequence reads \(2 \cdot 2 \cdot 3.3 \times 10^{7} \approx 1.3 \times 10^{8}\) bytes of cache, i.e., 0.13 GB.
+      On the other hand, we have \(7 \times 10^9 \) parameters, which are shared by the batch: they add \(2 \cdot 7 \times 10^{9}/B\) bytes per sequence, which vanish as \(B \to \infty\), while the cache belongs to one sequence and stays.
+      Hence, \(\class{mj-ar}{I^{AR}}\) is non-decreasing in \(B\) (<a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/#lemma1">Lemma 1</a>), and its limit as \(B \to \infty\) bounds it at every batch.
+      Hence, we get that, for very large batches</p>
+
+      <p>\[\class{mj-ar}{I^{AR}} \to \frac{2 \cdot 7 \times 10^{9}}{1.3 \times 10^{8}} \approx 107 \lt I^\star .\]</p>
+
+      <p>Therefore, no batch makes AR compute bound at a 1k context.</p>
+
+        </details>
 </li>
   </ol>
 
   <h3 id="ex-vocab">Exercise 4: the vocabulary matrix</h3>
-  <p>We go back to DiffusionGemma on the H200, with \(b = 256\) and a 1k context. <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/#prop1">Proposition 1</a> ignores the vocabulary matrix (<a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/">Part 1</a>, What the formulas leave out). AR applies it once per committed token, as its head. TD applies it as the head of every denoising pass and, for self-conditioning, as a soft embedding in all but the first. The maps of this chapter count it.</p>
+  <p>We go back to DiffusionGemma on the H200, with \(b = 256\) and a 1k context. <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/#prop1">Proposition 1</a> ignores the vocabulary matrix (<a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/">Part 1</a>, What the formulas leave out). AR applies it once per committed token, as its head. TD applies it as the head of every denoising pass and, for self-conditioning, as a soft embedding in all but the first. The maps of this chapter count it, together with the logits and probabilities that these applications write to HBM and read back, \(\lambda\) times per position (<a class="xref" href="#figure-18">Figure 18</a>).</p>
+  <div class="bdr-fig wide" id="fig-logits">
+    <div class="fig-k" id="figure-18">Figure 18 · interactive</div>
+    <p class="fig-title">The logits of one position cross HBM twice in an AR step and five times in a denoising pass of DiffusionGemma.</p>
+    <div data-fig="logits"></div>
+    <p class="fig-cap">Each arrow is one move of a vector of \(V\) numbers between a kernel and HBM, counted at 4 bytes per number as in the exact accounting of <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/calculator/">Part 3</a>; \(\lambda\) is the number of arrows per output position. Self-conditioning adds the three moves of the next pass: its softmax reads the logits \(\ell\) and writes the probabilities \(p\), and its soft embedding reads \(p\). The softmax and the soft embedding run in 13 of the 14 denoising passes, so a canvas makes 67 moves per position; the cost model charges \(\class{mj-td}{\lambda^{\mathrm{TD}}} = 5\) to all 14 passes, i.e., 70.</p>
+  </div>
   <ol class="exercise">
     <li>
 <p><b>The cost of the matrix.</b> How many FLOPs and bytes does the matrix add to a TD position and to an AR token? Which decoder does it slow down, and when?</p>
@@ -612,9 +625,11 @@ While TD is memory bound, we have that the throughput gain is given by \(\Gamma 
         <div class="eq">\[ 2Vd \approx 1.5 \text{ GFLOPs}, \]</div>
         <p>i.e., 24% of the \(2N_{\mathrm{act}} \approx 6.2\) GFLOPs of the rest of the network. A TD position goes through \(\omega = 15\) passes, but it meets the matrix \(2S - 1 = 27\) times: as the head of the 14 denoising passes, and as the soft embedding of self-conditioning in 13 of them. Hence, the FLOPs of a TD position grow by a factor</p>
         <div class="eq">\[ 1 + \frac{27 \cdot 0.24}{15} \approx 1.43. \]</div>
-        <p>On the other hand, the matrix holds \(Vd \approx 0.74\)B parameters, i.e., 1.5 GB, read once per pass and shared by the batch. A TD pass already reads about 49 GB, so its bytes barely change. An AR step reads \(\class{mj-ar}{W^{\mathrm{AR}}}(B)\) parameters, so its bytes grow by a factor</p>
+        <p>On the other hand, the matrix holds \(Vd \approx 0.74\)B parameters, i.e., 1.5 GB, read once per pass and shared by the batch. In addition, its applications write and read vectors of \(V\) numbers, \(\lambda\) times per position (<a class="xref" href="#figure-18">Figure 18</a>): 1.34 GB per sequence for a TD pass, and 2.1 MB per token for an AR step. A TD pass already reads about 49 GB of weights, so its bytes grow by a factor</p>
+        <div class="eq">\[ 1 + \frac{1.5 + 1.34\,B}{49}, \]</div>
+        <p>with the bytes in GB, i.e., 1.06 at batch 1 and 1.17 at batch 5. An AR step reads \(\class{mj-ar}{W^{\mathrm{AR}}}(B)\) parameters and its logits are negligible, so its bytes grow by a factor</p>
         <div class="eq">\[ 1 + \frac{0.74}{\class{mj-ar}{W^{\mathrm{AR}}}(B)}, \]</div>
-        <p>with \(\class{mj-ar}{W^{\mathrm{AR}}}\) in billions. Therefore, the matrix slows TD only where TD is compute-bound, by about 1.43, and it slows AR, which is memory-bound, at every batch, by a factor between 1.2 at batch 1 and 1.03 once AR reads all 24.5B parameters.</p></details>
+        <p>with \(\class{mj-ar}{W^{\mathrm{AR}}}\) in billions. Therefore, the matrix slows TD by about 1.43 where TD is compute-bound and by 1.06–1.17 where it is memory-bound, and it slows AR, which is memory-bound, at every batch, by a factor between 1.2 at batch 1 and 1.03 once AR reads all 24.5B parameters.</p></details>
 </li>
     <li>
 <p><b>Where <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/#prop1">Proposition 1</a> overstates the gain.</b> By how much does <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/#prop1">Proposition 1</a> overstate \(\Gamma\) above the best batch, and what happens below it? How do the best batch and the best gain of Exercise 1 change?</p>
@@ -622,11 +637,11 @@ While TD is memory bound, we have that the throughput gain is given by \(\Gamma 
         <p>Above \(\class{mj-td}{B^{\mathrm{TD}}_\star}\), TD is compute-bound and AR memory-bound. Hence, TD's time grows by 1.43 and AR's by \(1 + 0.74/\class{mj-ar}{W^{\mathrm{AR}}}(B)\), and <a class="xref" href="/notes/block-diffusion-rooflines-6f924020/setup/#prop1">Proposition 1</a> overstates \(\Gamma\) by</p>
         <div class="eq">\[ \frac{1.43}{1 + 0.74/\class{mj-ar}{W^{\mathrm{AR}}}(B)}. \]</div>
         <p>At batch 6, AR reads about 9B parameters, so the factor is \(1.43/1.08 \approx 1.3\). Once AR reads all 24.5B parameters, it is \(1.43/1.03 \approx 1.4\). The cost model gives 1.29 at batch 6 and 1.36 at batch 110.</p>
-        <p>Below \(\class{mj-td}{B^{\mathrm{TD}}_\star}\), both passes are memory-bound and \(\Gamma = \mathrm{TPF}/\Pi\). Now, the matrix adds the same 0.74B parameters to the bytes of both passes, so it lowers the penalty. For instance, at batch 1, we have that</p>
-        <div class="eq">\[ \Pi \approx \frac{24.5}{3.1} \approx 7.9 \quad\longrightarrow\quad \Pi \approx \frac{24.5 + 0.74}{3.1 + 0.74} \approx 6.6. \]</div>
-        <p>Hence, at batch 1 the omission understates \(\Gamma\), by a factor \(7.9/6.6 \approx 1.2\). The cost model gives 1.14, since the cache also adds bytes to both passes.</p>
-        <p>Finally, the matrix raises TD's FLOPs by 1.43 and its bytes by 3%, so TD's intensity grows by about 1.4, and TD reaches the ridge about 1.4 times earlier. Hence, the best batch moves from about 6 to about 5. There, AR reads \(1.7 + 22.8 \cdot (1 - (15/16)^5) \approx 8\)B parameters, so that</p>
-        <div class="eq">\[ \Gamma \approx \frac{\mathrm{TPF}}{\Pi} \approx \frac{17}{(24.5 + 0.74)/(8 + 0.74)} \approx \frac{17}{2.9} \approx 6. \]</div>
+        <p>Below \(\class{mj-td}{B^{\mathrm{TD}}_\star}\), both passes are memory-bound and \(\Gamma = \mathrm{TPF}/\Pi\). Now, the matrix adds the same 0.74B parameters to the bytes of both passes, and the logits of a TD pass add 1.34 GB per sequence, as much as 0.67B parameters. Hence, the penalty falls. For instance, at batch 1, we have that</p>
+        <div class="eq">\[ \Pi \approx \frac{24.5}{3.1} \approx 7.9 \quad\longrightarrow\quad \Pi \approx \frac{24.5 + 0.74 + 0.67}{3.1 + 0.74} \approx 6.7. \]</div>
+        <p>Hence, at batch 1 the omission understates \(\Gamma\), by a factor \(7.9/6.7 \approx 1.2\). The cost model gives 1.14, since the cache also adds bytes to both passes.</p>
+        <p>Finally, near batch 5 the matrix raises TD's FLOPs by 1.43 and its bytes by 1.17, so TD's intensity grows by about 1.2, and TD reaches the ridge about 1.2 times earlier. Hence, the best batch moves from about 6 to about 5. There, AR reads \(1.7 + 22.8 \cdot (1 - (15/16)^5) \approx 8\)B parameters, and the logits of a TD pass are worth \(5 \cdot 0.67 \approx 3.4\)B parameters, so that</p>
+        <div class="eq">\[ \Gamma \approx \frac{\mathrm{TPF}}{\Pi} \approx \frac{17}{(24.5 + 0.74 + 3.4)/(8 + 0.74)} \approx \frac{17}{3.3} \approx 5.2. \]</div>
         <p>The cost model, which also counts the cache, moves the best gain from 6.4 to 5.3.</p></details>
 </li>
     <li>
@@ -741,7 +756,7 @@ While TD is memory bound, we have that the throughput gain is given by \(\Gamma 
 
   
   
-    Last updated: November 27, 2026.
+    Last updated: November 28, 2026.
   
 
     </div>
