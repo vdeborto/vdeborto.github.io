@@ -45,6 +45,7 @@ from the sitemap (_config.yml defaults for notes/). Usage:
     python3 -I bin/build-roofline.py      (exit 1 if an anchor is missing)
 then preview, commit and push.
 """
+import hashlib
 import html
 import json
 import re
@@ -333,7 +334,25 @@ def add_symbols(body):
 outputs = {}
 
 
+ASSET = re.compile(r'((?:src|href)="/assets/roofline/([\w.-]+\.(?:js|css)))"')
+
+
+def asset_versions():
+    """Tag every /assets/roofline/ link of the pages with a hash of the file (?v=...), so that a browser
+    loads the new file after a change instead of its cached copy (GitHub Pages lets it keep one 10 min)."""
+    def ver(m):
+        path = ROOT / "assets" / "roofline" / m.group(2)
+        text = outputs.get(path)
+        if text is None:
+            text = path.read_text()
+        return f'{m.group(1)}?v={hashlib.sha1(text.encode()).hexdigest()[:10]}"'
+    for path, text in outputs.items():
+        if path.suffix == ".html" and BOOK in path.parents:
+            outputs[path] = ASSET.sub(ver, text)
+
+
 def write_outputs():
+    asset_versions()
     changed = 0
     for path, text in outputs.items():
         try:
