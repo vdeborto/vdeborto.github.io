@@ -56,6 +56,6 @@ Proposition 1 has two inputs that Parts 1–4 do not measure: the accelerator's 
 <!-- intro:stack -->
 Part 5 gives a roofline time for each component of a forward pass; comparing it with the GPU needs a measured time for the same components. This chapter describes how roofscope splits the measured time of a pass in vLLM into these components, and the three defects of the stock engine, and one of the harness, that the measurements exposed.
 <!-- intro:kernels -->
-With the engine fixed, two components of TD's step remain far below their rooflines: the routed experts, and global attention at head dimension 512. This chapter explains why each loses time, rewrites both, and measures what the rewrites change in efficiency, throughput and quality. It adds a few hardware terms to those of Part 6.
+With the engine fixed, two components of TD's step remain far below their rooflines: the routed experts, and global attention at head dimension 512. This chapter explains why each loses time, rewrites both, and measures what the rewrites change in efficiency, throughput and quality. It ends by comparing the measured gain with the bound of Part 5: their ratio is the ratio of the two decoders' efficiencies. It adds a few hardware terms to those of Part 6.
 <!-- intro:conclusion -->
-With the bound of Part 5 and the measurements of Parts 6 and 7, we compare the measured gain with the bound at measured inputs: their ratio is the ratio of the two decoders' efficiencies. We then state what the roofline model gets right, what it needs, and what remains open.
+We state what the bound and the measurements of the previous chapters establish, then the limitations of this study and the open problems they leave.

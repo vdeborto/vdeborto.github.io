@@ -56,3 +56,10 @@
     <p class="fig-title">Penalty as a function of context.</p>
     <div data-fig="sparse"></div>
   </div>
+<!-- fig:logits -->
+  <div class="bdr-fig wide" id="fig-logits">
+    <div class="fig-k">Figure 18 · interactive</div>
+    <p class="fig-title">The logits of one position cross HBM twice in an AR step and five times in a denoising pass of DiffusionGemma.</p>
+    <div data-fig="logits"></div>
+    <p class="fig-cap">Each arrow is one move of a vector of \(V\) numbers between a kernel and HBM, counted at 4 bytes per number as in the exact accounting of Part 3; \(\lambda\) is the number of arrows per output position. Self-conditioning adds the three moves of the next pass: its softmax reads the logits \(\ell\) and writes the probabilities \(p\), and its soft embedding reads \(p\). The softmax and the soft embedding run in 13 of the 14 denoising passes, so a canvas makes 67 moves per position; the cost model charges \(\lambda^{\mathrm{TD}} = 5\) to all 14 passes, i.e., 70.</p>
+  </div>

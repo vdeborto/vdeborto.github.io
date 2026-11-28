@@ -743,10 +743,114 @@
     sync();
   });
 
+
+  // ---------------------------------------------------------------- the logit traffic λ of the exact accounting
+  // One output position: each arrow moves a vector of V numbers between a kernel and HBM. AR: the head writes the
+  // logits, the sampler reads them (λ = 2). DiffusionGemma: the next pass's self-conditioning reads the logits again,
+  // writes their softmax and reads it back to form the soft embedding (λ = 5).
+  function figLogits(root) {
+    const V = DG.V, MB = (V * 4) / 1e6;
+    const lE = '<tspan font-style="italic">E</tspan><tspan baseline-shift="super" font-size="0.75em">⊤</tspan>';
+    const K = {
+      head: { name: 'head', f: `ℓ = <tspan font-style="italic">h</tspan>${lE}` },
+      samp: { name: 'sampler', f: 'draws from ℓ', fn: 'x ∼ ℓ' },
+      soft: { name: 'softmax', f: 'p = softmax(ℓ)', fn: 'p ∝ exp ℓ' },
+      emb: { name: 'soft embedding', short: 'embed', f: `<tspan font-style="italic">e</tspan> = p<tspan font-style="italic">E</tspan>` },
+    };
+    const MODES = {
+      ar: { col: 'ar', who: 'AR step', groups: [['one step', ['head', 'samp']]],
+        moves: [['head', 'w', 'ℓ', 'The head applies the vocabulary matrix to the last hidden state and writes the logits ℓ of the position to HBM.'],
+                ['samp', 'r', 'ℓ', 'The sampler reads ℓ and draws the next token.']] },
+      td0: { col: 'td', who: 'denoising pass, no self-conditioning', groups: [['pass j', ['head', 'samp']]],
+        moves: [['head', 'w', 'ℓ', 'The head writes the logits ℓ of the canvas position to HBM.'],
+                ['samp', 'r', 'ℓ', 'The sampler reads ℓ and updates the token at this position.']] },
+      td: { col: 'td', who: 'denoising pass with self-conditioning', groups: [['pass j', ['head', 'samp']], ['pass j + 1', ['soft', 'emb']]],
+        moves: [['head', 'w', 'ℓ', 'The head writes the logits ℓ of the canvas position to HBM.'],
+                ['samp', 'r', 'ℓ', 'The sampler reads ℓ and updates the token at this position.'],
+                ['soft', 'r', 'ℓ', 'Self-conditioning: the next pass reads ℓ again to take its softmax.'],
+                ['soft', 'w', 'p', 'It writes the probabilities p, again V numbers, to HBM.'],
+                ['emb', 'r', 'p', 'The soft embedding reads p and multiplies it by the embedding matrix, which gives the d numbers added to the input of the next pass.']] },
+    };
+    const st = { mode: 'td', t: 0, timer: 0 };
+    const btns = el('<div class="seg" role="group" aria-label="animation"><button type="button" class="fig-btn primary" data-a="play">Play</button><button type="button" class="fig-btn" data-a="step">Step</button><button type="button" class="fig-btn" data-a="reset">Reset</button></div>');
+    const modes = segLabel('decoder', seg([['ar', 'AR'], ['td0', 'TD, no self-conditioning'], ['td', 'TD (DiffusionGemma)']], st.mode, (v) => { st.mode = v; reset(); }));
+    const ctl = el('<div class="fig-controls"></div>');
+    ctl.append(modes, btns);
+    const pic = el('<div></div>'), out = el('<div class="readout" aria-live="polite"></div>');
+    root.append(ctl, pic, out);
+    const n = () => MODES[st.mode].moves.length;
+    const stop = () => { clearInterval(st.timer); st.timer = 0; btns.querySelector('[data-a=play]').textContent = st.t >= n() ? 'Replay' : 'Play'; };
+    const step = () => { if (st.t < n()) st.t += 1; draw(); if (st.t >= n()) stop(); };
+    function reset() { stop(); st.t = 0; btns.querySelector('[data-a=play]').textContent = 'Play'; draw(); }
+    btns.addEventListener('click', (ev) => {
+      const a = ev.target.dataset && ev.target.dataset.a; if (!a) return;
+      if (a === 'reset') reset();
+      if (a === 'step') { stop(); step(); }
+      if (a === 'play') {
+        if (st.timer) { stop(); return; }
+        if (st.t >= n()) st.t = 0;
+        const dt = matchMedia('(prefers-reduced-motion: reduce)').matches ? 1600 : 1100;
+        st.timer = setInterval(step, dt); ev.target.textContent = 'Pause'; step();
+      }
+    });
+    function draw() {
+      const c = colors(), W = widthOf(pic), md = MODES[st.mode], col = c[md.col], t = st.t;
+      const narrow = W < 520, x0 = 6, x1 = W - 6;
+      const kernels = md.groups.flatMap(([, ks]) => ks);
+      const nk = 4, gap = narrow ? 8 : 16, bw = (x1 - x0 - (nk - 1) * gap) / nk; // always four slots, so the boxes keep their size
+      const off = (W - (kernels.length * bw + (kernels.length - 1) * gap)) / 2;
+      const kx = (i) => off + i * (bw + gap);
+      const yG = 14, yK = 30, hK = 50, yM = yK + hK, yH = 160, hH = 34;
+      let s = '';
+      // pass brackets
+      let i0 = 0;
+      for (const [label, ks] of md.groups) {
+        const a = kx(i0), b = kx(i0 + ks.length - 1) + bw;
+        s += `<text x="${(a + b) / 2}" y="${yG}" text-anchor="middle">${label}</text>`;
+        s += `<path d="M${a} ${yG + 9}V${yG + 5}H${b}V${yG + 9}" fill="none" stroke="${c.muted}" stroke-width="1"/>`;
+        i0 += ks.length;
+      }
+      // kernels
+      kernels.forEach((k, i) => {
+        const x = kx(i), used = md.moves.some((m, j) => m[0] === k && j < t);
+        s += `<rect x="${x}" y="${yK}" width="${bw}" height="${hK}" rx="5" fill="${c.surface}" stroke="${used ? col : c.muted}" stroke-width="${used ? 1.6 : 1}"/>`;
+        s += `<text x="${x + bw / 2}" y="${yK + 20}" text-anchor="middle" class="ink" font-weight="600">${narrow && K[k].short ? K[k].short : K[k].name}</text>`;
+        s += `<text x="${x + bw / 2}" y="${yK + 38}" text-anchor="middle">${narrow && K[k].fn ? K[k].fn : K[k].f}</text>`;
+      });
+      // HBM
+      s += `<rect x="${x0}" y="${yH}" width="${x1 - x0}" height="${hH}" rx="4" fill="${c.soft}" stroke="${c.muted}" stroke-width="1"/>`;
+      s += `<text x="${x0 + 8}" y="${yH + hH - 9}" class="ink" font-weight="600">HBM</text>`;
+      // moves: one vertical arrow per move, under its kernel (two moves of one kernel side by side)
+      md.moves.forEach(([k, dir, ten], j) => {
+        const i = kernels.indexOf(k), same = md.moves.filter((m) => m[0] === k), r = same.indexOf(md.moves[j]);
+        const x = kx(i) + bw * (same.length === 1 ? 0.5 : r === 0 ? 0.3 : 0.7);
+        const on = j < t, cur = j === t - 1, stroke = on ? col : c.muted;
+        const ya = yM + 2, yb = yH - 2, tip = dir === 'w' ? yb : ya, sgn = dir === 'w' ? -1 : 1;
+        s += `<line x1="${x}" y1="${ya}" x2="${x}" y2="${yb}" stroke="${stroke}" stroke-width="${cur ? 2.6 : on ? 1.8 : 1}" ${on ? '' : 'stroke-dasharray="3 3"'} opacity="${on ? 1 : 0.6}"/>`;
+        s += `<path d="M${x - 5} ${tip + sgn * 8}L${x} ${tip}L${x + 5} ${tip + sgn * 8}Z" fill="${stroke}" opacity="${on ? 1 : 0.6}"/>`;
+        s += `<text x="${x + 6}" y="${(ya + yb) / 2 + 4}" font-weight="${cur ? 600 : 400}" ${on ? `style="fill:${col}"` : ''}>${j + 1}</text>`;
+        s += `<text x="${x}" y="${yH + 14}" text-anchor="middle" font-style="italic" ${on ? 'class="ink"' : ''}>${ten}</text>`;
+      });
+      const H = yH + hH + 4;
+      pic.innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${md.who}: ${t} of ${n()} moves of a vocabulary-sized vector between a kernel and HBM">${s}</svg>`;
+      const lam = `<i>λ</i><sup>${md.col === 'ar' ? 'AR' : 'TD'}</sup>`;
+      const per = `${fmt(n() * MB)} MB`;
+      const tail = st.mode === 'ar'
+        ? `${lam} = <b>2</b>: ${per} per generated token.`
+        : st.mode === 'td0'
+          ? `${lam} = <b>2</b> for a TD twin without self-conditioning: ${per} per position and pass.`
+          : `${lam} = <b>5</b>: ${per} per position and pass, i.e., ${fmt((n() * MB * W0.b) / 1e3)} GB per sequence for a canvas of ${W0.b} positions, about as much as the ${fmt((DG.V * DG.d * 2) / 1e9)} GB of the vocabulary matrix that the pass reads once for the whole batch.`;
+      out.innerHTML = t === 0
+        ? `<span class="${md.col}">${md.who[0].toUpperCase() + md.who.slice(1)}</span>, one output position. Each arrow moves <i>V</i> = ${comma(V)} numbers, ${fmt(MB)} MB in FP32: down into HBM is a write, up out of it a read. Press Play or Step.`
+        : `<b>Move ${t} of ${n()}, ${md.moves[t - 1][1] === 'w' ? 'write' : 'read'} <i>${md.moves[t - 1][2]}</i>.</b> ${md.moves[t - 1][3]}${t === n() ? `<br>${tail}` : ''}`;
+    }
+    reset(); onTheme(draw); watchWidth(pic, draw);
+  }
+
   // ---------------------------------------------------------------- mount
   const FIGS = {
     reuse: figReuse, roofline: figRoofline, context: figContext, accel: figAccel,
-    weights: figWeights, linmap: figLinMap, attnread: figAttnRead, sparse: figSparse,
+    weights: figWeights, linmap: figLinMap, attnread: figAttnRead, sparse: figSparse, logits: figLogits,
   };
   document.querySelectorAll('[data-fig]').forEach((root) => {
     try { FIGS[root.dataset.fig](root); } catch (e) { root.textContent = 'This figure failed to load.'; console.error(e); }

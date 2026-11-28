@@ -62,7 +62,7 @@ BASE = f"/notes/{SLUG}/"
 TITLE = "Block Diffusion Rooflines"
 # (page slug, part number, title, source element id, one-line description); "" is the first page.
 CHAPTERS = [
-    ("", "0", "Introduction", "intro", "why the question matters, the mental model, rooflines and gains, how the blogpost is organised and the measurement setting."),
+    ("", "0", "Introduction", "intro", "why the question matters, the mental model, rooflines and gains, the measurement setting, related work and how the blogpost is organised."),
     ("summary", "", "Summary", "tldr", "the main formula, four takeaways, the three possible regimes, and the hyperparameters that move the gain."),
     ("setup", "1", "Setup and the gain", "setup", "notation, costs, intensities and penalties; Proposition 1, what the formulas leave out, which side wins and the best batch, and the split of each intensity into a linear part and an attention part."),
     ("linear", "2", "Weights and cache", "linear", "the expert and linear penalties and the gain when the linear layers dominate; dense, windowed and sparse attention, the selection penalty as the twin of the expert penalty, and the gain when attention dominates; the batch that saturates compute at any context."),
@@ -70,8 +70,8 @@ CHAPTERS = [
     ("examples", "4", "Exercises", "examples", "three exercises with folded solutions: a smaller canvas, a dense model, a low-ridge accelerator."),
     ("effective", "5", "Empirical rooflines", "effective", "the ceilings one H200 sustains, the experts each decoder actually touches, and the bound they give."),
     ("stack", "6", "The measurement stack", "stack", "how every kernel of a step is timed and attributed, three defects of the stock engine and one of the harness, and where the stock kernels stand."),
-    ("kernels", "7", "Kernels", "kernelwork", "two rewrites, of the experts and of global attention, and what they change in efficiency, throughput and quality."),
-    ("conclusion", "8", "Conclusion", "conclusion", "the bound against the measurement, what the roofline gets right, limitations, code and data, sources, related work, open problems."),
+    ("kernels", "7", "Kernels", "kernelwork", "two rewrites, of the experts and of global attention, what they change in efficiency, throughput and quality, and the measured gain against the bound."),
+    ("conclusion", "8", "Conclusion", "conclusion", "what we found, limitations and open problems, code and sources."),
     ("symbols", "A", "Symbols", "symbols", "every symbol, its meaning and where it is defined."),  # made by add_symbols
 ]
 # Citation, and the comment threads (ids from https://giscus.app for the repository and category).
@@ -580,7 +580,7 @@ def link_references(pages):
                 word = m.group(1)
                 kind = next(k for k in ("Figure", "Table", "Proposition", "Definition", "Corollary", "Remark", "Lemma", "Part") if word.startswith(k))
                 nums = num.findall(m.group(2))
-                if len(nums) == 1:  # "Figure 22": the whole reference is the link
+                if len(nums) == 1:  # "Figure 23": the whole reference is the link
                     h = href_of(kind, int(nums[0]))
                     return f'<a class="xref" href="{h}">{m.group(0)}</a>' if h else m.group(0)
                 def one(mm):
