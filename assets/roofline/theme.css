@@ -232,14 +232,25 @@ html { scroll-behavior: smooth; }
 }
 
 /* ---------------------------------------------------------------- contents sheet (below 1200px) */
-.rail-fab, .rail-backdrop { display: none; }
+.rail-dock, .rail-backdrop, .rail-subtoggle { display: none; }
 @media (max-width: 1199.98px) {
-  .rail-fab {
-    display: inline-flex; gap: 8px; align-items: center; position: fixed; z-index: 1035; left: 16px; bottom: calc(16px + env(safe-area-inset-bottom, 0px));
-    font: 500 12.5px "IBM Plex Mono", ui-monospace, monospace; letter-spacing: .03em; padding: 9px 14px; border-radius: 999px;
-    background: var(--accent); color: var(--bdr-bg); border: none; cursor: pointer;
+  /* dock: [‹ Prev] [Contents n%] [Next ›], one pill centred at the bottom of the screen */
+  .rail-dock {
+    display: flex; position: fixed; z-index: 1035; left: 50%; transform: translateX(-50%); bottom: calc(14px + env(safe-area-inset-bottom, 0px));
+    border-radius: 999px; overflow: hidden; background: var(--accent); box-shadow: 0 2px 10px rgba(0, 0, 0, .25); white-space: nowrap;
   }
+  .rail-fab, .rail-dock .rail-step {
+    display: inline-flex; gap: 8px; align-items: center; min-height: 40px;
+    font: 500 12.5px "IBM Plex Mono", ui-monospace, monospace; letter-spacing: .03em; padding: 0 14px;
+    background: transparent; color: var(--bdr-bg); border: none; cursor: pointer; text-decoration: none;
+  }
+  .rail-dock .rail-step { padding: 0 13px; }
+  .rail-dock .rail-step.prev { border-right: 1px solid color-mix(in srgb, var(--bdr-bg) 35%, transparent); }
+  .rail-dock .rail-step.next { border-left: 1px solid color-mix(in srgb, var(--bdr-bg) 35%, transparent); }
+  .rail-dock .rail-step:hover, .rail-dock .rail-step:active, .rail-fab:active { background: rgba(255, 255, 255, .12); }
   .rail-fab span { opacity: .75; }
+  .bdr-rail:not(.subs-open) .rail-sub { display: none; }
+  .bdr-rail .rail-subtoggle { display: block; margin: 0 0 4px 14px; padding: 4px 0; background: none; border: none; cursor: pointer; font: 12.5px "IBM Plex Mono", ui-monospace, monospace; color: var(--accent); }
   .rail-backdrop:not([hidden]) { display: block; position: fixed; inset: 0; z-index: 1039; background: rgba(0, 0, 0, .35); }
   .bdr-rail.open {
     display: block; position: fixed; z-index: 1040; left: 0; right: 0; bottom: 0; max-height: 72vh; overflow-y: auto;
@@ -258,7 +269,7 @@ html { scroll-behavior: smooth; }
   .bdr-rail ol.sub a { padding: 5px 0 5px 26px; font-size: 13px; color: var(--bdr-muted); }
   .bdr-rail ol.sub a.fig { color: var(--accent); }
 }
-@media print { .rail-fab, .rail-backdrop, .sym-key { display: none !important; } }
+@media print { .rail-dock, .rail-backdrop, .sym-key { display: none !important; } }
 
 /* ---------------------------------------------------------------- book: part line, contents, previous / next */
 .bdr .book-part { font: 13px/1.5 var(--bdr-font-ui); color: var(--bdr-muted); margin: -0.4rem 0 1rem; }

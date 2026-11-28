@@ -67,17 +67,35 @@
         subLinks.push([h, li.firstChild, parent.firstChild]);
       }
     }
-    ol.querySelector('li.current').appendChild(sub);
+    const curLi = ol.querySelector('li.current');
+    // In the sheet (small screens) the sections are folded behind this toggle, so that every chapter fits.
+    const tog = el(`<button type="button" class="rail-subtoggle" aria-expanded="false">Sections (${sub.children.length}) \u25be</button>`);
+    tog.addEventListener('click', () => { const on = !rail.classList.contains('subs-open'); rail.classList.toggle('subs-open', on); tog.setAttribute('aria-expanded', String(on)); });
+    curLi.append(tog, sub);
   }
   function spy() {
     let cur = null;
     for (const s of subLinks) if (s[0].getBoundingClientRect().top < 140) cur = s;
     for (const [, a] of subLinks) a.classList.toggle('on', !!cur && (a === cur[1] || a === cur[2]));
   }
+  // Below 1200px the rail is a sheet, opened by the Contents button of a dock at the bottom of the
+  // screen; the dock's arrows go to the previous and next chapter in one tap.
   const fab = el('<button type="button" class="rail-fab" aria-expanded="false" aria-controls="bdr-contents">Contents <span></span></button>');
+  const dock = el('<div class="rail-dock"></div>');
+  const at = here ? chapters.indexOf(here) : -1;
+  const step = (c, rel, text) => {
+    const a = el(`<a class="rail-step ${rel}" rel="${rel}" href="${c.url}"></a>`);
+    a.textContent = text;
+    a.setAttribute('aria-label', `${rel === 'prev' ? 'Previous' : 'Next'} chapter: ${labelOf(c)}`);
+    a.title = labelOf(c);
+    return a;
+  };
+  if (at > 0) dock.appendChild(step(chapters[at - 1], 'prev', '\u2039 Prev'));
+  dock.appendChild(fab);
+  if (at >= 0 && at + 1 < chapters.length) dock.appendChild(step(chapters[at + 1], 'next', 'Next \u203a'));
   const backdrop = el('<div class="rail-backdrop" hidden></div>');
   rail.id = 'bdr-contents';
-  document.body.append(backdrop, rail, fab);
+  document.body.append(backdrop, rail, dock);
   const setSheet = (on) => { rail.classList.toggle('open', on); backdrop.hidden = !on; fab.setAttribute('aria-expanded', String(on)); };
   fab.addEventListener('click', () => setSheet(!rail.classList.contains('open')));
   backdrop.addEventListener('click', () => setSheet(false));
