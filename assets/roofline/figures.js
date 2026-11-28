@@ -761,9 +761,6 @@
       ar: { col: 'ar', who: 'AR step', groups: [['one step', ['head', 'samp']]],
         moves: [['head', 'w', 'ℓ', 'The head applies the vocabulary matrix to the last hidden state and writes the logits ℓ of the position to HBM.'],
                 ['samp', 'r', 'ℓ', 'The sampler reads ℓ and draws the next token.']] },
-      td0: { col: 'td', who: 'denoising pass, no self-conditioning', groups: [['pass j', ['head', 'samp']]],
-        moves: [['head', 'w', 'ℓ', 'The head writes the logits ℓ of the canvas position to HBM.'],
-                ['samp', 'r', 'ℓ', 'The sampler reads ℓ and updates the token at this position.']] },
       td: { col: 'td', who: 'denoising pass with self-conditioning', groups: [['pass j', ['head', 'samp']], ['pass j + 1', ['soft', 'emb']]],
         moves: [['head', 'w', 'ℓ', 'The head writes the logits ℓ of the canvas position to HBM.'],
                 ['samp', 'r', 'ℓ', 'The sampler reads ℓ and updates the token at this position.'],
@@ -773,7 +770,7 @@
     };
     const st = { mode: 'td', t: 0, timer: 0 };
     const btns = el('<div class="seg" role="group" aria-label="animation"><button type="button" class="fig-btn primary" data-a="play">Play</button><button type="button" class="fig-btn" data-a="step">Step</button><button type="button" class="fig-btn" data-a="reset">Reset</button></div>');
-    const modes = segLabel('decoder', seg([['ar', 'AR'], ['td0', 'TD, no self-conditioning'], ['td', 'TD (DiffusionGemma)']], st.mode, (v) => { st.mode = v; reset(); }));
+    const modes = segLabel('decoder', seg([['ar', 'AR'], ['td', 'TD']], st.mode, (v) => { st.mode = v; reset(); }));
     const ctl = el('<div class="fig-controls"></div>');
     ctl.append(modes, btns);
     const pic = el('<div></div>'), out = el('<div class="readout" aria-live="polite"></div>');
@@ -837,9 +834,7 @@
       const per = `${fmt(n() * MB)} MB`;
       const tail = st.mode === 'ar'
         ? `${lam} = <b>2</b>: ${per} per generated token.`
-        : st.mode === 'td0'
-          ? `${lam} = <b>2</b> for a TD twin without self-conditioning: ${per} per position and pass.`
-          : `${lam} = <b>5</b>: ${per} per position and pass, i.e., ${fmt((n() * MB * W0.b) / 1e3)} GB per sequence for a canvas of ${W0.b} positions, about as much as the ${fmt((DG.V * DG.d * 2) / 1e9)} GB of the vocabulary matrix that the pass reads once for the whole batch.`;
+        : `${lam} = <b>5</b>: ${per} per position and pass, i.e., ${fmt((n() * MB * W0.b) / 1e3)} GB per sequence for a canvas of ${W0.b} positions, about as much as the ${fmt((DG.V * DG.d * 2) / 1e9)} GB of the vocabulary matrix that the pass reads once for the whole batch.`;
       out.innerHTML = t === 0
         ? `<span class="${md.col}">${md.who[0].toUpperCase() + md.who.slice(1)}</span>, one output position. Each arrow moves <i>V</i> = ${comma(V)} numbers, ${fmt(MB)} MB in FP32: down into HBM is a write, up out of it a read. Press Play or Step.`
         : `<b>Move ${t} of ${n()}, ${md.moves[t - 1][1] === 'w' ? 'write' : 'read'} <i>${md.moves[t - 1][2]}</i>.</b> ${md.moves[t - 1][3]}${t === n() ? `<br>${tail}` : ''}`;
